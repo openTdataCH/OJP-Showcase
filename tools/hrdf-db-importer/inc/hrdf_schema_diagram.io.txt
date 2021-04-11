@@ -1,0 +1,51 @@
+// URL - https://dbdiagram.io/d/5fec775180d742080a349c5a
+// Used in - https://github.com/openTdataCH/OJP-Showcase/
+
+Table agency {
+  agency_id text [pk]
+}
+
+Table calendar {
+  service_id text [pk]
+  start_date text
+  end_date text
+  day_bits text
+}
+
+Table fplan {
+  row_idx integer [pk]
+  agency_id TEXT
+}
+
+Table fplan_stop_times {
+  fplan_trip_bitfeld_id text
+  stop_id text
+  stop_arrival text
+  stop_departure text
+  gleis_id text
+}
+
+Table fplan_trip_bitfeld {
+  fplan_trip_bitfeld_id text [pk]
+  fplan_row_idx integer
+  service_id text
+}
+
+Table gleis {
+  gleis_id text [pk]
+}
+
+Table stops {
+  stop_id text [pk]
+  stop_name text
+  stop_lat float
+  stop_lon float
+  stop_altitude integer
+}
+
+Ref: agency.agency_id < fplan.agency_id
+Ref: fplan.row_idx < fplan_trip_bitfeld.fplan_row_idx
+Ref: calendar.service_id < fplan_trip_bitfeld.service_id
+Ref: fplan_trip_bitfeld.fplan_trip_bitfeld_id < fplan_stop_times.fplan_trip_bitfeld_id
+Ref: stops.stop_id < fplan_stop_times.stop_id
+Ref: gleis.gleis_id < fplan_stop_times.gleis_id

@@ -1,0 +1,97 @@
+tables:
+    agency:
+        columns:
+            - agency_id TEXT PRIMARY KEY
+            - agency_name TEXT
+            - agency_url TEXT
+            - agency_timezone TEXT
+            - agency_lang TEXT
+            - agency_phone TEXT
+
+    calendar:
+        columns:
+            - service_id TEXT PRIMARY KEY
+            - monday INTEGER
+            - tuesday INTEGER
+            - wednesday INTEGER
+            - thursday INTEGER
+            - friday INTEGER
+            - saturday INTEGER
+            - sunday INTEGER
+            - start_date TEXT
+            - end_date TEXT
+            - day_bits TEXT # similar with HRDF
+
+    # This is imported just to keep the GTFS reference
+    # For the service_id availability we use day_bits in calendar
+    calendar_dates:
+        columns:
+            - service_id TEXT
+            - date TEXT
+            - exception_type INTEGER
+        indexes:
+            - service_id
+            - date
+            - exception_type
+
+    routes:
+        columns:
+            - route_id TEXT PRIMARY KEY
+            - agency_id TEXT
+            - route_short_name TEXT
+            - route_long_name TEXT
+            - route_desc TEXT
+            - route_type INTEGER
+        indexes:
+            - agency_id
+            - route_short_name
+            - route_type
+
+    stop_times:
+        columns:
+            - trip_id TEXT
+            - arrival_time TEXT
+            - departure_time TEXT
+            - stop_id TEXT
+            - stop_sequence INTEGER
+            - pickup_type INTEGER
+            - drop_off_type INTEGER
+        indexes:
+            - trip_id
+            - stop_id
+            - stop_sequence
+            - pickup_type
+            - drop_off_type
+
+    stops:
+        columns:
+            - stop_id TEXT PRIMARY KEY
+            - stop_name TEXT
+            - stop_lon REAL
+            - stop_lat REAL
+            - location_type TEXT
+            - parent_station TEXT
+        indexes:
+            - location_type
+            - parent_station
+
+    trips:
+        columns:
+            - trip_id TEXT PRIMARY KEY
+            - route_id TEXT
+            - service_id TEXT
+            - trip_headsign TEXT
+            - trip_short_name TEXT
+            - direction_id TEXT
+            - departure_day_minutes INTEGER
+            - arrival_day_minutes INTEGER
+            - departure_time TEXT
+            - arrival_time TEXT
+            # added to avoid GROUP_BY queries
+            - stop_times_s TEXT
+        indexes:
+            - route_id
+            - service_id
+            - direction_id
+            - departure_day_minutes
+            - arrival_day_minutes

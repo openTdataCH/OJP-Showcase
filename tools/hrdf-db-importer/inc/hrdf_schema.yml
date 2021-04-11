@@ -1,0 +1,170 @@
+# https://dbdiagram.io/d/5fec775180d742080a349c5a
+
+tables:
+    # Renamed HRDF BETRIEB table to conform to GTFS
+    agency:
+        columns:
+            - agency_id TEXT PRIMARY KEY
+            - short_name TEXT
+            - long_name TEXT
+            - full_name_de TEXT
+            - full_name_en TEXT
+            - full_name_fr TEXT
+            - full_name_it TEXT
+            - in_fplan INTEGER
+        indexes:
+            - in_fplan
+
+    # Renamed HRDF BITFELD table to conform to GTFS
+    calendar:
+        columns:
+            - service_id TEXT PRIMARY KEY
+            - start_date TEXT   #YYYYMMDD format
+            - end_date TEXT     #YYYYMMDD format
+            - day_bits TEXT     #111110001111000
+
+    # Similar with trips.txt but can also contain several calendar entries for one entry
+    fplan:
+        columns:
+            - row_idx INTEGER PRIMARY KEY       # the row number in the import FPLAN file
+            - agency_id TEXT
+            - vehicle_type TEXT                 # Verkehrsmittel *G
+            - service_line TEXT                 # Linieninformation *L
+            - fplan_trip_id TEXT
+            - service_ids_cno INTEGER
+            - frequency_cno INTEGER             # Taktanzahl
+            - frequency_interval INTEGER        # Taktzeit in Minuten
+            - fplan_content TEXT
+        indexes:
+            - agency_id
+            - fplan_trip_id
+            - service_ids_cno
+            - frequency_cno
+            - frequency_interval
+
+    # FPLAN table expanded for each service_id (calendar entry)
+    fplan_trip_bitfeld:
+        columns:
+            - fplan_trip_bitfeld_id TEXT PRIMARY KEY    # CONCAT fplan_row_idx.service_idx
+            - fplan_row_idx INTEGER                     # FK fplan
+            - service_id TEXT                           # FK bitfeld
+            - from_stop_id TEXT
+            - to_stop_id TEXT
+        indexes:
+            - fplan_row_idx
+            - service_id
+
+    # Similar with stop_times.txt but linked to FPLAN (fplan_trip_bitfeld table)
+    fplan_stop_times:
+        columns:
+            - fplan_trip_bitfeld_id TEXT        # FK fplan_trip_bitfeld
+            - stop_id TEXT                      # FK stops
+            - stop_arrival TEXT
+            - stop_departure TEXT
+            - is_boarding_allowed INTEGER
+            - is_getoff_allowed INTEGER
+            - gleis_id TEXT                     # FK gleis_stop_info
+        indexes:
+            - fplan_trip_bitfeld_id
+            - stop_id
+            - is_boarding_allowed
+            - is_getoff_allowed
+            - gleis_id
+
+    # Used only as intermediary-step to link 'fplan_stop_times' with 'gleis_stop_info'
+    # TODO: remove it in a later iteration if the content is not useful to the clients
+    gleis_classification: 
+        columns:
+            - gleis_classification_key TEXT PRIMARY KEY # CONCAT agency_id.trip_id.stop_id.service_id
+            - gleis_stop_info_id TEXT                   # CONCAT stop_id.gleis_info_id
+            - agency_id TEXT
+            - fplan_trip_id TEXT
+            - stop_id TEXT
+            - service_id TEXT
+            - gleis_rows_cno                            # number of occurences of the PK in GLEIS file
+            - gleis_rows_json_s                         # occurences of GLEIS entry (i.e. custom departure times)
+        indexes:
+            - gleis_stop_info_id
+            - agency_id
+            - fplan_trip_id
+            - stop_id
+            - service_id
+            - gleis_rows_cno
+
+    # Service platform lookup table, kept the domain name GLEIS because is not GTFS-specific
+    gleis:
+        columns:
+            - gleis_id TEXT PRIMARY KEY             # CONCAT stop_id.gleis_info_id
+            - stop_id TEXT                          # FK stops
+            - gleis_info_id TEXT                    # internal HRDF key
+            - track_no TEXT
+            - sector_no TEXT
+            - delimiter TEXT
+            - track_full_text TEXT
+        indexes:
+            - stop_id
+
+    # Similar with stops.txt
+    stops:
+        columns:
+            - stop_id TEXT PRIMARY KEY
+            - stop_name TEXT
+            - stop_lat REAL
+            - stop_lon REAL
+            - stop_altitude INTEGER
+            - in_fplan INTEGER
+        indexes:
+            - in_fplan
+
+    # Used for HRDF METABHF relations
+    stop_relations:
+        columns:
+            - from_stop_id TEXT
+            - to_stop_id TEXT
+            - is_generic INTEGER
+            - walk_minutes INTEGER
+            - walk_plus_bus_minutes INTEGER
+            - walk_plus_underground_minutes INTEGER
+        indexes:
+            - from_stop_id
+            - to_stop_id
+            - is_generic
+            - walk_minutes
+            - walk_plus_bus_minutes
+            - walk_plus_underground_minutes
+
+    # Used for HRDF UMSTIEGL relations
+    stop_transfer_lines:
+        columns:
+            - stop_id TEXT
+            - from_agency_id TEXT
+            - from_vehicle_type TEXT
+            - from_line_id TEXT
+            - to_agency_id TEXT
+            - to_vehicle_type TEXT
+            - to_line_id TEXT
+            - transfer_time INTEGER
+        indexes:
+            - stop_id
+            - from_agency_id
+            - from_vehicle_type
+            - from_line_id
+            - to_agency_id
+            - to_vehicle_type
+            - to_line_id
+            - transfer_time
+    
+    # Used for HRDF UMSTIEGZ relations
+    stop_transfer_trips:
+        columns:
+            - stop_id TEXT
+            - from_fplan_row_idx INTEGER
+            - to_fplan_row_idx INTEGER
+            - transfer_time INTEGER
+            - service_id TEXT
+        indexes:
+            - stop_id
+            - from_fplan_row_idx
+            - to_fplan_row_idx
+            - transfer_time
+            - service_id
