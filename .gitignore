@@ -1,0 +1,7 @@
+__pycache__
+
+tools/gtfs-rt-fetch/output/gtfs-rt
+tools/gtfs-static-db-importer/output/gtfs_db
+tools/gtfs-static-snapshot-exporter/output/gtfs-static-snapshot
+tools/hrdf-db-importer/output/hrdf_db
+tools/hrdf-stops-reporter/tmp/stops_report
