@@ -2,8 +2,8 @@
 
 ## Apps
 
-- [GTFS-RT -static Comparsion](https://opentdatach.github.io/gtfs-rt-status/)
-- [OJP Demo](https://opentdatach.github.io/ojp-demo/)
+- [GTFS-RT -static Comparsion](apps/gtfs-rt-status)
+- [OJP Demo](apps/ojp-demo)
 
 ## Tools
 
