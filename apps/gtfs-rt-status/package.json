@@ -1,0 +1,18 @@
+{
+    "name": "ojp-gtfs-rt-static-comparison",
+    "dependencies": {
+        "choices.js": "^9.0.1",
+        "@mapbox/sphericalmercator": "^1.1.0"
+    },
+    "devDependencies": {
+        "@types/mapbox__sphericalmercator": "^1.1.4",
+        "@types/node": "^14.14.25",
+        "watchify": "^3.11.1"
+    },
+    "scripts": {
+        "tscw": "tsc --watch",
+        "clean": "rm -rf js/dist",
+        "clean_node": "rm -rf node_modules",
+        "buildw": "watchify ./js/dist/main.js -o ./js/dist/bundle.js"
+    }
+}
