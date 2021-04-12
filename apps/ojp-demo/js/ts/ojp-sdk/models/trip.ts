@@ -1,7 +1,7 @@
 import { TripStats } from './trip-stats'
 import { TripLeg, TripTimedLeg } from './trip-leg/trip-leg'
 
-import XpathOJP from '../xml/xpath-ojp'
+import XpathOJP from '../helpers/xpath-ojp'
 import Date_Helpers from '../helpers/date_helpers'
 
 export class Trip {

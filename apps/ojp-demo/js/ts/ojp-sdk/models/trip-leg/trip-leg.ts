@@ -5,7 +5,7 @@ import LegService from '../leg-service'
 import { LegEndpoint, LegFromEndpoint, LegToEndpoint } from './leg-endpoint'
 
 import Date_Helpers from '../../helpers/date_helpers'
-import XpathOJP from '../../xml/xpath-ojp'
+import XpathOJP from '../../helpers/xpath-ojp'
 
 export class TripLeg {
     constructor() {

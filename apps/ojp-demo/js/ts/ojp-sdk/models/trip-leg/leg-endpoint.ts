@@ -3,7 +3,7 @@ import { EndpointType } from '../endpoint-type'
 // TODO - waaaay outside of the SDK - make it more generic
 import HRDF_Stop from '../../../models/HRDF_Stop'
 
-import XpathOJP from '../../xml/xpath-ojp'
+import XpathOJP from '../../helpers/xpath-ojp'
 
 export class LegEndpoint {
     stopPointRef: string

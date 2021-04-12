@@ -1,6 +1,6 @@
 import PublicTransportMode from './public-transport-mode'
 
-import XpathOJP from '../xml/xpath-ojp'
+import XpathOJP from '../helpers/xpath-ojp'
 
 export default class LegService {
     public journeyRef: string;

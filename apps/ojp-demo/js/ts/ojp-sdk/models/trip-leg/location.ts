@@ -1,4 +1,4 @@
-import XpathOJP from '../../xml/xpath-ojp'
+import XpathOJP from '../../helpers/xpath-ojp'
 
 export class Location {
     public name: string

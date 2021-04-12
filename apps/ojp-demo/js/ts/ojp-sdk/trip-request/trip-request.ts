@@ -7,7 +7,7 @@ import { EndpointType } from '../models/endpoint-type'
 import { TripRequestParams } from '../models/trip-request-params'
 
 import { Trip } from '../models/trip'
-import XpathOJP from '../xml/xpath-ojp'
+import XpathOJP from '../helpers/xpath-ojp'
 
 // Docs: https://opentransportdata.swiss/de/cookbook/ojptriprequest/
 
