@@ -1,0 +1,37 @@
+.gtfs-trips {
+    font-size: 14px;
+}
+
+.stop_time {
+    font-size: 12px;
+}
+
+.stop-time-passed {
+    color: #cccccc
+}
+
+.btn-show-map {
+    font-size: 12px;
+}
+
+.toggle-all-trips-btn {
+    cursor: pointer;
+}
+
+.not-collapsed .bi-plus-circle {
+    display: none;
+}
+.not-collapsed.collapsed .bi-plus-circle {
+    display: inline;
+}
+
+.not-collapsed .bi-dash-circle {
+    display: inline;
+}
+.not-collapsed.collapsed .bi-dash-circle {
+    display: none;
+}
+
+a.content-collapse {
+    text-decoration: none;
+}
