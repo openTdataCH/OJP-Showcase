@@ -23,7 +23,7 @@ if args.output:
     geojson_export_path = os.path.abspath(geojson_export_path)
 else:
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    geojson_export_path = f"{dir_path}/output/export-old/hrdf_stops_latest.geojson"
+    geojson_export_path = f"{dir_path}/output/hrdf_stops_latest.geojson"
     geojson_export_path = os.path.abspath(geojson_export_path)
 
 formatted_date = compute_formatted_date_from_hrdf_db_path(db_path)
