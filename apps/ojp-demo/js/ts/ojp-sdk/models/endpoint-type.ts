@@ -1,0 +1,1 @@
+export type EndpointType = "From" | "To"
