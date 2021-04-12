@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>OJP Tools</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+        <link href="https://api.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.css" rel="stylesheet" />
+        
+        <link href="assets/css/page.css" rel="stylesheet" />
+    </head>
+
+    <body class="h-100">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-4">
+                    <div class="m-1">
+                        <div class="mb-2">
+                            <h4>OJP Routes Search</h4>
+                        </div>
+                        <div class="input-group input-group-sm mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="ojp_route_from_pan_btn">FROM</span>
+                            </div>
+                            <input type="text" class="form-control" id="ojp_route_from" value="" readonly />
+                        </div>
+                        <div class="input-group input-group-sm mb-2">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="ojp_route_to_pan_btn">TO</span>
+                            </div>
+                            <input type="text" class="form-control" id="ojp_route_to" value="" readonly />
+                        </div>
+                        <div class="mb-0">
+                            <button type="button" class="btn btn-sm btn-primary" id="compute_route_from_to_btn">Search</button>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div id="trips_wrapper_scroll">
+                        <div id="trips_wrapper"></div>
+                    </div>
+
+                    <div class="d-none">
+                        <div id="template_trip-card">
+                            <div class="card card-trip mb-4">
+                                <div class="card-header d-flex justify-content-between">
+                                    <div>[TRIP_TITLE]</div>
+                                    <div>[TRIP_FROM_TIME] - [TRIP_TO_TIME]</div>
+                                </div>
+                                <div class="card-body">
+                                    [TRIP_LEGS]
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="template_trip-leg-walk">
+                            <div class="d-flex align-items-center [BOTTOM_BORDER_CLASS] trip-leg p-2">
+                                <div class="p-1 leg-picto">
+                                    <div>
+                                        <div class="mode-transport [MODE_TRANSPORT_CLASS]"></div>
+                                    </div>
+                                    <div class="distance">[TRIP_LEG_DISTANCE]</div>
+                                </div>
+                                <div class="p-1">
+                                    <div>[TRIP_LEG_FROM]</div>
+                                    <div>[TRIP_LEG_TO]</div>
+                                </div>
+                                <div class="p-1 ml-auto">[TRIP_LEG_DURATION]</div>
+                            </div>
+                        </div>
+
+                        <div id="template_trip-leg-service">
+                            <div class="d-flex align-items-center [BOTTOM_BORDER_CLASS] trip-leg p-2">
+                                <div class="p-1 leg-picto">
+                                    <div>
+                                        <div class="mode-transport [MODE_TRANSPORT_CLASS]"></div>
+                                    </div>
+                                    <div class="service_line">
+                                        <span class="badge [SERVICE_LINE_CLASS]">[SERVICE_LINE]</span>
+                                    </div>
+                                </div>
+                                <div class="p-1 flex-fill">
+                                    <div class="d-flex justify-content-between">
+                                        <div>[TRIP_LEG_FROM] <span class="badge bg-primary text-white">[TRIP_LEG_FROM_PLATFORM]</span></div>
+                                        <div>[TRIP_LEG_FROM_TIME] <span class="time-delay">[TRIP_LEG_FROM_TIME_DELAY]</span></div>
+                                    </div>
+                                    <div class="leg_trasfers_info">[SERVICE_INTERMEDIARY_STOPS_INFO]</div>
+                                    <div class="d-flex justify-content-between">
+                                        <div>[TRIP_LEG_TO] <span class="badge bg-primary text-white">[TRIP_LEG_TO_PLATFORM]</span></div>
+                                        <div>[TRIP_LEG_TO_TIME] <span class="time-delay">[TRIP_LEG_TO_TIME_DELAY]</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-none">
+                        <div class="card card-trip mb-2">
+                            <div class="card-header d-flex justify-content-between">
+                                <div>Trip 1 - 3 changes</div>
+                                <div>12:03 - 12:41</div>
+                            </div>
+                            <div class="card-body">
+                                
+                                <div class="d-flex align-items-center border-bottom trip-leg p-2">
+                                    <div class="p-1 leg-picto">
+                                        <div>
+                                            <div class="mode-transport mode-transport-walk"></div>
+                                        </div>
+                                        <div class="distance">200m</div>
+                                    </div>
+                                    <div class="p-1">
+                                        <div>Carl Spiteller Strasse 200</div>
+                                        <div>Zürich Witikon Zentrum</div>
+                                    </div>
+                                    <div class="p-1 ml-auto">2min</div>
+                                </div>
+
+                                <div class="d-flex align-items-center border-bottom trip-leg p-2">
+                                    <div class="p-1 leg-picto">
+                                        <div>
+                                            <div class="mode-transport mode-transport-bus"></div>
+                                        </div>
+                                        <div class="service_line">
+                                            <span class="badge service-line-bus">B 701</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-1 flex-fill">
+                                        <div class="d-flex justify-content-between">
+                                            <div>Zürich HB <span class="badge bg-primary text-white">12</span></div>
+                                            <div>12:03 <span class="time-delay">+1'</span></div>
+                                        </div>
+                                        <div class="leg_trasfers_info">non-stop -- or -- 3 stops</div>
+                                        <div class="d-flex justify-content-between">
+                                            <div>Bern <span class="badge bg-primary text-white">5</span></div>
+                                            <div>12:23</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-center trip-leg p-2">
+                                    <div class="p-1 leg-picto">
+                                        <div>
+                                            <div class="mode-transport mode-transport-train"></div>
+                                        </div>
+                                        <div class="service_line">
+                                            <span class="badge service-line-train">IC 1</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-1 flex-fill">
+                                        <div class="d-flex justify-content-between">
+                                            <div>Zürich HB <span class="badge bg-primary text-white">12</span></div>
+                                            <div>12:03 <span class="time-delay">+1'</span></div>
+                                        </div>
+                                        <div class="leg_trasfers_info">non-stop -- or -- 3 stops</div>
+                                        <div class="d-flex justify-content-between">
+                                            <div>Bern <span class="badge bg-primary text-white">5</span></div>
+                                            <div>12:23</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-8">
+                    <div id="map_canvas"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-none">
+            <div id="template_node_click_popup">
+                <h6>NODE_ID: [NODE_ID]</h6>
+                <p class="mb-2">
+                    <button type="button" class="btn btn-primary btn-sm" data-node-id="[NODE_ID]" data-node-type="from" onclick="route_map_controller.map_select_node(this)">FROM</button> 
+                    <button type="button" class="btn btn-primary btn-sm" data-node-id="[NODE_ID]" data-node-type="to" onclick="route_map_controller.map_select_node(this)">TO</button>
+                </p>
+                <div>
+                    Edges no: <span>[NODE_EDGES_CNO]</span> <span>[NODE_CHECK_S]</span>
+                </div>
+            </div>
+
+            <div id="template_edge_click_popup">
+                <h6>EDGE_ID: [EDGE_ID]</h6>
+                <p class="mb-1">
+                    <span>FROM </span>
+                    <button type="button" class="btn btn-primary btn-sm" data-node-latlng="[NODE_FROM_LATLNG]" onclick="route_map_controller.pan_to_latlng(this)">[FROM_NODE_ID]</button> 
+                    <span> TO </span>
+                    <button type="button" class="btn btn-primary btn-sm" data-node-latlng="[NODE_TO_LATLNG]" onclick="route_map_controller.pan_to_latlng(this)">[TO_NODE_ID]</button>
+                </p>
+            </div>
+
+            <table>
+                <!-- Embeding TR, TDs works only like this -->
+                <tbody id="template_route_edge_row">
+                    <tr>
+                        <td>[IDX]</td>
+                        <td><button type="button" class="btn btn-primary btn-sm" data-node-latlng="[NODE_FROM_LATLNG]" onclick="route_map_controller.pan_to_latlng(this)">[FROM_NODE_ID]</button></td>
+                        <td>[EDGE_ID]<br/>[EDGE_COST]</td>
+                        <td><button type="button" class="btn btn-primary btn-sm" data-node-latlng="[NODE_TO_LATLNG]" onclick="route_map_controller.pan_to_latlng(this)">[TO_NODE_ID]</button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div id="debug_control">
+                <div>
+                    <span class="font-weight-bold">Center</span>: <span id="map_debug_center">n/a</span>
+                </div>
+                <div>
+                    <span class="font-weight-bold">Zoom</span>: <span id="map_debug_zoom">n/a</span>
+                </div>
+            </div>
+
+            <div id="popup_hrdf_stop">
+                <div class="mb-2">
+                    <h5>[STOP_NAME]</h5>
+                </div>
+                <div class="mb-1">
+                    <div>
+                        <span class="font-weight-bold">ID:</span> <span>[STOP_ID]</span>
+                    </div>
+                    <div>
+                        <span class="font-weight-bold">Types:</span> <span>[MAIN_VEHICLE_TYPES_S]</span>
+                    </div>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-primary btn-sm" data-route-type="from" data-stop-id="[STOP_ID]">From</button> | <button type="button" class="btn btn-primary btn-sm" data-route-type="to" data-stop-id="[STOP_ID]">To</button></button>
+                </div>
+            </div>
+            
+        </div>
+        
+        <script src="js/dist/bundle.js?v=5" charset="utf-8"></script>
+    </body>
+</html>

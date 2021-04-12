@@ -1,0 +1,105 @@
+.container-fluid {
+    margin-top: 15px;
+}
+
+#map_canvas {
+    border: 1px solid #CACACA;
+    margin: 2px;
+    width: 100%;
+    height: 600px;
+}
+
+/* SEE http://stackoverflow.com/questions/9141249/twitter-bootstrap-css-affecting-google-maps */
+#map_canvas img {
+    max-width: none;
+}
+
+#route_edges_table_wrapper {
+    height: 400px;
+    overflow: auto;
+}
+
+#route_edges_table_body td, #route_edges_table_body button {
+    font-size: 12px;
+}
+
+.map-control {
+    background-color: #fff;
+    
+    /* -moz-box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+    border-radius: 4px; */
+
+    padding: 8px;
+}
+
+.card-trip .card-header {
+    padding: 10px;
+    font-size: 16px;
+}
+
+.card-trip .card-body {
+    padding: 8px;
+    font-size: 14px;
+}
+
+.trip-leg .leg-picto {
+    width: 50px;
+}
+
+.mode-transport {
+    width: 30px;
+    height: 30px;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: center;
+}
+
+.service_line {
+    font-size: 14px;
+    text-align: center;
+}
+
+.leg_trasfers_info {
+    font-size: 12px;
+    color: #acacac;
+    margin-left: 8px;
+}
+
+.mode-transport.distance {
+    font-size: 10px;
+}
+
+.mode-transport-walk {
+    background-image: url('../img/pictograms/picto-walk.png');
+    background-size: 80% 80%;
+}
+
+.mode-transport-train {
+    background-image: url('../img/pictograms/picto-railway.png');
+}
+
+.mode-transport-bus {
+    background-image: url('../img/pictograms/picto-bus.png');
+}
+
+.time-delay {
+    color: orange;
+}
+
+.service-line-bus {
+    color: #fff;
+    background-color: #007bff;
+}
+
+.service-line-train {
+    color: #fff;
+    background-color: #dc3545;
+}
+
+#trips_wrapper_scroll {
+    max-height: 600px;
+    overflow-y: scroll;
+    padding-right: 8px;
+}
