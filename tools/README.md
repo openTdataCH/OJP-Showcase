@@ -1,10 +1,10 @@
 ## Tools
 
-- [GTFS-RT Fetcher](tools/gtfs-rt-fetch)
-- [GTFS-Static DB Importer](tools/gtfs-static-db-importer)
-- [GTFS-Static Assets Exporter](tools/gtfs-static-snapshot-exporter)
-- [HRDF DB Importer](tools/hrdf-db-importer)
-- [HRDF Stops Reporter](tools/hrdf-stops-reporter)
+- [GTFS-RT Fetcher](gtfs-rt-fetch)
+- [GTFS-Static DB Importer](gtfs-static-db-importer)
+- [GTFS-Static Assets Exporter](gtfs-static-snapshot-exporter)
+- [HRDF DB Importer](hrdf-db-importer)
+- [HRDF Stops Reporter](hrdf-stops-reporter)
 
 ## Requirements
 
