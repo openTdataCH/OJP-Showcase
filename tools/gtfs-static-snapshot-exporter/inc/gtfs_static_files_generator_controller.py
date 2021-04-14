@@ -103,7 +103,8 @@ class GTFS_Static_Files_Generator_Controller:
         gtfs_date_s = f'{self.gtfs_date}'
         db_trips_day_json_path_template = db_trips_day_json_path_template.replace('[GTFS_DB_DAY]', gtfs_date_s)
 
-        for weekday_idx in range(8):
+        # 7 days - we export from Wed to Wed to catch the overlapping time
+        for weekday_idx in range(7 + 1):
             day_idx = gtfs_day_idx + weekday_idx
 
             day_date = self.gtfs_static_db_controller.from_date + timedelta(days=day_idx)
