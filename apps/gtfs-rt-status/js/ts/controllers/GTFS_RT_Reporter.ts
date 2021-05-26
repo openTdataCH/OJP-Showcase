@@ -331,6 +331,9 @@ export default class GTFS_RT_Reporter {
                         }
     
                         mapMissingAgency[agencyID].rt_cno += 1
+
+                        // Don't show the trips from the agencies that are not in GO-Realtime, just report the agencies
+                        continue;
                     }
                 }
             }
