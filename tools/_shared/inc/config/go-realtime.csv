@@ -43,6 +43,7 @@ Company-GO-ID,Company name,Start Interrupt,End Interrupt,Comment
 129,Ferrovia Monte Generoso,,,
 131,Montreux-Vevey-Riviera (mtgn),,,
 132,Meiringen-Innertkirchen-Bahn (KWO-mib),,,
+136,Pilatusbahnen,,,
 137,Rigi Bahnen AG,,,
 138,Bus Ostschweiz (Rheintal),,,Es sind nicht alle Linien verfügbar. 
 142,"SMC, Sierre-Montana-",,,
@@ -91,6 +92,7 @@ Company-GO-ID,Company name,Start Interrupt,End Interrupt,Comment
 827,Städtische Verkehrsbetriebe Bern,,,ohne M94
 832,Autobetrieb Weesen-Amden,,,
 834,Service d’automobile TPF (TPF Auto),,,nur VDV453
+835,Service d'automobiles TMR ,,,
 836,Verkehrsbetriebe Schaffhausen,,,
 838,Verkehrsbetriebe Zürichsee und Oberland,,,"Es sind nicht alle Linien verfügbar. Nur diese, welche eine genügend gute Datenqualität aufweisen."
 839,Zugerland Verkehrsbetriebe,,,
