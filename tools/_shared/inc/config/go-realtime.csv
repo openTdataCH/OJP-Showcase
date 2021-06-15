@@ -2,15 +2,16 @@ Company-GO-ID,Company name,Start Interrupt,End Interrupt,Comment
 11,Schweizerische Bundesbahnen SBB,,,
 22,Appenzeller Bahnen (ab),,,
 23,Transports Publics du Chablais,,,
-29,Transports de la région Morges-Bière-Cossonay (MBC),,,
+29,Transports de la r�gion Morges-Bi�re-Cossonay (MBC),,,
 31,BDWM Transport (bd),,,
+32,BLM  BLM Lauterbrunnen-M�rren,,,
 33,BLS AG (bls),,,
 35,Berner Oberland-Bahnen,,,
 37,BLT Baselland Transport,,,
 38,Aare Seeland mobil (BTI),,,
 42,Montreux-Vevey-Riviera (cev),,,
 43,Chemins de fer du Jura,,,
-44,Transports Publics Neuchâtelois SA (TRN-cmn) ,,,
+44,Transports Publics Neuch�telois SA (TRN-cmn) ,,,
 46,Forchbahn,,,
 47,FLP Lugano-Ponte Tresa,,,
 48,Matterhorn Gotthard Bahn (fo),,,
@@ -19,59 +20,63 @@ Company-GO-ID,Company name,Start Interrupt,End Interrupt,Comment
 53,Transports publics fribourgeois,,,
 55,Lausanne-Echallens-Bercher,,,
 56,Aare Seeland mobil (RVO),,,
-61,Transports de Martigny et RÃ©gions (mc),,,
+61,Transports de Martigny et Régions (mc),,,
 64,Montreux-Oberland Bernois,,,
 65,THURBO,,,
 66,Nyon-St-Cergue-Morez (NStCM),,,
-69,Transports Vallée de Joux-Yverdon-Ste-Croix (TRAVYS-pbr),,,
-72,Rhätische Bahn,,,
-73,Transports Publics NeuchÃ¢telois SA (rvt),,,
+69,Transports Vall�e de Joux-Yverdon-Ste-Croix (TRAVYS-pbr),,,
+72,Rh�tische Bahn,,,
+73,Transports Publics Neuchâtelois SA (rvt),,,
 74,Regionalps,,,
-78,Sihltal-Zürich-Uetliberg-Bahn,,,
+78,Sihltal-Z�rich-Uetliberg-Bahn,,,
 81,Aare Seeland mobil (snb),,,
-82,Schweizerische Südostbahn (sob),,,
+82,Schweizerische S�dostbahn (sob),,,
 86,Zentralbahn,,,
-87,Verkehrsbetriebe Zürcher Oberland (VZO),,,
+87,Verkehrsbetriebe Z�rcher Oberland (VZO),,,
 88,Regionalverkehr Bern-Solothurn (RBS),,,
 93,Matterhorn Gotthard Bahn (bvz),,,
 94,Waldenburgerbahn,,,
 96,Wynental-und Suhrental-Bahn,,,
-97,Transports VallÃ©e de Joux-Yverdon-Ste-Croix,,,
+97,Transports Vallée de Joux-Yverdon-Ste-Croix,,,
+104,Brienz Rothorn Bahn AG,,,
 124,Jungfraubahn,,,
+129,Ferrovia Monte Generoso,,,
 131,Montreux-Vevey-Riviera (mtgn),,,
 132,Meiringen-Innertkirchen-Bahn (KWO-mib),,,
 137,Rigi Bahnen AG,,,
-138,Bus Ostschweiz (Rheintal),,,Es sind nicht alle Linien verfügbar. 
+138,Bus Ostschweiz (Rheintal),,,Es sind nicht alle Linien verf�gbar. 
 142,"SMC, Sierre-Montana-",,,
-146,Verkehrsbetriebe STI AG,,,Es sind nicht alle Linien verfügbar. 
-151,Transport publics de la Région Lausannoise,,,exkl. Taxibus und Noctambus
-153,Transports Publics Neuchâtelois SA (TRN-tn),,,
-156,Service d’automobiles TRN (TRN/Autovr) ,,,
+146,Verkehrsbetriebe STI AG,,,Es sind nicht alle Linien verf�gbar. 
+151,Transport publics de la R�gion Lausannoise,,,exkl. Taxibus und Noctambus
+153,Transports Publics Neuch�telois SA (TRN-tn),,,
+156,Service d?automobiles TRN (TRN/Autovr) ,,,
 157,Wengernalpbahn,,,
-185,VierwaldstÃ¤ttersee,,,
+185,Vierwaldstättersee,,,
 351,SBB GmbH (Grenzverkehr),,,
 605,Grindelwald Bus AG,,,
 714,"BS, Bus du Soleil ",,,
 723,Aargau Verkehr AG,,,
+731,Autotransports de la Vall�e de Joux,,,
 736,Autolinea Mendrisiense SA,,,
 737,Servizio dautomobili,,,
 736,AMSA Autolinea Mendrisiense SA,,,
 737,SNL Auto Servizio d'automobili,,,
-738,TPN Transports Publics de la Région Nyonnaise,,,
+738,TPN Transports Publics de la R�gion Nyonnaise,,,
+740,Verkehrsbetrieb der Landschaft Davos,,,
 741,BNP Bus Nyon-Prangins,,,
 755,Autobusbetrieb Freienbach,,,
 764,MBC Auto Automobiles MBC,,,
 766,Stadtbus Chur (SBC),,,
-772,Busbetrieb Rapperswil-Eschenbach-Rüti ZH,,,Es sind nicht alle Linien verfügbar. 
-773,Verkehrsbetriebe Glattal,,,Es sind nicht alle Linien verfügbar. Sonntags ohne Echtzeit - Taxibus
-776,TAC Transports Publics de l'agglomération d'Annemasse,,,
-777,Busbetrieb Wollerau-Samstagern,,,Es sind nicht alle Linien verfügbar. Sonntags ohne Echtzeit - Taxibus
-792,Transports Publics Neuchâtelois SA (TRN/tc),,,
-793,Busbetrieb Olten-GÃ¶sgen-GÃ¤u,,,
-796,Service d’automobiles TRN (TRN/Autorvt) ,,,
+772,Busbetrieb Rapperswil-Eschenbach-R�ti ZH,,,Es sind nicht alle Linien verf�gbar. 
+773,Verkehrsbetriebe Glattal,,,Es sind nicht alle Linien verf�gbar. Sonntags ohne Echtzeit - Taxibus
+776,TAC Transports Publics de l'agglom�ration d'Annemasse,,,
+777,Busbetrieb Wollerau-Samstagern,,,Es sind nicht alle Linien verf�gbar. Sonntags ohne Echtzeit - Taxibus
+792,Transports Publics Neuch�telois SA (TRN/tc),,,
+793,Busbetrieb Olten-Gösgen-Gäu,,,
+796,Service d?automobiles TRN (TRN/Autorvt) ,,,
 799,Verkehrsbetriebe Herisau (VBH),,,
-801,PostAuto Schweiz,,,"Es sind nicht alle Linien verfügbar. So z. B. im Bereich ZVV sowie auch bestimmte Linien der Regionen Bern, Interlaken und Luzern"
-807,Automobildienst SZU,,,Es sind nicht alle Linien verfügbar
+801,PostAuto Schweiz,,,"Es sind nicht alle Linien verf�gbar. So z. B. im Bereich ZVV sowie auch bestimmte Linien der Regionen Bern, Interlaken und Luzern"
+807,Automobildienst SZU,,,Es sind nicht alle Linien verf�gbar
 810,BLWE Busbetrieb Lichtensteig-Wattwil-Ebnat-Kappel,,,
 811,"AAGL, Autobus AG Liestal ",,,
 812,Auto AG Rothenburg,,,
@@ -79,51 +84,43 @@ Company-GO-ID,Company name,Start Interrupt,End Interrupt,Comment
 815,BUS/eng Bus und Service AG (Engadin),,,
 816,Auto AG Uri,,,ohne Tellbus (Mischlinie)
 817,FAR Autoliniee FART,,,Miit Ausnahme Linie 8
-819,Rottal Auto AG,,,"Es sind nicht alle Linien verfügbar. Nur diese, welche eine genügend gute Datenqualität aufweisen."
+819,Rottal Auto AG,,,"Es sind nicht alle Linien verf�gbar. Nur diese, welche eine gen�gend gute Datenqualit�t aufweisen."
 820,Verkehrsbetriebe Luzern AG,,,mit Ausnahme Linie N6 (Mischlinie VBL/PAG)
 823,Basler Verkehrsbetriebe,,,
-826,Bus Ostschweiz (Wil),,,"Es sind nicht alle Linien verfügbar. Nur diese, welche eine genügend gute Datenqualität aufweisen."
-827,Städtische Verkehrsbetriebe Bern,,,ohne M94
+826,Bus Ostschweiz (Wil),,,"Es sind nicht alle Linien verf�gbar. Nur diese, welche eine gen�gend gute Datenqualit�t aufweisen."
+827,St�dtische Verkehrsbetriebe Bern,,,ohne M94
 832,Autobetrieb Weesen-Amden,,,
-834,Service d’automobile TPF (TPF Auto),,,nur VDV453
+834,Service d?automobile TPF (TPF Auto),,,nur VDV453
 836,Verkehrsbetriebe Schaffhausen,,,
-838,Verkehrsbetriebe Zürichsee und Oberland,,,"Es sind nicht alle Linien verfügbar. Nur diese, welche eine genügend gute Datenqualität aufweisen."
+838,Verkehrsbetriebe Z�richsee und Oberland,,,"Es sind nicht alle Linien verf�gbar. Nur diese, welche eine gen�gend gute Datenqualit�t aufweisen."
 839,Zugerland Verkehrsbetriebe,,,
-840,BBA Busbetrieb Aarau,,,Es sind nicht alle Linien verfügbar
+840,BBA Busbetrieb Aarau,,,Es sind nicht alle Linien verf�gbar
 841,Auto AG Schwyz (AAGS),,,
 843,Autokurse Oberthurgau (AOT),,,
 846,Regionale Verkehrsbetriebe Schaffhausen,,,
-849,Verkehrsbetriebe Zürich,,,"Es sind nicht alle Linien verfügbar. Nur diese, welche eine genügend gute Datenqualität aufweisen."
+849,Verkehrsbetriebe Z�rich,,,"Es sind nicht alle Linien verf�gbar. Nur diese, welche eine gen�gend gute Datenqualit�t aufweisen."
 850,Autobusbetrieb RBS,,,ohne Linie 8
 855,"LLB, Auto Leuk-Leukerbad ",,,
 856,Autobetrieb Sernftal,,,ohne Linie 541 und 736
 858,ARL Autolinee Regionali Luganesi,,,
 859,AVG Autoverkehr Grindelwald,,,"Linie 124 saisonale Linie, teilweise ohne Echtzeitinformation"
 862,ABI Autolinee Bleniesi,,,
-868,TRAVYS/ays Transports Vallée de Joux-Yverdon-Ste-Croix (auto ystec),,,
-870,ASM Automobildienste Aare Seeland mobil,,,Dieser Betreiber kann über die Zugnummer gematched werden
+868,TRAVYS/ays Transports Vall�e de Joux-Yverdon-Ste-Croix (auto ystec),,,
+870,ASM Automobildienste Aare Seeland mobil,,,Dieser Betreiber kann �ber die Zugnummer gematched werden
 871,BLA Busland AG,,,
-873,RBL Regionalbus Lenzburg,,,"Es sind nicht alle Linien verfügbar. Nur diese, welche eine genügend gute Datenqualität aufweisen."
-874,Transport de la région Morges-Bière-Cossonay (MBC),,,
+873,RBL Regionalbus Lenzburg,,,"Es sind nicht alle Linien verf�gbar. Nur diese, welche eine gen�gend gute Datenqualit�t aufweisen."
+874,Transport de la r�gion Morges-Bi�re-Cossonay (MBC),,,
 876,VMCV Transports publics Vevey-Montreux-Chillon-Villeneuve,,,
-879,BLT Auto BLT,,,"Es sind nicht alle Linien verfügbar. Nur diese, welche eine genügend gute Datenqualität aufweisen."
-881,Transports Publics Genevois,,,"Es sind nicht alle Linien verfügbar. Nur diese, welche eine genügend gute Datenqualität aufweisen."
+879,BLT Auto BLT,,,"Es sind nicht alle Linien verf�gbar. Nur diese, welche eine gen�gend gute Datenqualit�t aufweisen."
+881,Transports Publics Genevois,,,"Es sind nicht alle Linien verf�gbar. Nur diese, welche eine gen�gend gute Datenqualit�t aufweisen."
 882,Stadtbus Winterthur,,,
 883,Busbetrieb Solothurn und Umgebung (BSU),,,ohne Linie 1
 885,Verkehrsbetriebe der Stadt St.Gallen,,,
 886,RVB Regionale Verkehrsbetriebe Baden-Wettingen,,,ohne Linie N33
 889,Verkehrsbetriebe der Stadt Biel,,,
 894,Busbetrieb Grenchen und Umgebung (BGU),,,ohne Linie 27
-895,TRAVYSAuto Transports Vallée de Joux-Yverdon-Ste-Croix,,,
+895,TRAVYSAuto Transports Vall�e de Joux-Yverdon-Ste-Croix,,,
 896,Regiobus Gossau SG,,,Ohne Linie 896
 955,TPL Trasporti Pubblici Luganesi,,,ohne Linie S
-3849,Verkehrsbetriebe Zürich INFO+,,,(Tram VBZ) ohne Liinie 19
-06____,DB Regio AG Baden-Württemberg,,,Manually added on March 19. 2021 -- 387.TA.91-G-Y-j21-1.210.R
-87_LEX,LEX,,,Manually added on March 19. 2021 -- 4.TA.91-8Z-Y-j21-1.2.R
-327000,TreNord,,,Manually added on March 19. 2021 -- 39.TA.91-11-C-j21-1.6.R
-800693,DB ZugBus Regionalverkehr Alb-Bodensee,,,Manually added on March 19. 2021 -- 6.TA.91-4N-Y-j21-1.3.H
-L7____,SBB GmbH,,,Manually added on March 19. 2021 -- 19.TA.91-S06-B-j21-1.3.H
-835,Service d'automobiles TMR,,,Manually added on March 19. 2021 -- 23.TA.92-272-j21-1.5.R
-32,Lauterbrunnen-Mürren,,,Manually added on March 19. 2021 -- 62.TA.91-W-Y-j21-1.2.R
-9020,Transports Vallée de Joux-Yverdon-Ste-Croix (oc/bus),,,Manually added on March 19. 2021 -- 32.TA.92-BUS-j21-1.2.R
-817000,NeTS Planung ÖBB,,,Manually added on March 19. 2021 -- 24.TA.91-3-D-j21-1.3.H
+3849,Verkehrsbetriebe Z�rich INFO+,,,(Tram VBZ) ohne Liinie 19
+9020,TRA  TRAVYS/o Transports Vall�e de Joux-Yverdon-Ste-Croix (oc/bus),,,
