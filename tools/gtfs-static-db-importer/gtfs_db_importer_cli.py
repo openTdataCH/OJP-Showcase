@@ -20,7 +20,7 @@ gtfs_folder_path = Path(os.path.abspath(input_path))
 formatted_date = compute_formatted_date_from_gtfs_folder_path(gtfs_folder_path)  
 
 if formatted_date is None:
-    print(f"CANT read date from HRDF path: '{hrdf_path}'")
+    print(f"CANT read date from GTFS path: '{gtfs_folder_path}'")
     print(f"Use --output-db-path to override")
     sys.exit(1)
 
