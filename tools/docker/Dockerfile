@@ -2,5 +2,5 @@ FROM python:3.9
 
 WORKDIR /app
 
-COPY python_requirements.txt .
-RUN pip install -r python_requirements.txt
+RUN pip install pyyaml
+RUN git clone -b develop --single-branch https://github.com/openTdataCH/OJP-Showcase.git /app
