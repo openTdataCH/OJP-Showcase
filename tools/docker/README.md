@@ -1,8 +1,8 @@
-## Build OpenTDataCH Python Image
+## Build Docker image
 
 ```
 # Clone / Download this repo
-git clone -b develop --single-branch https://github.com/openTdataCH/OJP-Showcase.git /path/to/openTdataCH--OJP-Showcase
+git clone https://github.com/openTdataCH/OJP-Showcase.git /path/to/openTdataCH--OJP-Showcase
 
 # CD to the ./tools/docker folder
 cd /path/to/openTdataCH--OJP-Showcase/tools/docker
