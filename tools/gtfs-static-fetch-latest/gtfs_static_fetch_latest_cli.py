@@ -15,6 +15,18 @@ def main():
         sys.exit(1)
     app_config = load_yaml_config(app_config_path, script_path.parent)
 
+    gtfs_static_base_path = Path(app_config['gtfs_static']['download_base_path'])
+    if not os.path.isdir(gtfs_static_base_path):
+        print(f'ERROR, download_base_path is not a folder')
+        print(f'{gtfs_static_base_path}')
+        sys.exit(1)
+
+    gtfs_static_db_base_path = Path(app_config['gtfs_static']['gtfs_db_base_path'])
+    if not os.path.isdir(gtfs_static_db_base_path):
+        print(f'ERROR, gtfs_db_base_path is not a folder')
+        print(f'{gtfs_static_db_base_path}')
+        sys.exit(1)
+
     print('Fetching latest CKAN info ...')
     dataset_url, dataset_filename = fetch_latest_archive_url(app_config)
 
@@ -26,7 +38,7 @@ def main():
         sys.exit(1)
 
     dataset_folder_name = dataset_filename[0:-4]
-    dataset_folder_path = Path(app_config['gtfs_static']['download_base_path'] + f'/{dataset_folder_name}')
+    dataset_folder_path = Path(f'{gtfs_static_base_path}/{dataset_folder_name}')
 
     formatted_date = compute_formatted_date_from_gtfs_folder_path(dataset_folder_path)
     if formatted_date is None:
@@ -34,7 +46,7 @@ def main():
         sys.exit(1)
 
     db_filename = f"gtfs_{formatted_date}.sqlite"
-    db_path = Path(app_config['gtfs_static']['gtfs_db_base_path'] + f'/{db_filename}')
+    db_path = Path(f'{gtfs_static_db_base_path}/{db_filename}')
 
     if os.path.isfile(db_path):
         print(f'DB already existing at {db_path}')
@@ -46,7 +58,7 @@ def main():
         print(f'{dataset_folder_path}')
         sys.exit(0)
     
-    gtfs_static_zip_path = Path(app_config['gtfs_static']['download_base_path'] + f'/{dataset_filename}')
+    gtfs_static_zip_path = Path(f'{gtfs_static_base_path}/{dataset_filename}')
     if os.path.isfile(gtfs_static_zip_path):
         run_unzip(gtfs_static_zip_path, dataset_folder_path)
         sys.exit(0)
