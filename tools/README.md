@@ -3,6 +3,7 @@
 - [GTFS-RT Fetcher](gtfs-rt-fetch)
 - [GTFS-Static DB Importer](gtfs-static-db-importer)
 - [GTFS-Static Assets Exporter](gtfs-static-snapshot-exporter)
+- [GTFS-Static fetch latest](gtfs-static-fetch-latest)
 - [HRDF DB Importer](hrdf-db-importer)
 - [HRDF Stops Reporter](hrdf-stops-reporter)
 
