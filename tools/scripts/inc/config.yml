@@ -1,0 +1,8 @@
+env_file_version: '1'
+env_file_path: [APP_PATH]/.ENV.LOCAL
+
+tmp-data-paths:
+  gtfs-static: &GTFS_STATIC_DATA_PATH [APP_PATH]/tmp/data/gtfs-static
+
+env_data_keys:
+  GTFS_STATIC_DATA_PATH: *GTFS_STATIC_DATA_PATH
