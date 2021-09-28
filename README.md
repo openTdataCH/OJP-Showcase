@@ -28,3 +28,7 @@ You can run the tools in two ways
 - Check [docker](tools/docker) to see how to build the image locally.
 - Run any tool below, i.e. 
 `$ docker run -v $(PWD):/app --rm opentdata-tools-python python3 hrdf_db_reporter_cli.py -p tmp/hrdf_2021-01-10.sqlite`
+
+## 3. Running the scripts on the server
+
+- Check [tools/scripts](tools/scripts)
