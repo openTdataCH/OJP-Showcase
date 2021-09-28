@@ -4,5 +4,3 @@ opentransportdata.swiss:
 
 gtfs_static:
   package_id: timetable-2021-gtfs2020
-  download_base_path: /data/gtfs-static-data
-  gtfs_db_base_path: /data/gtfs-static-dbs
