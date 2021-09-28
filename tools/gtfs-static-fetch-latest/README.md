@@ -6,5 +6,5 @@ The download path is defined in `./inc/config.yml`.
 
 Usage: 
 ```
-$ python3 gtfs_static_fetch_latest_cli.py
+$ python3 gtfs_static_fetch_latest_cli.py --gtfs-base-folder-path /path/to/save/gtfs-static
 ```

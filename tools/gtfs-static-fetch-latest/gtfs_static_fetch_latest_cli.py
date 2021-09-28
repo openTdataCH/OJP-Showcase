@@ -6,7 +6,7 @@ import urllib.request
 from inc.shared.inc.helpers.config_helpers import load_yaml_config
 from inc.shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path
 
-def main():
+def main(gtfs_static_base_path: Path):
     script_path = Path(os.path.realpath(__file__))
 
     app_config_path = Path(f'{script_path.parent}/inc/config.yml')
@@ -15,16 +15,9 @@ def main():
         sys.exit(1)
     app_config = load_yaml_config(app_config_path, script_path.parent)
 
-    gtfs_static_base_path = Path(app_config['gtfs_static']['download_base_path'])
     if not os.path.isdir(gtfs_static_base_path):
         print(f'ERROR, download_base_path is not a folder')
         print(f'{gtfs_static_base_path}')
-        sys.exit(1)
-
-    gtfs_static_db_base_path = Path(app_config['gtfs_static']['gtfs_db_base_path'])
-    if not os.path.isdir(gtfs_static_db_base_path):
-        print(f'ERROR, gtfs_db_base_path is not a folder')
-        print(f'{gtfs_static_db_base_path}')
         sys.exit(1)
 
     print('Fetching latest CKAN info ...')
@@ -44,13 +37,6 @@ def main():
     if formatted_date is None:
         print(f"CANT read date from GTFS archive: '{dataset_filename}'")
         sys.exit(1)
-
-    db_filename = f"gtfs_{formatted_date}.sqlite"
-    db_path = Path(f'{gtfs_static_db_base_path}/{db_filename}')
-
-    if os.path.isfile(db_path):
-        print(f'DB already existing at {db_path}')
-        sys.exit(0)
 
     gtfs_agency_path = f'{dataset_folder_path}/agency.txt'
     if os.path.isfile(gtfs_agency_path):
@@ -113,4 +99,15 @@ def run_unzip(archive_path: Path, folder_path: Path):
     print(f'... done unzip')
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--gtfs-base-folder-path', '--gtfs-base-folder-path')
+    cli_args = parser.parse_args()
+
+    gtfs_base_folder_path = cli_args.gtfs_base_folder_path
+    if not os.path.isdir(gtfs_base_folder_path):
+        print(f'--gtfs-base-folder-path is not a valid folder {gtfs_base_folder_path}')
+        sys.exit()
+
+    gtfs_base_folder_path = Path(gtfs_base_folder_path)
+
+    main(gtfs_base_folder_path)
