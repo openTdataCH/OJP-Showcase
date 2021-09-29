@@ -1,0 +1,77 @@
+import argparse, glob, os, sys
+from pathlib import Path
+import json
+import urllib.request
+
+from inc.shared.inc.helpers.config_helpers import load_yaml_config
+from inc.shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path
+from inc.db_importer import GTFS_DB_Importer
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--gtfs-base-folder-path', '--gtfs-base-folder-path')
+    parser.add_argument('--gtfs-db-base-folder-path', '--gtfs-db-base-folder-path')
+    args = parser.parse_args()
+
+    gtfs_base_folder_path = args.gtfs_base_folder_path
+    if not gtfs_base_folder_path:
+        print(f'ERROR, use it with --gtfs-base-folder-path /path/to/GTFS_base_path')
+        sys.exit(1)
+
+    gtfs_base_folder_path = Path(gtfs_base_folder_path)
+    if not os.path.isdir(gtfs_base_folder_path):
+        print(f'ERROR, --gtfs-base-folder-path doesn\'t exist')
+        print(f'{gtfs_base_folder_path}')
+        sys.exit(1)
+
+    gtfs_db_base_folder_path = args.gtfs_db_base_folder_path
+    if not gtfs_db_base_folder_path:
+        print(f'ERROR, use it with --gtfs-db-base-folder-path /path/to/GTFS_DB_base_path')
+        sys.exit(1)
+
+    gtfs_db_base_folder_path = Path(gtfs_db_base_folder_path)
+    if not os.path.isdir(gtfs_db_base_folder_path):
+        print(f'ERROR, --gtfs-db-base-folder-path doesn\'t exist')
+        print(f'{gtfs_db_base_folder_path}')
+        sys.exit(1)
+
+    gtfs_dataset_paths = glob.glob(f'{gtfs_base_folder_path}/*')
+    gtfs_dataset_paths.sort(reverse=True)
+
+    latest_gtfs_dataset_path = None
+    gtfs_dataset_formatted_date = None
+    for gtfs_dataset_path in gtfs_dataset_paths:
+        if not os.path.isdir(gtfs_dataset_path):
+            continue
+
+        gtfs_dataset_path = Path(gtfs_dataset_path)
+        gtfs_dataset_formatted_date = compute_formatted_date_from_gtfs_folder_path(gtfs_dataset_path)
+        if gtfs_dataset_formatted_date is None:
+            continue
+
+        latest_gtfs_dataset_path = gtfs_dataset_path
+        break
+
+    if not latest_gtfs_dataset_path:
+        print(f'ERROR - cant find a GTFS dataset in {gtfs_base_folder_path}')
+        sys.exit(1)
+
+    db_filename = f"gtfs_{gtfs_dataset_formatted_date}.sqlite"
+    db_path = Path(f'{gtfs_db_base_folder_path}/{db_filename}')
+
+    if os.path.isfile(db_path):
+        print(f'DB for {latest_gtfs_dataset_path} already exists at {db_path}')
+        print(f'If you want to overwrite it, remove the file manually then run this script again')
+        sys.exit(0)
+
+    print(f'===================================================')
+    print(f'GTFS DB IMPORT')
+    print(f'  GTFS input path   : {latest_gtfs_dataset_path}')
+    print(f'  DB output path    : {db_path}')
+    print(f'===================================================', flush=True)
+
+    gtfs_importer = GTFS_DB_Importer(latest_gtfs_dataset_path, db_path)
+    gtfs_importer.start()
+
+if __name__ == "__main__":
+    main()
