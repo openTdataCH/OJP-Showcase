@@ -3,6 +3,8 @@ env_file_path: [APP_PATH]/.ENV.LOCAL
 
 tmp-data-paths:
   gtfs-static: &GTFS_STATIC_DATA_PATH [APP_PATH]/tmp/data/gtfs-static
+  gtfs-static-dbs: &GTFS_STATIC_DBS_PATH [APP_PATH]/tmp/gtfs-static-dbs
 
 env_data_keys:
   GTFS_STATIC_DATA_PATH: *GTFS_STATIC_DATA_PATH
+  GTFS_STATIC_DBS_PATH: *GTFS_STATIC_DBS_PATH
