@@ -9,5 +9,5 @@ Run `setup.py` to
 
 ## Scripts
 
-Fetch / unzip latest GTFS static dataset
-`$ bash tools/scripts/fetch-latest-gtfs-static.sh`
+Fetch / unzip / import latest GTFS static dataset
+`$ bash tools/scripts/fetch-import-latest-gtfs-static.sh`
