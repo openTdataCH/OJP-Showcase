@@ -11,6 +11,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gtfs-base-folder-path', '--gtfs-base-folder-path')
     parser.add_argument('--gtfs-db-base-folder-path', '--gtfs-db-base-folder-path')
+    parser.add_argument('--force', '--force', action='store_true')
     args = parser.parse_args()
 
     gtfs_base_folder_path = args.gtfs_base_folder_path
@@ -34,6 +35,8 @@ def main():
         print(f'ERROR, --gtfs-db-base-folder-path doesn\'t exist')
         print(f'{gtfs_db_base_folder_path}')
         sys.exit(1)
+
+    override_db = args.force == True
 
     gtfs_dataset_paths = glob.glob(f'{gtfs_base_folder_path}/*')
     gtfs_dataset_paths.sort(reverse=True)
@@ -60,9 +63,14 @@ def main():
     db_path = Path(f'{gtfs_db_base_folder_path}/{db_filename}')
 
     if os.path.isfile(db_path):
-        print(f'DB for {latest_gtfs_dataset_path} already exists at {db_path}')
-        print(f'If you want to overwrite it, remove the file manually then run this script again')
-        sys.exit(0)
+        if override_db:
+            print(f'Will override the content in DB at path {db_path} ...')
+        else:
+            print(f'DB for {latest_gtfs_dataset_path} already exists at {db_path}')
+            print(f'If you want to overwrite:')
+            print(f'- remove the file manually then run this script again')
+            print(f'- use --force')
+            sys.exit(0)
 
     print(f'===================================================')
     print(f'GTFS DB IMPORT')
