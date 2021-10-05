@@ -57,7 +57,7 @@ def split_rows_in_groups(seq, size):
     return seq_gen
 
 def drop_and_recreate_table(db_handle, table_name, table_config):
-    log_message(f"DROP TABLE {table_name} ...")
+    log_message(f"... DROP TABLE {table_name} ...")
     sql = f"DROP TABLE IF EXISTS {table_name}"
     db_handle.execute(sql)
 
@@ -79,7 +79,7 @@ def add_table_indexes(db_handle, table_name, table_config):
         sql = f"CREATE INDEX IF NOT EXISTS {table_name}_{column_name} ON {table_name}({column_name})"
         db_handle.execute(sql)
 
-    log_message("... DONE")
+    log_message("... DONE DROP")
 
 def load_sql_from_file(file_path: str):
     sql = ""
