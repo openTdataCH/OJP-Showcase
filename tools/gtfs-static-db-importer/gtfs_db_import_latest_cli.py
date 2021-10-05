@@ -78,7 +78,10 @@ def main():
     print(f'  DB output path    : {db_path}')
     print(f'===================================================', flush=True)
 
+    latest_gtfs_dataset_path = Path(latest_gtfs_dataset_path)
+
     gtfs_importer = GTFS_DB_Importer(latest_gtfs_dataset_path, db_path)
+    
     gtfs_importer.start()
 
 if __name__ == "__main__":
