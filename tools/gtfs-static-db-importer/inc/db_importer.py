@@ -131,7 +131,7 @@ class GTFS_DB_Importer:
         db_cursor.close()
         
         sql_template = 'UPDATE calendar SET day_bits = :day_bits WHERE service_id = :service_id'
-        table_csv_updater.update_table(db_handle, sql_template)
+        table_csv_updater.update_table(db_handle, sql_template, 10000)
 
         db_handle.close()
 
