@@ -202,14 +202,16 @@ class GTFS_DB_Importer:
         db_handle = sqlite3.connect(self.db_path)
         db_handle.row_factory = sqlite3.Row
 
+        trips_column_names = fetch_column_names(db_handle, 'trips')
+        new_trips_table_csv_file_path = Path(f'{self.db_tmp_path}/new_trips.csv')
+        new_trips_table_csv_file = open(new_trips_table_csv_file_path, 'w')
+        new_trips_table_csv = csv.DictWriter(new_trips_table_csv_file, trips_column_names)
+        new_trips_table_csv.writeheader()
+
         rows_no = count_rows_table(db_handle, 'trips')
         log_message(f'... found {rows_no} rows')
         
         db_cursor = db_handle.cursor()
-
-        trips_table_csv_path = Path(f'{self.db_tmp_path}/trips_update_times.csv')
-        trips_table_csv_columns = ['trip_id', 'departure_day_minutes', 'arrival_day_minutes', 'departure_time', 'arrival_time', 'stop_times_s']
-        trips_table_csv_updater = DB_Table_CSV_Updater(trips_table_csv_path, trips_table_csv_columns)
 
         map_stop_times_reset_table = {}
         for time_type in ['arrival_time', 'departure_time']:
@@ -249,8 +251,13 @@ class GTFS_DB_Importer:
 
                 stop_times.append(stop_time_row)
 
-            trip_data = {
+            trip_new_row = {
                 'trip_id': trip_id,
+                'route_id': db_row['route_id'],
+                'service_id': db_row['service_id'],
+                'trip_headsign': db_row['trip_headsign'],
+                'trip_short_name': db_row['trip_short_name'],
+                'direction_id': db_row['direction_id'],
                 'departure_day_minutes': None,
                 'departure_time': None,
                 'arrival_day_minutes': None,
@@ -287,8 +294,8 @@ class GTFS_DB_Importer:
                 stop_day_minutes_datetime = stop_time[stop_day_minutes_datetime_field]
                 stop_day_minutes = convert_datetime_to_day_minutes(stop_day_minutes_datetime)
 
-                trip_data[trip_day_minutes_field] = stop_day_minutes
-                trip_data[stop_day_minutes_datetime_field] = stop_day_minutes_datetime
+                trip_new_row[trip_day_minutes_field] = stop_day_minutes
+                trip_new_row[stop_day_minutes_datetime_field] = stop_day_minutes_datetime
 
             trip_stop_times_values = []
             for stop_time in stop_times:
@@ -300,27 +307,26 @@ class GTFS_DB_Importer:
                 stop_time_value = f'{stop_id}|{arrival_time}|{departure_time}'
                 trip_stop_times_values.append(stop_time_value)
 
-            stop_times_s = ' -- '.join(trip_stop_times_values)
+            trip_new_row['stop_times_s'] = ' -- '.join(trip_stop_times_values)
 
-            trips_row_dict = {
-                'arrival_day_minutes': trip_data['arrival_day_minutes'],
-                'departure_day_minutes': trip_data['departure_day_minutes'],
-                'arrival_time': trip_data['arrival_time'],
-                'departure_time': trip_data['departure_time'],
-                'stop_times_s': stop_times_s,
-                'trip_id': trip_id,
-            }
-            trips_table_csv_updater.prepare_row(trips_row_dict)
+            new_trips_table_csv.writerow(trip_new_row)
 
             row_id += 1
 
         db_cursor.close()
 
-        template_sql_path = self.map_sql_queries['update_trips_times']
-        template_sql = load_sql_from_file(template_sql_path)
-        trips_table_csv_updater.update_table(db_handle, template_sql, rows_report_no=200000)
+        new_trips_table_csv_file.close()
 
-        log_message('DONE update trips')
+        log_message(f"... INSERT new trips ...")
+        
+        trips_table_config = self.db_schema_config['tables']['trips']
+        new_trips_table_writer = DB_Table_CSV_Importer(self.db_path, 'trips', trips_table_config)
+        new_trips_table_writer.truncate_table()
+        new_trips_table_writer.load_csv_file(new_trips_table_csv_file_path)
+        new_trips_table_writer.add_table_indexes()
+        new_trips_table_writer.close()
+
+        log_message(f"... DONE INSERT new trips ...")
 
         for time_type in map_stop_times_reset_table:
             stop_times_updater = map_stop_times_reset_table[time_type]
