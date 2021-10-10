@@ -9,15 +9,18 @@ import shutil
 import sqlite3
 
 from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
+from .shared.inc.helpers.db_table_csv_updater import DB_Table_CSV_Updater
 from .shared.inc.helpers.gtfs_helpers import convert_datetime_to_day_minutes, massage_datetime_to_hhmm
 from .shared.inc.helpers.log_helpers import log_message
-from .shared.inc.helpers.db_helpers import truncate_and_load_table_records, table_select_rows, execute_sql_queries, drop_and_recreate_table, fetch_column_names, add_table_indexes, count_rows_table
+from .shared.inc.helpers.db_helpers import truncate_and_load_table_records, table_select_rows, execute_sql_queries, drop_and_recreate_table, fetch_column_names, add_table_indexes, count_rows_table, load_sql_from_file
 from .shared.inc.helpers.file_helpers import compute_file_rows_no
 
 class GTFS_DB_Importer:
-    def __init__(self, gtfs_folder_path, db_path: Path):
+    def __init__(self, app_config, gtfs_folder_path, db_path: Path):
+        self.map_sql_queries = app_config['map_sql_queries']
+
         self.gtfs_folder_path = gtfs_folder_path
-        self.db_path = str(db_path)
+        self.db_path = db_path
         self.db_schema_config = self._load_schema_config()
 
         self.db_tmp_path = f'{db_path.parent}/{db_path.name}-tmp'
@@ -26,6 +29,7 @@ class GTFS_DB_Importer:
 
     def start(self):
         log_message("START GTFS IMPORT")
+        log_message(f'DB FILENAME: {self.db_path.name}')
 
         self._import_csv_tables()
         self._update_calendar()
@@ -62,6 +66,8 @@ class GTFS_DB_Importer:
 
             gtfs_file_path = Path(f'{self.gtfs_folder_path}/{table_name}.txt')
             db_table_writer.load_csv_file(gtfs_file_path)
+            db_table_writer.add_table_indexes()
+            db_table_writer.close()
         
         log_message(f'... DONE BATCH IMPORT')
 
@@ -73,19 +79,24 @@ class GTFS_DB_Importer:
 
         rows_no = count_rows_table(db_handle, 'calendar')
         log_message(f'... found {rows_no} rows')
-        
-        db_cursor = db_handle.cursor()
+
+        table_csv_path = Path(f'{self.db_tmp_path}/calendar_update_day_bits.csv')
+        table_csv_updater = DB_Table_CSV_Updater(table_csv_path, ['service_id', 'day_bits'])
+
+        sql_path = self.map_sql_queries['select_calendar_dates_group_by']
+        sql = load_sql_from_file(sql_path)
+
+        log_message(f"... running calendar SQL")
 
         calendar_start_date = None
         calendar_end_date = None
         calendar_weeks_no = None
         calendar_days = list(calendar.day_name)
 
-        table_csv_update_path = f'{self.db_tmp_path}/calendar_update_day_bits.csv'
-        table_csv_update_file = open(table_csv_update_path, 'w')
-        table_csv_update_file.write("service_id,day_bits\n")
+        db_handle.execute("UPDATE calendar SET day_bits = ''")
+        db_handle.commit()
 
-        sql = 'SELECT service_id, monday, tuesday, wednesday, thursday, friday, saturday, sunday, start_date, end_date FROM calendar'
+        db_cursor = db_handle.cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 10000 == 0:
@@ -108,40 +119,25 @@ class GTFS_DB_Importer:
                 log_message(f'... TO      : {end_date}')
                 log_message(f'... weeks_no: {calendar_weeks_no}')
 
-            day_bits = self._compute_calendar_day_bits(service_id, db_handle, db_row, calendar_days, start_date, end_date, calendar_weeks_no)
-            table_csv_update_file.write(f"{service_id},{day_bits}\n")
+            day_bits = self._compute_calendar_day_bits(db_row, calendar_days, start_date, end_date, calendar_weeks_no)
+            row_dict = {
+                'service_id': service_id,
+                'day_bits': day_bits,
+            }
+            table_csv_updater.prepare_row(row_dict)
 
             row_id += 1
         
         db_cursor.close()
-        table_csv_update_file.close()
-
-        log_message(f'... reading {table_csv_update_path} ...')
-        table_csv_update_file = open(table_csv_update_path)
         
-        csv_reader = csv.DictReader(table_csv_update_file)
-        csv_row_id = 1
+        sql_template = 'UPDATE calendar SET day_bits = :day_bits WHERE service_id = :service_id'
+        table_csv_updater.update_table(db_handle, sql_template)
 
-        db_update_cursor = db_handle.cursor()
-
-        for row in csv_reader:
-            service_id = row['service_id']
-            day_bits = row['day_bits']
-            sql = f"UPDATE calendar SET day_bits = '{day_bits}' WHERE service_id = '{service_id}'"
-            db_update_cursor.execute(sql)
-
-            csv_row_id += 1
-        
-        table_csv_update_file.close()
-
-        db_handle.commit()
-        db_update_cursor.close()
-        
         db_handle.close()
 
         log_message('DONE update calendar')
 
-    def _compute_calendar_day_bits(self, service_id: str, db_handle, calendar_db_row, calendar_days, start_date, end_date, calendar_weeks_no):
+    def _compute_calendar_day_bits(self, calendar_db_row, calendar_days, start_date, end_date, calendar_weeks_no):
         map_weekdays_pattern = {}
         for calendar_day in calendar_days:
             day_key = calendar_day.lower()
@@ -149,9 +145,10 @@ class GTFS_DB_Importer:
             map_weekdays_pattern[calendar_day] = is_enabled
 
         day_bits_list = self._fill_day_bits_pattern(start_date, end_date, calendar_weeks_no, map_weekdays_pattern)
-        day_bits_list = self._update_day_bits_from_calendar_dates(service_id, db_handle, day_bits_list, start_date)
+        self._update_day_bits_from_calendar_dates(day_bits_list, calendar_db_row, start_date)
 
         day_bits = ''.join(day_bits_list)
+        
         return day_bits
 
     def _fill_day_bits_pattern(self, start_date, end_date, calendar_weeks_no, map_weekdays_pattern):
@@ -175,17 +172,17 @@ class GTFS_DB_Importer:
 
         return day_bits
 
-    def _update_day_bits_from_calendar_dates(self, service_id, db_handle, day_bits_list, start_date):
-        calendar_dates_sql = f"SELECT date, exception_type FROM calendar_dates WHERE service_id = '{service_id}'"
-        calendar_date_cursor = db_handle.cursor()
-        calendar_date_cursor.execute(calendar_dates_sql)
-        calendar_dates_rows = calendar_date_cursor.fetchall()
-        calendar_date_cursor.close()
+    def _update_day_bits_from_calendar_dates(self, day_bits_list, calendar_db_row, start_date):
+        calendar_dates_cno = calendar_db_row['calendar_dates_cno']
+        if calendar_dates_cno == 0:
+            return
 
-        for calendar_dates_row in calendar_dates_rows:
-            date_s = calendar_dates_row['date']
+        exception_dates = calendar_db_row['exception_dates'].split(',')
+
+        for calendar_dates_s in exception_dates:
+            (date_s, exception_type_s) = calendar_dates_s.split('|')
             row_date = datetime.datetime.strptime(date_s, "%Y%m%d")
-            exception_type = int(calendar_dates_row['exception_type'])
+            exception_type = int(exception_type_s)
 
             day_bit = None
             if exception_type == 1:
@@ -193,13 +190,11 @@ class GTFS_DB_Importer:
             if exception_type == 2:
                 day_bit = '0'
             if not day_bit:
-                print(f'ERROR - cant interpret exception_type {calendar_dates_row}')
+                print(f'ERROR - cant interpret exception_type {calendar_dates_s}')
                 sys.exit()
 
             day_idx = (row_date-start_date).days
             day_bits_list[day_idx] = day_bit
-
-        return day_bits_list
 
     def _update_trips(self):
         log_message('START update trips/stop_times')
@@ -212,37 +207,38 @@ class GTFS_DB_Importer:
         
         db_cursor = db_handle.cursor()
 
-        table_csv_update_path = f'{self.db_tmp_path}/trips_update_times.csv'
-        table_csv_update_file = open(table_csv_update_path, 'w')
-        table_csv_columns = ['trip_id', 'departure_day_minutes', 'arrival_day_minutes', 'departure_time', 'arrival_time', 'stop_times_s']
-        table_csv_update_file.write(','.join(table_csv_columns) + "\n")
+        trips_table_csv_path = Path(f'{self.db_tmp_path}/trips_update_times.csv')
+        trips_table_csv_columns = ['trip_id', 'departure_day_minutes', 'arrival_day_minutes', 'departure_time', 'arrival_time', 'stop_times_s']
+        trips_table_csv_updater = DB_Table_CSV_Updater(trips_table_csv_path, trips_table_csv_columns)
 
-        stop_times_update_file_path = f'{self.db_tmp_path}/stop_times_update_times.csv'
-        stop_times_update_file = open(stop_times_update_file_path, 'w')
-        stop_times_update_columns = ['db_rowid', 'column_to_reset']
-        stop_times_update_file.write(','.join(stop_times_update_columns) + "\n")
+        map_stop_times_reset_table = {}
+        for time_type in ['arrival_time', 'departure_time']:
+            csv_path = Path(f'{self.db_tmp_path}/stop_times_reset_{time_type}.csv')
+            column_names = ['table_rowid']
+            map_stop_times_reset_table[time_type] = DB_Table_CSV_Updater(csv_path, column_names)
 
-        sql = 'SELECT trip_id FROM trips'
+        sql_path = self.map_sql_queries['select_stop_times_group_by']
+        sql = load_sql_from_file(sql_path)
+
+        log_message(f"... running select_stop_times_group_by SQL")
+
+        db_cursor = db_handle.cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 200000 == 0:
                 log_message(f'... parsed {row_id} rows')
 
             trip_id = db_row['trip_id']
-            table_stop_times_sql = f"SELECT rowid, stop_id, arrival_time, departure_time FROM stop_times WHERE trip_id = '{trip_id}' ORDER BY stop_sequence"
-            
-            stop_times_cursor = db_handle.cursor()
-            stop_times_cursor.execute(table_stop_times_sql)
-            stop_times_rows = stop_times_cursor.fetchall()
-            stop_times_cursor.close()
+            stop_times_data = db_row['stop_times_data'].split(',')
 
             stop_times = []
+            for stop_time_data in stop_times_data:
+                stop_time_parts = stop_time_data.split('|')
 
-            for stop_times_row in stop_times_rows:
-                db_rowid = stop_times_row['rowid']
-                stop_id = stop_times_row['stop_id']
-                arrival_time = stop_times_row['arrival_time']
-                departure_time = stop_times_row['departure_time']
+                db_rowid = int(stop_time_parts[0])
+                stop_id = stop_time_parts[1]
+                arrival_time = stop_time_parts[2]
+                departure_time = stop_time_parts[3]
 
                 stop_time_row = {
                     'db_rowid': db_rowid,
@@ -281,14 +277,14 @@ class GTFS_DB_Importer:
                     trip_day_minutes_field = 'arrival_day_minutes'
 
                 db_rowid = stop_time['db_rowid']
-                stop_times_update_file.write(f"{db_rowid},{reset_time_field}\n")
+
+                stop_times_row_dict = {
+                    'table_rowid': db_rowid, 
+                }
+                map_stop_times_reset_table[reset_time_field].prepare_row(stop_times_row_dict)
 
                 stop_time[reset_time_field] = None
                 stop_day_minutes_datetime = stop_time[stop_day_minutes_datetime_field]
-                if stop_day_minutes_datetime == None:
-                    print(trip_id)
-                    print(table_stop_times_sql)
-                    sys.exit()
                 stop_day_minutes = convert_datetime_to_day_minutes(stop_day_minutes_datetime)
 
                 trip_data[trip_day_minutes_field] = stop_day_minutes
@@ -304,84 +300,35 @@ class GTFS_DB_Importer:
                 stop_time_value = f'{stop_id}|{arrival_time}|{departure_time}'
                 trip_stop_times_values.append(stop_time_value)
 
-            trip_data['stop_times_s'] = ' -- '.join(trip_stop_times_values)
+            stop_times_s = ' -- '.join(trip_stop_times_values)
 
-            csv_row_values = []
-            for column_name in table_csv_columns:
-                csv_row_value = f'{trip_data[column_name]}'
-                csv_row_values.append(csv_row_value)
-            csv_row_s = ','.join(csv_row_values)
-
-            table_csv_update_file.write(f"{csv_row_s}\n")
+            trips_row_dict = {
+                'arrival_day_minutes': trip_data['arrival_day_minutes'],
+                'departure_day_minutes': trip_data['departure_day_minutes'],
+                'arrival_time': trip_data['arrival_time'],
+                'departure_time': trip_data['departure_time'],
+                'stop_times_s': stop_times_s,
+                'trip_id': trip_id,
+            }
+            trips_table_csv_updater.prepare_row(trips_row_dict)
 
             row_id += 1
 
         db_cursor.close()
-        table_csv_update_file.close()
-        stop_times_update_file.close()
 
-        log_message(f'... UPDATE trips with times info ...')
-        self._update_trips_times(db_handle, table_csv_update_path)
+        template_sql_path = self.map_sql_queries['update_trips_times']
+        template_sql = load_sql_from_file(template_sql_path)
+        trips_table_csv_updater.update_table(db_handle, template_sql, 200000)
 
-        log_message(f'... RESET dep/arr times in stop_times ...')
-        self._update_stop_times(db_handle, stop_times_update_file_path)
-        
+        log_message('DONE update trips')
+
+        for time_type in map_stop_times_reset_table:
+            stop_times_updater = map_stop_times_reset_table[time_type]
+            template_sql_path = self.map_sql_queries['update_stop_times_reset']
+            template_sql = load_sql_from_file(template_sql_path)
+            template_sql = template_sql.replace('[COLUMN_TO_RESET]', time_type)
+            stop_times_updater.update_table(db_handle, template_sql, 200000)
+
+            log_message(f'DONE update stop_times RESET for {time_type}')
+
         db_handle.close()
-
-        log_message('DONE update trips/stop_times')
-
-    def _update_trips_times(self, db_handle: any, csv_path: str):
-        table_csv_update_file = open(csv_path)
-        
-        csv_reader = csv.DictReader(table_csv_update_file)
-        csv_row_id = 1
-
-        db_update_cursor = db_handle.cursor()
-
-        for row in csv_reader:
-            if csv_row_id % 100000 == 0:
-                db_handle.commit()
-                log_message(f'... updated {csv_row_id} rows')
-
-            trip_id = row['trip_id']
-            departure_day_minutes = row['departure_day_minutes']
-            arrival_day_minutes = row['arrival_day_minutes']
-            departure_time = row['departure_time']
-            arrival_time = row['arrival_time']
-            stop_times_s = row['stop_times_s']
-            
-            sql = f"UPDATE trips SET departure_day_minutes = {departure_day_minutes}, arrival_day_minutes = {arrival_day_minutes}, departure_time = '{departure_time}', arrival_time = '{arrival_time}', stop_times_s = '{stop_times_s}' WHERE trip_id = '{trip_id}'"
-            db_update_cursor.execute(sql)
-
-            csv_row_id += 1
-        
-        table_csv_update_file.close()
-
-        db_handle.commit()
-        db_update_cursor.close()
-
-    def _update_stop_times(self, db_handle: any, csv_path: str):
-        table_csv_update_file = open(csv_path)
-        
-        csv_reader = csv.DictReader(table_csv_update_file)
-        csv_row_id = 1
-
-        db_update_cursor = db_handle.cursor()
-
-        for row in csv_reader:
-            if csv_row_id % 100000 == 0:
-                db_handle.commit()
-                log_message(f'... updated {csv_row_id} rows')
-
-            db_rowid = row['db_rowid']
-            column_to_reset = row['column_to_reset']
-            
-            sql = f"UPDATE stop_times SET {column_to_reset} = NULL WHERE ROWID = '{db_rowid}'"
-            db_update_cursor.execute(sql)
-
-            csv_row_id += 1
-        
-        table_csv_update_file.close()
-
-        db_handle.commit()
-        db_update_cursor.close()
