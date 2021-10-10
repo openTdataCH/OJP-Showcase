@@ -69,7 +69,7 @@ class GTFS_DB_Importer:
             db_table_writer.add_table_indexes()
             db_table_writer.close()
         
-        log_message(f'... DONE BATCH IMPORT')
+        log_message(f'DONE BATCH IMPORT')
 
     def _update_calendar(self):
         log_message('START update calendar')
