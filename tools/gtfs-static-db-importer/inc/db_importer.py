@@ -61,7 +61,7 @@ class GTFS_DB_Importer:
 
             table_config = self.db_schema_config['tables'][table_name]
 
-            db_table_writer = DB_Table_CSV_Importer(self.db_path, self.db_tmp_path, table_name, table_config)
+            db_table_writer = DB_Table_CSV_Importer(self.db_path, table_name, table_config)
             db_table_writer.truncate_table()
 
             gtfs_file_path = Path(f'{self.gtfs_folder_path}/{table_name}.txt')
