@@ -131,7 +131,7 @@ class GTFS_DB_Importer:
         db_cursor.close()
         
         sql_template = 'UPDATE calendar SET day_bits = :day_bits WHERE service_id = :service_id'
-        table_csv_updater.update_table(db_handle, sql_template, 10000)
+        table_csv_updater.update_table(db_handle, sql_template, rows_report_no=10000)
 
         db_handle.close()
 
@@ -318,7 +318,7 @@ class GTFS_DB_Importer:
 
         template_sql_path = self.map_sql_queries['update_trips_times']
         template_sql = load_sql_from_file(template_sql_path)
-        trips_table_csv_updater.update_table(db_handle, template_sql, 200000)
+        trips_table_csv_updater.update_table(db_handle, template_sql, rows_report_no=200000)
 
         log_message('DONE update trips')
 
@@ -327,7 +327,7 @@ class GTFS_DB_Importer:
             template_sql_path = self.map_sql_queries['update_stop_times_reset']
             template_sql = load_sql_from_file(template_sql_path)
             template_sql = template_sql.replace('[COLUMN_TO_RESET]', time_type)
-            stop_times_updater.update_table(db_handle, template_sql, 200000)
+            stop_times_updater.update_table(db_handle, template_sql, rows_report_no=200000)
 
             log_message(f'DONE update stop_times RESET for {time_type}')
 
