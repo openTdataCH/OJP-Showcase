@@ -22,7 +22,7 @@ class DB_Table_CSV_Importer:
     def truncate_table(self):
         drop_and_recreate_table(self.db_handle, self.table_name, self.table_config)
 
-    def load_csv_file(self, csv_path):
+    def load_csv_file(self, csv_path: Path):
         log_message(f'START LOAD CSV: {csv_path.name}')
         lines_no = compute_file_rows_no(csv_path) - 1
         log_message(f'... found {lines_no} rows')
