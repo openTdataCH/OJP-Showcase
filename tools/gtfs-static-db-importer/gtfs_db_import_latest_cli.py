@@ -8,6 +8,13 @@ from inc.shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs
 from inc.db_importer import GTFS_DB_Importer
 
 def main():
+    script_path = Path(os.path.realpath(__file__))
+    app_config_path = Path(f'{script_path.parent}/inc/config.yml')
+    if not os.path.isfile(app_config_path):
+        print(f'ERROR: cant load config from {app_config_path}')
+        sys.exit(1)
+    app_config = load_yaml_config(app_config_path, script_path.parent)
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--gtfs-base-folder-path', '--gtfs-base-folder-path')
     parser.add_argument('--gtfs-db-base-folder-path', '--gtfs-db-base-folder-path')
@@ -80,7 +87,7 @@ def main():
 
     latest_gtfs_dataset_path = Path(latest_gtfs_dataset_path)
 
-    gtfs_importer = GTFS_DB_Importer(latest_gtfs_dataset_path, db_path)
+    gtfs_importer = GTFS_DB_Importer(app_config, latest_gtfs_dataset_path, db_path)
     
     gtfs_importer.start()
 
