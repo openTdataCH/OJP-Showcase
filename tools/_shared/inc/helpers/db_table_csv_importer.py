@@ -8,7 +8,7 @@ from .file_helpers import compute_file_rows_no
 from .db_helpers import drop_and_recreate_table, fetch_column_names, add_table_indexes
 
 class DB_Table_CSV_Importer:
-    def __init__(self, db_path: Path, temp_path: Path, table_name: str, table_config: any):
+    def __init__(self, db_path: Path, table_name: str, table_config: any):
         self.db_path = db_path
         self.db_handle = sqlite3.connect(db_path)
         
