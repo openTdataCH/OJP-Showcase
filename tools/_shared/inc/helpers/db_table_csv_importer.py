@@ -65,7 +65,7 @@ class DB_Table_CSV_Importer:
         insert_cursor.executemany(template_insert_sql, batch_insert_values)
         self.db_handle.commit()
 
-        log_message(f'... DONE  LOAD CSV')
+        log_message(f'... DONE LOAD CSV')
 
     def _compute_rows_report_no(self, rows_no):
         if rows_no < 1000000:
