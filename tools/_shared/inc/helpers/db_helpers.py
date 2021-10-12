@@ -35,6 +35,7 @@ def truncate_and_load_table_records(db_path, table_name, table_config, row_items
         insert_cursor.close()
 
     add_table_indexes(db_handle, table_name, table_config)
+    db_handle.close()
 
 def fetch_column_names(db_handle, table_name):
     sql = f"PRAGMA table_info({table_name})"
