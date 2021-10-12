@@ -12,8 +12,6 @@ def load_resource_from_bundle(map_resource_paths: dict, resource_key: str):
         print(f"ERROR: cant find path \n{resource_path}")
         sys.exit(1)
 
-    resource_file_handler = open(resource_path)
-    resource_content = resource_file_handler.read()
-    resource_file_handler.close()
+    resource_content = resource_path.read_text()
 
     return resource_content
