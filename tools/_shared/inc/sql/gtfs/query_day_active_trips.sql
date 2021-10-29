@@ -28,4 +28,4 @@ WHERE
 
     [EXTRA_WHERE]
 
-    AND day_bit = '1'
+    AND day_bit = '1' 

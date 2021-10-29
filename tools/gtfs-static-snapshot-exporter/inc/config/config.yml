@@ -5,4 +5,4 @@ gtfs_static_snapshot_paths:
     db_trips_day_json_path: "[APP_PATH]/output/assets-gtfs-static-snapshot/gtfs_[GTFS_DB_DAY]/trips_[GTFS_DAY].json"
 
 map_sql_queries:
-    gtfs_query_active_trips: "[APP_PATH]/inc/shared/inc/sql/gtfs/query_active_trips.sql"
+    gtfs_query_active_trips: "[APP_PATH]/inc/shared/inc/sql/gtfs/query_day_active_trips.sql"
