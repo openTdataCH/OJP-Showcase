@@ -1,0 +1,5 @@
+RewriteEngine On
+
+RewriteRule db_lookups$ db_lookups.php [L,QSA]
+RewriteRule query_active_trips$ query_active_trips.php [L,QSA]
+RewriteRule lookup/([a-zA-Z0-9]+?)$ select_table.php?table_name=$1 [L]

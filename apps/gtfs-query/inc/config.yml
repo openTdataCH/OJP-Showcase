@@ -1,0 +1,9 @@
+ojp_gtfs_dbs_path: "[APP_PATH]/tmp/gtfs-static-dbs"
+
+map_sql_queries:
+    query_day_active_trips: "[APP_PATH]/inc/sql/gtfs/query_day_active_trips.sql"
+    where_from_to_trips: "[APP_PATH]/inc/sql/gtfs/where/where_from_to_trips.sql"
+
+go_realtime_csv_path: "[APP_PATH]/inc/config/go-realtime.csv"
+
+app_db_cache_path: "[APP_PATH]/tmp/gtfs-query-db-cache"
