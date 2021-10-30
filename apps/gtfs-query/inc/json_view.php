@@ -20,6 +20,8 @@ class JsonView {
         
         header(' ', true, 200);
         header('Content-Type: application/json; charset=utf-8');
+
+        header('Access-Control-Allow-Origin: *');
         
         header("Cache-Control: max-age=0, no-cache, no-store, must-revalidate");
         header("Pragma: no-cache");
