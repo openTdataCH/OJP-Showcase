@@ -20,7 +20,6 @@ export default class GTFS_DB_Controller {
 
     private is_dev = false;
     private use_mocked_data = false;
-    private use_filtered_lookup = false;
 
     constructor() {
         this.gtfs_query_btn = document.getElementById('gtfs_query_btn') as HTMLButtonElement;
@@ -91,31 +90,6 @@ export default class GTFS_DB_Controller {
         }).catch( error => {
             this.progress_controller?.setError('ERROR loading resources');
         });
-    }
-
-    private computeGTFS_DB_Day(date: Date) {
-        // Wednesday (weekIdx 3) is the change
-        const datasetWeekdayIDChange = 3;
-        // Change time is at 14:00
-        const datasetHoursChange = 14;
-
-        let weekDayDiff = date.getDay() - datasetWeekdayIDChange;
-        if (weekDayDiff < 0) {
-            weekDayDiff += 7;
-        }
-
-        if (weekDayDiff === 0) {
-            if (date.getHours() < datasetHoursChange) {
-                weekDayDiff = 7;
-            }
-        }
-
-        const newDate = new Date(date.getTime());
-        newDate.setDate(date.getDate()-weekDayDiff);
-
-        const newDateS = Date_Helpers.formatDateYMDHIS(newDate);
-
-        return newDateS.substring(0, 10);
     }
 
     private update_request_time() {
