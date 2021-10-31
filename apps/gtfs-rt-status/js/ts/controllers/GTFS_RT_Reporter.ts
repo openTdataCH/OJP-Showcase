@@ -126,7 +126,8 @@ export default class GTFS_RT_Reporter {
         this.map_gtfs_all_trips = {};
 
         response_json.forEach(trip_condensed => {
-            this.map_gtfs_all_trips[trip_condensed.trip_id] = trip_condensed;
+            const trip_id = trip_condensed.trip_id;
+            this.map_gtfs_all_trips[trip_id] = trip_condensed;
         });
     }
 
