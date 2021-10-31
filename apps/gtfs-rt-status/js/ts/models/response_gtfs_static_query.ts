@@ -138,7 +138,6 @@ export class GTFS_Static_Trip {
                 }
 
                 const is_first_stop = idx === 0;
-                const is_last_stop = idx === this.stop_times.length - 1;
 
                 if (is_first_stop) {
                     return;
