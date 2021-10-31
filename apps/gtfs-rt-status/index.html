@@ -82,7 +82,7 @@
                             <div class="card">
                                 <div class="card-header d-flex">
                                     <div class="flex-grow-1">
-                                        <span class="h4 align-middle">GTFS-RT</span> - <span class="badge bg-secondary">[NO_RT_NO]</span> <span class="badge bg-success">[RT_NO]</span>
+                                        <span class="h4 align-middle">GTFS -RT</span> - <span class="badge bg-success">[RT_NO] entries</span> <span class="badge bg-secondary">[NO_RT_NO] missing</span> 
                                     </div>
                                     <div>
                                         <a class="content-collapse not-collapsed align-middle" href="#gtfs_report_body" data-bs-toggle="collapse" aria-expanded="true" aria-controls="gtfs_report_body">
@@ -93,10 +93,16 @@
                                 </div>
                                 <div class="collapse show" id="gtfs_report_body">
                                     <div class="card-body">
-                                        <h5>Agency missing from GO-Realtime <span class="badge bg-secondary">[AGENCY_WITHOUT_GO_REALTIME_NO]</h5>
-                                        <div class="mb-2">[AGENCY_WITHOUT_GO_REALTIME]</span></div>
+                                        <h5>Stats</h5>
+                                        <ul class="mb-2">
+                                            <li>the data feed has [RT_NO] entries</li>
+                                            <li>from which [NO_RT_NO] entries are not found in GTFS -static dataset</li>
+                                        </ul>
                                         <hr/>
-                                        <h5>Agency without GTFS-RT <span class="badge bg-secondary">[AGENCY_WITHOUT_GTFS-RT_LIST_NO]</h5>
+                                        <h5>Agencies missing from GO-Realtime <span class="badge bg-secondary">[AGENCY_WITHOUT_GO_REALTIME_NO]</span></h5>
+                                        <div class="mb-2">[AGENCY_WITHOUT_GO_REALTIME]</div>
+                                        <hr/>
+                                        <h5>Agencies without GTFS-RT <span class="badge bg-secondary">[AGENCY_WITHOUT_GTFS-RT_LIST_NO]</span></h5>
                                         <div class="mb-2">[AGENCY_WITHOUT_GTFS-RT_LIST]</div>
                                         <hr/>
                                         <h5>[GTFS_RT_ISSUES_CAPTION]</h5>
@@ -109,8 +115,26 @@
                 </div>
 
                 <div id="template_gtfs_static_report">
-                    <h4>GTFS Static report</h4>
-                    <div>[GTFS_STATIC_REPORT_HTML]</div>
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <div class="card">
+                                <div class="card-header d-flex">
+                                    <div class="flex-grow-1">
+                                        <span class="h4 align-middle">GTFS -Static</span> - <span class="badge bg-secondary">[GTFS_STATIC_TRIPS_NO] entries</span> <span class="badge bg-secondary">[GTFS_STATIC_MISSING_RT_NO] missing</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h5>Stats</h5>
+                                    <ul class="mb-2">
+                                        <li>the GTFS DB has [GTFS_STATIC_TRIPS_NO] trip entries and [GTFS_STATIC_AGENCIES_NO] agencies</li>
+                                        <li>there are [GTFS_STATIC_MISSING_RT_NO] trips missing GTFS-RT</li>
+                                    </ul>
+                                    <hr/>
+                                    <div>[GTFS_STATIC_REPORT_HTML]</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div id="template_agency">
