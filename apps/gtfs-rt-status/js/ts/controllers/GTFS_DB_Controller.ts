@@ -20,17 +20,6 @@ export default class GTFS_DB_Controller {
     private use_filtered_lookup = false;
 
     constructor() {
-        this.is_dev = location.hostname === 'localhost';
-        if (this.is_dev) {
-            this.use_mocked_data = true;
-            this.use_filtered_lookup = true;
-            this.use_mocked_data = false;
-            this.use_filtered_lookup = false;
-        } else {
-            this.use_mocked_data = false;
-            this.use_filtered_lookup = false;
-        }
-
         this.gtfs_query_btn = document.getElementById('gtfs_query_btn') as HTMLButtonElement;
         this.gtfs_query_btn.addEventListener('click', () => {
             this.handle_gtfs_query_btn_click();
