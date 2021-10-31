@@ -166,6 +166,7 @@ export default class GTFS_RT_Reporter {
             const trip = GTFS_Static_Trip.initWithCondensedTrip(condensed_trip, agency, route, trip_day_midnight, this.map_gtfs_stops);
 
             // Test the trip to be inside [-0.5h .. +3h]
+            // This check is now(oct 2021) redundant, the trips are already filtered in the API.
             const is_active = trip.isActive(request_interval_from_date, request_interval_to_date);
             if (!is_active) {
                 continue;
