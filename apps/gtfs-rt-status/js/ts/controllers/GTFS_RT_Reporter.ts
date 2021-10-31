@@ -466,6 +466,19 @@ export default class GTFS_RT_Reporter {
         let gtfsStaticReportHTML = this.map_html_templates.gtfs_static_report.slice();
         gtfsStaticReportHTML = gtfsStaticReportHTML.replace('[GTFS_STATIC_REPORT_HTML]', agencyHTML);
 
+        if (this.gtfs_trips_stats) {
+            const stats = this.gtfs_trips_stats;
+            gtfsStaticReportHTML = gtfsStaticReportHTML.replace(/\[GTFS_STATIC_TRIPS_NO\]/g, stats.trips_count.toString());
+            gtfsStaticReportHTML = gtfsStaticReportHTML.replace(/\[TRIPS_ALREADY_FINISHED_NO\]/g, stats.trips_finished_count.toString());
+            gtfsStaticReportHTML = gtfsStaticReportHTML.replace(/\[GTFS_STATIC_AGENCIES_NO\]/g, stats.agencies_count.toString());
+            gtfsStaticReportHTML = gtfsStaticReportHTML.replace(/\[GTFS_STATIC_MISSING_RT_NO\]/g, stats.missing_rt_trips_count.toString());
+        } else {
+            gtfsStaticReportHTML = gtfsStaticReportHTML.replace(/\[GTFS_STATIC_TRIPS_NO\]/g, 'N/A');
+            gtfsStaticReportHTML = gtfsStaticReportHTML.replace(/\[TRIPS_ALREADY_FINISHED_NO\]/g, 'N/A');
+            gtfsStaticReportHTML = gtfsStaticReportHTML.replace(/\[GTFS_STATIC_AGENCIES_NO\]/g, 'N/A');
+            gtfsStaticReportHTML = gtfsStaticReportHTML.replace(/\[GTFS_STATIC_MISSING_RT_NO\]/g, 'N/A');
+        }
+
         this.wrapperGTFS_StaticReportElement.innerHTML = gtfsStaticReportHTML;
     }
 
@@ -665,4 +678,11 @@ interface TripRT_Stats {
     rt_cno: number
     active_missing_rt_cno: number
     future_missing_rt_cno: number
+}
+
+interface GTFS_Static_Stats {
+    trips_count: number
+    trips_finished_count: number
+    agencies_count: number
+    missing_rt_trips_count: number
 }
