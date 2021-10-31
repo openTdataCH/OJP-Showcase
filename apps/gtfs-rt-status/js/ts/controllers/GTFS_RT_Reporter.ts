@@ -9,6 +9,7 @@ export default class GTFS_RT_Reporter {
     
     private map_gtfs_all_trips: Record<string, GTFS_Static_Trip_Condensed>
     private trips_by_agency: Report_TripsByAgency[];
+    private gtfs_trips_stats: GTFS_Static_Stats | null
 
     private map_gtfs_agency: Record<string, GTFS.Agency>
     private map_gtfs_routes: Record<string, GTFS.Route>
@@ -26,6 +27,7 @@ export default class GTFS_RT_Reporter {
         this.map_gtfs_all_trips = {};
 
         this.trips_by_agency = [];
+        this.gtfs_trips_stats = null;
 
         this.map_gtfs_agency = {};
         this.map_gtfs_routes = {};
@@ -153,6 +155,8 @@ export default class GTFS_RT_Reporter {
         const trip_day = new Date(this.request_datetime);
         const trip_day_midnight = Date_Helpers.setHHMMToDate(trip_day, "00:00");
 
+        let trips_finished_count = 0;
+
         let map_active_trips: Record<string, Record<string, GTFS_Static_Trip[]>> = {};
         for (const trip_id in this.map_gtfs_all_trips) {
             const condensed_trip = this.map_gtfs_all_trips[trip_id];
@@ -167,9 +171,10 @@ export default class GTFS_RT_Reporter {
                 continue;
             }
 
-            // Test the trip to be after NOW
+            // Test the trip to finish after NOW
             const is_finished = trip.isFinished(this.request_datetime);
             if (is_finished) {
+                trips_finished_count += 1;
                 continue;
             }
 
@@ -189,6 +194,8 @@ export default class GTFS_RT_Reporter {
 
             map_active_trips[agency.agency_id][route.route_short_name].push(trip);
         }
+
+        let missing_rt_trips_count = 0;
 
         let trips_by_agency: Report_TripsByAgency[] = [];
         for (const agency_id in map_active_trips) {
@@ -240,6 +247,8 @@ export default class GTFS_RT_Reporter {
                 agency_data.routes_data.push(route_data);
             }
 
+            missing_rt_trips_count += agency_data.stats.active_missing_rt_cno;
+
             // Sort by route name
             agency_data.routes_data = agency_data.routes_data.sort((a, b) => a.stats.active_missing_rt_cno < b.stats.active_missing_rt_cno ? 1 : -1);
 
@@ -274,6 +283,13 @@ export default class GTFS_RT_Reporter {
         })
 
         this.trips_by_agency = trips_by_agency;
+
+        this.gtfs_trips_stats = {
+            trips_count: Object.keys(this.map_gtfs_all_trips).length,
+            trips_finished_count: trips_finished_count,
+            agencies_count: trips_by_agency.length,
+            missing_rt_trips_count: missing_rt_trips_count,
+        };
     }
 
     private updateGTFS_RTReport() {
