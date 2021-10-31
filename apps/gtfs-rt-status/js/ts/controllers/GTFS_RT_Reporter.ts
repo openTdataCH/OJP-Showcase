@@ -436,7 +436,6 @@ export default class GTFS_RT_Reporter {
         }
         report_html = report_html.replace('[AGENCY_WITHOUT_GO_REALTIME]', missingAgencyHTML);
         report_html = report_html.replace('[AGENCY_WITHOUT_GO_REALTIME_NO]', missingAgency.length.toString());
-        
 
         const missingGTFS_StaticIssuesNo = gtfsRT_ReportTRs.length;
         let gtfsRT_IssuesS = 'Missing GTFS static entries <span class="badge bg-secondary">' + missingGTFS_StaticIssuesNo.toString() + '</span>';
