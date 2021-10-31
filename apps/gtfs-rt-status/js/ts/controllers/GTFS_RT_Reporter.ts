@@ -401,8 +401,8 @@ export default class GTFS_RT_Reporter {
         });
 
         let report_html = this.map_html_templates.gtfs_rt_report.slice();
-        report_html = report_html.replace('[NO_RT_NO]', gtfs_rt_issues_no.toString());
-        report_html = report_html.replace('[RT_NO]', gtfs_rt_trips_no.toString());
+        report_html = report_html.replace(/\[NO_RT_NO\]/g, gtfs_rt_issues_no.toString());
+        report_html = report_html.replace(/\[RT_NO\]/g, gtfs_rt_trips_no.toString());
 
         const agencyIDsWithoutGTFS_RT = Object.keys(mapAgencyWithoutGTFS_RT);
         let agencyIDsWithoutGTFS_RT_HTML = '';
