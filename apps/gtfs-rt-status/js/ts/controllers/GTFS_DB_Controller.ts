@@ -121,15 +121,6 @@ export default class GTFS_DB_Controller {
     private update_request_time() {
         this.request_datetime = new Date();
 
-        // Override - TEST
-        if (this.use_mocked_data) {
-            let m = "2021-05-26 17:50:33".split(/\D/);
-            this.request_datetime = new Date(+m[0], +m[1] - 1, +m[2], +m[3], +m[4], +m[5]);
-
-            console.log('WARNING - using mocked data');
-            console.log('-- date ' + this.request_datetime);
-        }
-        
         this.update_query_inputs();
     }
 
