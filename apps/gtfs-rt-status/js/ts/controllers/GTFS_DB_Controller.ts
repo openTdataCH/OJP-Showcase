@@ -54,8 +54,17 @@ export default class GTFS_DB_Controller {
 
         this.query_request_day_el.value = date_f.substring(0, 10);
         this.query_request_time_el.value = date_f.substring(11, 16);
-        this.query_interval_from_time_el.value = from_date_f.substring(11, 16);
-        this.query_interval_to_time_el.value = to_date_f.substring(11, 16);
+
+        const from_date_hhmm = from_date_f.substring(11, 16);
+        this.query_interval_from_time_el.value = from_date_hhmm;
+
+        let to_date_hhmm = to_date_f.substring(11, 16);
+        if (to_date_hhmm < from_date_hhmm) {
+            const day_hrs = parseInt(to_date_hhmm.substring(0, 2), 10) + 24
+            const day_mins_f = to_date_hhmm.substring(3, 5);
+            to_date_hhmm = day_hrs.toString() + ':' + day_mins_f;
+        }
+        this.query_interval_to_time_el.value = to_date_hhmm;
     }
 
     public load_resources(completion: () => void) {
