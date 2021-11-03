@@ -76,16 +76,6 @@ We're using [opentransportdata.swiss go-realtime](https://opentransportdata.swis
 The following API is used for APIs are used for fetching GTFS-static info
 [./apps/gtfs-query](https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/gtfs-query)
 
-JSON files are used to store the following GTFS tables:
-- agency, routes, stops - for whole dataset, saved in one file. i.e. `./gtfs_2021-04-14/db_lookups.json`.
-- trips - only for the [GO-Realtime](https://opentransportdata.swiss/de/dataset/go-realtime) agencies. A single file is generated for each day, 8 in total for a given dataset(Wed, Thu ..., Wed). i.e. `./gtfs_2021-04-14/trips_2021-04-14.json` for Wed, 14.April.
-
-Steps to generate the JSON files:
-- download and unzip GTFS-static dataset from [opentransportdata.swiss](https://opentransportdata.swiss/de/dataset/timetable-2021-gtfs2020)
-- use [tools/gtfs-static-db-importer](https://github.com/openTdataCH/OJP-Showcase/tree/develop/tools/gtfs-static-db-importer) to import into a SQLiteDB - i.e. `./output/gtfs_db/gtfs_2021-04-14.sqlite`
-- use [tools/gtfs-static-snapshot-exporter](https://github.com/openTdataCH/OJP-Showcase/tree/develop/tools/gtfs-static-snapshot-exporter) to export the DB assets.
-- upload the JSON files to the [openTdataCH/assets-gtfs-static-snapshot](https://github.com/openTdataCH/assets-gtfs-static-snapshot) repo.
-
 ### 3. GTFS-RT
 
 We're using [opentransportdata.swiss GTFS Realtime](https://opentransportdata.swiss/de/cookbook/gtfs-rt/) endpoint: `https://api.opentransportdata.swiss/gtfsrt2020`
