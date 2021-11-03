@@ -1,3 +1,9 @@
+# Deprecated Tool
+
+This tool is not anymore used, the [gtfs-rt-status](https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/gtfs-rt-status) app is using an API to fetch the GTFS static trips. 
+
+----
+
 ### GTFS-Static Assets Exporter
 
 Python tool that exports assets needed by the [apps/gtfs-rt-status](https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/gtfs-rt-status)) webapp.

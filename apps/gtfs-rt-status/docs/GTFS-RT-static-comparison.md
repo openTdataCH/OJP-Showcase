@@ -2,7 +2,6 @@
 
 ## General
 - the app is deployed here: https://opentdatach.github.io/gtfs-rt-status/
-- there is no backend attached to the app, [Github Pages](https://docs.github.com/en/pages) is used to store and serve the assets needed by the app, see `GTFS-static` under Data Sources below.
 
 ----
 
@@ -10,7 +9,7 @@
 
 Step1. Fetching data
 - the app fetch the GTFS-static resources (agencies, routes, stops) and stores to be looked-up later.
-- for the trips we're fetching the current day trips. This dataset contains only the GO-Realtime trips that are valid for the given day (calendar + exceptions in calendar_dates are already evaluated at the export time).
+- for the trips we're fetching the trips for the given [-30min ... +3h] interval using the [Active Trips gtfs-query](https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/gtfs-query#active-trips) API. Only the [GO-Realtime](https://github.com/openTdataCH/OJP-Showcase/blob/develop/tools/_shared/inc/config/go-realtime.csv) agencies are used.
 - the app retreives the latest [GTFS-RT](https://opentransportdata.swiss/de/cookbook/gtfs-rt/) data.
 
 Step2. GTFS-RT stats
@@ -73,6 +72,9 @@ Step3. Generate a report for each agency.
 We're using [opentransportdata.swiss go-realtime](https://opentransportdata.swiss/de/dataset/go-realtime) to fetch the latest version. The Excel is exported and saved as CSV in [config/go-realtime.csv](https://github.com/openTdataCH/OJP-Showcase/blob/develop/tools/_shared/inc/config/go-realtime.csv).
 
 ### 2. GTFS-static
+
+The following API is used for APIs are used for fetching GTFS-static info
+[./apps/gtfs-query](https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/gtfs-query)
 
 JSON files are used to store the following GTFS tables:
 - agency, routes, stops - for whole dataset, saved in one file. i.e. `./gtfs_2021-04-14/db_lookups.json`.

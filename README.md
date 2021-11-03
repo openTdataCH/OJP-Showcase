@@ -3,13 +3,12 @@
 ## Apps
 
 - [GTFS-RT -static Comparsion](apps/gtfs-rt-status)
-- [OJP Demo](apps/ojp-demo)
+- [GTFS -static Query API](apps/gtfs-query)
 
 ## Tools
 
 - [GTFS-RT Fetcher](tools/gtfs-rt-fetch)
 - [GTFS-Static DB Importer](tools/gtfs-static-db-importer)
-- [GTFS-Static Assets Exporter](tools/gtfs-static-snapshot-exporter)
 - [GTFS-Static fetch latest](tools/gtfs-static-fetch-latest)
 - [HRDF DB Importer](tools/hrdf-db-importer)
 - [HRDF Stops Reporter](tools/hrdf-stops-reporter)
