@@ -84,4 +84,4 @@ We're using [opentransportdata.swiss GTFS Realtime](https://opentransportdata.sw
 
 Created: 14.April 2021
 
-Updated: 14.April 2021
+Updated: 03.November 2021
