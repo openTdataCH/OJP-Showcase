@@ -1,0 +1,770 @@
+# GTFS prev compare
+
+Python tool that compares 2 GTFS folder datasets.
+
+Usage: `gtfs_prev_compare_cli.py [--gtfs-a-path GTFS_A_PATH] [--gtfs-b-path GTFS_B_PATH]`
+
+|Param|Description|Example|
+|--|--|--|
+|---gtfs-a-path| First path to the GTFS folder, relative or absolute | `tmp/opentransportdata.swiss/gtfs-static/gtfs_fp2021_2021-10-27_09-10` |
+|---gtfs-b-path| Second path to the GTFS folder, relative or absolute | `tmp/opentransportdata.swiss/gtfs-static/gtfs_fp2021_2021-11-03_09-10` |
+
+# Sample Output
+
+```
+$ python3 gtfs_prev_compare_cli.py \
+    --gtfs-a-path tmp/opentransportdata.swiss/gtfs-static/gtfs_fp2021_2021-10-27_09-10 \ 
+    --gtfs-b-path tmp/opentransportdata.swiss/gtfs-static/gtfs_fp2021_2021-11-03_09-10
+```
+
+Output:
+
+```
+GTFS A: gtfs_fp2021_2021-10-27_09-10
+GTFS B: gtfs_fp2021_2021-11-03_09-10
+
+--------------------------------------------------------------------------------
+| table              | GTFS 2021-10-27 | GTFS 2021-11-03 |  DELTA |
+--------------------------------------------------------------------------------
+| agency             |             461 |             462 |      1 |
+| calendar_dates     |         6665175 |         6722861 |  57686 |
+| calendar           |           46081 |           46419 |    338 |
+| routes             |            4835 |            4827 |     -8 |
+| stop_times         |        14505347 |        14589285 |  83938 |
+| stops              |           39001 |           39134 |    133 |
+| transfers          |           45829 |           46051 |    222 |
+| trips              |         1328878 |         1333442 |   4564 |
+
+AGENCY:
+- added 1 items in gtfs_fp2021_2021-11-03_09-10
+ -- 87_TAC - Transports Publics de l'agglomération d'Annemasse
+- removed 0 items from gtfs_fp2021_2021-10-27_09-10
+
+ROUTES:
+- added 19 items in gtfs_fp2021_2021-11-03_09-10
+  - 87_TAC - 8 items
+    - 92-A08-A-j21-1
+    - 92-DA-A-j21-1
+    - 92-TAN-A-j21-1
+    - 92-A08-C-j21-1
+    - 92-7-X-j21-1
+    - 92-8-X-j21-1
+    - 92-A08-D-j21-1
+    - 92-A08-B-j21-1
+  - 80_VHB - 4 items
+    - 92-308-B-j21-1
+    - 92-A08-E-j21-1
+    - 92-U10-6-j21-1
+    - 92-U10-5-j21-1
+  - 87_LEX - 1 items
+    - 92-F8-Y-j21-1
+  - 87_SIB - 1 items
+    - 92-6-W-j21-1
+  - 820 - 1 items
+    - 92-N4-B-j21-1
+  - 38 - 1 items
+    - 92-F7-Y-j21-1
+  - 87_LSA - 1 items
+    - 92-Y81-j21-1
+  - 06____ - 1 items
+    - 91-DJ-Y-j21-1
+  - sbg034 - 1 items
+    - 92-930-j21-1
+- removed 27 items from gtfs_fp2021_2021-10-27_09-10
+  - 87_BUT - 15 items
+    - 92-A07-S-j21-1
+    - 92-A07-J-j21-1
+    - 92-A07-V-j21-1
+    - 92-A07-N-j21-1
+    - 92-A07-T-j21-1
+    - 92-A07-Q-j21-1
+    - 92-A07-K-j21-1
+    - 92-A07-I-j21-1
+    - 92-A07-P-j21-1
+    - 92-A07-L-j21-1
+    - 92-A07-R-j21-1
+    - 92-A07-U-j21-1
+    - 92-A07-M-j21-1
+    - 92-A07-O-j21-1
+    - 92-A07-H-j21-1
+  - 823 - 4 items
+    - 92-8-W-j21-1
+    - 92-A06-N-j21-1
+    - 92-A08-4-j21-1
+    - 92-A06-D-j21-1
+  - 87_LSA - 4 items
+    - 92-Y84-j21-1
+    - 92-Y83-j21-1
+    - 92-Y82-j21-1
+    - 92-81-E-j21-1
+  - 820 - 2 items
+    - 92-N4-I-j21-1
+    - 92-N5-G-j21-1
+  - 80_BOD - 1 items
+    - 92-A06-T-j21-1
+  - 31 - 1 items
+    - 92-17-F-j21-1
+
+STOPS:
+- added 257 items in gtfs_fp2021_2021-11-03_09-10
+  - 1401784 - Saint-Cergues (F), Les Bussioz
+  - 1401923 - Vétraz-Monthoux,Collonges-Marr
+  - 1401840 - Ville-la-Grand, Voirons
+  - 1400215 - Cran-Gevrier, L.E.P. Carillons
+  - Parent8579130 - cimetière
+  - 1105839 - Friesenheim (Baden), Bahnhof
+  - 1401748 - Gaillard, La Tour
+  - 1401824 - Vétraz-Monthoux, Les Nants
+  - 1401685 - Annemasse, Libération
+  - 1401920 - Cranves-Sales, Chandouze
+  - 1401680 - Annemasse, Jean Mermoz
+  - 1400879 - Meythet, Horizons
+  - 8029115:0:1 - Laupheim West
+  - 8773769 - Sarreguemines Lycée Pange
+  - 1401839 - Ville-la-Grand, République
+  - 1401692 - Annemasse, Place Deffaugt
+  - Parent8583721 - Stade Pottier
+  - Parent8510071 - Hôtels
+  - 1400871 - Meythet, Chenonceau
+  - 8771437 - Ars-sur-Moselle TIM République
+  - 1100170 - Aitern, Obermulten
+  - 8773269 - Cheniménil Filature
+  - Parent8579129 - La Palette
+  - 1401676 - Annemasse, Glières
+  - 1401686 - Annemasse, Livron De Gaulle
+  - 1401816 - Vétraz-Monthoux, Cèdre
+  - 1400208 - Annecy, Salle Y. Martinet
+  - 8029115:0:2 - Laupheim West
+  - 8029112:0:1 - Erbach (Württ)
+  - 1401699 - Annemasse, Valeury Lycée Prof.
+  - 1401714 - Cranves-Sales, Altéa P+R
+  - 1400632 - Epagny Metz-Tessy, Aeroport
+  - 1401671 - Annemasse, Château Rouge
+  - 1401929 - Annemasse, Croix d'Ambilly
+  - 8773586 - Lutzelbourg Rue Koeberlé
+  - 1401916 - Étrembières, Pont d'Etrembière
+  - 1401821 - Vétraz-Monthoux, Île de France
+  - 8772774 - Troyes Pont Vert
+  - 1401921 - Vétraz-Monthoux, Bas-Monthoux
+  - 8764132 - Saint-Ours-les-Roches
+  - 8080306 - Villingen-Sch. Zollhaus
+  - 8772778 - Payns Église
+  - 1401700 - Annemasse, Verdun
+  - 8500212:0:45/5 - Oensingen
+  - 1401720 - Cranves-Sales,Route des Tattes
+  - 1401716 - Cranves-Sales, Picolettes
+  - 1401687 - Annemasse, Maison des Sports
+  - 8772784 - Saint-Mesmin Courlanges
+  - 1400171 - Annecy, Parmelan
+  - 1400140 - Annecy, Imperial
+  - 8773837 - Cornimont College
+  - 1401690 - Annemasse, Perrier
+  - 1401835 - Ville-la-Grand, Deux Montagnes
+  - 1401717 - Cranves-Sales, Vert Village
+  - 1400408 - Bonne, Centre
+  - 1400572 - Cranves-Sales, Route De Borly
+  - 1107588 - Villingen (Schwarzw), Bahnhof
+  - 8772781 - Savières Rue Saint-Gilles
+  - 1105112 - Schwenningen (Neckar), Bahnhof
+  - Parent8501674 - Grengiols
+  - 8773759 - Sarreguemines Lycée Technique
+  - 1401696 - Annemasse, Route de Bonneville
+  - 1400934 - Valserhône, Bellegarde Industr
+  - 1107587 - Villingen, Gasthaus Linde
+  - 8772608 - Domfessel Abri Rue Principale
+  - 1401648 - Ambilly, Ecole Fraternité
+  - Parent8572313 - Bahnhof
+  - 1401698 - Annemasse, Tournelles
+  - 1401660 - Ambilly, Jean Moulin
+  - 1401743 - Gaillard, Collège J. Prévert
+  - 8772776 - Saint-Lyé Gravières
+  - 1108744 - Grüningen (Neckar), Bergring
+  - 8772775 - Saint-Lyé Mantenay
+  - Parent8579054 - La Tine
+  - 1400127 - Seynod, SACCONGES
+  - 1401831 - Ville-la-Grand, Biches
+  - 1401670 - Annemasse, Charcot
+  - 8772780 - Savières Arbre de la Liberté
+  - 1105761 - Offenburg, Bahnhof/ZOB
+  - 1400123 - Pringy, TERRE GRASSE
+  - 1401666 - Annemasse, Aristide Briand
+  - 1401822 - Vétraz-Monthoux, Jules Verne
+  - 8772787 - Saint-Pouange Lycée Agricole
+  - 1401715 - Cranves-Sales, mairie
+  - 1401924 - Ville-la-Grand, Gare Rotonde
+  - 1401661 - Ambilly, La Paix
+  - 1401919 - Cranves-Sales, Champ Bérou
+  - 8774369 - Commercy, Zone du Seugnon
+  - 1400275 - Cran-Gevrier, Capitaine Anjot
+  - 1108743 - Donaueschingen, Aufen Dorf
+  - 8773770 - Sarreguemines Utzschneider
+  - 8772790 - Bar-sur-Aube Collège
+  - 1401829 - Ville-la-Grand, Allobroges
+  - 1400329 - Pringy, Ferrieres
+  - 8772779 - Payns Abri Côté Savières
+  - 1400346 - Annemasse, Saint-André
+  - 1400197 - Seynod, Malaz
+  - 1400342 - Annemasse, Périllat Lycée
+  - 1401708 - Bonne, PAE de la Menoge
+  - 1401729 - Etrembières, mairie
+  - 1401694 - Annemasse, Résistance
+  - 1400518 - Contamine-sur-Arve, H Findrol
+  - 8774222 - Châlons-en-Champagne Marne
+  - 1401830 - Ville-la-Grand, Artisans
+  - 1401804 - St-Cergues (F), La Cave Fées
+  - Parent8591834 - Lac Vernay/campings
+  - 1401669 - Annemasse, Chablais-Parc
+  - 1401672 - Annemasse, Clos Fleury
+  - Parent8510069 - rte du Roc
+  - 1401657 - Ambilly, Foron
+  - Parent8506264 - Post
+  - Parent8505380 - Stazione
+  - 1401827 - Ville-la-Grand, Abondance
+  - 8772858 - Sarre-Union Rue des Roses
+  - 1401825 - Vétraz-Monthoux, Livron
+  - 1100964 - Donaueschingen, Busbahnhof
+  - 1401677 - Annemasse, Hôtel des Impôts
+  - Parent8579131 - Bellevue
+  - 8772782 - Fontaine-les-Grès Mairie
+  - 8772789 - Ville-sous-la-Ferté Four Chaux
+  - 8772786 - Romilly-sur-Seine Centre Comm.
+  - 1401922 - Vétraz-Monthoux,Ch. des Teppes
+  - 1108741 - Brigachtal-Klengen, Bahnhof
+  - 1401653 - Ambilly, Edelweiss
+  - 1401667 - Annemasse, Baron de Loë
+  - 1400883 - Meythet, Lacroix
+  - 8772884 - Villefranche-sur-Saône Burie
+  - 1401746 - Gaillard, Fossard
+  - 8772783 - Saint-Mesmin Place du Monument
+  - 1100315 - Mundingen, B3
+  - Parent8587746 - Clos de l'Ombren
+  - 1400881 - Meythet, Hotel de ville
+  - 1400893 - Meythet, Vieux Meythet
+  - 1400516 - Contamine-sur-Arve, Findrol
+  - 1401753 - Gaillard, poste
+  - 8772788 - Ville-sous-la-Ferté Tramway
+  - 1108745 - Brigachtal Kirchdorf, Apotheke
+  - 1401823 - Vétraz-Monthoux, La Rape
+  - 8773773 - Farschviller Croisement Gare
+  - 1400195 - Pringy, Le Martelet
+  - 1400121 - Pringy, TUILIERE
+  - 1400309 - Cran-Gevrier, Lycee Baudelaire
+  - 8773768 - Sarreguemines Collège Jean Jau
+  - 8773767 - Sarreguemines Collège Himmelsb
+  - 1401742 - Gaillard, Châtelaine
+  - 1401828 - Ville-la-Grand, Albert Hénon
+  - 8772773 - Troyes Théâtre de Champagne
+  - 1108746 - Marbach (Neckar), Kirche
+  - 1401665 - Annemasse, Annexion
+  - 1401820 - Vétraz-Monthoux, Hutins
+  - 1400185 - Pringy, Mairie de Ferrieres
+  - 8772859 - Herbitzheim Rue de Hambach
+  - 1401819 - Vétraz-Monthoux, Europe
+  - 1401713 - Cranves-S, Collège P.E. Victor
+  - 1401688 - Annemasse, Mont-Rond
+  - 1401805 - St-Cergues (F), Les Fontaines
+  - 8772777 - Saint-Lyé Régales
+  - 8503508:0:11 - Dietikon
+  - 1400336 - Annemasse, Place de l'Etoile
+  - 1401833 - Ville-la-Grand, Coqueloup
+  - 8772190 - Ambert, Piscine
+  - 8503508 - Dietikon
+  - Parent8596090 - Les Glariers
+  - Parent8500747 - Massillon
+  - Parent8505173 - Tschamut-Selva
+  - 1401751 - Gaillard, Marché
+  - 1401695 - Annemasse, Romagny
+  - 1106121 - Orschweier, Bahnhof
+  - 8772792 - Amance Mairie/Ecole
+  - 1401760 - Juvigny, La Plantaz
+  - 1401926 - Ville-la-Grand, Tournelles
+  - 1401693 - Annemasse, Place des Marchés
+  - 1401718 - Cranves-Sales, ZI Borly
+  - 1401659 - Ambilly, Jean Jaurès
+  - 1108742 - Donaueschingen, Eichendorffs.
+  - 1401744 - Gaillard, église
+  - 1401747 - Gaillard, Gentianes
+  - 1401749 - Gaillard, Louis Simon
+  - 8510229 - Schönenwerd SO, Bahnhof Nord
+  - 1106211 - Riegel-Malterdingen, Bahnhof
+  - Parent8500741 - Tarpa
+  - 8772609 - Lorentzen Rue Principale
+  - Parent8504505 - Les Cerisiers
+  - 8773775 - Arnas Avé Maria
+  - 8773099 - Keskastel Rue de la Libération
+  - 1400348 - Annemasse, Château Bleu
+  - 8771419 - Pompey Arrêt SIT Acierie
+  - 1401837 - Ville-la-Grand, Pont Neuf
+  - 1401925 - Ville-la-Grand, Léon Bourgeois
+  - 1401826 - Vétraz-Monthoux, Nous-Aussi
+  - 1401673 - Annemasse, Drague
+  - 1400196 - Annecy, Préfecture Paquier
+  - Parent8595963 - Socrettaz
+  - 8773758 - Sarreguemines Collège Fulrad
+  - 1100171 - Aitern, Multen
+  - 1400873 - Meythet, Cimetiere Meythet
+  - 1108740 - Schwenningen, Eisstadion
+  - 1401927 - Vétraz-Monthoux,Cent. de Trans
+  - 1400546 - Cran-Gevrier, Grand Annecy
+  - 1106208 - Kenzingen, Bahnhof
+  - 1400129 - Seynod, ROUTE DE VERGLOZ
+  - 1401728 - Etrembières, Les Îles
+  - 1100313 - Emmendingen, Bahnhof
+  - 1401668 - Annemasse, Brouaz HPPS
+  - 1401918 - Ambilly, Louis Lachenal
+  - 1400552 - Cran-Gevrier, Les Terrasses
+  - 1401832 - Ville-la-Grand, Buchillons
+  - 1401848 - Cranves-Sales, Taninges
+  - 1400570 - Cranves-Sales, La Bergue
+  - 1401818 - Vétraz-Monthoux, Corly
+  - 1401719 - Cranves-Sales,Complexe Sportif
+  - 8505470 - Locarno FART
+  - 1401836 - Ville-la-Grand, Eglise
+  - Parent8575219 - Servanne
+  - Parent8583381 - Au-delà du Pont
+  - 1401689 - Annemasse, Parc Eu. Maître
+  - 1401838 - Ville-la-Grand, Prés des Plans
+  - 1400634 - Epagny Metz-Tessy, Base Civile
+  - 8773772 - Ebring Centre
+  - 1107584 - Villingen, Zollhaus Römerweg
+  - 1401697 - Annemasse, Sous-Cassan
+  - 1401674 - Annemasse, Dusonchet
+  - Parent8500742 - école
+  - 1401817 - Vétraz-Monthoux, Chef-Lieu
+  - 1401741 - Gaillard, Bossonnets
+  - 1106228 - Köndringen, Bahnhofstrasse
+  - 1401785 - Saint-Cergues (F), mairie
+  - 1400247 - Seynod, Culaz
+  - 1400863 - Meythet, Alta-Vieran
+  - 8772785 - Maizières-Gd-Paroisse Pt Clai.
+  - 8510383 - Ins Dorf, Bahnhof
+  - 8773229 - Bayel Place du G.de Gaulle
+  - 8772851 - Brioude Erea
+  - 1401834 - Ville-la-Grand, Debussy
+  - 1400289 - Rumilly, Madrid
+  - 1401745 - Gaillard, Feux-Follets
+  - 1401952 - Groisy, Gare
+  - 1401928 - Ville-la-Grand, Vieux Château
+  - Parent8580775 - Ilettes
+  - 8773766 - Sarreguemines Barth
+  - Parent8579128 - Hôtel du Soleil
+  - 1401841 - Ville-la-Grand, ZI de Montréal
+  - 1400875 - Meythet, Cote Merle
+  - 1401855 - Gaillard, Moillesulaz
+  - 1401681 - Annemasse, Léman
+  - 1401750 - Gaillard, mairie
+  - 1401754 - Gaillard, Vernaz
+  - 8772791 - Amance la-Ville-au Bois Eglise
+  - 1401664 - Annemasse, Adrien Ligué
+  - Parent8579127 - Aiglon Collège
+  - 1105869 - Lahr (Schwarzw), Bahnhof
+  - 1401752 - Gaillard, Martinet
+  - 1400161 - Seynod, PESSET
+  - 1400550 - Cran-Gevrier, Iles
+  - 1400877 - Meythet, Garennes
+  - 1401662 - Ambilly, Martinière
+  - 1400021 - Annemasse, Parc Montessuit
+- removed 124 items from gtfs_fp2021_2021-10-27_09-10
+  - 1401900 - Thonon-les-Bains, Letroz Sud
+  - 1401182 - Messery, Frize
+  - 1401188 - Chens-sur-Léman, Chef Lieu
+  - 8589476 - Riehen, Rotengraben
+  - 1400004 - Thonon-les-Bains,Jules Mercier
+  - 1401344 - Veyrier-du-Lac, Téléphérique
+  - 1400849 - Megève, Autogare
+  - 1401568 - Megève, Route Du Villard
+  - 1400792 - Perrignier, Brecorens
+  - 1401033 - Saint-Gervais, Assomption-1
+  - 1401869 - Allinges, Les Crets
+  - 1401608 - St-Gervais-les-Bains, Freney
+  - 1400363 - Thonon-les-Bains, Les Harpes
+  - 1401543 - Combloux, Le Crêt
+  - 1401592 - Praz-sur-Arly, Les Rafforts
+  - 1102325 - Amtzell, Hinterholz
+  - 1401208 - Draillant, Chef Lieu
+  - 1401546 - Combloux, Les Serves
+  - 1401166 - Fessy, Rezier
+  - 1400585 - Allinges, Macheron
+  - 1401041 - Saint-Gervais, Téléphérique
+  - 1401899 - Ville-la-Grand, Rue du Bois
+  - 1401540 - Combloux, Gemoens
+  - 1401554 - Domancy, Coulavin
+  - 1103613 - Wangen (Allgäu), Feld
+  - 1400736 - Thonon-les-Bains, Clos Riant
+  - 1401156 - Brenthonne, Chef Lieu
+  - 1401164 - Draillant, Croix Du Liege
+  - 1400509 - Thonon-les-Bains, Parc Thermal
+  - 1401035 - Saint-Gervais, Assomption-2
+  - 1401898 - Lugrin, Carrefour Roseire
+  - 1401892 - Sciez, Face A E Leclerc
+  - 1401605 - St-Gervais-les-Bains, C. Parc
+  - 1401870 - St-Cergues (F), La Tuilliere
+  - 1401609 - St-Gervais-les-Bains, Gruvaz
+  - 1400692 - Thonon-les-Bains, Mascottes
+  - 1401065 - Sallanches, Pl Charles Albert
+  - 1401903 - Brenthonne, C L Vers Clocher
+  - 1401180 - Nernier, Chef Lieu
+  - 1401162 - Draillant, La Cheville
+  - 1401539 - Chamonix-Mont-Blanc, Bossons
+  - 1401557 - Domancy, Les Tailles
+  - 1103637 - Wangen (Allgäu), Lottenmühle
+  - 1401553 - Demi-Quartier, Pont D'Arbon
+  - 1103639 - Wangen (Allgäu), Mittenweiler
+  - 1400365 - Thonon-les-Bain, Lycee Versoie
+  - 1400469 - Thonon-les-Bains, Marclaz
+  - 1401550 - Contamines-Montjoie, Pt Loyers
+  - 1401549 - Contamines-Montjoie, Favière
+  - 1401582 - Passy, Les Plagnes Cimetière
+  - 1102324 - Amtzell, Fohlenweide
+  - 1400471 - Thonon-les-Bains, Maison Sport
+  - 1401610 - St-Gervais-les-Bains, Guelpa
+  - 1103621 - Wangen (Allgäu), Herfatz B32
+  - 1401544 - Combloux, Le Feug
+  - 1401566 - Megève, Le Cruet
+  - 1401604 - St-Gervais-les-Bains, Bionnay
+  - 1401611 - St-Gervais-les-Bains, Pratz
+  - 1401039 - Saint-Gervais, Le Pont
+  - 1401170 - Orcier, Stade
+  - 1103642 - Wangen (Allgäu), Niederwangen
+  - 1401178 - Excenevex, Chef Lieu
+  - 1105118 - Wangen im Allgäu, St.Stephanus
+  - 1401168 - Fessy, Sous L'ecole
+  - 1401176 - Cervens, Pessinges
+  - 1401184 - Messery, Chef Lieu
+  - 1401593 - Praz-sur-Arly, Moulin Neuf
+  - 1401581 - Passy, Les Plagnes
+  - 1401901 - Douvaine, College Bas Chablais
+  - 1401896 - Thonon-l-Bains, Pl des Arts Q5
+  - 1401001 - Praz-sur-Arly, Chef Lieu
+  - 1401600 - Sallanches, Sous Bottoliers
+  - 1401547 - Contamines-Montjoie, Champelet
+  - 1400090 - Loisin, Tholomaz
+  - 1401875 - St-Cergues (F), Mairie
+  - 1103165 - Primisweiler, Siedlung
+  - 1401603 - St-Gervais-l-Bains, T. Arbois
+  - 1400596 - Domancy, Cimetiere
+  - 1102326 - Amtzell, Karbach
+  - 1400912 - Les Villards/Thônes, Bourgeal
+  - 1401552 - Demi-Quartier, Demi Lune
+  - 1401541 - Combloux, Graniteur
+  - 1401172 - Cervens, Reyret
+  - 1401606 - St-Gervais-les-Bains, Camping
+  - 1401569 - Megève, Supermarché
+  - 1401174 - Cervens, Ecole
+  - 1400515 - Thonon-les-Bains,Vieux Campeur
+  - 1401891 - Brenthonne, Morzier Carrefour
+  - 1401902 - Lugrin, La Prau
+  - 1401342 - Veyrier-du-Lac, Chef Lieu
+  - 1401473 - Rumilly, Le Madrid
+  - 1401548 - Contamines-Montjoie, F. Tresse
+  - 1401545 - Combloux, Le Perret
+  - 1401567 - Megève, Le Prariand
+  - 1401542 - Combloux, Le Bois Roulet
+  - 1401607 - St-Gervais-les-Bains, Châble
+  - 1401893 - Sciez, Fleuriste
+  - 1401218 - Yvoire, Les Mottes
+  - 1401551 - Contamines-Montjoie, Tresse
+  - 1400506 - Combloux, Chef-Lieu
+  - 1401599 - Sallanches, Maison Forestière
+  - 1401340 - Veyrier-du-Lac, Chavoires
+  - 1400549 - Évian-les-Bains, Thermes
+  - 1401874 - Sciez, Filly RD
+  - 1103162 - Primisweiler, Grundschule
+  - 1103163 - Primisweiler, Kindergarten
+  - 1400813 - Les Contamines, Chef Lieu
+  - 1400105 - Loisin, Chef Lieu
+  - 1401154 - Lully, Route De Thonon
+  - 1401537 - Bons-en-Chablais, Gare Didier
+  - 1401003 - Praz-sur-Arly, Meuret
+  - 1401538 - Bons-en-Chablais, Langin
+  - 1401556 - Domancy, Lépigny
+  - 1401160 - Draillant, Maugny
+  - 1401598 - Sallanches, La Pesse
+  - 1401186 - Chens-sur-Léman, Vereitre
+  - 1400815 - Les Contamines, Le Lay
+  - 1103680 - Wangen (Allgäu),Joh.-Jung-Str.
+  - 1107451 - Amtzell, Geiselharz
+  - 1401873 - Sciez, Bonnatrait Face Fleuris
+  - 1401871 - St-Cergues (F), Casino
+  - 1401904 - Loisin, Mairie
+  - 1401570 - Megève, Vériaz
+  - 1400794 - Perrignier, Chez Daude
+
+TRANSFERS:
+- added 248 items in gtfs_fp2021_2021-11-03_09-10
+  - 1100313 -- 8014331:0:1                   :: Emmendingen, Bahnhof -- Emmendingen
+  - 1100313 -- 8014331:0:2                   :: Emmendingen, Bahnhof -- Emmendingen
+  - 1100313 -- 8014331:0:3                   :: Emmendingen, Bahnhof -- Emmendingen
+  - 1100313 -- 8014331                       :: Emmendingen, Bahnhof -- Emmendingen
+  - 1100315 -- 8014330:0:1                   :: Mundingen, B3 -- Teningen-Mundingen
+  - 1100315 -- 8014330:0:2                   :: Mundingen, B3 -- Teningen-Mundingen
+  - 1100315 -- 8014330                       :: Mundingen, B3 -- Teningen-Mundingen
+  - 1100964 -- 8014529:0:1                   :: Donaueschingen, Busbahnhof -- Donaueschingen
+  - 1100964 -- 8014529:0:2                   :: Donaueschingen, Busbahnhof -- Donaueschingen
+  - 1100964 -- 8014529:0:3                   :: Donaueschingen, Busbahnhof -- Donaueschingen
+  - 1100964 -- 8014529:0:4                   :: Donaueschingen, Busbahnhof -- Donaueschingen
+  - 1100964 -- 8014529:0:5                   :: Donaueschingen, Busbahnhof -- Donaueschingen
+  - 1100964 -- 8014529                       :: Donaueschingen, Busbahnhof -- Donaueschingen
+  - 1105112 -- 8029436:0:1                   :: Schwenningen (Neckar), Bahnhof -- Schwenningen (Neckar)
+  - 1105112 -- 8029436:0:2                   :: Schwenningen (Neckar), Bahnhof -- Schwenningen (Neckar)
+  - 1105761 -- 8014309:0:1                   :: Offenburg, Bahnhof/ZOB -- Offenburg
+  - 1105761 -- 8014309:0:2                   :: Offenburg, Bahnhof/ZOB -- Offenburg
+  - 1105761 -- 8014309:0:3                   :: Offenburg, Bahnhof/ZOB -- Offenburg
+  - 1105761 -- 8014309:0:4                   :: Offenburg, Bahnhof/ZOB -- Offenburg
+  - 1105761 -- 8014309:0:5                   :: Offenburg, Bahnhof/ZOB -- Offenburg
+  - 1105761 -- 8014309:0:6                   :: Offenburg, Bahnhof/ZOB -- Offenburg
+  - 1105761 -- 8014309:0:7                   :: Offenburg, Bahnhof/ZOB -- Offenburg
+  - 1105761 -- 8014309                       :: Offenburg, Bahnhof/ZOB -- Offenburg
+  - 1105839 -- 8014318:0:1                   :: Friesenheim (Baden), Bahnhof -- Friesenheim (Baden)
+  - 1105839 -- 8014318:0:2                   :: Friesenheim (Baden), Bahnhof -- Friesenheim (Baden)
+  - 1105839 -- 8014318                       :: Friesenheim (Baden), Bahnhof -- Friesenheim (Baden)
+  - 1105869 -- 8014319:0:1                   :: Lahr (Schwarzw), Bahnhof -- Lahr (Schwarzw)
+  - 1105869 -- 8014319:0:2                   :: Lahr (Schwarzw), Bahnhof -- Lahr (Schwarzw)
+  - 1105869 -- 8014319:0:3                   :: Lahr (Schwarzw), Bahnhof -- Lahr (Schwarzw)
+  - 1105869 -- 8014319:0:6                   :: Lahr (Schwarzw), Bahnhof -- Lahr (Schwarzw)
+  - 1105869 -- 8014319                       :: Lahr (Schwarzw), Bahnhof -- Lahr (Schwarzw)
+  - 1106121 -- 8014324:0:1                   :: Orschweier, Bahnhof -- Orschweier
+  - 1106121 -- 8014324:0:2                   :: Orschweier, Bahnhof -- Orschweier
+  - 1106121 -- 8014324                       :: Orschweier, Bahnhof -- Orschweier
+  - 1106208 -- 8014327:0:1                   :: Kenzingen, Bahnhof -- Kenzingen
+  - 1106208 -- 8014327:0:2                   :: Kenzingen, Bahnhof -- Kenzingen
+  - 1106208 -- 8014327                       :: Kenzingen, Bahnhof -- Kenzingen
+  - 1106211 -- 8014328:0:1                   :: Riegel-Malterdingen, Bahnhof -- Riegel-Malterdingen
+  - 1106211 -- 8014328:0:2                   :: Riegel-Malterdingen, Bahnhof -- Riegel-Malterdingen
+  - 1106211 -- 8014328                       :: Riegel-Malterdingen, Bahnhof -- Riegel-Malterdingen
+  - 1106228 -- 8014329:0:1                   :: Köndringen, Bahnhofstrasse -- Köndringen
+  - 1106228 -- 8014329:0:2                   :: Köndringen, Bahnhofstrasse -- Köndringen
+  - 1106228 -- 8014329                       :: Köndringen, Bahnhofstrasse -- Köndringen
+  - 1107584 -- 8080306:0:1                   :: Villingen, Zollhaus Römerweg -- Villingen-Sch. Zollhaus
+  - 1107584 -- 8080306                       :: Villingen, Zollhaus Römerweg -- Villingen-Sch. Zollhaus
+  - 1107588 -- 8014521:0:1                   :: Villingen (Schwarzw), Bahnhof -- Villingen (Schwarzw)
+  - 1107588 -- 8014521:0:2                   :: Villingen (Schwarzw), Bahnhof -- Villingen (Schwarzw)
+  - 1107588 -- 8014521:0:3                   :: Villingen (Schwarzw), Bahnhof -- Villingen (Schwarzw)
+  - 1107588 -- 8014521                       :: Villingen (Schwarzw), Bahnhof -- Villingen (Schwarzw)
+  - 1108743 -- 8080296:0:1                   :: Donaueschingen, Aufen Dorf -- Donaueschingen-Aufen
+  - 1108743 -- 8080296                       :: Donaueschingen, Aufen Dorf -- Donaueschingen-Aufen
+  - 1108744 -- 8071992:0:1                   :: Grüningen (Neckar), Bergring -- Donaueschingen Grüningen
+  - 1108744 -- 8071992                       :: Grüningen (Neckar), Bergring -- Donaueschingen Grüningen
+  - 1108745 -- 8071993:0:1                   :: Brigachtal Kirchdorf, Apotheke -- Brigachtal Kirchdorf
+  - 1108745 -- 8071993:0:2                   :: Brigachtal Kirchdorf, Apotheke -- Brigachtal Kirchdorf
+  - 1108745 -- 8071993                       :: Brigachtal Kirchdorf, Apotheke -- Brigachtal Kirchdorf
+  - 8014309:0:1 -- 1105761                   :: Offenburg -- Offenburg, Bahnhof/ZOB
+  - 8014309:0:2 -- 1105761                   :: Offenburg -- Offenburg, Bahnhof/ZOB
+  - 8014309:0:3 -- 1105761                   :: Offenburg -- Offenburg, Bahnhof/ZOB
+  - 8014309:0:4 -- 1105761                   :: Offenburg -- Offenburg, Bahnhof/ZOB
+  - 8014309:0:5 -- 1105761                   :: Offenburg -- Offenburg, Bahnhof/ZOB
+  - 8014309:0:6 -- 1105761                   :: Offenburg -- Offenburg, Bahnhof/ZOB
+  - 8014309:0:7 -- 1105761                   :: Offenburg -- Offenburg, Bahnhof/ZOB
+  - 8014309 -- 1105761                       :: Offenburg -- Offenburg, Bahnhof/ZOB
+  - 8014318:0:1 -- 1105839                   :: Friesenheim (Baden) -- Friesenheim (Baden), Bahnhof
+  - 8014318:0:2 -- 1105839                   :: Friesenheim (Baden) -- Friesenheim (Baden), Bahnhof
+  - 8014318 -- 1105839                       :: Friesenheim (Baden) -- Friesenheim (Baden), Bahnhof
+  - 8014319:0:1 -- 1105869                   :: Lahr (Schwarzw) -- Lahr (Schwarzw), Bahnhof
+  - 8014319:0:2 -- 1105869                   :: Lahr (Schwarzw) -- Lahr (Schwarzw), Bahnhof
+  - 8014319:0:3 -- 1105869                   :: Lahr (Schwarzw) -- Lahr (Schwarzw), Bahnhof
+  - 8014319:0:6 -- 1105869                   :: Lahr (Schwarzw) -- Lahr (Schwarzw), Bahnhof
+  - 8014319 -- 1105869                       :: Lahr (Schwarzw) -- Lahr (Schwarzw), Bahnhof
+  - 8014324:0:1 -- 1106121                   :: Orschweier -- Orschweier, Bahnhof
+  - 8014324:0:2 -- 1106121                   :: Orschweier -- Orschweier, Bahnhof
+  - 8014324 -- 1106121                       :: Orschweier -- Orschweier, Bahnhof
+  - 8014327:0:1 -- 1106208                   :: Kenzingen -- Kenzingen, Bahnhof
+  - 8014327:0:2 -- 1106208                   :: Kenzingen -- Kenzingen, Bahnhof
+  - 8014327 -- 1106208                       :: Kenzingen -- Kenzingen, Bahnhof
+  - 8014328:0:1 -- 1106211                   :: Riegel-Malterdingen -- Riegel-Malterdingen, Bahnhof
+  - 8014328:0:2 -- 1106211                   :: Riegel-Malterdingen -- Riegel-Malterdingen, Bahnhof
+  - 8014328 -- 1106211                       :: Riegel-Malterdingen -- Riegel-Malterdingen, Bahnhof
+  - 8014329:0:1 -- 1106228                   :: Köndringen -- Köndringen, Bahnhofstrasse
+  - 8014329:0:2 -- 1106228                   :: Köndringen -- Köndringen, Bahnhofstrasse
+  - 8014329 -- 1106228                       :: Köndringen -- Köndringen, Bahnhofstrasse
+  - 8014330:0:1 -- 1100315                   :: Teningen-Mundingen -- Mundingen, B3
+  - 8014330:0:2 -- 1100315                   :: Teningen-Mundingen -- Mundingen, B3
+  - 8014330 -- 1100315                       :: Teningen-Mundingen -- Mundingen, B3
+  - 8014331:0:1 -- 1100313                   :: Emmendingen -- Emmendingen, Bahnhof
+  - 8014331:0:2 -- 1100313                   :: Emmendingen -- Emmendingen, Bahnhof
+  - 8014331:0:3 -- 1100313                   :: Emmendingen -- Emmendingen, Bahnhof
+  - 8014331 -- 1100313                       :: Emmendingen -- Emmendingen, Bahnhof
+  - 8014521:0:1 -- 1107588                   :: Villingen (Schwarzw) -- Villingen (Schwarzw), Bahnhof
+  - 8014521:0:2 -- 1107588                   :: Villingen (Schwarzw) -- Villingen (Schwarzw), Bahnhof
+  - 8014521:0:3 -- 1107588                   :: Villingen (Schwarzw) -- Villingen (Schwarzw), Bahnhof
+  - 8014521 -- 1107588                       :: Villingen (Schwarzw) -- Villingen (Schwarzw), Bahnhof
+  - 8014529:0:1 -- 1100964                   :: Donaueschingen -- Donaueschingen, Busbahnhof
+  - 8014529:0:2 -- 1100964                   :: Donaueschingen -- Donaueschingen, Busbahnhof
+  - 8014529:0:3 -- 1100964                   :: Donaueschingen -- Donaueschingen, Busbahnhof
+  - 8014529:0:4 -- 1100964                   :: Donaueschingen -- Donaueschingen, Busbahnhof
+  - 8014529:0:5 -- 1100964                   :: Donaueschingen -- Donaueschingen, Busbahnhof
+  - 8014529 -- 1100964                       :: Donaueschingen -- Donaueschingen, Busbahnhof
+  - 8029112:0:1 -- 8029112                   :: Erbach (Württ) -- Erbach (Württ)
+  - 8029112 -- 8029112:0:1                   :: Erbach (Württ) -- Erbach (Württ)
+  - 8029115:0:1 -- 8029115:0:2               :: Laupheim West -- Laupheim West
+  - 8029115:0:1 -- 8029115                   :: Laupheim West -- Laupheim West
+  - 8029115:0:2 -- 8029115:0:1               :: Laupheim West -- Laupheim West
+  - 8029115:0:2 -- 8029115                   :: Laupheim West -- Laupheim West
+  - 8029115 -- 8029115:0:1                   :: Laupheim West -- Laupheim West
+  - 8029115 -- 8029115:0:2                   :: Laupheim West -- Laupheim West
+  - 8029436:0:1 -- 1105112                   :: Schwenningen (Neckar) -- Schwenningen (Neckar), Bahnhof
+  - 8029436:0:2 -- 1105112                   :: Schwenningen (Neckar) -- Schwenningen (Neckar), Bahnhof
+  - 8071992:0:1 -- 1108744                   :: Donaueschingen Grüningen -- Grüningen (Neckar), Bergring
+  - 8071992 -- 1108744                       :: Donaueschingen Grüningen -- Grüningen (Neckar), Bergring
+  - 8071993:0:1 -- 1108745                   :: Brigachtal Kirchdorf -- Brigachtal Kirchdorf, Apotheke
+  - 8071993:0:2 -- 1108745                   :: Brigachtal Kirchdorf -- Brigachtal Kirchdorf, Apotheke
+  - 8071993 -- 1108745                       :: Brigachtal Kirchdorf -- Brigachtal Kirchdorf, Apotheke
+  - 8080296:0:1 -- 1108743                   :: Donaueschingen-Aufen -- Donaueschingen, Aufen Dorf
+  - 8080296 -- 1108743                       :: Donaueschingen-Aufen -- Donaueschingen, Aufen Dorf
+  - 8080306:0:1 -- 1107584                   :: Villingen-Sch. Zollhaus -- Villingen, Zollhaus Römerweg
+  - 8080306:0:1 -- 8080306                   :: Villingen-Sch. Zollhaus -- Villingen-Sch. Zollhaus
+  - 8080306 -- 1107584                       :: Villingen-Sch. Zollhaus -- Villingen, Zollhaus Römerweg
+  - 8080306 -- 8080306:0:1                   :: Villingen-Sch. Zollhaus -- Villingen-Sch. Zollhaus
+  - 8500212:0:3 -- 8500212:0:45/5            :: Oensingen -- Oensingen
+  - 8500212:0:45/5 -- 8500212:0:3            :: Oensingen -- Oensingen
+  - 8500212:0:45/5 -- 8500212:0:4            :: Oensingen -- Oensingen
+  - 8500212:0:45/5 -- 8500212:0:5            :: Oensingen -- Oensingen
+  - 8500212:0:45/5 -- 8500212:0:7            :: Oensingen -- Oensingen
+  - 8500212:0:45/5 -- 8500212:0:8            :: Oensingen -- Oensingen
+  - 8500212:0:45/5 -- 8572372                :: Oensingen -- Oensingen, Bahnhof
+  - 8500212:0:45/5 -- 8590435                :: Oensingen -- Oensingen, Bahnhof Süd
+  - 8500212:0:4 -- 8500212:0:45/5            :: Oensingen -- Oensingen
+  - 8500212:0:5 -- 8500212:0:45/5            :: Oensingen -- Oensingen
+  - 8500212:0:7 -- 8500212:0:45/5            :: Oensingen -- Oensingen
+  - 8500212:0:8 -- 8500212:0:45/5            :: Oensingen -- Oensingen
+  - 8502007:0:1 -- 8502007:0:2AB             :: Sursee -- Sursee
+  - 8502007:0:1 -- 8502007:0:2CD             :: Sursee -- Sursee
+  - 8502007:0:1 -- 8502007:0:2               :: Sursee -- Sursee
+  - 8502007:0:1 -- 8502007:0:3               :: Sursee -- Sursee
+  - 8502007:0:2AB -- 8502007:0:1             :: Sursee -- Sursee
+  - 8502007:0:2AB -- 8502007:0:2CD           :: Sursee -- Sursee
+  - 8502007:0:2AB -- 8502007:0:2             :: Sursee -- Sursee
+  - 8502007:0:2AB -- 8502007:0:3             :: Sursee -- Sursee
+  - 8502007:0:2CD -- 8502007:0:1             :: Sursee -- Sursee
+  - 8502007:0:2CD -- 8502007:0:2AB           :: Sursee -- Sursee
+  - 8502007:0:2CD -- 8502007:0:2             :: Sursee -- Sursee
+  - 8502007:0:2CD -- 8502007:0:3             :: Sursee -- Sursee
+  - 8502007:0:2 -- 8502007:0:1               :: Sursee -- Sursee
+  - 8502007:0:2 -- 8502007:0:2AB             :: Sursee -- Sursee
+  - 8502007:0:2 -- 8502007:0:2CD             :: Sursee -- Sursee
+  - 8502007:0:2 -- 8502007:0:3               :: Sursee -- Sursee
+  - 8502007:0:3 -- 8502007:0:1               :: Sursee -- Sursee
+  - 8502007:0:3 -- 8502007:0:2AB             :: Sursee -- Sursee
+  - 8502007:0:3 -- 8502007:0:2CD             :: Sursee -- Sursee
+  - 8502007:0:3 -- 8502007:0:2               :: Sursee -- Sursee
+  - 8503508:0:11 -- 8503508:0:12             :: Dietikon -- Dietikon
+  - 8503508:0:11 -- 8503508:0:1              :: Dietikon -- Dietikon
+  - 8503508:0:11 -- 8503508:0:3              :: Dietikon -- Dietikon
+  - 8503508:0:11 -- 8503508:0:4              :: Dietikon -- Dietikon
+  - 8503508:0:11 -- 8503508:0:5              :: Dietikon -- Dietikon
+  - 8503508:0:11 -- 8503508:0:6              :: Dietikon -- Dietikon
+  - 8503508:0:11 -- 8503508                  :: Dietikon -- Dietikon
+  - 8503508:0:11 -- 8587020:0:E              :: Dietikon -- Dietikon, Bahnhof
+  - 8503508:0:11 -- 8587020:0:F              :: Dietikon -- Dietikon, Bahnhof
+  - 8503508:0:11 -- 8587020:0:G              :: Dietikon -- Dietikon, Bahnhof
+  - 8503508:0:11 -- 8587020                  :: Dietikon -- Dietikon, Bahnhof
+  - 8503508:0:11 -- 8590217                  :: Dietikon -- Dietikon, Bahnhofstrasse
+  - 8503508:0:12 -- 8503508:0:11             :: Dietikon -- Dietikon
+  - 8503508:0:12 -- 8503508                  :: Dietikon -- Dietikon
+  - 8503508:0:1 -- 8503508:0:11              :: Dietikon -- Dietikon
+  - 8503508:0:1 -- 8503508                   :: Dietikon -- Dietikon
+  - 8503508:0:3 -- 8503508:0:11              :: Dietikon -- Dietikon
+  - 8503508:0:3 -- 8503508                   :: Dietikon -- Dietikon
+  - 8503508:0:4 -- 8503508:0:11              :: Dietikon -- Dietikon
+  - 8503508:0:4 -- 8503508                   :: Dietikon -- Dietikon
+  - 8503508:0:5 -- 8503508:0:11              :: Dietikon -- Dietikon
+  - 8503508:0:5 -- 8503508                   :: Dietikon -- Dietikon
+  - 8503508:0:6 -- 8503508:0:11              :: Dietikon -- Dietikon
+  - 8503508:0:6 -- 8503508                   :: Dietikon -- Dietikon
+  - 8503508 -- 8503508:0:11                  :: Dietikon -- Dietikon
+  - 8503508 -- 8503508:0:12                  :: Dietikon -- Dietikon
+  - 8503508 -- 8503508:0:1                   :: Dietikon -- Dietikon
+  - 8503508 -- 8503508:0:3                   :: Dietikon -- Dietikon
+  - 8503508 -- 8503508:0:4                   :: Dietikon -- Dietikon
+  - 8503508 -- 8503508:0:5                   :: Dietikon -- Dietikon
+  - 8503508 -- 8503508:0:6                   :: Dietikon -- Dietikon
+  - 8503508 -- 8587020:0:E                   :: Dietikon -- Dietikon, Bahnhof
+  - 8503508 -- 8587020:0:F                   :: Dietikon -- Dietikon, Bahnhof
+  - 8503508 -- 8587020:0:G                   :: Dietikon -- Dietikon, Bahnhof
+  - 8503508 -- 8587020                       :: Dietikon -- Dietikon, Bahnhof
+  - 8503508 -- 8590217                       :: Dietikon -- Dietikon, Bahnhofstrasse
+  - 8504468 -- 8510383                       :: Ins Dorf -- Ins Dorf, Bahnhof
+  - 8505400:0:1 -- 8505470                   :: Locarno -- Locarno FART
+  - 8505400:0:2 -- 8505470                   :: Locarno -- Locarno FART
+  - 8505400:0:3 -- 8505470                   :: Locarno -- Locarno FART
+  - 8505400 -- 8505470                       :: Locarno -- Locarno FART
+  - 8505469 -- 8505470                       :: Locarno NLM -- Locarno FART
+  - 8505470 -- 8505400:0:1                   :: Locarno FART -- Locarno
+  - 8505470 -- 8505400:0:2                   :: Locarno FART -- Locarno
+  - 8505470 -- 8505400:0:3                   :: Locarno FART -- Locarno
+  - 8505470 -- 8505400                       :: Locarno FART -- Locarno
+  - 8505470 -- 8505469                       :: Locarno FART -- Locarno NLM
+  - 8505470 -- 8530670                       :: Locarno FART -- Locarno Funicolare
+  - 8505470 -- 8578881:0:A                   :: Locarno FART -- Locarno, Stazione
+  - 8505470 -- 8578881                       :: Locarno FART -- Locarno, Stazione
+  - 8505470 -- 8594370:0:B                   :: Locarno FART -- Locarno, Piazza Stazione
+  - 8505470 -- 8594370:0:C                   :: Locarno FART -- Locarno, Piazza Stazione
+  - 8505470 -- 8594370                       :: Locarno FART -- Locarno, Piazza Stazione
+  - 8505495 -- 8510367                       :: Corcapolo -- Corcapolo, Stazione
+  - 8505496 -- 8510368                       :: Verdasio -- Verdasio, Stazione
+  - 8505497 -- 8510369                       :: Palagnedra -- Palagnedra, Stazione
+  - 8505498 -- 8510370                       :: Borgnone-Cadanza -- Borgnone-Cadanza, Stazione
+  - 8505499 -- 8510371                       :: Camedo -- Camedo, Stazione
+  - 8510367 -- 8505495                       :: Corcapolo, Stazione -- Corcapolo
+  - 8510368 -- 8505496                       :: Verdasio, Stazione -- Verdasio
+  - 8510369 -- 8505497                       :: Palagnedra, Stazione -- Palagnedra
+  - 8510370 -- 8505498                       :: Borgnone-Cadanza, Stazione -- Borgnone-Cadanza
+  - 8510371 -- 8505499                       :: Camedo, Stazione -- Camedo
+  - 8510383 -- 8504468                       :: Ins Dorf, Bahnhof -- Ins Dorf
+  - 8530670 -- 8505470                       :: Locarno Funicolare -- Locarno FART
+  - 8572372 -- 8500212:0:45/5                :: Oensingen, Bahnhof -- Oensingen
+  - 8577375:0:A -- 8577375:0:B               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8577375:0:A -- 8577375:0:C               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8577375:0:A -- 8577375:0:D               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8577375:0:B -- 8577375:0:A               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8577375:0:B -- 8577375:0:C               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8577375:0:B -- 8577375:0:D               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8577375:0:C -- 8577375:0:A               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8577375:0:C -- 8577375:0:B               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8577375:0:C -- 8577375:0:D               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8577375:0:D -- 8577375:0:A               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8577375:0:D -- 8577375:0:B               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8577375:0:D -- 8577375:0:C               :: Altdorf UR, Spital -- Altdorf UR, Spital
+  - 8578881:0:A -- 8505470                   :: Locarno, Stazione -- Locarno FART
+  - 8578881 -- 8505470                       :: Locarno, Stazione -- Locarno FART
+  - 8587020:0:E -- 8503508:0:11              :: Dietikon, Bahnhof -- Dietikon
+  - 8587020:0:E -- 8503508                   :: Dietikon, Bahnhof -- Dietikon
+  - 8587020:0:F -- 8503508:0:11              :: Dietikon, Bahnhof -- Dietikon
+  - 8587020:0:F -- 8503508                   :: Dietikon, Bahnhof -- Dietikon
+  - 8587020:0:G -- 8503508:0:11              :: Dietikon, Bahnhof -- Dietikon
+  - 8587020:0:G -- 8503508                   :: Dietikon, Bahnhof -- Dietikon
+  - 8587020 -- 8503508:0:11                  :: Dietikon, Bahnhof -- Dietikon
+  - 8587020 -- 8503508                       :: Dietikon, Bahnhof -- Dietikon
+  - 8590217 -- 8503508:0:11                  :: Dietikon, Bahnhofstrasse -- Dietikon
+  - 8590217 -- 8503508                       :: Dietikon, Bahnhofstrasse -- Dietikon
+  - 8590435 -- 8500212:0:45/5                :: Oensingen, Bahnhof Süd -- Oensingen
+  - 8594370:0:B -- 8505470                   :: Locarno, Piazza Stazione -- Locarno FART
+  - 8594370:0:C -- 8505470                   :: Locarno, Piazza Stazione -- Locarno FART
+  - 8594370 -- 8505470                       :: Locarno, Piazza Stazione -- Locarno FART
+- removed 26 items from gtfs_fp2021_2021-10-27_09-10
+  - 8029713:0:1 -- 8029713                   :: Unterelchingen -- Unterelchingen
+  - 8029713 -- 8029713:0:1                   :: Unterelchingen -- Unterelchingen
+  - 8029716:0:1 -- 8029716                   :: Ulm Ost -- Ulm Ost
+  - 8029716 -- 8029716:0:1                   :: Ulm Ost -- Ulm Ost
+  - 8037288:0:2 -- 8037288                   :: Friedrichshafen Flughafen -- Friedrichshafen Flughafen
+  - 8037288 -- 8037288:0:2                   :: Friedrichshafen Flughafen -- Friedrichshafen Flughafen
+  - 8579936:0:A -- 8579936:0:B               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:A -- 8579936:0:C               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:A -- 8579936:0:D               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:A -- 8579936                   :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:B -- 8579936:0:A               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:B -- 8579936:0:C               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:B -- 8579936:0:D               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:B -- 8579936                   :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:C -- 8579936:0:A               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:C -- 8579936:0:B               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:C -- 8579936:0:D               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:C -- 8579936                   :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:D -- 8579936:0:A               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:D -- 8579936:0:B               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:D -- 8579936:0:C               :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936:0:D -- 8579936                   :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936 -- 8579936:0:A                   :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936 -- 8579936:0:B                   :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936 -- 8579936:0:C                   :: Bellinzona, Stazione -- Bellinzona, Stazione
+  - 8579936 -- 8579936:0:D                   :: Bellinzona, Stazione -- Bellinzona, Stazione
+```
