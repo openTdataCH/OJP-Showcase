@@ -216,7 +216,10 @@ class GTFS_Reader:
             map_transfers[transfer_key] = transfer_data
         return map_transfers
 
-    def _generate_transfers_report(transfer_keys, map_transfers, map_stops):
+    def _generate_transfers_report(map_transfer_keys, map_transfers, map_stops):
+        transfer_keys = list(map_transfer_keys)
+        transfer_keys.sort()
+
         for transfer_key in transfer_keys:
             transfer_data = map_transfers[transfer_key]
             from_stop_id = transfer_data['from_stop_id']
@@ -226,7 +229,8 @@ class GTFS_Reader:
             to_stop_data = map_stops[to_stop_id]
             to_stop_name = to_stop_data['stop_name']
 
-            transfer_key = f'{from_stop_id} -- {to_stop_id}'
+            transfer_key_from = from_stop_id.ljust(20, ' ')
+            transfer_key = f'{transfer_key_from} -- {to_stop_id}'
             transfer_key_f = transfer_key.ljust(40, ' ')
 
             print(f'  - {transfer_key_f} :: {from_stop_name} -- {to_stop_name}')
