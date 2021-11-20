@@ -177,6 +177,9 @@ class GTFS_Reader:
         return map_stops_filtered
 
     def _generate_stops_report(stop_ids, map_stops):
+        stop_ids = list(stop_ids)
+        stop_ids.sort()
+
         for stop_id in stop_ids:
             stop_data = map_stops[stop_id]
             stop_name = stop_data['stop_name']
