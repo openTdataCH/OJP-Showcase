@@ -144,8 +144,8 @@ class GTFS_Reader:
                 print(f'    - {route_id}')
 
     def compare_stops(gtfs_path_a: str, gtfs_path_b: str):
-        stops_a = GTFS_Reader._load_gtfs_file(gtfs_path_a, 'stops', 'stop_id')
-        stops_b = GTFS_Reader._load_gtfs_file(gtfs_path_b, 'stops', 'stop_id')
+        stops_a = GTFS_Reader._load_and_filter_stops(gtfs_path_a)
+        stops_b = GTFS_Reader._load_and_filter_stops(gtfs_path_b)
 
         added_stop_ids = stops_b.keys() - stops_a.keys()
         removed_stop_ids = stops_a.keys() - stops_b.keys()
@@ -160,6 +160,21 @@ class GTFS_Reader:
         stops_no = len(removed_stop_ids)
         print(f'- removed {stops_no} items from {gtfs_path_a.name}')
         GTFS_Reader._generate_stops_report(removed_stop_ids, stops_a)
+
+    def _load_and_filter_stops(gtfs_path):
+        map_stops_all = GTFS_Reader._load_gtfs_file(gtfs_path, 'stops', 'stop_id')
+        map_stops_filtered = {}
+        for stop_id in map_stops_all:
+            stop_data = map_stops_all[stop_id]
+
+            location_type = 0
+            if stop_data['location_type'] != '':
+                location_type = int(stop_data['location_type'])
+            
+            if location_type == 0:
+                map_stops_filtered[stop_id] = stop_data
+
+        return map_stops_filtered
 
     def _generate_stops_report(stop_ids, map_stops):
         for stop_id in stop_ids:
