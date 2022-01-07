@@ -1,0 +1,7 @@
+map_sql_queries:
+  hrdf_select_trips: [APP_PATH]/inc/sql/hrdf_select_trips.sql
+  gtfs_select_trips: [APP_PATH]/inc/sql/gtfs_select_trips.sql
+
+report_paths:
+  gtfs_trips_with_csv_path: '[APP_PATH]/reports/gtfs_trips_with_hrdf.csv'
+  vehicle_type_stats_path: '[APP_PATH]/reports/vehicle_type_stats.md'
