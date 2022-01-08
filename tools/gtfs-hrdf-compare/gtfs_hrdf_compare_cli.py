@@ -39,7 +39,7 @@ def main():
         print(f'{args.hrdf_db_path}')
         sys.exit(1)
 
-    request_day = datetime.today()
+    request_day = datetime.today().date()
     request_day_s = args.day
     if request_day_s:
         request_day = datetime.strptime(request_day_s, "%Y-%m-%d").date()
