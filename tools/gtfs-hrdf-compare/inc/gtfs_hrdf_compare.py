@@ -56,55 +56,59 @@ class GTFS_HRDF_Compare_Controller:
         map_hrdf_trips = self._compute_map_hrdf_trips(agency_id=agency_id, request_date=request_date)
         map_gtfs_trips = self._compute_map_gtfs_trips(agency_id=agency_id, request_date=request_date)
 
-        self._compare_stats_datasets(map_hrdf_trips, map_gtfs_trips)
-        
-        csv_reporter_field_names = ['trip_id', 'route_short_name', 'short_name', 'agency_id', 'route_id', 'service_id', 'hrdf_match_type', 'hrdf_service_id_match_score', 'hrdf_FPLAN_row_idx']
+        csv_reporter_field_names = ['trip_id', 'route_short_name', 'short_name', 'agency_id', 'route_id', 'service_id', 'hrdf_match_type', 'hrdf_fplan_type', 'hrdf_service_id_match_score', 'hrdf_FPLAN_row_idx']
         csv_reporter = CSV_Updater(self.report_paths['gtfs_trips_with_csv_path'], csv_reporter_field_names)
 
-        for map_gtfs_agency_trips in map_gtfs_trips.values():
-            for route_short_name in map_gtfs_agency_trips:
-                gtfs_trips = map_gtfs_agency_trips[route_short_name]
+        matched_hrdf_trips = {}
+
+        for map_agency_gtfs_trips in map_gtfs_trips.values():
+            gtfs_trips: List[GTFS_Trip] = map_agency_gtfs_trips.values()
+            for gtfs_trip in gtfs_trips:
+                report_csv_row = {
+                    'trip_id': gtfs_trip.trip_id,
+                    'route_short_name': gtfs_trip.route.route_short_name,
+                    'short_name': gtfs_trip.trip_short_name,
+                    'route_id': gtfs_trip.route.route_id,
+                    'agency_id': gtfs_trip.route.agency.agency_id,
+                    'service_id': gtfs_trip.service.service_id,
+                    'hrdf_match_type': None,
+                    'hrdf_fplan_type': None,
+                    'hrdf_fplan_content': None,
+                    'hrdf_service_id_match_score': None,
+                    'hrdf_FPLAN_row_idx': None,
+                }
+
+                matched_data_rows = self._match_hrdf_trips(gtfs_trip, map_hrdf_trips, matched_hrdf_trips)
+                matched_data_rows = sorted(matched_data_rows, key=itemgetter('match_score'), reverse=True)
+
+                match_status = 'NO_MATCH'
+                if len(matched_data_rows) > 0:
+                    first_matched_row = matched_data_rows[0]
+                    match_status = first_matched_row['match_status']
+
+                if match_status.startswith('MATCH_'):
+                    filtered_matched_data_rows = [row for row in matched_data_rows if row['match_status'] == match_status]
+                    filtered_matched_data_rows_no = len(filtered_matched_data_rows)
+
+                    if filtered_matched_data_rows_no > 1:
+                        match_status = f'{match_status}_{filtered_matched_data_rows_no}'
+
+                    hrdf_trip: HRDF_Trip_Variant = first_matched_row['hrdf_trip']
+                    
+                    # make sure is not matched anymore
+                    matched_hrdf_trips[hrdf_trip.fplan_row_idx] = hrdf_trip
+                    
+                    report_csv_row['hrdf_FPLAN_row_idx'] = hrdf_trip.fplan_row_idx
+                    report_csv_row['hrdf_fplan_type'] = hrdf_trip.vehicle_type_key()
+
+                    service_id_matched_days = first_matched_row['match_details']['service_id_matched_days_no']
+                    service_id_match_score = int(round(service_id_matched_days / len(hrdf_trip.service.day_bits), 2) * 100)
+                    service_id_match_score_s = f'{service_id_match_score}% - {service_id_matched_days} days'
+                    report_csv_row['hrdf_service_id_match_score'] = service_id_match_score_s
                 
-                for gtfs_trip in gtfs_trips:
-                    report_csv_row = {
-                        'trip_id': gtfs_trip.trip_id,
-                        'route_short_name': gtfs_trip.route.route_short_name,
-                        'short_name': gtfs_trip.trip_short_name,
-                        'route_id': gtfs_trip.route.route_id,
-                        'agency_id': gtfs_trip.route.agency.agency_id,
-                        'service_id': gtfs_trip.service.service_id,
-                        'hrdf_match_type': None,
-                        'hrdf_service_id_match_score': None,
-                        'hrdf_FPLAN_row_idx': None,
-                    }
-
-                    matched_data_rows = self._match_hrdf_trips(gtfs_trip, map_hrdf_trips)
-                    matched_data_rows = sorted(matched_data_rows, key=itemgetter('match_score'), reverse=True)
-
-                    match_status = 'NO_MATCH'
-                    if len(matched_data_rows) > 0:
-                        first_matched_row = matched_data_rows[0]
-                        match_status = first_matched_row['match_status']
-
-                    if match_status in ['EXACT_MATCH', 'TRIP_ID_PLUS_ENDPOINTS']:
-                        filtered_matched_data_rows = [row for row in matched_data_rows if row['match_status'] == match_status]
-                        filtered_matched_data_rows_no = len(filtered_matched_data_rows)
-
-                        if filtered_matched_data_rows_no > 1:
-                            match_status = f'{match_status}_{filtered_matched_data_rows_no}'
-
-                        hrdf_trip: HRDF_Trip_Variant = first_matched_row['trip']
-                        report_csv_row['hrdf_FPLAN_row_idx'] = hrdf_trip.fplan_row_idx
-
-                        service_id_matched_days = first_matched_row['match_details']['service_id_matched_days']
-                        service_id_match_score = round(service_id_matched_days / len(hrdf_trip.service.day_bits), 3)
-                        report_csv_row['hrdf_service_id_match_score'] = service_id_match_score
-
-                    report_csv_row['hrdf_match_type'] = match_status
-
-                    csv_reporter.prepare_row(report_csv_row)
-                # end GTFS trip
-            # end MAP_GTFS route_short_name
+                report_csv_row['hrdf_match_type'] = match_status
+                csv_reporter.prepare_row(report_csv_row)
+            # end GTFS trip
         # end MAP_GTFS agency_id
 
         csv_reporter.close()
@@ -272,14 +276,15 @@ class GTFS_HRDF_Compare_Controller:
             if agency_id not in map_hrdf_trips:
                 map_hrdf_trips[agency_id] = {}
             
-            map_service_trips = map_hrdf_trips[agency_id]
+            if trip.fplan_trip_id in map_hrdf_trips[agency_id]:
+                print(f'WHOOPS - we have same FPLAN trip_id {trip.fplan_trip_id}')
+                trip.pretty_print()
+                print('--- VS')
+                map_hrdf_trips[agency_id][trip.fplan_trip_id].pretty_print()
+                sys.exit()
             
-            trip_fplan_key = trip.vehicle_type_key()
-            if trip_fplan_key not in map_service_trips:
-                map_service_trips[trip_fplan_key] = []
-
-            map_service_trips[trip_fplan_key].append(trip)
-
+            map_hrdf_trips[agency_id][trip.fplan_trip_id] = trip
+            
             trip_idx += 1
 
         log_message(f'... return {trip_idx} trips')
@@ -292,6 +297,7 @@ class GTFS_HRDF_Compare_Controller:
         gtfs_trips_sql = load_resource_from_bundle(self.map_sql_queries, 'gtfs_select_trips')
         
         where_parts = []
+        
         if agency_id:
             sql_where = f'AND routes.agency_id = "{agency_id}"'
             where_parts.append(sql_where)
@@ -317,11 +323,14 @@ class GTFS_HRDF_Compare_Controller:
             if agency_id not in map_gtfs_trips:
                 map_gtfs_trips[agency_id] = {}
 
-            route_short_name = trip.route.route_short_name
-            if route_short_name not in map_gtfs_trips[agency_id]:
-                map_gtfs_trips[agency_id][route_short_name] = []
+            if trip.trip_short_name in map_gtfs_trips[agency_id]:
+                print(f'WHOOPS - we have same FPLAN trip_id {trip.trip_short_name}')
+                trip.pretty_print()
+                print('--- VS')
+                map_gtfs_trips[agency_id][trip.trip_short_name].pretty_print()
+                sys.exit()
 
-            map_gtfs_trips[agency_id][route_short_name].append(trip)
+            map_gtfs_trips[agency_id][trip.trip_short_name] = trip
 
             trip_idx += 1
 
@@ -329,37 +338,53 @@ class GTFS_HRDF_Compare_Controller:
         
         return map_gtfs_trips
 
-    def _match_hrdf_trips(self, gtfs_trip: GTFS_Trip, map_hrdf_trips):
-        agency_id = gtfs_trip.route.agency.agency_id
-        map_hrdf_agency_trips = map_hrdf_trips[agency_id]
-
-        gtfs_vehicle_type_key = gtfs_trip.route.route_short_name
-        if gtfs_vehicle_type_key not in map_hrdf_agency_trips:
-            matched_data_row = {
-                'match_status': 'NO_VEHICLE_TYPE_MATCH',
-                'match_score': 0,
-                'trip': None
-            }
-            return [matched_data_row]
-
-        hrdf_trips: List[HRDF_Trip_Variant] = map_hrdf_agency_trips[gtfs_vehicle_type_key]
-
-        gtfs_calendar_db_row = self.map_calendar_gtfs[gtfs_trip.service.service_id]
-        gtfs_calendar_hrdf_service_id = gtfs_calendar_db_row['hrdf_service_id']
-
+    def _match_hrdf_trips(self, gtfs_trip: GTFS_Trip, map_hrdf_trips, matched_hrdf_trips):
+        gtfs_agency_id = gtfs_trip.route.agency.agency_id
+        if gtfs_agency_id not in map_hrdf_trips:
+            print(f'ERROR - no agency_id {gtfs_agency_id} in HRDF trips')
+            print(map_hrdf_trips.keys())
+            sys.exit(1)
+        
+        map_agency_hrdf_trips = map_hrdf_trips[gtfs_agency_id]
+        
         matched_data_rows = []
 
-        for hrdf_trip in hrdf_trips:
-            matched_data_row = self._match_hrdf_trip(gtfs_trip, gtfs_calendar_hrdf_service_id, hrdf_trip)
+        gtfs_trip_short_name = gtfs_trip.trip_short_name
+        if gtfs_trip_short_name in map_agency_hrdf_trips:
+            hrdf_trip: HRDF_Trip_Variant = map_agency_hrdf_trips[gtfs_trip_short_name]
+            
+            matched_data_row = self._match_hrdf_trip(gtfs_trip, hrdf_trip, matched_hrdf_trips)
             if matched_data_row['match_score'] > 0:
                 matched_data_rows.append(matched_data_row)
-
+        else:
+            print('HANDLE when we dont match the trip_short_name - LOOOOP')
+            sys.exit()
+        
         return matched_data_rows
 
-    def _match_hrdf_trip(self, gtfs_trip: GTFS_Trip, gtfs_calendar_hrdf_service_id: str, hrdf_trip: HRDF_Trip_Variant):
-        has_same_FPLAN_trip_id = hrdf_trip.fplan_trip_id == gtfs_trip.trip_short_name
+    def _match_hrdf_trip(self, gtfs_trip: GTFS_Trip, hrdf_trip: HRDF_Trip_Variant, matched_hrdf_trips):
+        if hrdf_trip.fplan_row_idx in matched_hrdf_trips:
+            print('WHOOPS - trip was already matched matched')
+            hrdf_trip.pretty_print()
+            print('PREV')
+            prev_hrdf_trip: HRDF_Trip_Variant = matched_hrdf_trips[hrdf_trip.fplan_row_idx]
+            prev_hrdf_trip.pretty_print()
+            sys.exit()
+
+        # CHECK 1 - FPLAN TRIP_ID
+        has_same_fplan_trip_id = hrdf_trip.fplan_trip_id == gtfs_trip.trip_short_name
+
+        # CHECK 2 - VEHICLE TYPE (i.e. IC8)
+        hrdf_fplan_type_key = hrdf_trip.vehicle_type_key()
+        gtfs_route_short_name = gtfs_trip.route.route_short_name
+        has_same_fplan_type_key = hrdf_fplan_type_key == gtfs_route_short_name
+
+        # CHECK 3 - CALENDAR
+        gtfs_calendar_db_row = self.map_calendar_gtfs[gtfs_trip.service.service_id]
+        gtfs_calendar_hrdf_service_id = gtfs_calendar_db_row['hrdf_service_id']
         has_same_service_id = hrdf_trip.service.service_id == gtfs_calendar_hrdf_service_id
-        
+
+        # CHECK 4 - SAME ENDPOINTS
         has_same_departure = hrdf_trip.trip_departure_time() == gtfs_trip.departure_time
         has_same_arrival = hrdf_trip.trip_arrival_time() == gtfs_trip.arrival_time
         
@@ -374,34 +399,40 @@ class GTFS_HRDF_Compare_Controller:
         has_same_to_stop_id = gtfs_trip_to_stop_id == hrdf_trip_to_stop_id
 
         has_same_endpoints = has_same_departure and has_same_arrival and has_same_from_stop_id and has_same_to_stop_id
-        
+
         matched_data_row = {
             'match_status': 'NO_MATCH',
             'match_score': 0,
-            'trip': hrdf_trip,
+            'hrdf_trip': hrdf_trip,
             'match_details': {
-                'FPLAN_trip_id': has_same_FPLAN_trip_id,
+                'FPLAN_trip_id': has_same_fplan_trip_id,
+                'FPLAN_vehicle_type': has_same_fplan_type_key,
                 'service_id': has_same_service_id,
-                'service_id_matched_days': 0,
+                'service_id_matched_days_no': 0,
                 'endpoints': has_same_endpoints,
             }
         }
 
         match_score = 0
 
-        if has_same_FPLAN_trip_id and has_same_endpoints:
-            matched_data_row['match_status'] = 'EXACT_MATCH'
+        if has_same_fplan_trip_id and has_same_endpoints and has_same_fplan_type_key:
+            matched_data_row['match_status'] = 'MATCH_ALL'
+            match_score += 2000
+        elif has_same_fplan_trip_id and has_same_endpoints:
+            matched_data_row['match_status'] = 'MATCH_NO_FPLAN_TYPE'
             match_score += 1000
 
-        service_id_matched_days = 0
+        service_id_matched_days_no = 0
         if match_score > 0:
-            service_id_matched_days = self._match_service_score(gtfs_trip.service.day_bits, hrdf_trip.service.day_bits)
-
-        match_score += service_id_matched_days
-
-        matched_data_row['match_score'] = match_score
-        matched_data_row['match_details']['service_id_matched_days'] = service_id_matched_days
+            service_id_matched_days_no = self._match_service_score(
+                gtfs_trip.service.day_bits, 
+                hrdf_trip.service.day_bits,
+            )
+            match_score += service_id_matched_days_no
         
+        matched_data_row['match_score'] = match_score
+        matched_data_row['match_details']['service_id_matched_days_no'] = service_id_matched_days_no
+
         return matched_data_row
 
     def _match_service_score(self, day_bits_a, day_bits_b):
