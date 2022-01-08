@@ -252,14 +252,16 @@ class GTFS_HRDF_Compare_Controller:
         hrdf_trips_sql = load_resource_from_bundle(self.map_sql_queries, 'hrdf_select_trips')
         
         where_parts = []
+        
         if agency_id:
             sql_where = f'AND fplan.agency_id = "{agency_id}"'
             where_parts.append(sql_where)
 
-        day_idx = self._compute_calendar_day_idx(request_date)
-        # +1 because the SUBSTR is 1-based index
-        day_bit_where = f"AND SUBSTR(calendar.day_bits, {day_idx} + 1, 1) = '1'"
-        where_parts.append(day_bit_where)
+        if request_date:
+            day_idx = self._compute_calendar_day_idx(request_date)
+            # +1 because the SUBSTR is 1-based index
+            day_bit_where = f"AND SUBSTR(calendar.day_bits, {day_idx} + 1, 1) = '1'"
+            where_parts.append(day_bit_where)
 
         where_parts_s = "\n".join(where_parts)
         hrdf_trips_sql = hrdf_trips_sql.replace('[EXTRA_WHERE]', where_parts_s)
@@ -302,10 +304,11 @@ class GTFS_HRDF_Compare_Controller:
             sql_where = f'AND routes.agency_id = "{agency_id}"'
             where_parts.append(sql_where)
 
-        day_idx = self._compute_calendar_day_idx(request_date)
-        # +1 because the SUBSTR is 1-based index
-        day_bit_where = f"AND SUBSTR(calendar.day_bits, {day_idx} + 1, 1) = '1'"
-        where_parts.append(day_bit_where)
+        if request_date:
+            day_idx = self._compute_calendar_day_idx(request_date)
+            # +1 because the SUBSTR is 1-based index
+            day_bit_where = f"AND SUBSTR(calendar.day_bits, {day_idx} + 1, 1) = '1'"
+            where_parts.append(day_bit_where)
 
         where_parts_s = "\n".join(where_parts)
         gtfs_trips_sql = gtfs_trips_sql.replace('[EXTRA_WHERE]', where_parts_s)
