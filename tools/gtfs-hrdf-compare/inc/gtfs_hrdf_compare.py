@@ -58,7 +58,9 @@ class GTFS_HRDF_Compare_Controller:
         map_gtfs_trips = self._compute_map_gtfs_trips(agency_id=agency_id, request_date=request_date)
 
         csv_reporter_field_names = ['trip_id', 'route_short_name', 'short_name', 'agency_id', 'route_id', 'service_id', 'hrdf_match_type', 'hrdf_fplan_type', 'hrdf_service_id_match_score', 'hrdf_FPLAN_row_idx']
-        csv_reporter = CSV_Updater(self.report_paths['gtfs_trips_with_csv_path'], csv_reporter_field_names)
+        csv_reporter_path: str = self.report_paths['gtfs_trips_with_csv_path']
+        csv_reporter_path = csv_reporter_path.replace('[DAY]', f'{request_date}')
+        csv_reporter = CSV_Updater(csv_reporter_path, csv_reporter_field_names)
 
         matched_hrdf_trips = {}
 
