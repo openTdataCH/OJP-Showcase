@@ -146,9 +146,7 @@ class GTFS_HRDF_Compare_Controller:
             '|---|---|---|---|---|',
         ]
 
-        for agency_id in map_aggregated_trips:
-            trips_agency_data = map_aggregated_trips[agency_id]
-
+        for agency_id, trips_agency_data in map_aggregated_trips.items():
             for vehicle_type in trips_agency_data:
                 vehicle_type_data = trips_agency_data[vehicle_type]
 
