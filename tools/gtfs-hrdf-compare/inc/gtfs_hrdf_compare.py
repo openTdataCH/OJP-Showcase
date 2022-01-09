@@ -354,7 +354,7 @@ class GTFS_HRDF_Compare_Controller:
         gtfs_trip_short_name = gtfs_trip.trip_short_name
         if gtfs_trip_short_name in map_agency_hrdf_trips:
             hrdf_trip: HRDF_Trip_Variant = map_agency_hrdf_trips[gtfs_trip_short_name]
-            
+
             matched_data_row = self._match_hrdf_trip(gtfs_trip, hrdf_trip, matched_hrdf_trips)
             if matched_data_row['match_score'] > 0:
                 matched_data_rows.append(matched_data_row)
