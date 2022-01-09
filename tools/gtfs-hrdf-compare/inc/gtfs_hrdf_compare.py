@@ -7,14 +7,15 @@ from operator import itemgetter
 
 from pathlib import Path
 
+from .shared.inc.models.gtfs_static.trip import Trip as GTFS_Trip
+from .shared.inc.models.hrdf.trip_variant import Trip_Variant as HRDF_Trip_Variant
+
 from .shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path
 from .shared.inc.helpers.file_helpers import compute_file_rows_no
 from .shared.inc.helpers.csv_updater import CSV_Updater
 from .shared.inc.helpers.bundle_helpers import load_resource_from_bundle
 from .shared.inc.helpers.db_helpers import table_select_rows
 from .shared.inc.helpers.log_helpers import log_message
-
-from .t_models import HRDF_Trip_Variant, GTFS_Trip
 
 class GTFS_HRDF_Compare_Controller:
     def __init__(self, app_config, gtfs_db_path: Path, hrdf_db_path: Path):
