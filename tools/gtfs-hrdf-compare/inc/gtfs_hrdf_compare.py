@@ -170,7 +170,7 @@ class GTFS_HRDF_Compare_Controller:
                 report_vehicle_type_lines.append(report_vehicle_type_line)
 
         report_vehicle_type_stats_path = self.report_paths['vehicle_type_stats_path']
-        report_vehicle_type_stats_file = open(report_vehicle_type_stats_path, 'w')
+        report_vehicle_type_stats_file = open(report_vehicle_type_stats_path, 'w', encoding='utf-8')
         report_vehicle_type_stats_file.write("\n".join(report_vehicle_type_lines))
         report_vehicle_type_stats_file.close()
 
