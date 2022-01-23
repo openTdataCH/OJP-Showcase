@@ -31,7 +31,7 @@ if args.output_db_path:
     db_path = Path(args.output_db_path)
 else:
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    db_path = f'{dir_path}/output/hrdf_db/{db_filename}'
+    db_path = f'{dir_path}/tmp/hrdf-dbs/{db_filename}'
     db_path = Path(os.path.abspath(db_path))
 
 os.makedirs(db_path.parent, exist_ok=True)
