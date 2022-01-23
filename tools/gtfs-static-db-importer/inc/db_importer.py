@@ -114,9 +114,11 @@ class GTFS_DB_Importer:
                 log_message(f'... init calendar dates')
                 calendar_start_date = start_date
                 calendar_end_date = end_date
-                calendar_weeks_no = math.ceil((end_date - start_date).days / 7)
+                calendar_days_no = (end_date - start_date).days
+                calendar_weeks_no = math.ceil(calendar_days_no / 7)
                 log_message(f'... FROM    : {start_date}')
                 log_message(f'... TO      : {end_date}')
+                log_message(f'... days_no: {calendar_days_no + 1}')
                 log_message(f'... weeks_no: {calendar_weeks_no}')
 
             day_bits = self._compute_calendar_day_bits(db_row, calendar_days, start_date, end_date, calendar_weeks_no)
@@ -166,7 +168,8 @@ class GTFS_DB_Importer:
 
         day_bits_s = ''.join(day_bits_7d) * calendar_weeks_no
         days_no = (end_date - start_date).days
-        day_bits_s = day_bits_s[0:(days_no + 1)]
+        day_bits_end_idx = days_no + 1
+        day_bits_s = day_bits_s[0:day_bits_end_idx]
 
         day_bits = list(day_bits_s)
 
