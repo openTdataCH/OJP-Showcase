@@ -91,7 +91,7 @@ def load_sql_from_file(file_path: str):
 
     return sql
 
-def count_rows_table(db_handle: any, table_name: str, where_clause = ""):
+def count_rows_table(db_handle: any, table_name: str, where_clause = None):
     sql = f"SELECT COUNT(*) AS cno FROM {table_name} {where_clause}"
     return db_handle.cursor().execute(sql).fetchone()[0]
 
