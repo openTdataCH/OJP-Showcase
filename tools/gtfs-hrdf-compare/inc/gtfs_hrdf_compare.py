@@ -389,6 +389,14 @@ class GTFS_HRDF_Compare_Controller:
 
             matched_data_row = self._match_hrdf_trip(gtfs_trip, hrdf_trip)
             if matched_data_row['match_score'] > 0:
+                if hrdf_trip.fplan_row_idx in matched_hrdf_trips:
+                    print('WHOOPS - trip was already matched matched')
+                    hrdf_trip.pretty_print()
+                    print("\nPREV\n")
+                    prev_hrdf_trip: HRDF_Trip_Variant = matched_hrdf_trips[hrdf_trip.fplan_row_idx]
+                    prev_hrdf_trip.pretty_print()
+                    sys.exit()
+
                 matched_data_rows.append(matched_data_row)
         else:
             map_hrdf_trips_by_fplan_type = map_agency_hrdf_trips['all_fplan_type_key']
