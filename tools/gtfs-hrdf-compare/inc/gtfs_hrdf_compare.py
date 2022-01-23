@@ -100,6 +100,13 @@ class GTFS_HRDF_Compare_Controller:
                         match_status = f'{match_status}_{filtered_matched_data_rows_no}'
 
                     hrdf_trip: HRDF_Trip_Variant = first_matched_row['hrdf_trip']
+
+                    is_running = hrdf_trip.service.is_running_for_day(request_date)
+                    if not is_running:
+                        match_status = 'MATCH_NO_DATE'
+
+                        report_csv_row['debug_GTFS_calendar'] = self._debug_service(gtfs_trip.service, request_date)
+                        report_csv_row['debug_HRDF_calendar'] = self._debug_service(hrdf_trip.service, request_date)
                     
                     # make sure is not matched anymore
                     matched_hrdf_trips[hrdf_trip.fplan_row_idx] = hrdf_trip
@@ -451,3 +458,47 @@ class GTFS_HRDF_Compare_Controller:
                 matched_days_no += 1
 
         return matched_days_no
+
+    def _debug_service(self, service: GTFS_Calendar, request_day: datetime):
+        month_data_rows = service.compute_month_data_rows()
+        month_key = f'{request_day}'[0:7]
+        request_day_f = f'{request_day}'
+        
+        header_separator_s = '-' * 60
+
+        cell_rows = []
+        cell_rows.append(header_separator_s)
+
+        week_days_s = 'MTWTFSS ' * 6
+        cell_rows.append(f'Month   : {week_days_s}')
+        cell_rows.append(header_separator_s)
+
+        for month_data in month_data_rows:
+            if month_data['month_key'] != month_key:
+                continue
+
+            month_bits_formatted = []
+            for (idx, day_bit_data) in enumerate(month_data['day_bit_rows']):
+                day_bit_s = '-'
+                if day_bit_data is not None:
+                    day_bit = day_bit_data['day_bit']
+                    day_bit_s = '-'
+                    if day_bit is not None:
+                        day_bit_s = '1' if day_bit else 'x'
+                        if request_day_f == day_bit_data['day_f']:
+                            day_bit_s = '①' if day_bit else 'ⓧ'
+
+                month_bits_formatted.append(day_bit_s)
+                
+                # space after weekdays
+                if (idx % 7) == 6:
+                    month_bits_formatted.append(' ')
+            month_key = month_data['month_key']
+            month_bits_s = ''.join(month_bits_formatted)
+
+            cell_rows.append(f'{month_key} : {month_bits_s}')
+
+        cell_rows.append(header_separator_s)
+
+        cell_s = "\n".join(cell_rows)
+        return cell_s
