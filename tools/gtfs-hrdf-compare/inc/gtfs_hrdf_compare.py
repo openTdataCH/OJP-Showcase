@@ -114,6 +114,9 @@ class GTFS_HRDF_Compare_Controller:
                     report_csv_row['hrdf_FPLAN_row_idx'] = hrdf_trip.fplan_row_idx
                     report_csv_row['hrdf_fplan_type'] = hrdf_trip.vehicle_type_key()
 
+                    hrdf_FPLAN_content: str = hrdf_trip.fplan_content
+                    report_csv_row['hrdf_FPLAN_content'] = hrdf_FPLAN_content
+
                     service_id_matched_days = first_matched_row['match_details']['service_id_matched_days_no']
                     service_id_match_score = int(round(service_id_matched_days / len(hrdf_trip.service.day_bits), 2) * 100)
                     service_id_match_score_s = f'{service_id_match_score}% - {service_id_matched_days} days'
