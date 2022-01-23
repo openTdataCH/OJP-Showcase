@@ -135,3 +135,10 @@ class Calendar:
             print(f'week pattern: {self._compute_week_pattern()}')
 
         self._debug_days()
+
+    def is_running_for_day(self, for_day: datetime) -> bool:
+        day_idx = (for_day - self.start_date).days
+        day_bit = self.day_bits[day_idx]
+        is_running = day_bit == '1'
+
+        return is_running
