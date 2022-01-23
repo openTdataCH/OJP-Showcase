@@ -18,6 +18,13 @@ def compute_formatted_date_from_gtfs_folder_path(folder_path: Path):
     return None
 
 def convert_datetime_to_day_minutes(datetime_s: str):
+    # fix HRDF bug - see emails 5.01.2022
+    if len(datetime_s) == 9:
+        datetime_parts = datetime_s.split(':')
+        datetime_hr = int(datetime_parts[0][2:]) + 24
+        datetime_parts[0] = f'{datetime_hr}'
+        datetime_s = ':'.join(datetime_parts)
+
     datetime_hours = int(datetime_s[0:2])
     datetime_minutes = int(datetime_s[3:5])
 
