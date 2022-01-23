@@ -57,7 +57,7 @@ class GTFS_HRDF_Compare_Controller:
         map_hrdf_trips = self._compute_map_hrdf_trips(agency_id=agency_id, request_date=request_date)
         map_gtfs_trips = self._compute_map_gtfs_trips(agency_id=agency_id, request_date=request_date)
 
-        csv_reporter_field_names = ['trip_id', 'route_short_name', 'short_name', 'agency_id', 'route_id', 'service_id', 'hrdf_match_type', 'hrdf_fplan_type', 'hrdf_service_id_match_score', 'hrdf_FPLAN_row_idx']
+        csv_reporter_field_names = ['trip_id', 'route_short_name', 'short_name', 'agency_id', 'route_id', 'service_id', 'hrdf_match_type', 'hrdf_fplan_type', 'hrdf_service_id_match_score', 'hrdf_FPLAN_row_idx', 'hrdf_FPLAN_content', 'debug_GTFS_calendar', 'debug_HRDF_calendar']
         csv_reporter_path: str = self.report_paths['gtfs_trips_with_csv_path']
         csv_reporter_path = csv_reporter_path.replace('[DAY]', f'{request_date}')
         csv_reporter = CSV_Updater(csv_reporter_path, csv_reporter_field_names)
@@ -65,8 +65,8 @@ class GTFS_HRDF_Compare_Controller:
         matched_hrdf_trips = {}
 
         for map_agency_gtfs_trips in map_gtfs_trips.values():
-            gtfs_trips: List[GTFS_Trip] = map_agency_gtfs_trips.values()
-            for gtfs_trip in gtfs_trips:
+            agency_gtfs_trips: List[GTFS_Trip] = map_agency_gtfs_trips['map_trips'].values()
+            for gtfs_trip in agency_gtfs_trips:
                 report_csv_row = {
                     'trip_id': gtfs_trip.trip_id,
                     'route_short_name': gtfs_trip.route.route_short_name,
@@ -79,6 +79,9 @@ class GTFS_HRDF_Compare_Controller:
                     'hrdf_fplan_content': None,
                     'hrdf_service_id_match_score': None,
                     'hrdf_FPLAN_row_idx': None,
+                    'hrdf_FPLAN_content': None,
+                    'debug_GTFS_calendar': None,
+                    'debug_HRDF_calendar': None,
                 }
 
                 matched_data_rows = self._match_hrdf_trips(gtfs_trip, map_hrdf_trips, matched_hrdf_trips)
