@@ -67,6 +67,8 @@ def _parse_hrdf_meta_stops(hrdf_path):
                     current_transfer_info["attributes"]["walk_plus_bus_minutes"] = current_transfer_info["transfer_time"]
                 elif row_line == "*A YM":
                     current_transfer_info["attributes"]["walk_plus_underground_minutes"] = current_transfer_info["transfer_time"]
+                elif row_line == "*A YT":
+                    current_transfer_info["attributes"]["walk_plus_tram_minutes"] = current_transfer_info["transfer_time"]
                 else:
                     print(f"METABHF, unknown line type: {row_line}")
                     sys.exit()
