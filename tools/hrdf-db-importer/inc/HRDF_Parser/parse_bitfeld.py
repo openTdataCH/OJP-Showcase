@@ -13,6 +13,7 @@ def import_db_bitfeld(hrdf_path, db_path, db_schema_config):
 def _parse_hrdf_bitfeld(hrdf_path):
     hrdf_from_date, hrdf_to_date = _parse_hrdf_eckdaten(hrdf_path)
     days_count = (hrdf_to_date - hrdf_from_date).days
+    days_end_idx = days_count + 1 # adds one so we can include also the to_date
     
     bitfeld_row_items = []
 
@@ -29,7 +30,7 @@ def _parse_hrdf_bitfeld(hrdf_path):
         # HRDF inserts 2 bits before the first day of the start of the timetable
         fplan_day_bits_s = fplan_day_bits_s[2:]
         # Keep only the bits from the ECKDATEN
-        fplan_day_bits_s = fplan_day_bits_s[:days_count]
+        fplan_day_bits_s = fplan_day_bits_s[0:days_end_idx]
 
         bitfeld_json = {
             "service_id": service_id,
