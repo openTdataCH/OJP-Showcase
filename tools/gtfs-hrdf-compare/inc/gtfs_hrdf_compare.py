@@ -7,6 +7,7 @@ from operator import itemgetter
 
 from pathlib import Path
 
+from .shared.inc.models.gtfs_static.calendar import Calendar as GTFS_Calendar
 from .shared.inc.models.gtfs_static.trip import Trip as GTFS_Trip
 from .shared.inc.models.hrdf.trip_variant import Trip_Variant as HRDF_Trip_Variant
 
@@ -326,7 +327,7 @@ class GTFS_HRDF_Compare_Controller:
         return map_hrdf_trips
 
     def _compute_map_gtfs_trips(self, agency_id: str, request_date: datetime):
-        log_message(f'Query GTFS trips ...')
+        log_message(f'Query given day GTFS trips ...')
 
         gtfs_trips_sql = load_resource_from_bundle(self.map_sql_queries, 'gtfs_select_trips')
         
