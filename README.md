@@ -7,6 +7,7 @@
 
 ## Tools
 
+- [GTFS-HRDF Compare](tools/gtfs-hrdf-compare)
 - [GTFS-Static compare](tools/gtfs-prev-compare)
 - [GTFS-RT Fetcher](tools/gtfs-rt-fetch)
 - [GTFS-Static DB Importer](tools/gtfs-static-db-importer)
