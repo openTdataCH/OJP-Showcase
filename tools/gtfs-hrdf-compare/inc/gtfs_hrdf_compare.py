@@ -290,19 +290,34 @@ class GTFS_HRDF_Compare_Controller:
         trip_idx = 0
         for hrdf_trip_db_row in trips_hrdf_cursor:
             trip = HRDF_Trip_Variant.init_from_db_row(hrdf_trip_db_row, self.hrdf_db_lookups['calendar'], self.hrdf_db_lookups['agency'], self.hrdf_db_lookups['stops'])
-
+            
             agency_id = trip.agency.agency_id
             if agency_id not in map_hrdf_trips:
-                map_hrdf_trips[agency_id] = {}
+                map_hrdf_trips[agency_id] = {
+                    'now_fplan_trip_id': {},
+                    'all_fplan_type_key': {},
+                }
+
+            map_agency_trips = map_hrdf_trips[agency_id]
+
+            is_running = trip.service.is_running_for_day(request_date)
+            if is_running:
+                fplan_trip_id = trip.fplan_trip_id
+                if fplan_trip_id in map_agency_trips['now_fplan_trip_id']:
+                    trip.pretty_print()
+                    print("\n - vs PREV \n")
+                    prev_trip: HRDF_Trip_Variant = map_agency_trips['now_fplan_trip_id']
+                    prev_trip.pretty_print()
+                    print(f'ERROR - same FPLAN trip_id {fplan_trip_id} found')
+                    sys.exit(1)
+                
+                map_agency_trips['now_fplan_trip_id'][fplan_trip_id] = trip
+
+            fplan_type_key = trip.vehicle_type_key()
+            if fplan_type_key not in map_agency_trips['all_fplan_type_key']:
+                map_agency_trips['all_fplan_type_key'][fplan_type_key] = []
             
-            if trip.fplan_trip_id in map_hrdf_trips[agency_id]:
-                print(f'WHOOPS - we have same FPLAN trip_id {trip.fplan_trip_id}')
-                trip.pretty_print()
-                print('--- VS')
-                map_hrdf_trips[agency_id][trip.fplan_trip_id].pretty_print()
-                sys.exit()
-            
-            map_hrdf_trips[agency_id][trip.fplan_trip_id] = trip
+            map_agency_trips['all_fplan_type_key'][fplan_type_key].append(trip)
             
             trip_idx += 1
 
@@ -341,16 +356,14 @@ class GTFS_HRDF_Compare_Controller:
 
             agency_id = trip.route.agency.agency_id
             if agency_id not in map_gtfs_trips:
-                map_gtfs_trips[agency_id] = {}
+                map_gtfs_trips[agency_id] = {
+                    'map_trips': {},
+                }
 
-            if trip.trip_short_name in map_gtfs_trips[agency_id]:
-                print(f'WHOOPS - we have same FPLAN trip_id {trip.trip_short_name}')
-                trip.pretty_print()
-                print('--- VS')
-                map_gtfs_trips[agency_id][trip.trip_short_name].pretty_print()
-                sys.exit()
+            map_agency_trips = map_gtfs_trips[agency_id]['map_trips']
 
-            map_gtfs_trips[agency_id][trip.trip_short_name] = trip
+            trip_pk = trip.trip_id
+            map_agency_trips[trip_pk] = trip
 
             trip_idx += 1
 
@@ -370,27 +383,35 @@ class GTFS_HRDF_Compare_Controller:
         matched_data_rows = []
 
         gtfs_trip_short_name = gtfs_trip.trip_short_name
-        if gtfs_trip_short_name in map_agency_hrdf_trips:
-            hrdf_trip: HRDF_Trip_Variant = map_agency_hrdf_trips[gtfs_trip_short_name]
+        map_hrdf_trips_by_fplan_trip_id = map_agency_hrdf_trips['now_fplan_trip_id']
+        if gtfs_trip_short_name in map_hrdf_trips_by_fplan_trip_id:
+            hrdf_trip: HRDF_Trip_Variant = map_hrdf_trips_by_fplan_trip_id[gtfs_trip_short_name]
 
-            matched_data_row = self._match_hrdf_trip(gtfs_trip, hrdf_trip, matched_hrdf_trips)
+            matched_data_row = self._match_hrdf_trip(gtfs_trip, hrdf_trip)
             if matched_data_row['match_score'] > 0:
                 matched_data_rows.append(matched_data_row)
         else:
-            print('HANDLE when we dont match the trip_short_name - LOOOOP')
-            sys.exit()
+            map_hrdf_trips_by_fplan_type = map_agency_hrdf_trips['all_fplan_type_key']
+            route_short_name = gtfs_trip.route.route_short_name
+            if route_short_name in map_hrdf_trips_by_fplan_type:
+                hrdf_trips: List[HRDF_Trip_Variant] = map_hrdf_trips_by_fplan_type[route_short_name]
+                for hrdf_trip in hrdf_trips:
+                    if hrdf_trip.fplan_row_idx in matched_hrdf_trips:
+                        # the trip was alreadyt matched at a higher score before
+                        continue
+
+                    matched_data_row = self._match_hrdf_trip(gtfs_trip, hrdf_trip)
+                    if matched_data_row['match_score'] > 0:
+                        matched_data_rows.append(matched_data_row)
+                        break
+                        
+            else:
+                print(f'WHOOPS - we cant match fplantype => no results {route_short_name}')
+                sys.exit(1)
         
         return matched_data_rows
 
-    def _match_hrdf_trip(self, gtfs_trip: GTFS_Trip, hrdf_trip: HRDF_Trip_Variant, matched_hrdf_trips):
-        if hrdf_trip.fplan_row_idx in matched_hrdf_trips:
-            print('WHOOPS - trip was already matched matched')
-            hrdf_trip.pretty_print()
-            print('PREV')
-            prev_hrdf_trip: HRDF_Trip_Variant = matched_hrdf_trips[hrdf_trip.fplan_row_idx]
-            prev_hrdf_trip.pretty_print()
-            sys.exit()
-
+    def _match_hrdf_trip(self, gtfs_trip: GTFS_Trip, hrdf_trip: HRDF_Trip_Variant):
         # CHECK 1 - FPLAN TRIP_ID
         has_same_fplan_trip_id = hrdf_trip.fplan_trip_id == gtfs_trip.trip_short_name
 
