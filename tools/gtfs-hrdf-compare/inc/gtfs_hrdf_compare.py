@@ -54,7 +54,9 @@ class GTFS_HRDF_Compare_Controller:
         print(f'=================================')
         print('')
 
+        # return ALL HRDF trips for fuzzy matching
         map_hrdf_trips = self._compute_map_hrdf_trips(agency_id=agency_id, request_date=request_date)
+        # return only active (request_date) trips
         map_gtfs_trips = self._compute_map_gtfs_trips(agency_id=agency_id, request_date=request_date)
 
         csv_reporter_field_names = ['trip_id', 'route_short_name', 'short_name', 'agency_id', 'route_id', 'service_id', 'hrdf_match_type', 'hrdf_fplan_type', 'hrdf_service_id_match_score', 'hrdf_FPLAN_row_idx', 'hrdf_FPLAN_content', 'debug_GTFS_calendar', 'debug_HRDF_calendar']
@@ -261,7 +263,7 @@ class GTFS_HRDF_Compare_Controller:
         return map_calendar_gtfs
 
     def _compute_map_hrdf_trips(self, agency_id: str, request_date: datetime):
-        log_message(f'Query HRDF trips ...')
+        log_message(f'Query ALL HRDF trips ...')
 
         hrdf_trips_sql = load_resource_from_bundle(self.map_sql_queries, 'hrdf_select_trips')
         
