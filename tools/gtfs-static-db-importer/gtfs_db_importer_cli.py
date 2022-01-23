@@ -1,6 +1,7 @@
 import argparse, os, sys
 from pathlib import Path
 
+from inc.shared.inc.helpers.config_helpers import load_yaml_config
 from inc.db_importer import GTFS_DB_Importer
 from inc.shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path
 
@@ -37,5 +38,12 @@ os.makedirs(db_path.parent, exist_ok=True)
 
 print(f"IMPORT to: {db_path}")
 
-gtfs_importer = GTFS_DB_Importer(gtfs_folder_path, db_path)
+script_path = Path(os.path.realpath(__file__))
+app_config_path = Path(f'{script_path.parent}/inc/config.yml')
+if not os.path.isfile(app_config_path):
+    print(f'ERROR: cant load config from {app_config_path}')
+    sys.exit(1)
+app_config = load_yaml_config(app_config_path, script_path.parent)
+
+gtfs_importer = GTFS_DB_Importer(app_config, gtfs_folder_path, db_path)
 gtfs_importer.start()
