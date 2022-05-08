@@ -1,10 +1,7 @@
-import argparse, os, sys
+import os, sys
 from pathlib import Path
-import json
-import urllib.request
 
 from inc.shared.inc.helpers.config_helpers import load_yaml_config
-from inc.shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path
 
 def main():
     print('SETUP server')
