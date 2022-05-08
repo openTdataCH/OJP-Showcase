@@ -1,10 +1,9 @@
 import argparse, os, sys
 from pathlib import Path
-import json
-import urllib.request
 
 from inc.shared.inc.helpers.config_helpers import load_yaml_config
 from inc.shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path
+from inc.shared.inc.helpers.ckan_helpers import fetch_latest_archive_url, run_unzip
 
 def main(gtfs_static_base_path: Path):
     script_path = Path(os.path.realpath(__file__))
@@ -21,7 +20,11 @@ def main(gtfs_static_base_path: Path):
         sys.exit(1)
 
     print('Fetching latest CKAN info ...')
-    dataset_url, dataset_filename = fetch_latest_archive_url(app_config)
+    ckan_api_package_id = app_config['gtfs_static']['package_id']
+    ckan_api_url: str = app_config['opentransportdata.swiss']['ckan_package_url']
+    ckan_api_url = ckan_api_url.replace('[package_id]', ckan_api_package_id)
+    ckan_api_authorization = app_config['opentransportdata.swiss']['authorization']
+    dataset_url, dataset_filename = fetch_latest_archive_url(ckan_api_url, ckan_api_authorization)
 
     print(f'Latest filename: {dataset_filename}')
 
@@ -56,47 +59,6 @@ def main(gtfs_static_base_path: Path):
     print('DONE')
 
     run_unzip(gtfs_static_zip_path, dataset_folder_path)
-
-def fetch_latest_archive_url(app_config: any):
-    package_id = app_config['gtfs_static']['package_id']
-    
-    ckan_api_url: str = app_config['opentransportdata.swiss']['gtfs_static_package_url']
-    ckan_api_url = ckan_api_url.replace('[package_id]', package_id)
-
-    api_authorization = app_config['opentransportdata.swiss']['authorization']
-    request_headers = {
-        'Authorization': api_authorization,
-    }
-
-    ckan_api_request = urllib.request.Request(ckan_api_url, headers=request_headers)
-    response = urllib.request.urlopen(ckan_api_request)
-
-    response = urllib.request.urlopen(ckan_api_request).read()
-    response_json = json.loads(response.decode('utf-8'))
-
-    api_status = response_json.get('success', False)
-    if not api_status:
-        print(f'ERROR connecting to CKAN API - {ckan_api_url}')
-        sys.exit(1)
-
-    dataset_resources = response_json['result']['resources']
-    if len(dataset_resources) == 0:
-        print(f'No dataset available - {ckan_api_url}')
-        sys.exit(1)
-
-    latest_dataset = dataset_resources[0]
-    dataset_url = latest_dataset['url']
-    dataset_filename:str = latest_dataset['name']['en']
-    dataset_filename = dataset_filename.lower()
-
-    return dataset_url, dataset_filename
-
-def run_unzip(archive_path: Path, folder_path: Path):
-    print('UNZIP')
-    unzip_sh = f'unzip {archive_path} -d {folder_path}'
-    print(unzip_sh, flush=True)
-    os.system(unzip_sh)
-    print(f'... done unzip')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

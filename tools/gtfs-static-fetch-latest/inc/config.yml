@@ -1,5 +1,5 @@
 opentransportdata.swiss:
-  gtfs_static_package_url: https://api.opentransportdata.swiss/ckan-api/package_show?id=[package_id]
+  ckan_package_url: https://api.opentransportdata.swiss/ckan-api/package_show?id=[package_id]
   authorization: 57c5dbbbf1fe4d000100001842c323fa9ff44fbba0b9b925f0c052d1
 
 gtfs_static:
