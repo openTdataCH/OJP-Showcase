@@ -13,6 +13,7 @@
 - [GTFS-Static DB Importer](tools/gtfs-static-db-importer)
 - [GTFS-Static fetch latest](tools/gtfs-static-fetch-latest)
 - [HRDF DB Importer](tools/hrdf-db-importer)
+- [HRDF fetch latest](tools/hrdf-fetch-latest)
 - [HRDF Stops Reporter](tools/hrdf-stops-reporter)
 
 # Tools Installation
