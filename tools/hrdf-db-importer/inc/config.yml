@@ -1,0 +1,5 @@
+other_configs:
+  schema_config_path: [APP_PATH]/inc/hrdf_schema.yml
+
+map_sql_queries:
+  fplan_join_trip_bitfeld: [APP_PATH]/inc/shared/inc/sql/hrdf/fplan_join_trip_bitfeld.sql

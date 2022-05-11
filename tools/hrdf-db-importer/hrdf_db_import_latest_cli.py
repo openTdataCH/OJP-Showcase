@@ -6,6 +6,13 @@ from inc.shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf
 from inc.db_importer import HRDF_DB_Importer
 
 def main():
+    script_path = Path(os.path.realpath(__file__))
+    app_config_path = Path(f'{script_path.parent}/inc/config.yml')
+    if not os.path.isfile(app_config_path):
+        print(f'ERROR: cant load config from {app_config_path}')
+        sys.exit(1)
+    app_config = load_yaml_config(app_config_path, script_path.parent)
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--hrdf-base-folder-path', '--hrdf-base-folder-path')
     parser.add_argument('--hrdf-db-base-folder-path', '--hrdf-db-base-folder-path')
@@ -76,7 +83,7 @@ def main():
     print(f'  DB output path    : {db_path}')
     print(f'===================================================', flush=True)
 
-    hrdf_importer = HRDF_DB_Importer(latest_dataset_path, db_path)
+    hrdf_importer = HRDF_DB_Importer(app_config, latest_dataset_path, db_path)
     hrdf_importer.parse_all()
 
 if __name__ == "__main__":

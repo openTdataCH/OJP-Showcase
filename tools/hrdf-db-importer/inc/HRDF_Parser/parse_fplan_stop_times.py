@@ -2,25 +2,38 @@ import datetime
 import json
 import sqlite3
 import sys
+import yaml
+
+from pathlib import Path
 
 from ..shared.inc.helpers.log_helpers import log_message
 from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
-from ..shared.inc.helpers.hrdf_helpers import *
+from ..shared.inc.helpers.hrdf_helpers import extract_hrdf_content
+from ..shared.inc.helpers.bundle_helpers import load_resource_from_bundle
+from ..shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 
-def import_db_stop_times(hrdf_path, db_path, db_schema_config):
-    parser = HRDF_FPLAN_Stops_Parser(db_path)
+def import_db_stop_times(app_config, db_path, db_schema_config):
+    parser = HRDF_FPLAN_Stops_Parser(app_config, db_path)
 
     map_gleis = parser.fetch_map_gleis()
-    fplan_stop_times_rows = parser.parse_fplan_stops(map_gleis)
     
-    truncate_and_load_table_records(db_path, 'fplan_stop_times', db_schema_config['tables']['fplan_stop_times'], fplan_stop_times_rows, 1000000)
+    
+    parser.parse_fplan_stops(map_gleis)
 
     log_message(f"DONE")
 
 class HRDF_FPLAN_Stops_Parser:
-    def __init__(self, db_path):
+    def __init__(self, app_config, db_path):
+        if isinstance(db_path, str):
+            db_path = Path(db_path)
+
+        self.app_config = app_config
+        self.db_path = db_path
         self.db_handle = sqlite3.connect(db_path)
         self.db_handle.row_factory = sqlite3.Row
+        
+        schema_config_path = app_config['other_configs']['schema_config_path']
+        self.db_schema_config = yaml.safe_load(open(schema_config_path, encoding='utf-8'))
 
     def fetch_map_gleis(self):
         log_message(f"QUERY GLEIS ...")
@@ -42,21 +55,17 @@ class HRDF_FPLAN_Stops_Parser:
         return map_gleis
 
     def parse_fplan_stops(self, map_gleis):
+        log_message(f"TRUNCATE fplan_stop_times, create fplan_stop_times.csv ...")
+        table_config = self.db_schema_config['tables']['fplan_stop_times']
+        db_table_writer = DB_Table_CSV_Importer(self.db_path, 'fplan_stop_times', table_config)
+        db_table_writer.truncate_table()
+
+        db_table_writer_csv_path = f'/tmp/fplan_stop_times.csv'
+        db_table_writer.create_csv_file(db_table_writer_csv_path)
+
         log_message(f"QUERY FPLAN_TRIP_BETRIEB ...")
 
-        extra_where = ''
-        # extra_where = ' AND fplan.row_idx = 13669180'
-
-        is_debug_sql = extra_where != ''
-
-        # TODO - extract it in a .sql file
-        sql = "SELECT fplan.row_idx, fplan_trip_bitfeld.fplan_trip_bitfeld_id, fplan.fplan_content, fplan_trip_bitfeld.service_id, fplan_trip_bitfeld.from_stop_id, fplan_trip_bitfeld.to_stop_id, fplan.agency_id, fplan.fplan_trip_id FROM fplan, fplan_trip_bitfeld WHERE fplan.row_idx = fplan_trip_bitfeld.fplan_row_idx"
-
-        if is_debug_sql:
-            print(f'WARNING, EXTRA WHERE: {extra_where}')
-            sql = f"{sql} AND fplan.row_idx = 13669180"
-
-        fplan_stop_times_rows = []
+        sql = load_resource_from_bundle(self.app_config['map_sql_queries'], 'fplan_join_trip_bitfeld')
 
         select_cursor = self.db_handle.cursor()
         select_cursor.execute(sql)
@@ -83,7 +92,7 @@ class HRDF_FPLAN_Stops_Parser:
                 stop_time_json["fplan_trip_bitfeld_id"] = fplan_trip_bitfeld_id
                 stop_id = stop_time_json['stop_id']
 
-                if from_idx == None:
+                if from_idx is None:
                     if from_stop_id == stop_id:
                         from_idx = stop_idx
                 
@@ -110,16 +119,13 @@ class HRDF_FPLAN_Stops_Parser:
                 service_stop_times_json[-1]["stop_departure"] = None
                 service_stop_times_json[-1]["is_getoff_allowed"] = None
 
-            fplan_stop_times_rows += service_stop_times_json
+            db_table_writer.write_csv_handle.writerows(service_stop_times_json)
 
             trip_row_idx += 1
         select_cursor.close()
 
-        if is_debug_sql:
-            print('DEBUG SQL is on - abort.')
-            sys.exit()
-
-        return fplan_stop_times_rows
+        db_table_writer.close_csv_file()
+        db_table_writer.load_csv_file(db_table_writer_csv_path)
 
     def parse_stop_times_from_fplan_content(self, fplan_content):
         stop_times_json = []
