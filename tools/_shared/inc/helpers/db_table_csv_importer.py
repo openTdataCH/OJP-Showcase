@@ -19,6 +19,9 @@ class DB_Table_CSV_Importer:
         self.table_name = table_name
         self.table_config = table_config
 
+        self.write_csv_handle = None
+        self.write_csv_file = None
+
     def truncate_table(self):
         drop_and_recreate_table(self.db_handle, self.table_name, self.table_config)
 
@@ -80,3 +83,17 @@ class DB_Table_CSV_Importer:
         log_message('... adding indexes')
         add_table_indexes(self.db_handle, self.table_name, self.table_config)
         log_message('... DONE adding indexes')
+
+    def create_csv_file(self, csv_path: str):
+        column_names = fetch_column_names(self.db_handle, self.table_name)
+
+        self.write_csv_file = open(csv_path, 'w', encoding='utf-8')
+        self.write_csv_handle = csv.DictWriter(self.write_csv_file, column_names)
+        self.write_csv_handle.writeheader()
+
+        # use self.write_csv_handle.writerow(rowdict) or .writerows([rowdict]) to populate the table
+
+    def close_csv_file(self):
+        self.write_csv_file.close()
+        self.write_csv_file = None
+        self.write_csv_handle = None
