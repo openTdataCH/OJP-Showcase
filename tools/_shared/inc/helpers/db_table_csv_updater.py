@@ -39,7 +39,7 @@ class DB_Table_CSV_Updater:
         batch_update_rows_no = 10000
         batch_update_values = []
 
-        csv_file = open(self.csv_file.name)
+        csv_file = open(self.csv_file.name, encoding='utf-8')
         csv_reader = csv.DictReader(csv_file)
 
         update_cursor = db_handle.cursor()

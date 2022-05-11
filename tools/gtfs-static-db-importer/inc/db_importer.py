@@ -207,7 +207,7 @@ class GTFS_DB_Importer:
 
         trips_column_names = fetch_column_names(db_handle, 'trips')
         new_trips_table_csv_file_path = Path(f'{self.db_tmp_path}/new_trips.csv')
-        new_trips_table_csv_file = open(new_trips_table_csv_file_path, 'w')
+        new_trips_table_csv_file = open(new_trips_table_csv_file_path, 'w', encoding='utf-8')
         new_trips_table_csv = csv.DictWriter(new_trips_table_csv_file, trips_column_names)
         new_trips_table_csv.writeheader()
 
