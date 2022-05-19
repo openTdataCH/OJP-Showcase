@@ -5,7 +5,9 @@ from datetime import datetime, timedelta
 from bitarray import bitarray
 
 class Calendar:
-    def __init__(self, service_id, start_date_s, end_date_s, day_bits, monday, tuesday, wednesday, thursday, friday, saturday, sunday):
+    def __init__(self, service_id, start_date, end_date, day_bits, 
+        monday = None, tuesday = None, wednesday = None, thursday = None, friday = None, saturday = None, sunday = None
+    ):
         self.service_id = service_id
         self.monday = monday
         self.tuesday = tuesday
@@ -14,8 +16,8 @@ class Calendar:
         self.friday = friday
         self.saturday = saturday
         self.sunday = sunday
-        self.start_date = datetime.strptime(start_date_s, "%Y%m%d").date()
-        self.end_date = datetime.strptime(end_date_s, "%Y%m%d").date()
+        self.start_date = start_date
+        self.end_date = end_date
         self.day_bits = day_bits
 
     @staticmethod
@@ -33,8 +35,11 @@ class Calendar:
         saturday = db_row.get('saturday') or None
         sunday = db_row.get('sunday') or None
 
+        start_date = datetime.strptime(start_date_s, "%Y%m%d").date()
+        end_date = datetime.strptime(end_date_s, "%Y%m%d").date()
+
         entry = Calendar(
-            service_id, start_date_s, end_date_s, day_bits,
+            service_id, start_date, end_date, day_bits,
             monday, tuesday, wednesday, thursday, friday, saturday, sunday
         )
 
