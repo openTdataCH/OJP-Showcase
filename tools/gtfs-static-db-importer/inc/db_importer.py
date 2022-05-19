@@ -51,9 +51,11 @@ class GTFS_DB_Importer:
     def _import_csv_tables(self):
         table_names = ['agency', 'calendar', 'calendar_dates', 'routes', 'stop_times', 'stops', 'trips']
 
+        print('')
         log_message(f'START BATCH IMPORT')
 
         for table_name in table_names:
+            print('')
             log_message(f'TABLE: {table_name}')
             if not table_name in self.db_schema_config['tables']:
                 print(f'ERROR - missing config for table {table_name}')
@@ -72,6 +74,7 @@ class GTFS_DB_Importer:
         log_message(f'DONE BATCH IMPORT')
 
     def _update_calendar(self):
+        print('')
         log_message('START update calendar')
         
         db_handle = sqlite3.connect(self.db_path)
@@ -200,6 +203,7 @@ class GTFS_DB_Importer:
             day_bits_list[day_idx] = day_bit
 
     def _update_trips(self):
+        print('')
         log_message('START update trips/stop_times')
         
         db_handle = sqlite3.connect(self.db_path)
