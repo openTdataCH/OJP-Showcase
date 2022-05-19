@@ -133,3 +133,24 @@ class Trip_Variant:
         trip = Trip_Variant(row_idx, gtfs_agency, gtfs_calendar, vehicle_type, service_line, fplan_trip_id, fplan_content, from_stop, to_stop, stop_times)
 
         return trip
+
+    def as_json(self):
+        stops_data = []
+        for stop_time in self.stop_times:
+            stop_time_json = stop_time.as_json()
+            stops_data.append(stop_time_json)
+
+        trip_json = {
+            'fplan_row_idx': self.fplan_row_idx,
+            'agency_id': self.agency.agency_id,
+            'vehicle_type': self.vehicle_type,
+            'service_line': self.service_line,
+            'fplan_trip_id': self.fplan_trip_id,
+            'service_id': self.service.service_id,
+            'from_stop_id': self.from_stop.stop_id,
+            'to_stop_id': self.to_stop.stop_id,
+            'stops': stops_data,
+            'fplan_content': self.fplan_content
+        }
+
+        return trip_json
