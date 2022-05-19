@@ -92,6 +92,17 @@ class Trip_Variant:
         
         print(self.fplan_content)
 
+    # This is meant to query custom fields
+    def compute_property_rows(self, property_key: str):
+        matched_rows = []
+
+        fplan_content_rows = self.fplan_content.split("\n")
+        for row_s in fplan_content_rows:
+            if row_s.startswith(property_key):
+                matched_rows.append(row_s)
+        
+        return matched_rows
+
     @staticmethod
     def init_from_db_row(db_row: sqlite3.Row, map_calendar, map_agency, map_stops):
         row_idx = db_row['row_idx']
