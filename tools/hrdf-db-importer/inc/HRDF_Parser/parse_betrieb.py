@@ -5,9 +5,13 @@ from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
 from ..shared.inc.helpers.hrdf_helpers import normalize_agency_id, parse_kennung_to_dict
 
 def import_db_betrieb(hrdf_path, db_path, db_schema_config):
+    log_message(f"IMPORT BETRIEB")
+
     fplan_agency_ids = fetch_agency_from_fplan(db_path)
     agency_row_items = parse_hrdf_betrieb(hrdf_path, fplan_agency_ids)
     truncate_and_load_table_records(db_path, 'agency', db_schema_config['tables']['agency'], agency_row_items)
+
+    print('')
 
 def fetch_agency_from_fplan(db_path):
     db_handle = sqlite3.connect(db_path)

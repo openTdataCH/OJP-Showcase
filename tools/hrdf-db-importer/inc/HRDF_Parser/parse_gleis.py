@@ -14,7 +14,7 @@ def import_db_gleis(hrdf_path, db_path, db_schema_config):
     truncate_and_load_table_records(db_path, 'gleis_classification', db_schema_config['tables']['gleis_classification'], gleis_classification_rows)
     truncate_and_load_table_records(db_path, 'gleis', db_schema_config['tables']['gleis'], gleis_stop_info_rows)
 
-    log_message(f"DONE")
+    print('')
 
 def _parse_hrdf_gleis(hrdf_path):
     map_group_by_key = {}

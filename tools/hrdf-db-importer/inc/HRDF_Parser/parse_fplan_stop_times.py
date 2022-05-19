@@ -12,15 +12,16 @@ from ..shared.inc.helpers.hrdf_helpers import extract_hrdf_content
 from ..shared.inc.helpers.bundle_helpers import load_resource_from_bundle
 from ..shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 
-def import_db_stop_times(app_config, db_path, db_schema_config):
+def import_db_stop_times(app_config, db_path):
+    log_message(f"CREATE fplan_stop_times")
+
     parser = HRDF_FPLAN_Stops_Parser(app_config, db_path)
 
     map_gleis = parser.fetch_map_gleis()
     
-    
     parser.parse_fplan_stops(map_gleis)
 
-    log_message(f"DONE")
+    print('')
 
 class HRDF_FPLAN_Stops_Parser:
     def __init__(self, app_config, db_path):
@@ -124,8 +125,10 @@ class HRDF_FPLAN_Stops_Parser:
             trip_row_idx += 1
         select_cursor.close()
 
+        log_message('START INSERT FPLAN_STOP_TIMES CSV...')
         db_table_writer.close_csv_file()
         db_table_writer.load_csv_file(db_table_writer_csv_path)
+        log_message('... DONE')
 
     def parse_stop_times_from_fplan_content(self, fplan_content):
         stop_times_json = []
