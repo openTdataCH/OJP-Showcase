@@ -154,6 +154,9 @@ def compute_db_tables_report(db_handle: any = None, db_path: any = None):
     print("\n".join(report_text_lines))
 
 def fetch_db_table_names(db_handle: any = None, db_path: any = None):
+    if db_handle is None:
+        db_handle = sqlite3.connect(db_path)
+
     table_names = []
 
     sql = "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%';"
