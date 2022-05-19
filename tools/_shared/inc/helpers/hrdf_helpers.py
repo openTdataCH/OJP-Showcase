@@ -71,3 +71,8 @@ def compute_formatted_date_from_hrdf_db_path(db_path: str):
         return date_matches[1]
 
     return None
+
+def compute_hrdf_db_filename(hrdf_day: str):
+    db_filename = f'hrdf_{hrdf_day}.sqlite'
+    return db_filename
+

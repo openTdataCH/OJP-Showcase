@@ -54,3 +54,7 @@ def compute_date_from_gtfs_db_filename(db_filename: str):
     gtfs_date = datetime.datetime.strptime(date_matches[1], '%Y-%m-%d').date()
 
     return gtfs_date
+
+def compute_gtfs_db_filename(hrdf_day: str):
+    db_filename = f'gtfs_{hrdf_day}.sqlite'
+    return db_filename
