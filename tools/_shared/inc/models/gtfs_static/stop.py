@@ -22,3 +22,4 @@ class Stop:
         entry = Stop(stop_id, stop_name, stop_lon, stop_lat, location_type, parent_station)
 
         return entry
+        
