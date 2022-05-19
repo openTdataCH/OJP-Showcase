@@ -25,3 +25,14 @@ class Stop_Time:
         entry = Stop_Time(stop_id, stop_sequence, arrival_time, departure_time, trip_id, pickup_type, drop_off_type)
 
         return entry
+
+    def as_json(self):
+        stop_time_json = {
+            'stop_id': self.stop.stop_id,
+            'arrival_time': self.arrival_time,
+            'departure_time': self.departure_time,
+            'stop_sequence': self.stop_sequence,
+        }
+
+        return stop_time_json
+
