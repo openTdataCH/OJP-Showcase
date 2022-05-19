@@ -12,6 +12,7 @@
 - [GTFS-Static compare](tools/gtfs-prev-compare)
 - [GTFS-RT Fetcher](tools/gtfs-rt-fetch)
 - [GTFS-Static DB Importer](tools/gtfs-static-db-importer)
+- [HRDF Check Duplicates](tools/hrdf-check-duplicates)
 - [HRDF DB Importer](tools/hrdf-db-importer)
 - [HRDF Stops Reporter](tools/hrdf-stops-reporter)
 
