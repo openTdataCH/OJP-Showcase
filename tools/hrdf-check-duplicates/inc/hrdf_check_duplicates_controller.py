@@ -68,6 +68,7 @@ class HRDF_Check_Duplicates_Controller:
         }
 
         map_hrdf_trips = self._query_map_trips()
+        
         for agency_id, map_agency_data in map_hrdf_trips.items():
             for trip_key, hrdf_trips_data in map_agency_data['map_trips'].items():
                 hrdf_trips: List[HRDF_Trip_Variant] = hrdf_trips_data
@@ -127,15 +128,45 @@ class HRDF_Check_Duplicates_Controller:
 
     def _query_map_trips(self):
         map_hrdf_trips = {}
-        hrdf_trips = self._query_trips()
+
+        sql = 'SELECT DISTINCT agency_id FROM fplan'
+        db_cursor = self.hrdf_db.cursor()
+        db_cursor.execute(sql)
+
+        log_message('START QUERY trips by agency')
+
+        agency_row_idx = 0
+
+        for fplan_db_row in db_cursor:
+            if agency_row_idx % 50 == 0:
+                log_message(f"... parsed {agency_row_idx} agencies ...")
+
+            agency_id = fplan_db_row['agency_id']
+            agency_hrdf_trips = self._query_trips_by_agency_id(agency_id)
+
+            map_agency_duplicates = self._filter_hrdf_duplicates(agency_hrdf_trips)
+            duplicate_groups_no = len(map_agency_duplicates.keys())
+            if duplicate_groups_no == 0:
+                continue
+
+            map_hrdf_trips[agency_id] = {
+                'agency': agency_hrdf_trips[0].agency,
+                'map_trips': map_agency_duplicates,
+            }
+
+            agency_row_idx += 1
+
+        db_cursor.close()
+
+        log_message('... DONE')
+
+        return map_hrdf_trips
+
+    def _filter_hrdf_duplicates(self, hrdf_trips):
+        map_duplicate_trips = {}
 
         for hrdf_trip in hrdf_trips:
             agency_id = hrdf_trip.agency.agency_id
-            if agency_id not in map_hrdf_trips:
-                map_hrdf_trips[agency_id] = {
-                    'agency': hrdf_trip.agency,
-                    'map_trips': {},
-                }
 
             fplan_trip_id = hrdf_trip.fplan_trip_id
             trip_key = fplan_trip_id
@@ -148,20 +179,20 @@ class HRDF_Check_Duplicates_Controller:
                     print('WHOOPS - expected 1 *I RN row')
                     sys.exit()
 
-            if trip_key not in map_hrdf_trips[agency_id]['map_trips']:
-                map_hrdf_trips[agency_id]['map_trips'][trip_key] = []
+            if trip_key not in map_duplicate_trips:
+                map_duplicate_trips[trip_key] = []
 
-            map_hrdf_trips[agency_id]['map_trips'][trip_key].append(hrdf_trip)
+            map_duplicate_trips[trip_key].append(hrdf_trip)
 
-        return map_hrdf_trips
+        return map_duplicate_trips
 
-    def _query_trips(self):
-        log_message(f'START QUERY FPLAN')
-
+    def _query_trips_by_agency_id(self, agency_id):
         hrdf_trips_sql = load_resource_from_bundle(self.map_sql_queries, 'hrdf_select_trips')
 
-        # for quick DEBUG
-        where_parts = []
+        where_parts = [
+            f"AND fplan.agency_id = '{agency_id}'"
+        ]
+
         where_parts_s = "\n".join(where_parts)
         hrdf_trips_sql = hrdf_trips_sql.replace('[EXTRA_WHERE]', where_parts_s)
 
@@ -173,9 +204,6 @@ class HRDF_Check_Duplicates_Controller:
         hrdf_trip_idx = 0
 
         for hrdf_trip_db_row in hrdf_cursor:
-            if (hrdf_trip_idx % 100000) == 0:
-                log_message(f"... parse {hrdf_trip_idx} DB trips")
-
             hrdf_trip = HRDF_Trip_Variant.init_from_db_row(hrdf_trip_db_row, 
                 self.hrdf_db_lookups['calendar'], self.hrdf_db_lookups['agency'], self.hrdf_db_lookups['stops']
             )
@@ -186,8 +214,6 @@ class HRDF_Check_Duplicates_Controller:
             hrdf_trips.append(hrdf_trip)
 
             hrdf_trip_idx += 1
-
-        log_message(f'... found {len(hrdf_trips)} trips')
 
         return hrdf_trips
 
