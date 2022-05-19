@@ -1,6 +1,8 @@
 import sys
 import sqlite3
+
 from datetime import datetime, timedelta
+from bitarray import bitarray
 
 class Calendar:
     def __init__(self, service_id, start_date_s, end_date_s, day_bits, monday, tuesday, wednesday, thursday, friday, saturday, sunday):
@@ -155,3 +157,45 @@ class Calendar:
         is_running = day_bit == '1'
 
         return is_running
+
+    def has_overlaps(self, another_calendar_o):
+        another_calendar: Calendar = another_calendar_o
+
+        if len(self.day_bits) != len(another_calendar.day_bits):
+            print('ERROR - the services are not equal size')
+            print(self.day_bits)
+            print(another_calendar.day_bits)
+            sys.exit(1)
+
+        b1 = bitarray(self.day_bits)
+        b2 = bitarray(another_calendar.day_bits)
+        b1_and_b2 = b1 & b2
+
+        # https://en.wikipedia.org/wiki/Bitwise_operation#AND
+        # b1:           111000
+        # b2:           000100
+        # b1_and_b2:    000000
+        
+        found_overlaps = b1_and_b2.count(1) > 0
+
+        return found_overlaps
+
+    def merge(self, another_calendar_o):
+        another_calendar: Calendar = another_calendar_o
+
+        b1 = bitarray(self.day_bits)
+        b2 = bitarray(another_calendar.day_bits)
+        b1_or_b2 = b1 | b2
+
+        # https://en.wikipedia.org/wiki/Bitwise_operation#OR
+        # b1:           111000
+        # b2:           000100
+        # b1_or_b2:     111100
+
+        b1_or_b2_s = b1_or_b2.to01()
+
+        new_sevice_id = f'{self.service_id} + {another_calendar.service_id}'
+        
+        new_service = Calendar(new_sevice_id, self.start_date, self.end_date, b1_or_b2_s)
+
+        return new_service
