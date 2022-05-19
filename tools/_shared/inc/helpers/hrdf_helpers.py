@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 # from_idx is for 1 start-based index columns to match the HRDF PDF doc.
 def extract_hrdf_content(hrdf_line: str, from_idx: int, to_idx: int, default_value = None):
@@ -53,9 +54,12 @@ def compute_file_rows_no(file_path: str):
     rows_no = sum(1 for line in open(file_path))
     return rows_no
 
-def compute_formatted_date_from_hrdf_folder_path(folder_path: str):
+def compute_formatted_date_from_hrdf_folder_path(folder_path: Path):
+    if isinstance(folder_path, str):
+        folder_path = Path(folder_path)
+
     # oev_sammlung_ch_hrdf_5_40_41_2021_20201220_033904
-    opentransport_matches = re.match("^.+?_([0-9]{4})_([0-9]{4})([0-9]{2})([0-9]{2})_.*$", folder_path)
+    opentransport_matches = re.match("^.+?_([0-9]{4})_([0-9]{4})([0-9]{2})([0-9]{2})_.*$", f'{folder_path}')
     if opentransport_matches:
         matched_year = opentransport_matches[2]
         matched_month = opentransport_matches[3]
@@ -65,8 +69,11 @@ def compute_formatted_date_from_hrdf_folder_path(folder_path: str):
 
     return None
 
-def compute_formatted_date_from_hrdf_db_path(db_path: str):
-    date_matches = re.match("^.+?([0-9]{4}-[0-9]{2}-[0-9]{2}).*$", db_path)
+def compute_formatted_date_from_hrdf_db_path(db_path: Path):
+    if isinstance(db_path, str):
+        db_path = Path(db_path)
+
+    date_matches = re.match("^.+?([0-9]{4}-[0-9]{2}-[0-9]{2}).*$", f'{db_path}')
     if date_matches:
         return date_matches[1]
 
