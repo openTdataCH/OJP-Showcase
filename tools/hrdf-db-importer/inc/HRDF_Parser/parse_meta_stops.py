@@ -8,8 +8,10 @@ from ..shared.inc.helpers.log_helpers import log_message
 from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records, table_select_rows
 from ..shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_agency_id, normalize_fplan_trip_id
 
-def import_meta_stops(hrdf_path, db_path, db_schema_config):
-    log_message(f"Parse METABHF ...")
+def import_meta_stops(app_config, hrdf_path, db_path, db_schema_config):
+    log_message(f"IMPORT METABHF")
+
+    default_service_id = app_config['hrdf_default_service_id']
 
     stop_relations_items = _parse_hrdf_meta_stops(hrdf_path)
     truncate_and_load_table_records(db_path, 'stop_relations', db_schema_config['tables']['stop_relations'], stop_relations_items)
@@ -17,10 +19,10 @@ def import_meta_stops(hrdf_path, db_path, db_schema_config):
     stop_transfer_lines_rows = _parse_hrdf_umsteig_lines(hrdf_path)
     truncate_and_load_table_records(db_path, 'stop_transfer_lines', db_schema_config['tables']['stop_transfer_lines'], stop_transfer_lines_rows)
 
-    stop_transfer_trips_rows = _parse_hrdf_umsteig_trips(hrdf_path, db_path)
+    stop_transfer_trips_rows = _parse_hrdf_umsteig_trips(hrdf_path, db_path, default_service_id)
     truncate_and_load_table_records(db_path, 'stop_transfer_trips', db_schema_config['tables']['stop_transfer_trips'], stop_transfer_trips_rows)
 
-    log_message(f"DONE")
+    print('')
 
 def _parse_hrdf_meta_stops(hrdf_path):
     row_line_idx = 1
@@ -28,7 +30,7 @@ def _parse_hrdf_meta_stops(hrdf_path):
     hrdf_file_rows_no = compute_file_rows_no(hrdf_file_path)
     log_message(f"... found {hrdf_file_rows_no} lines")
 
-    current_transfer_info = None
+    current_transfer_info = {}
     map_stop_transfer = {}
 
     hrdf_file = open(hrdf_file_path, encoding='utf-8')
@@ -126,7 +128,6 @@ def _add_transfer(map_stop_transfer, transfer_info):
         map_stop_transfer[from_stop_id][to_stop_id][transfer_type] = transfer_info["attributes"][transfer_type]
 
 def _parse_hrdf_umsteig_lines(hrdf_path):
-    row_line_idx = 1
     hrdf_file_path = f"{hrdf_path}/UMSTEIGL"
     hrdf_file_rows_no = compute_file_rows_no(hrdf_file_path)
     log_message(f"... found {hrdf_file_rows_no} lines")
@@ -164,15 +165,13 @@ def _parse_hrdf_umsteig_lines(hrdf_path):
 
     return stop_transfer_lines_rows
 
-def _parse_hrdf_umsteig_trips(hrdf_path, db_path):
+def _parse_hrdf_umsteig_trips(hrdf_path, db_path, default_service_id):
     db_handle = sqlite3.connect(db_path)
 
     row_line_idx = 1
     hrdf_file_path = f"{hrdf_path}/UMSTEIGZ"
     hrdf_file_rows_no = compute_file_rows_no(hrdf_file_path)
     log_message(f"... found {hrdf_file_rows_no} lines")
-
-    default_service_id = "000017" # TODO - DONT HARCODE ME
 
     stop_transfer_trips_rows = []
 
@@ -216,5 +215,6 @@ def _parse_hrdf_umsteig_trips(hrdf_path, db_path):
 
         stop_transfer_trips_rows.append(stop_transfer_trip_row)
 
-    return stop_transfer_trips_rows
+        row_line_idx += 1
 
+    return stop_transfer_trips_rows

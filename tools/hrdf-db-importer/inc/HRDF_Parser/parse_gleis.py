@@ -6,23 +6,24 @@ from ..shared.inc.helpers.log_helpers import log_message
 from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
 from ..shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_fplan_trip_id, normalize_agency_id, parse_kennung_to_dict
 
-def import_db_gleis(hrdf_path, db_path, db_schema_config):
-    log_message(f"Parse GLEIS ...")
 
-    gleis_classification_rows, gleis_stop_info_rows = _parse_hrdf_gleis(hrdf_path)
+def import_db_gleis(app_config, hrdf_path, db_path, db_schema_config):
+    log_message(f"IMPORT GLEIS")
+
+    default_service_id = app_config['hrdf_default_service_id']
+
+    gleis_classification_rows, gleis_stop_info_rows = _parse_hrdf_gleis(hrdf_path, default_service_id)
 
     truncate_and_load_table_records(db_path, 'gleis_classification', db_schema_config['tables']['gleis_classification'], gleis_classification_rows)
     truncate_and_load_table_records(db_path, 'gleis', db_schema_config['tables']['gleis'], gleis_stop_info_rows)
 
     print('')
 
-def _parse_hrdf_gleis(hrdf_path):
+def _parse_hrdf_gleis(hrdf_path, default_service_id):
     map_group_by_key = {}
     gleis_stop_info_rows = []
 
     row_line_idx = 1
-
-    default_service_id = "000017" # TODO - DONT HARCODE ME
 
     hrdf_file_path = f"{hrdf_path}/GLEIS"
     hrdf_file_rows_no = compute_file_rows_no(hrdf_file_path)
