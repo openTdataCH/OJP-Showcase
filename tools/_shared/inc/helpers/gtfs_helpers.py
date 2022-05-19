@@ -5,6 +5,9 @@ import datetime
 from pathlib import Path
 
 def compute_formatted_date_from_gtfs_folder_path(folder_path: Path):
+    if isinstance(folder_path, str):
+        folder_path = Path(folder_path)
+
     # gtfs_fp2021_2021-02-17_09-10
     opentransport_matches = re.match("^.+?fp([0-9]{4})_([0-9]{4})-([0-9]{2})-([0-9]{2})_.*$", folder_path.name)
 
