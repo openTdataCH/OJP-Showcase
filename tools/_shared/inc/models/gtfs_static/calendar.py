@@ -92,15 +92,17 @@ class Calendar:
         return month_data_rows
 
     def _debug_days(self):
+        report_lines = []
+
         month_data_rows = self.compute_month_data_rows()
 
         header_separator_s = '-' * 60
-        print(f'{header_separator_s}')
+        report_lines.append(f'{header_separator_s}')
 
         week_days_s = 'MTWTFSS ' * 6
-        print(f'Month   : {week_days_s}')
+        report_lines.append(f'Month   : {week_days_s}')
 
-        print(f'{header_separator_s}')
+        report_lines.append(f'{header_separator_s}')
 
         for month_data in month_data_rows:
             month_bits_formatted = []
@@ -119,22 +121,33 @@ class Calendar:
             month_key = month_data['month_key']
 
             month_bits_s = ''.join(month_bits_formatted)
-            print(f'{month_key} : {month_bits_s}')
+            report_lines.append(f'{month_key} : {month_bits_s}')
 
-        print(f'{header_separator_s}')
+        report_lines.append(f'{header_separator_s}')
 
-    def pretty_print(self):
+        return report_lines
+
+    def _compute_pretty_print_lines(self):
+        report_lines = []
+
         header_separator_s = '-' * 60
-        print(f'{header_separator_s}')
+        report_lines.append(f'{header_separator_s}')
 
-        print(f'service_id  : {self.service_id}')
+        report_lines.append(f'service_id  : {self.service_id}')
 
         if self.monday:
-            print(f'{header_separator_s}')
-            print(f'week pattern: MTWTFSS')
-            print(f'week pattern: {self._compute_week_pattern()}')
+            report_lines.append(f'{header_separator_s}')
+            report_lines.append(f'week pattern: MTWTFSS')
+            report_lines.append(f'week pattern: {self._compute_week_pattern()}')
 
-        self._debug_days()
+        report_lines += self._debug_days()
+
+        return report_lines
+    
+    def pretty_print(self):
+        report_lines = self._compute_pretty_print_lines()
+        report_s = "\n".join(report_lines)
+        return report_s
 
     def is_running_for_day(self, for_day: datetime) -> bool:
         day_idx = (for_day - self.start_date).days
