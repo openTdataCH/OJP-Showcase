@@ -1,6 +1,3 @@
-env_file_version: '1'
-env_file_path: [APP_PATH]/.ENV.LOCAL
-
 data_paths:
   gtfs-static: &GTFS_STATIC_DATA_PATH [APP_PATH]/data/opentransportdata.swiss/gtfs-static
   gtfs-static-dbs: &GTFS_STATIC_DBS_PATH [APP_PATH]/data/gtfs-static-dbs
@@ -10,9 +7,3 @@ data_paths:
   hrdf-dbs: &HRDF_DBS_PATH [APP_PATH]/data/hrdf-dbs
   hrdf-db-lookups: [APP_PATH]/data/hrdf-db-lookups
   hrdf-duplicates-reports: [APP_PATH]/data/hrdf-duplicates-reports
-
-env_data_keys:
-  GTFS_STATIC_DATA_PATH: *GTFS_STATIC_DATA_PATH
-  GTFS_STATIC_DBS_PATH: *GTFS_STATIC_DBS_PATH
-  HRDF_DATA_PATH: *HRDF_DATA_PATH
-  HRDF_DBS_PATH: *HRDF_DBS_PATH
