@@ -1,6 +1,6 @@
 map_sql_queries:
   select_calendar_dates_group_by: [APP_PATH]/inc/sql/select_calendar_dates_group_by.sql
   select_stop_times_group_by: [APP_PATH]/inc/sql/select_trips_group_by_stop_times.sql
-  update_stop_times_reset: [APP_PATH]/inc/sql/update_stop_times_reset.sql  update_stop_times_reset: [APP_PATH]/inc/sql/update_stop_times_reset.sql
+  update_stop_times_reset: [APP_PATH]/inc/sql/update_stop_times_reset.sql
 
 gtfs_dbs_base_path: [APP_PATH]/data/gtfs-static-dbs
