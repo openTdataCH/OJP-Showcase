@@ -18,7 +18,7 @@ def _parse_hrdf_bitfeld(hrdf_path):
     bitfeld_row_items = []
 
     hrdf_file_path = f"{hrdf_path}/BITFELD"
-    hrdf_file = open(hrdf_file_path)
+    hrdf_file = open(hrdf_file_path, encoding='utf-8')
     for row_line in hrdf_file:
         row_line = row_line.strip()
         service_id = row_line[0:6]
@@ -44,7 +44,7 @@ def _parse_hrdf_bitfeld(hrdf_path):
 
 def _parse_hrdf_eckdaten(hrdf_path):
     eckdaten_path = f"{hrdf_path}/ECKDATEN"
-    eckdaten_file = open(eckdaten_path)
+    eckdaten_file = open(eckdaten_path, encoding='utf-8')
     eckdaten_line_rows = eckdaten_file.read().split("\n")
     eckdaten_file.close()
 

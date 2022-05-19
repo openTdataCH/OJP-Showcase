@@ -37,7 +37,7 @@ def parse_hrdf_betrieb(hrdf_path, fplan_agency_ids):
         map_hrdf_id_agency[lang] = {}
 
         betrieb_path = f"{hrdf_path}/BETRIEB_{lang}"
-        with open(betrieb_path) as f:
+        with open(betrieb_path, encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 

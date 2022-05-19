@@ -31,7 +31,7 @@ def _parse_hrdf_meta_stops(hrdf_path):
     current_transfer_info = None
     map_stop_transfer = {}
 
-    hrdf_file = open(hrdf_file_path)
+    hrdf_file = open(hrdf_file_path, encoding='utf-8')
     for row_line in hrdf_file:
         row_line = row_line.strip()
 
@@ -133,7 +133,7 @@ def _parse_hrdf_umsteig_lines(hrdf_path):
 
     stop_transfer_lines_rows = []
 
-    hrdf_file = open(hrdf_file_path)
+    hrdf_file = open(hrdf_file_path, encoding='utf-8')
     for row_line in hrdf_file:
         row_line = row_line.strip()
 
@@ -176,7 +176,7 @@ def _parse_hrdf_umsteig_trips(hrdf_path, db_path):
 
     stop_transfer_trips_rows = []
 
-    hrdf_file = open(hrdf_file_path)
+    hrdf_file = open(hrdf_file_path, encoding='utf-8')
     for row_line in hrdf_file:
         row_line = row_line.strip()
 

@@ -28,7 +28,7 @@ def _parse_hrdf_gleis(hrdf_path):
     hrdf_file_rows_no = compute_file_rows_no(hrdf_file_path)
     log_message(f"... found {hrdf_file_rows_no} lines")
 
-    hrdf_file = open(hrdf_file_path)
+    hrdf_file = open(hrdf_file_path, encoding='utf-8')
     for row_line in hrdf_file:
         if (row_line_idx % 100000) == 0:
             log_message(f"... parse {row_line_idx}/ {hrdf_file_rows_no} lines")
