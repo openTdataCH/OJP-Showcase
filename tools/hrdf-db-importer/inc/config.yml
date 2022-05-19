@@ -3,3 +3,16 @@ other_configs:
 
 map_sql_queries:
   fplan_join_trip_bitfeld: [APP_PATH]/inc/shared/inc/sql/hrdf/fplan_join_trip_bitfeld.sql
+
+hrdf_default_service_id: "000017" # All days
+
+hrdf_dbs_base_path: [APP_PATH]/data/hrdf-dbs
+hrdf_db_schema_path: "[APP_PATH]/inc/hrdf_schema.yml"
+
+hrdf_db_lookups:
+  base_path: [APP_PATH]/data/hrdf-db-lookups
+  db_lookups_filename: hrdf_lookups_[HRDF_DAY].json
+  map_table_pks:
+    agency: agency_id
+    calendar: service_id
+    stops: stop_id
