@@ -1,0 +1,18 @@
+ckan_data:
+  authorization: 57c5dbbbf1fe4d000100001842c323fa9ff44fbba0b9b925f0c052d1
+  package_show_url_template: https://api.opentransportdata.swiss/ckan-api/package_show?id=[PACKAGE_ID]
+
+map_packages:
+  hrdf_5_4: &hrdf_5_4
+    package_id: timetable-54-2022-hrdf
+    base_path: [APP_PATH]/data/opentransportdata.swiss/hrdf
+  gtfs_static: 
+    package_id: timetable-2022-gtfs2020
+    base_path: [APP_PATH]/data/opentransportdata.swiss/gtfs-static
+  hrdf:
+    <<: *hrdf_5_4
+    alias: hrdf_5_4
+
+package_cache:
+  local_path: [APP_PATH]/tmp/ckan_[PACKAGE_KEY].json
+  ttl: 300
