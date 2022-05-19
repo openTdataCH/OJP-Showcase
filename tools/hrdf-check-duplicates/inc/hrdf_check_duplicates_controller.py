@@ -156,6 +156,8 @@ class HRDF_Check_Duplicates_Controller:
         return map_hrdf_trips
 
     def _query_trips(self):
+        log_message(f'START QUERY FPLAN')
+
         hrdf_trips_sql = load_resource_from_bundle(self.map_sql_queries, 'hrdf_select_trips')
 
         # for quick DEBUG
@@ -168,7 +170,12 @@ class HRDF_Check_Duplicates_Controller:
         
         hrdf_trips = []
 
+        hrdf_trip_idx = 0
+
         for hrdf_trip_db_row in hrdf_cursor:
+            if (hrdf_trip_idx % 100000) == 0:
+                log_message(f"... parse {hrdf_trip_idx} DB trips")
+
             hrdf_trip = HRDF_Trip_Variant.init_from_db_row(hrdf_trip_db_row, 
                 self.hrdf_db_lookups['calendar'], self.hrdf_db_lookups['agency'], self.hrdf_db_lookups['stops']
             )
@@ -177,6 +184,10 @@ class HRDF_Check_Duplicates_Controller:
                 continue
 
             hrdf_trips.append(hrdf_trip)
+
+            hrdf_trip_idx += 1
+
+        log_message(f'... found {len(hrdf_trips)} trips')
 
         return hrdf_trips
 
