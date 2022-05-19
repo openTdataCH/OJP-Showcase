@@ -128,6 +128,7 @@ class HRDF_FPLAN_Stops_Parser:
         log_message('START INSERT FPLAN_STOP_TIMES CSV...')
         db_table_writer.close_csv_file()
         db_table_writer.load_csv_file(db_table_writer_csv_path)
+        db_table_writer.add_table_indexes()
         log_message('... DONE')
 
     def parse_stop_times_from_fplan_content(self, fplan_content):
