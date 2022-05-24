@@ -6,12 +6,12 @@ if (isset($_SERVER) && isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] ==
 }
 define('APP_PROFILE', $app_profile);
 
+error_reporting(E_ALL);
+
 if (APP_PROFILE === 'dev') {
-    ini_set('display_errors', 1);
-    error_reporting(E_ALL);
+    ini_set('display_errors', 1);  
 } else {
     ini_set('display_errors', 0);
-    error_reporting(0);
 }
 
 ini_set('date.timezone', 'Europe/Zurich');
