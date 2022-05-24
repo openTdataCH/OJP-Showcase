@@ -1,7 +1,7 @@
 # GTFS-RT -static Comparison Process
 
 ## General
-- the app is deployed here: https://opentdatach.github.io/gtfs-rt-status/
+- the app is deployed here: https://tools.odpch.ch/gtfs-rt-status/
 
 ----
 
@@ -84,4 +84,4 @@ We're using [opentransportdata.swiss GTFS Realtime](https://opentransportdata.sw
 
 Created: 14.April 2021
 
-Updated: 03.November 2021
+Updated: 29.May 2022
