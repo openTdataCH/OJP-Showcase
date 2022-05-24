@@ -34,7 +34,7 @@ export default class GTFS_DB_Controller {
 
         this.gtfs_query_btn.disabled = true;
 
-        this.gtfs_query_base_address = 'https://tools.odpch.ch/gtfs-query'
+        this.gtfs_query_base_address = './data/gtfs-query'
 
         this.update_request_time();
     }
