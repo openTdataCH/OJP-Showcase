@@ -21,7 +21,7 @@ This API returns all active trips for a given interval or running at a given tim
 
 ### Sample output:
 
-[query_active_trips?day=2021-10-31&hhmm=2240&from_hhmm=2210&to_hhmm=2540&filter_agency_ids=HAS_GTFS_RT&parse_type=FLAT](https://www.m23.ch/customers/openTdataCH/gtfs-query/query_active_trips?day=2021-10-31&hhmm=2240&from_hhmm=2210&to_hhmm=2540&filter_agency_ids=HAS_GTFS_RT&parse_type=FLAT)
+[query_active_trips?day=2021-10-31&hhmm=2240&from_hhmm=2210&to_hhmm=2540&filter_agency_ids=HAS_GTFS_RT&parse_type=FLAT](https://tools.odpch.ch/gtfs-query/query_active_trips?day=2021-10-31&hhmm=2240&from_hhmm=2210&to_hhmm=2540&filter_agency_ids=HAS_GTFS_RT&parse_type=FLAT)
 
 ```
 {
@@ -60,7 +60,7 @@ This API returns entire content of the `agency`, `routes` and `stops` tables.
 
 ### Sample output:
 
-[db_lookups?day=2021-10-31&hhmm=2221](https://www.m23.ch/customers/openTdataCH/gtfs-query/db_lookups?day=2021-10-31&hhmm=2221)
+[db_lookups?day=2021-10-31&hhmm=2221](https://tools.odpch.ch/gtfs-query/db_lookups?day=2021-10-31&hhmm=2221)
 
 ```
 {
