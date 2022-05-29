@@ -16,6 +16,7 @@ from .shared.inc.models.hrdf.trip_variant import Trip_Variant as HRDF_Trip_Varia
 from .shared.inc.helpers.bundle_helpers import load_resource_from_bundle
 from .shared.inc.helpers.db_helpers import table_select_rows
 from .shared.inc.helpers.log_helpers import log_message
+from .shared.inc.helpers.json_helpers import export_json_to_file
 from .shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_db_path
 
 class HRDF_Check_Duplicates_Controller:
@@ -51,11 +52,8 @@ class HRDF_Check_Duplicates_Controller:
         map_hrdf_duplicates_agency_errors_path = map_hrdf_duplicates_agency_errors_path.replace('[HRDF_YMD]', file_ymd)
         
         map_hrdf_duplicates_agency_errors = self._check()
-        
-        map_hrdf_duplicates_agency_errors_file = open(map_hrdf_duplicates_agency_errors_path, 'w', encoding='utf-8')
-        map_hrdf_duplicates_agency_errors_file.write(json.dumps(map_hrdf_duplicates_agency_errors, indent=4))
-        map_hrdf_duplicates_agency_errors_file.close()
 
+        export_json_to_file(map_hrdf_duplicates_agency_errors, map_hrdf_duplicates_agency_errors_path, pretty_print=True)
         log_message(f'Saved report to {map_hrdf_duplicates_agency_errors_path}')
 
         log_message(f'DONE')
