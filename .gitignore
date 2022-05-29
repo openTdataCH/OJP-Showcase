@@ -1,11 +1,15 @@
 __pycache__
+node_modules
 
+data/*
+
+apps/gtfs-rt-status/js/dist
+apps/hrdf-check-duplicates/js/dist
+apps/ojp-demo/js/dist
+
+tools/ckan-utils/tmp/*.json
 tools/gtfs-rt-fetch/output/gtfs-rt
 tools/gtfs-static-db-importer/output/gtfs_db
 tools/gtfs-static-snapshot-exporter/output/gtfs-static-snapshot
 tools/hrdf-db-importer/output/hrdf_db
 tools/hrdf-stops-reporter/tmp/stops_report
-
-apps/gtfs-rt-status/js/dist
-apps/ojp-demo/js/dist
-node_modules
