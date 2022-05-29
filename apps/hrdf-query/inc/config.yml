@@ -1,0 +1,15 @@
+map_app_db_cache_paths:
+    meta_hrdf_dbs_json: "[APP_PATH]/data/hrdf-query-db-cache/meta_hrdf_dbs.json"
+    meta_hrdf_duplicates_json: "[APP_PATH]/data/hrdf-query-db-cache/meta_hrdf_duplicates.json"
+
+map_resources:
+    hrdf_db:
+        base_path: "[APP_PATH]/data/hrdf-dbs"
+        filename: "hrdf_[HRDF_DAY].sqlite"
+        filename_regexp: "/^hrdf_(?P<hrdf_day>[0-9-]{10})\.sqlite$/"
+        resource_pk: hrdf_day
+    hrdf_duplicates:
+        base_path: "[APP_PATH]/data/hrdf-duplicates-reports"
+        filename: "hrdf_duplicates_report_[HRDF_DAY].json"
+        filename_regexp: "/^hrdf_duplicates_report_(?P<hrdf_day>[0-9-]{10})\.json$/"
+        resource_pk: hrdf_day
