@@ -4,10 +4,10 @@ ckan_data:
 
 map_packages:
   hrdf_5_4: &hrdf_5_4
-    package_id: timetable-54-2022-hrdf
+    package_id: timetable-54-2023-hrdf
     base_path: [APP_PATH]/data/opentransportdata.swiss/hrdf
   gtfs_static: 
-    package_id: timetable-2022-gtfs2020
+    package_id: timetable-2023-gtfs2020
     base_path: [APP_PATH]/data/opentransportdata.swiss/gtfs-static
   hrdf:
     <<: *hrdf_5_4
