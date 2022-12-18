@@ -105,8 +105,6 @@ def fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
     }
 
     ckan_api_request = urllib.request.Request(ckan_api_url, headers=request_headers)
-    response = urllib.request.urlopen(ckan_api_request)
-
     response = urllib.request.urlopen(ckan_api_request).read()
     response_json = json.loads(response.decode('utf-8'))
 

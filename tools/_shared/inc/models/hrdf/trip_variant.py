@@ -118,7 +118,8 @@ class Trip_Variant:
 
         agency_id = db_row['agency_id']
         if agency_id not in map_agency:
-            # TODO - this should be donbe in the importer step
+            # TODO - this should be done in the HRDF importer step
+            # check 87_TAC
             return None
         
         agency_db_row = map_agency[agency_id]
@@ -126,14 +127,16 @@ class Trip_Variant:
 
         from_stop_id = db_row['from_stop_id']
         if from_stop_id not in map_stops:
-            # TODO - this should be done in the importer step
+            # TODO - this should be done in the HRDF importer step
+            # check 8505558
             return None
         from_stop_db_row = map_stops[from_stop_id]
         from_stop = GTFS_Stop.init_from_db_row(from_stop_db_row)
 
         to_stop_id = db_row['to_stop_id']
         if to_stop_id not in map_stops:
-            # TODO - this should be done in the importer step
+            # TODO - this should be done in the HRDF importer step
+            # check 8505558
             return None
         to_stop_db_row = map_stops[to_stop_id]
         to_stop = GTFS_Stop.init_from_db_row(to_stop_db_row)

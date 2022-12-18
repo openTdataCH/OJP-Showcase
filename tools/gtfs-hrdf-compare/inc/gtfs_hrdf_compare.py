@@ -60,7 +60,7 @@ class GTFS_HRDF_Compare_Controller:
         # return only active (request_date) trips
         map_gtfs_trips = self._compute_map_gtfs_trips(agency_id=agency_id, request_date=request_date)
 
-        csv_reporter_field_names = ['trip_id', 'route_short_name', 'short_name', 'agency_id', 'route_id', 'service_id', 'hrdf_match_type', 'hrdf_fplan_type', 'hrdf_service_id_match_score', 'hrdf_FPLAN_row_idx', 'hrdf_FPLAN_content', 'debug_GTFS_calendar', 'debug_HRDF_calendar']
+        csv_reporter_field_names = ['trip_id', 'route_short_name', 'route_desc', 'trip_short_name', 'agency_id', 'route_id', 'service_id', 'hrdf_match_type', 'hrdf_fplan_type', 'hrdf_service_id_match_score', 'hrdf_FPLAN_row_idx', 'hrdf_FPLAN_content', 'debug_GTFS_calendar', 'debug_HRDF_calendar']
         csv_reporter_path: str = self.report_paths['gtfs_trips_with_csv_path']
         csv_reporter_path = csv_reporter_path.replace('[DAY]', f'{request_date}')
         csv_reporter = CSV_Updater(csv_reporter_path, csv_reporter_field_names)
@@ -73,7 +73,8 @@ class GTFS_HRDF_Compare_Controller:
                 report_csv_row = {
                     'trip_id': gtfs_trip.trip_id,
                     'route_short_name': gtfs_trip.route.route_short_name,
-                    'short_name': gtfs_trip.trip_short_name,
+                    'route_desc': gtfs_trip.route.route_desc,
+                    'trip_short_name': gtfs_trip.trip_short_name,
                     'route_id': gtfs_trip.route.route_id,
                     'agency_id': gtfs_trip.route.agency.agency_id,
                     'service_id': gtfs_trip.service.service_id,
