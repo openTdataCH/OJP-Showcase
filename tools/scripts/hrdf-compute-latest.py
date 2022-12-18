@@ -2,6 +2,8 @@ import os, sys
 import glob
 from pathlib import Path
 
+import time
+
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
 from inc.shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_folder_path, compute_hrdf_db_filename, compute_formatted_date_from_hrdf_db_path
 
@@ -13,6 +15,7 @@ def main():
     hrdf_data_path = _check_latest_data_folder(app_config)
     hrdf_db_path = _db_import(app_config, script_path, hrdf_data_path)
     _hrdf_check_duplicates(script_path, hrdf_db_path)
+    _hrdf_build_aggregated_duplicates(script_path)
     _hrdf_generate_lookups(script_path, hrdf_db_path)
     
 def _fetch_latest_resource(script_path, package_key):
@@ -101,11 +104,39 @@ def _hrdf_check_duplicates(script_path, hrdf_db_path):
         print(tool_cli_sh, flush=True)
         os.system(tool_cli_sh)
 
+def _hrdf_build_aggregated_duplicates(script_path):
+    print(f'')
+    print(f'STEP 5 - BUILD HRDF CSV duplicates report')
+
+    hrdf_duplicates_tool_folder_path = f'{script_path.parent}/../hrdf-check-duplicates'
+    hrdf_duplicates_config = load_convenience_config(hrdf_duplicates_tool_folder_path)
+
+    report_csv_all_path = hrdf_duplicates_config['report_paths']['consolidate_hrdf_duplicates_report_path']
+    report_csv_all_path = report_csv_all_path.replace('[AGENCY_ID]', 'ALL')
+
+    run_cli = True
+    if os.path.isfile(report_csv_all_path):
+        report_csv_all_mtime = os.path.getmtime(report_csv_all_path)
+        now_ts = time.time()
+        
+        # 60 minutes
+        if (now_ts - report_csv_all_mtime) < (60 * 60):
+            run_cli = False
+
+    if run_cli:
+        tool_cli_path = f'{hrdf_duplicates_tool_folder_path}/hrdf_build_consolidated_report_cli.py'
+        tool_cli_sh = f"python3 {tool_cli_path}"
+        print(tool_cli_sh, flush=True)
+        os.system(tool_cli_sh)
+    else:
+        print(f'Report already present at path and not too old')
+        print(f'=> {report_csv_all_path}')
+
 def _hrdf_generate_lookups(script_path, hrdf_db_path):
     tool_cli_folder_path = f'{script_path.parent}/../hrdf-db-importer'
 
     print(f'')
-    print(f'STEP 5 - GENERATE HRDF DB lookups')
+    print(f'STEP 6 - GENERATE HRDF DB lookups')
     print(f'HRDF DB PATH            : {hrdf_db_path}')
 
     # No need to do extra checks for the file existance because the generation is fast
