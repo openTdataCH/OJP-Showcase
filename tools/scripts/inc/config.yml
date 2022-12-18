@@ -7,3 +7,4 @@ data_paths:
   hrdf-dbs: &HRDF_DBS_PATH [APP_PATH]/data/hrdf-dbs
   hrdf-db-lookups: [APP_PATH]/data/hrdf-db-lookups
   hrdf-duplicates-reports: [APP_PATH]/data/hrdf-duplicates-reports
+  hrdf-duplicates-reports-csv: [APP_PATH]/data/hrdf-duplicates-reports/hrdf-duplicates-reports-csv
