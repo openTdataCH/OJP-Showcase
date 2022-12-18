@@ -11,6 +11,10 @@ class Helpers:
             stop_time_parts = stop_time_s.split('|')
 
             stop_id = stop_time_parts[0]
+            
+            if stop_id not in map_stops:
+                # TODO - this should be handled in the import HRDF step
+                continue
 
             stop_db_row = map_stops[stop_id]
             gtfs_stop = Stop.init_from_db_row(stop_db_row)
