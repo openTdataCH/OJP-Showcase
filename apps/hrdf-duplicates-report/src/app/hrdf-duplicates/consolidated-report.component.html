@@ -1,0 +1,52 @@
+<div>
+  <ul>
+    <li>Last update: 25.September 2022 - v2</li>
+    <li>
+      Source code:
+      <a
+        href="https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/hrdf-check-duplicates"
+        target="_blank"
+        >@openTdataCH/OJP-Showcase</a
+      >
+    </li>
+  </ul>
+
+  <hr/>
+
+  <div>
+    <div>Status: {{ this.renderModel.statusMessage }}</div>
+    <div>Agency IDs: <span>{{ this.inputFilterByAgencyIDs }}</span></div>
+  </div>
+
+  <div *ngIf="this.renderModel.displayReportRows.length > 0">
+    <div class="mb-2">Displaying {{ this.renderModel.displayReportRows.length }} rows ({{ this.renderModel.reportRows.length }} rows in total)</div>
+
+    <hr/>
+
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Day</th>
+          <th scope="col">Agency</th>
+          <th scope="col">Type</th>
+          <th scope="col">Fahrtnummer</th>
+          <th scope="col">Duplicates No</th>
+          <th scope="col">More Info</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reportRow of this.renderModel.displayReportRows; let idx = index">
+          <td>{{ idx + 1 }}</td>
+          <td>{{ reportRow.hrdfDay }}</td>
+          <td>{{ reportRow.agencyId + ' : ' + reportRow.agencyCode }}</td>
+          <td>{{ reportRow.fplanType }}</td>
+          <td>{{ reportRow.fahrtNummer }}</td>
+          <td>{{ reportRow.duplicatesNo }}</td>
+          <td><a href="{{ reportRow.detailsURL }}" target="_blank">Details</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

@@ -1,0 +1,21 @@
+.content-collapse .bi-plus-circle {
+  display: none;
+}
+.content-collapse.collapsed .bi-plus-circle {
+  display: inline;
+}
+.ccontent-collapse .bi-dash-circle {
+  display: inline;
+}
+.content-collapse.collapsed .bi-dash-circle {
+  display: none;
+}
+
+td.fplan_content {
+  margin: 8px;
+}
+
+td.fplan_content pre {
+  max-width: 500px;
+  overflow: hidden;
+}
