@@ -4,7 +4,7 @@
 
 - [GTFS-RT -static Comparsion](apps/gtfs-rt-status)
 - [GTFS -static Query API](apps/gtfs-query)
-- [HRDF Check Duplicates](apps/hrdf-check-duplicates)
+- [HRDF Check Duplicates](apps/hrdf-duplicates-report)
 - [HRDF Query API](apps/hrdf-query)
 
 ## Tools
