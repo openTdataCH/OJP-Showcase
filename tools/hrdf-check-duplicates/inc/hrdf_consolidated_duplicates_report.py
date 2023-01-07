@@ -29,8 +29,9 @@ class HRDF_Consolidated_Duplicates_Report:
             if not os.path.isfile(duplicates_report_path):
                 # print(f'ERROR - skiping {duplicates_report_path} - not found')
                 continue
-
-            log_message(f'Day {idx}/{len(hrdf_days)} => {hrdf_day}')
+            
+            if idx % 10 == 0:
+                log_message(f'Day {idx}/{len(hrdf_days)} => {hrdf_day}')
             
             duplicates_report = load_json_from_file(duplicates_report_path)
             for (agency_id, agency_data) in duplicates_report['agency_data'].items():
@@ -44,10 +45,12 @@ class HRDF_Consolidated_Duplicates_Report:
                     hrdf_trip_id = hrdf_trip_ids[0]
                     hrdf_trip = duplicates_report['map_hrdf_trips'][hrdf_trip_id]
                     vehicle_type = hrdf_trip['vehicle_type']
+                    service_line = hrdf_trip['service_line']
+                    vehicle_type_line = f'{vehicle_type}{service_line}'.strip()
 
                     report_row = {
                         'fplan_trip_id': fplan_trip_id,
-                        'vehicle_type': vehicle_type,
+                        'vehicle_type': vehicle_type_line,
                         'duplicates_no': len(hrdf_trip_ids)
                     }
 

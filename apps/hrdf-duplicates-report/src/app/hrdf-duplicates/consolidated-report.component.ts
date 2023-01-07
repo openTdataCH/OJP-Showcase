@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import HRDF_DuplicatesFetchController from './controllers/hrdf-duplicates-fetch-controller';
 import { HttpService } from './services/http-service';
 
 interface ReportRow {
   hrdfDay: string
+  hrdfDayF: string
   agencyId: string
   agencyCode: string
   agencyName: string
@@ -15,9 +15,16 @@ interface ReportRow {
 
 interface RenderModel {
   statusMessage: string
-  hrdfDays: string[]
-  reportRows: ReportRow[]
-  displayReportRows: ReportRow[]
+  reportRows: ReportRow[],
+  agencyIDsMessage: string | null
+}
+
+interface DuplicateCSVRow {
+  day: string
+  agency_id: string
+  type: string
+  fplan_trip_id: string
+  duplicates_no: number
 }
 
 @Component({
@@ -29,103 +36,100 @@ export class ConsolidatedReportComponent implements OnInit {
   private queryParams: URLSearchParams;
   public renderModel: RenderModel
   
-  public inputFilterByAgencyIDs: string
-  private filterByAgencyIDs: string[] | null
+  public filterByAgencyIDs: string[]
 
   constructor(private httpService: HttpService) {
     this.queryParams = new URLSearchParams(document.location.search);
+
     this.renderModel = {
-      statusMessage: 'loading duplicate reports',
-      hrdfDays: [],
+      statusMessage: '... loading duplicate reports',
       reportRows: [],
-      displayReportRows: [],
+      agencyIDsMessage: '',
     }
 
-    this.inputFilterByAgencyIDs = this.queryParams.get('agency_ids') ?? '11,72';
-    this.filterByAgencyIDs = null;
-    this.parseFilterAgencyIDs();
+    this.filterByAgencyIDs = (() => {
+      const agencyIDs_s = this.queryParams.get('agency_ids') ?? '11,72';
+      const agencyIDs = agencyIDs_s.trim().split(',');
+  
+      if (agencyIDs.length === 1 && agencyIDs[0] === '') {
+        return [];
+      } else {
+        return agencyIDs;
+      }
+    })();
+
+    if (this.filterByAgencyIDs !== null) {
+      this.renderModel.agencyIDsMessage = this.filterByAgencyIDs.join(',');
+    }
   }
   
   ngOnInit(): void {
-    this.fetchDuplicateDays()
-  }
-  
-  private fetchDuplicateDays() {
-    this.httpService.getDuplicatesList().subscribe((data) => {
-      const reportDays = data.hrdf_duplicates_available_days;
-      this.renderModel.statusMessage = '... found ' + reportDays.length + ' reports';
-      this.renderModel.hrdfDays = reportDays;
+    this.fetchDuplicatesConsolidatedReport(duplicateCSVRows => {
+      const reportRows: ReportRow[] = [];
 
-      this.renderModel.reportRows = [];
-      this.renderModel.displayReportRows = [];
+      duplicateCSVRows.forEach(duplicateCSVRow => {
+        const agencyId = duplicateCSVRow.agency_id;
+        if (this.filterByAgencyIDs.length > 0 && this.filterByAgencyIDs.indexOf(agencyId) === -1) {
+          return;
+        }
 
-      this.fetchReportDay(0);
-    });
-  }
+        const detailsURL = 'https://tools.odpch.ch/hrdf-check-duplicates/report?day=' + duplicateCSVRow.day + '&agency_id=' + agencyId;
 
-  private fetchReportDay(idx: number) {
-    const reportDaysNo = this.renderModel.hrdfDays.length;
-    const isCompleted = (reportDaysNo === 0) || (idx > (reportDaysNo - 1));
+        const reportRow: ReportRow = {
+          hrdfDay: duplicateCSVRow.day,
+          hrdfDayF: this.formatHRDF_Day(duplicateCSVRow.day),
+          agencyId: agencyId,
+          agencyCode: 'n/a',
+          agencyName: 'n/a',
+          fplanType: duplicateCSVRow.type,
+          fahrtNummer: duplicateCSVRow.fplan_trip_id,
+          duplicatesNo: duplicateCSVRow.duplicates_no,
+          detailsURL: detailsURL,
+        };
 
-    if (isCompleted) {
-      return;
-    }
-
-    const hrdfDay = this.renderModel.hrdfDays[idx];
-    const hrdfDayF = this.formatHRDF_Day(hrdfDay);
-    this.renderModel.statusMessage = '... fetching ' + (idx + 1) + '/' + this.renderModel.hrdfDays.length + ' days: ' + hrdfDayF;
-
-    const fetchController = new HRDF_DuplicatesFetchController(
-      this.httpService
-    );
-    fetchController.fetchDay(hrdfDay, (duplicatesReport) => {
-      duplicatesReport.agenciesData.forEach(agencyData => {
-        const agencyId = agencyData.agency.agency_id;
-        const keepRow = this.shouldKeepRow(agencyId);
-        const detailsURL = './report?day=' + hrdfDay + '&agency_id=' + agencyId;
-
-        agencyData.tripsData.forEach(groupData => {
-          const firstTrip = groupData.hrdfTrips[0];
-
-          const reportRow: ReportRow = {
-            hrdfDay: hrdfDayF,
-            agencyId: agencyId,
-            agencyCode: agencyData.agency.agency_code ?? agencyData.agency.agency_name,
-            agencyName: agencyData.agency.agency_name + ' (' + agencyData.agency.agency_code + ')',
-            fplanType: firstTrip.vehicleType,
-            fahrtNummer: firstTrip.fplan_trip_id,
-            duplicatesNo: groupData.hrdfTrips.length,
-            detailsURL: detailsURL,
-          }
-
-          this.renderModel.reportRows.push(reportRow);
-          if (keepRow) {
-            this.renderModel.displayReportRows.push(reportRow);
-          }
-        });
+        reportRows.push(reportRow);
       });
 
-      this.fetchReportDay(idx + 1);
+      if (reportRows.length > 1000) {
+        this.renderModel.statusMessage = 'Displaying top 1,000 rows (from ' + reportRows.length + ' in total)'
+        this.renderModel.reportRows = reportRows.slice(0, 1000);
+      } else {
+        this.renderModel.statusMessage = 'Displaying ' + reportRows.length + ' rows'
+        this.renderModel.reportRows = reportRows;
+      }
+
+      this.renderModel.reportRows.sort((a, b) => {
+        if (a.hrdfDay > b.hrdfDay) return -1;
+        if (a.hrdfDay > b.hrdfDay) return 1;
+        return 0;
+      });
     });
   }
 
-  private parseFilterAgencyIDs() {
-    const agencyIDs_s = this.inputFilterByAgencyIDs ?? '';
-    const agencyIDs = agencyIDs_s.trim().split(',');
+  private fetchDuplicatesConsolidatedReport(completion: (duplicateRows: DuplicateCSVRow[]) => void) {
+    this.httpService.gerHRDF_DuplicatesConsolidatedReport().subscribe(data => {
 
-    if (agencyIDs.length === 1 && agencyIDs[0] === '') {
-      this.filterByAgencyIDs = null;
-    } else {
-      this.filterByAgencyIDs = agencyIDs;
-    }
-  }
+      const csvRows = data.split("\n");
+      const duplicateCSVRows: DuplicateCSVRow[] = [];
+      let headerRows: string[] = []
+      csvRows.forEach((csvRow, idx) => {
+        csvRow = csvRow.trim();
 
-  private shouldKeepRow(agencyId: string): boolean {
-    if (this.filterByAgencyIDs === null) {
-      return true;
-    }
+        if (idx === 0) {
+          headerRows = csvRow.split(',');
+        } else {
+          const mapRowValues: Record<string, any> = {};
+          csvRow.split(',').forEach((val, idx) => {
+            mapRowValues[headerRows[idx]] = val;
+          });
 
-    return this.filterByAgencyIDs.indexOf(agencyId) > -1;
+          mapRowValues['duplicates_no'] = parseInt(mapRowValues['duplicates_no'], 10);
+          duplicateCSVRows.push(mapRowValues as DuplicateCSVRow);
+        }
+      });
+
+      completion(duplicateCSVRows);
+    });
   }
 
   private formatHRDF_Day(hrdfDay: string) {

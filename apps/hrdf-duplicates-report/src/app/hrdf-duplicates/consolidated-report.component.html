@@ -1,28 +1,25 @@
 <div>
   <ul>
-    <li>Last update: 25.September 2022 - v2</li>
+    <li>Last update: 07.January 2022 - v2.1</li>
     <li>
       Source code:
       <a
-        href="https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/hrdf-check-duplicates"
+        href="https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/hrdf-duplicates-report"
         target="_blank"
         >@openTdataCH/OJP-Showcase</a
       >
     </li>
+    <li>Full CSV Reports: <a href="https://tools.odpch.ch/data/hrdf-duplicates-reports-csv/" target="_blank">click here</a></li>
   </ul>
 
   <hr/>
 
-  <div>
+  <div class="mb-2">
     <div>Status: {{ this.renderModel.statusMessage }}</div>
-    <div>Agency IDs: <span>{{ this.inputFilterByAgencyIDs }}</span></div>
+    <div *ngIf="this.filterByAgencyIDs.length > 0">Agency IDs: <span>{{ this.renderModel.agencyIDsMessage }}</span> - <a href="./all?agency_ids=" target="_blank">Show All</a></div>
   </div>
 
-  <div *ngIf="this.renderModel.displayReportRows.length > 0">
-    <div class="mb-2">Displaying {{ this.renderModel.displayReportRows.length }} rows ({{ this.renderModel.reportRows.length }} rows in total)</div>
-
-    <hr/>
-
+  <div *ngIf="this.renderModel.reportRows.length > 0">
     <table class="table table-bordered table-striped table-hover">
       <thead>
         <tr>
@@ -36,10 +33,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let reportRow of this.renderModel.displayReportRows; let idx = index">
+        <tr *ngFor="let reportRow of this.renderModel.reportRows; let idx = index">
           <td>{{ idx + 1 }}</td>
           <td>{{ reportRow.hrdfDay }}</td>
-          <td>{{ reportRow.agencyId + ' : ' + reportRow.agencyCode }}</td>
+          <td>{{ reportRow.agencyId }}</td>
           <td>{{ reportRow.fplanType }}</td>
           <td>{{ reportRow.fahrtNummer }}</td>
           <td>{{ reportRow.duplicatesNo }}</td>

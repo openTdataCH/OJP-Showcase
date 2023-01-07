@@ -25,4 +25,12 @@ export class HttpService {
     const apiURL = 'https://tools.odpch.ch/data/hrdf-duplicates-reports/hrdf_duplicates_report_' + hrdf_day + '.json'
     return this.http.get<HRDF_DuplicatesReportResponse>(apiURL);
   }
+
+  gerHRDF_DuplicatesConsolidatedReport() {
+    const csvURL = 'https://tools.odpch.ch/data/hrdf-duplicates-reports-csv/hrdf_duplicates_report.ALL.csv';
+
+    return this.http.get(csvURL, {
+      responseType: 'text'
+    });
+  }
 }
