@@ -1,5 +1,0 @@
-<IfModule mod_deflate.c>
-    <FilesMatch "\.(html|json|geojson|css|png)$">
-        SetOutputFilter DEFLATE
-    </FilesMatch>
-</IfModule>
