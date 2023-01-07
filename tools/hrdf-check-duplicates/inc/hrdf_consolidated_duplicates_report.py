@@ -29,8 +29,9 @@ class HRDF_Consolidated_Duplicates_Report:
             if not os.path.isfile(duplicates_report_path):
                 # print(f'ERROR - skiping {duplicates_report_path} - not found')
                 continue
-
-            log_message(f'Day {idx}/{len(hrdf_days)} => {hrdf_day}')
+            
+            if idx % 10 == 0:
+                log_message(f'Day {idx}/{len(hrdf_days)} => {hrdf_day}')
             
             duplicates_report = load_json_from_file(duplicates_report_path)
             for (agency_id, agency_data) in duplicates_report['agency_data'].items():
