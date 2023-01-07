@@ -45,10 +45,12 @@ class HRDF_Consolidated_Duplicates_Report:
                     hrdf_trip_id = hrdf_trip_ids[0]
                     hrdf_trip = duplicates_report['map_hrdf_trips'][hrdf_trip_id]
                     vehicle_type = hrdf_trip['vehicle_type']
+                    service_line = hrdf_trip['service_line']
+                    vehicle_type_line = f'{vehicle_type}{service_line}'.strip()
 
                     report_row = {
                         'fplan_trip_id': fplan_trip_id,
-                        'vehicle_type': vehicle_type,
+                        'vehicle_type': vehicle_type_line,
                         'duplicates_no': len(hrdf_trip_ids)
                     }
 
