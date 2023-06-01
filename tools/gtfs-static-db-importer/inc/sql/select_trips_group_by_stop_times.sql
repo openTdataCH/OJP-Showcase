@@ -5,6 +5,7 @@ SELECT
     trips.trip_headsign,
     trips.trip_short_name,
     trips.direction_id,
+    trips.shape_id,
     GROUP_CONCAT(PRINTF('%s|%s|%s|%s', stop_times.ROWID, stop_times.stop_id, stop_times.arrival_time, stop_times.departure_time)) AS stop_times_data
 FROM trips, stop_times
 WHERE
