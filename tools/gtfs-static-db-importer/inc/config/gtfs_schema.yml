@@ -47,6 +47,17 @@ tables:
             - route_short_name
             - route_type
 
+    shapes:
+        columns:
+            - shape_id INTEGER
+            - shape_pt_lat REAL
+            - shape_pt_lon REAL
+            - shape_pt_sequence INTEGER
+            - shape_dist_traveled REAL
+        indexes:
+            - shape_id
+            - shape_pt_sequence
+
     stop_times:
         columns:
             - trip_id TEXT
@@ -89,6 +100,7 @@ tables:
             - arrival_time TEXT
             # added to avoid GROUP_BY queries
             - stop_times_s TEXT
+            - shape_id TEXT
         indexes:
             - route_id
             - service_id
