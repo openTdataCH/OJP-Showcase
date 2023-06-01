@@ -44,7 +44,7 @@ class GTFS_DB_Importer:
     def _load_schema_config(self):
         script_path = Path(os.path.realpath(__file__))
         db_schema_path = f"{script_path.parent}/config/gtfs_schema.yml"
-        db_schema_config = yaml.safe_load(open(db_schema_path))
+        db_schema_config = yaml.safe_load(open(db_schema_path, encoding='utf-8'))
 
         return db_schema_config
 
