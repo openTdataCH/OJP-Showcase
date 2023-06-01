@@ -29,7 +29,7 @@ class DB_Table_CSV_Importer:
         if isinstance(csv_path, str):
             csv_path = Path(csv_path)
 
-        log_message(f'START LOAD CSV: {csv_path.name}')
+        log_message(f'... START LOAD CSV: {csv_path.name}')
         lines_no = compute_file_rows_no(csv_path) - 1
         log_message(f'... found {lines_no} rows')
 

@@ -73,7 +73,7 @@ def drop_and_recreate_table(db_handle, table_name, table_config):
     log_message("... DONE")
 
 def add_table_indexes(db_handle, table_name, table_config):
-    log_message(f"CREATE INDEX for table {table_name} ...")
+    log_message(f"... CREATE INDEX for table {table_name} ...")
 
     index_column_list = table_config.get('indexes', False) or []
     for column_name in index_column_list:
