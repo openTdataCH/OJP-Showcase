@@ -7,7 +7,7 @@ from pathlib import Path
 from .shared.inc.helpers.db_helpers import table_select_rows
 from .shared.inc.helpers.log_helpers import log_message
 from .shared.inc.helpers.json_helpers import export_json_to_file
-from .shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_db_path
+from .shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_db_path, compute_calendar_info
 from .shared.inc.models.gtfs_static.calendar import Calendar as GTFS_Calendar
 
 class HRDF_Export_Lookups_Controller:
@@ -38,7 +38,7 @@ class HRDF_Export_Lookups_Controller:
 
         log_message('START')
 
-        calendar_start_date, calendar_days_no = self._compute_calendar_info()
+        calendar_start_date, calendar_days_no = compute_calendar_info(self.hrdf_db)
 
         export_hrdf_db_lookups_json = {
             'calendar_data': {
@@ -63,21 +63,3 @@ class HRDF_Export_Lookups_Controller:
             map_db_lookups[table_name] = table_select_rows(db_handle, table_name, group_by_key=pk_field)
 
         return map_db_lookups
-    
-    def _compute_calendar_info(self):
-        sql = 'SELECT service_id, start_date, end_date, day_bits FROM calendar LIMIT 1'
-        
-        db_row = self.hrdf_db.execute(sql).fetchone()
-        start_date = datetime.strptime(db_row['start_date'], "%Y%m%d").date()
-        end_date = datetime.strptime(db_row['end_date'], "%Y%m%d").date()
-        days_no = (end_date - start_date).days + 1 # adds 1 to include also the last day of the interval
-
-        day_bits = db_row['day_bits'][0:days_no]
-        is_all_days = day_bits == len(day_bits) * '1'
-        if not is_all_days:
-            print('ERROR - calendar row is not representative')
-            service_id = db_row['service_id']
-            print(f'{service_id} => {day_bits}')
-            sys.exit(1)
-
-        return start_date, days_no

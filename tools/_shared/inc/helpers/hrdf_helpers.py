@@ -1,5 +1,7 @@
-import re
+import os, sys
 from pathlib import Path
+import re
+from datetime import datetime
 
 # from_idx is for 1 start-based index columns to match the HRDF PDF doc.
 def extract_hrdf_content(hrdf_line: str, from_idx: int, to_idx: int, default_value = None):
@@ -83,3 +85,20 @@ def compute_hrdf_db_filename(hrdf_day: str):
     db_filename = f'hrdf_{hrdf_day}.sqlite'
     return db_filename
 
+def compute_calendar_info(gtfs_db):
+    sql = 'SELECT service_id, start_date, end_date, day_bits FROM calendar LIMIT 1'
+    
+    db_row = gtfs_db.execute(sql).fetchone()
+    start_date = datetime.strptime(db_row['start_date'], "%Y%m%d").date()
+    end_date = datetime.strptime(db_row['end_date'], "%Y%m%d").date()
+    days_no = (end_date - start_date).days + 1 # adds 1 to include also the last day of the interval
+
+    day_bits = db_row['day_bits'][0:days_no]
+    is_all_days = day_bits == len(day_bits) * '1'
+    if not is_all_days:
+        print('ERROR - calendar row is not representative')
+        service_id = db_row['service_id']
+        print(f'{service_id} => {day_bits}')
+        sys.exit(1)
+
+    return start_date, days_no
