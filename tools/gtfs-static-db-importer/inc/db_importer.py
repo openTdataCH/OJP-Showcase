@@ -277,6 +277,7 @@ class GTFS_DB_Importer:
                 'trip_headsign': db_row['trip_headsign'],
                 'trip_short_name': db_row['trip_short_name'],
                 'direction_id': db_row['direction_id'],
+                'shape_id': db_row['shape_id'],
                 'departure_day_minutes': None,
                 'departure_time': None,
                 'arrival_day_minutes': None,
