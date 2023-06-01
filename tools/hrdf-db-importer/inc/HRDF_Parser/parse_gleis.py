@@ -31,8 +31,8 @@ def _parse_hrdf_gleis(hrdf_path, default_service_id):
 
     hrdf_file = open(hrdf_file_path, encoding='utf-8')
     for row_line in hrdf_file:
-        if (row_line_idx % 100000) == 0:
-            log_message(f"... parse {row_line_idx}/ {hrdf_file_rows_no} lines")
+        if (row_line_idx % 500000) == 0:
+            log_message(f"... GLEIS.loop parse {row_line_idx}/ {hrdf_file_rows_no} lines")
 
         row_line = row_line.strip()
         
