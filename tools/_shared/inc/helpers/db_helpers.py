@@ -85,7 +85,7 @@ def add_table_indexes(db_handle, table_name, table_config):
 def load_sql_from_file(file_path: str):
     sql = ""
     
-    sql_file = open(file_path)
+    sql_file = open(file_path, encoding='utf-8')
     sql = sql_file.read()
     sql_file.close()
 
