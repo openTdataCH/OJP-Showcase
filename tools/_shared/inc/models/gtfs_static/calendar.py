@@ -27,6 +27,10 @@ class Calendar:
         end_date_s = db_row['end_date']
         day_bits = db_row['day_bits']
 
+        # patch the raw sqlite3.Row objects to allow dict lookups
+        if 'get' not in dir(db_row):
+            db_row = dict(db_row)
+
         monday = db_row.get('monday') or None
         tuesday = db_row.get('tuesday') or None
         wednesday = db_row.get('wednesday') or None

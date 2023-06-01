@@ -31,13 +31,22 @@ class Trip:
         stop_times_s = db_row['stop_times_s']
 
         service_id = db_row['service_id']
-        service_db_row = map_calendar[service_id]
-        gtfs_calendar = Calendar.init_from_db_row(service_db_row)
+        service_res = map_calendar[service_id]
+        if isinstance(service_res, Calendar):
+            gtfs_calendar = service_res
+        else:
+            gtfs_calendar = Calendar.init_from_db_row(service_res)
+
+        if stop_times_s is None:
+            raise Exception('ERROR - stop_times_s is not populated')
 
         route_id = db_row['route_id']
-        route_db_row = map_routes[route_id]
-        gtfs_route = Route.init_from_db_row(route_db_row, map_agency)
-        
+        route_res = map_routes[route_id]
+        if isinstance(route_res, Route):
+            gtfs_route = route_res
+        else:
+            gtfs_route = Route.init_from_db_row(route_res, map_agency)
+
         stop_times = Helpers.parse_DB_row_stop_times(stop_times_s, map_stops)
         
         entry = Trip(trip_id, trip_short_name, departure_day_minutes, arrival_day_minutes, departure_time, arrival_time, stop_times, gtfs_calendar, gtfs_route)

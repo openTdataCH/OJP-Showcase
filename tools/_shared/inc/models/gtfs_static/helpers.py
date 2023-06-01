@@ -16,8 +16,11 @@ class Helpers:
                 # TODO - this should be handled in the import HRDF step
                 continue
 
-            stop_db_row = map_stops[stop_id]
-            gtfs_stop = Stop.init_from_db_row(stop_db_row)
+            stop_res = map_stops[stop_id]
+            if isinstance(stop_res, Stop):
+                gtfs_stop = stop_res
+            else:
+                gtfs_stop = Stop.init_from_db_row(stop_res)
 
             arrival_time = Helpers.parse_stop_time_s(stop_time_parts[1])
             departure_time = Helpers.parse_stop_time_s(stop_time_parts[2])
