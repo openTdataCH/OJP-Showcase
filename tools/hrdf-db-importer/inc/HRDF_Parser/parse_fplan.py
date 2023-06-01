@@ -6,6 +6,7 @@ from ..shared.inc.helpers.log_helpers import log_message
 from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
 from ..shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_fplan_trip_id, normalize_agency_id
 from ..shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
+from .parse_infotext import parse_infotext
 
 def import_db_fplan(app_config, hrdf_path, db_path):
     log_message(f"IMPORT FPLAN")
@@ -56,6 +57,8 @@ class HRDF_FPLAN_Parser:
 
         map_ignore_row_types = {}
 
+        map_infotext = parse_infotext(self.hrdf_path)
+
         hrdf_file = open(hrdf_file_path, encoding='utf-8')
         for row_line in hrdf_file:
             if (row_line_idx % 5000000) == 0:
@@ -74,6 +77,8 @@ class HRDF_FPLAN_Parser:
                     current_fplan_row_json["service_ids_json"].append(service_id_json)
                 elif row_line.startswith("*L"):
                     current_fplan_row_json["service_line"] = self._parse_l_line(row_line)
+                elif row_line.startswith('*I JY'):
+                    current_fplan_row_json['infotext_id'] = self._parse_jy_line(row_line, map_infotext)
                 else:
                     if row_line_type not in map_ignore_row_types:
                         map_ignore_row_types[row_line_type] = 0
@@ -178,3 +183,12 @@ class HRDF_FPLAN_Parser:
     def _parse_l_line(self, row_line):
         service_line = extract_hrdf_content(row_line, 4, 11)
         return service_line
+
+    # *I JY                        000000000 
+    def _parse_jy_line(self, row_line, map_infotext):
+        infotext_id = row_line[29:38].strip()
+        infotext_value = None
+        if infotext_id in map_infotext:
+            infotext_value = map_infotext[infotext_id]
+        
+        return infotext_value
