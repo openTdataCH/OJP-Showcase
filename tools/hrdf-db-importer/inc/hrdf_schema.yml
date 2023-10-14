@@ -77,21 +77,21 @@ tables:
     # TODO: remove it in a later iteration if the content is not useful to the clients
     gleis_classification: 
         columns:
+            - row_idx INTEGER PRIMARY KEY       # the row number in the import GLEIS file
             - gleis_classification_key TEXT PRIMARY KEY # CONCAT agency_id.trip_id.stop_id.service_id
             - gleis_stop_info_id TEXT                   # CONCAT stop_id.gleis_info_id
             - agency_id TEXT
             - fplan_trip_id TEXT
             - stop_id TEXT
             - service_id TEXT
-            - gleis_rows_cno                            # number of occurences of the PK in GLEIS file
-            - gleis_rows_json_s                         # occurences of GLEIS entry (i.e. custom departure times)
+            - gleis_time TEXT
         indexes:
+            - gleis_classification_key
             - gleis_stop_info_id
             - agency_id
             - fplan_trip_id
             - stop_id
             - service_id
-            - gleis_rows_cno
 
     # Service platform lookup table, kept the domain name GLEIS because is not GTFS-specific
     gleis:
