@@ -15,8 +15,6 @@ def import_db_gleis(app_config, hrdf_path, db_path, db_schema_config):
 
     _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config)
 
-    print('')
-
 def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
     log_message('START CREATE GLEIS CSV files...')
 
@@ -117,4 +115,3 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
         table_csv_importer.close()
 
     log_message('... DONE DB GLEIS INSERT')
-    print('')

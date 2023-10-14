@@ -21,8 +21,6 @@ def import_db_fplan(app_config, hrdf_path, db_path):
     parser = HRDF_FPLAN_Parser(hrdf_path, db_path, db_schema_config, default_service_id)
     parser.parse_fplan()
 
-    print('')
-
 class HRDF_FPLAN_Parser:
     def __init__(self, hrdf_path, db_path, db_schema_config, default_service_id):
         self.hrdf_path = hrdf_path
@@ -112,7 +110,6 @@ class HRDF_FPLAN_Parser:
         self.fplan_bitfeld_table_writer.load_csv_file(fplan_bitfeld_table_writer_csv_path)
         self.fplan_bitfeld_table_writer.add_table_indexes()
         log_message('... DONE')
-        print('')
 
     def _insert_fplan_row(self, fplan_row_json):
         if not fplan_row_json:

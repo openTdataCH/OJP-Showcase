@@ -22,7 +22,6 @@ def import_db_stop_times(app_config, db_path):
     print('')
     
     parser.parse_fplan_stops(map_gleis)
-    print('')
 
 class HRDF_FPLAN_Stops_Parser:
     def __init__(self, app_config, db_path):
@@ -149,7 +148,6 @@ class HRDF_FPLAN_Stops_Parser:
         print('')
         
         log_message('... DONE parse_fplan_stops')
-        print('')
 
     def parse_stop_times_from_fplan_content(self, fplan_content):
         stop_times_json = []
