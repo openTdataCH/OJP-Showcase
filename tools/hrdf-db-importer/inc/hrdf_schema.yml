@@ -78,8 +78,8 @@ tables:
     gleis_classification: 
         columns:
             - row_idx INTEGER PRIMARY KEY       # the row number in the import GLEIS file
-            - gleis_classification_key TEXT PRIMARY KEY # CONCAT agency_id.trip_id.stop_id.service_id
-            - gleis_stop_info_id TEXT                   # CONCAT stop_id.gleis_info_id
+            - gleis_classification_key TEXT     # CONCAT agency_id.trip_id.stop_id.service_id
+            - gleis_stop_info_id TEXT           # CONCAT stop_id.gleis_info_id
             - agency_id TEXT
             - fplan_trip_id TEXT
             - stop_id TEXT
