@@ -3,6 +3,7 @@ other_configs:
 
 map_sql_queries:
   fplan_join_trip_bitfeld: [APP_PATH]/inc/shared/inc/sql/hrdf/fplan_join_trip_bitfeld.sql
+  gleis_aggregated: [APP_PATH]/inc/shared/inc/sql/hrdf/gleis_aggregate.sql
 
 hrdf_default_service_id: "000017" # All days
 
