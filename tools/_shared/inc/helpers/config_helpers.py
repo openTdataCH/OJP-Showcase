@@ -19,11 +19,13 @@ def load_convenience_config(context_path: Path):
     if os.path.isfile(context_folder_path):
         context_folder_path = context_folder_path.parent
 
-    app_config_path = Path(f'{context_folder_path}/inc/config.yml')
+    app_config_path = Path(f'{context_folder_path}/config/config.yml')
     if not os.path.isfile(app_config_path):
-        print(f'ERROR: cant load config from {app_config_path}')
-        sys.exit(1)
-    
+        app_config_path = Path(f'{context_folder_path}/inc/config.yml')
+        if not os.path.isfile(app_config_path):
+            print(f'ERROR: cant load config from convenience paths')
+            sys.exit(1)
+
     app_config = load_yaml_config(app_config_path, context_folder_path)
 
     return app_config
