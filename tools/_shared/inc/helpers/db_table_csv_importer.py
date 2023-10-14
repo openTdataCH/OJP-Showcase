@@ -25,7 +25,7 @@ class DB_Table_CSV_Importer:
     def truncate_table(self):
         drop_and_recreate_table(self.db_handle, self.table_name, self.table_config)
 
-    def load_csv_file(self, csv_path: Path):
+    def load_csv_file(self, csv_path: Path, rows_report_no = None):
         if isinstance(csv_path, str):
             csv_path = Path(csv_path)
 
@@ -37,7 +37,8 @@ class DB_Table_CSV_Importer:
         csv_reader = csv.DictReader(csv_import_handler)
         csv_row_id = 1
 
-        rows_report_no = self._compute_rows_report_no(lines_no)
+        if rows_report_no is None:
+            rows_report_no = self._compute_rows_report_no(lines_no)
 
         column_names = fetch_column_names(self.db_handle, self.table_name)
         column_names_s = ', '.join(column_names)
