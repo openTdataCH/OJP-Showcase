@@ -35,7 +35,6 @@ class DB_Table_CSV_Importer:
 
         csv_import_handler = open(csv_path, encoding='utf-8-sig')
         csv_reader = csv.DictReader(csv_import_handler)
-        csv_row_id = 1
 
         if rows_report_no is None:
             rows_report_no = self._compute_rows_report_no(lines_no)
@@ -50,6 +49,7 @@ class DB_Table_CSV_Importer:
 
         insert_cursor = self.db_handle.cursor()
 
+        csv_row_id = 0
         for csv_row in csv_reader:
             if csv_row_id % rows_report_no == 0:
                 log_message(f'... parsed {csv_row_id}/{lines_no} rows')
