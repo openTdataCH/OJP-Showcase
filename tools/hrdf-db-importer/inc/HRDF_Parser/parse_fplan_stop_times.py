@@ -113,12 +113,12 @@ class HRDF_FPLAN_Stops_Parser:
                 service_stop_times_json = []
                 # sys.exit()
                 continue
-            else:
-                service_stop_times_json = stop_times_json[from_idx : to_idx + 1]
-                service_stop_times_json[0]["stop_arrival"] = None
-                service_stop_times_json[0]["is_boarding_allowed"] = None
-                service_stop_times_json[-1]["stop_departure"] = None
-                service_stop_times_json[-1]["is_getoff_allowed"] = None
+
+            service_stop_times_json = stop_times_json[from_idx : to_idx + 1]
+            service_stop_times_json[0]["stop_arrival"] = None
+            service_stop_times_json[0]["is_boarding_allowed"] = None
+            service_stop_times_json[-1]["stop_departure"] = None
+            service_stop_times_json[-1]["is_getoff_allowed"] = None
 
             db_table_writer.write_csv_handle.writerows(service_stop_times_json)
 
