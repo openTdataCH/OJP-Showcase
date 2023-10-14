@@ -90,6 +90,9 @@ class DB_Table_CSV_Importer:
 
     def create_csv_file(self, csv_path: str):
         column_names = fetch_column_names(self.db_handle, self.table_name)
+        if len(column_names) == 0:
+            print(f'ERROR - no columns found, forgot to create table for "{self.table_name}"?')
+            sys.exit(1)
 
         self.write_csv_file = open(csv_path, 'w', encoding='utf-8')
         self.write_csv_handle = csv.DictWriter(self.write_csv_file, column_names)
