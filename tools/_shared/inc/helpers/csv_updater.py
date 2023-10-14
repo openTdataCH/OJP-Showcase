@@ -1,4 +1,4 @@
-import sys
+import os, sys
 from typing import List
 from pathlib import Path
 import sqlite3
@@ -14,6 +14,16 @@ class CSV_Updater:
 
         self.csv_writer = csv.DictWriter(self.csv_file, column_names)
         self.csv_writer.writeheader()
+
+    @classmethod
+    def init_with_table_config(cls, csv_path: Path, table_config: any):
+        column_names = []
+        for column_def in table_config['columns']:
+            column_name = column_def.strip().split(' ')[0]
+            column_names.append(column_name)
+
+        csv_updater = CSV_Updater(csv_path, column_names)
+        return csv_updater
 
     def prepare_row(self, row_dict: dict):
         map_row_values = {}
