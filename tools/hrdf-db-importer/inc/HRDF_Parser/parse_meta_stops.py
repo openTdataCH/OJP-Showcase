@@ -22,8 +22,6 @@ def import_meta_stops(app_config, hrdf_path, db_path, db_schema_config):
     stop_transfer_trips_rows = _parse_hrdf_umsteig_trips(hrdf_path, db_path, default_service_id)
     truncate_and_load_table_records(db_path, 'stop_transfer_trips', db_schema_config['tables']['stop_transfer_trips'], stop_transfer_trips_rows)
 
-    print('')
-
 def _parse_hrdf_meta_stops(hrdf_path):
     row_line_idx = 1
     hrdf_file_path = f"{hrdf_path}/METABHF"

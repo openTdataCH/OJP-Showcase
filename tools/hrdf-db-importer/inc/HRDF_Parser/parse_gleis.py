@@ -1,29 +1,32 @@
+import os, sys
 import datetime
 import json
-# import sys
 
 from ..shared.inc.helpers.log_helpers import log_message
 from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
 from ..shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_fplan_trip_id, normalize_agency_id, parse_kennung_to_dict
-
+from ..shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
+from ..shared.inc.helpers.csv_updater import CSV_Updater
 
 def import_db_gleis(app_config, hrdf_path, db_path, db_schema_config):
     log_message(f"IMPORT GLEIS")
 
     default_service_id = app_config['hrdf_default_service_id']
 
-    gleis_classification_rows, gleis_stop_info_rows = _parse_hrdf_gleis(hrdf_path, default_service_id)
+    _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config)
 
-    truncate_and_load_table_records(db_path, 'gleis_classification', db_schema_config['tables']['gleis_classification'], gleis_classification_rows)
-    truncate_and_load_table_records(db_path, 'gleis', db_schema_config['tables']['gleis'], gleis_stop_info_rows)
+def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
+    log_message('START CREATE GLEIS CSV files...')
 
-    print('')
+    gleis_classification_table_config = db_schema_config['tables']['gleis_classification']
+    gleis_classification_csv_path = f'/tmp/gleis_classification.csv'
+    gleis_classification_csv_writer = CSV_Updater.init_with_table_config(gleis_classification_csv_path, gleis_classification_table_config)
 
-def _parse_hrdf_gleis(hrdf_path, default_service_id):
-    map_group_by_key = {}
-    gleis_stop_info_rows = []
+    gleis_table_config = db_schema_config['tables']['gleis']
+    gleis_table_csv_path = f'/tmp/gleis.csv'
+    gleis_table_csv_writer = CSV_Updater.init_with_table_config(gleis_table_csv_path, gleis_table_config)
 
-    row_line_idx = 1
+    row_line_idx = 0
 
     hrdf_file_path = f"{hrdf_path}/GLEIS"
     hrdf_file_rows_no = compute_file_rows_no(hrdf_file_path)
@@ -31,11 +34,9 @@ def _parse_hrdf_gleis(hrdf_path, default_service_id):
 
     hrdf_file = open(hrdf_file_path, encoding='utf-8')
     for row_line in hrdf_file:
-        if (row_line_idx % 500000) == 0:
+        if (row_line_idx % 1000000) == 0:
             log_message(f"... GLEIS.loop parse {row_line_idx}/ {hrdf_file_rows_no} lines")
 
-        row_line = row_line.strip()
-        
         is_classification_row = extract_hrdf_content(row_line, 23, 23) == '#'
         if is_classification_row:
             stop_id = extract_hrdf_content(row_line, 1, 7)
@@ -51,23 +52,18 @@ def _parse_hrdf_gleis(hrdf_path, default_service_id):
             gleis_classification_key = f"{agency_id}.{fplan_trip_id}.{stop_id}.{service_id}"
             gleis_stop_info_id = f"{stop_id}.{gleis_info_id}"
 
-            if not gleis_classification_key in map_group_by_key:
-                map_group_by_key[gleis_classification_key] = {
-                    "gleis_classification_key": gleis_classification_key,
-                    "gleis_stop_info_id": gleis_stop_info_id,
-                    "agency_id": agency_id,
-                    "fplan_trip_id": fplan_trip_id,
-                    "stop_id": stop_id,
-                    "service_id": service_id,
-                    "gleis_rows": []
-                }
-
-            gleis_row_json = {
-                "row_line_idx": row_line_idx,
-                "gleis_time": gleis_time,
+            row_json = {
+                'gleis_classification_key': gleis_classification_key,
+                'gleis_stop_info_id': gleis_stop_info_id,
+                'agency_id': agency_id,
+                'fplan_trip_id': fplan_trip_id,
+                'stop_id': stop_id,
+                'service_id': service_id,
+                'gleis_time': gleis_time,
+                'row_idx': row_line_idx + 1,
             }
-            map_group_by_key[gleis_classification_key]["gleis_rows"].append(gleis_row_json)
 
+            gleis_classification_csv_writer.prepare_row(row_json)
         else:
             stop_id = extract_hrdf_content(row_line, 1, 7)
             gleis_info_id = extract_hrdf_content(row_line, 9, 16)
@@ -78,7 +74,8 @@ def _parse_hrdf_gleis(hrdf_path, default_service_id):
             gleis_stop_info_json = {
                 "gleis_id": f"{stop_id}.{gleis_info_id}",
                 "stop_id": stop_id,
-                "gleis_info_id": gleis_info_id
+                "gleis_info_id": gleis_info_id,
+                'row_idx': row_line_idx + 1,
             }
 
             track_full_text_parts = []
@@ -97,20 +94,24 @@ def _parse_hrdf_gleis(hrdf_path, default_service_id):
             if len(track_full_text_parts) > 0:
                 gleis_stop_info_json["track_full_text"] = "".join(track_full_text_parts)
 
-            gleis_stop_info_rows.append(gleis_stop_info_json)
+            gleis_table_csv_writer.prepare_row(gleis_stop_info_json)
+        # end if/else classification
 
         row_line_idx += 1
+    # loop GLEIS
 
-    hrdf_file.close()
+    gleis_classification_csv_writer.close()
+    gleis_table_csv_writer.close()
 
-    log_message(f"... aggregating ...")
+    log_message('... DONE CREATE GLEIS CSV files')
+    print('')
 
-    for gleis_classification_key in map_group_by_key:
-        gleis_classification_json = map_group_by_key[gleis_classification_key]
-        
-        gleis_classification_json["gleis_rows_cno"] = len(gleis_classification_json["gleis_rows"])
-        gleis_classification_json["gleis_rows_json_s"] = json.dumps(gleis_classification_json["gleis_rows"], sort_keys=True, indent=4)
+    for table_name in ['gleis', 'gleis_classification']:
+        table_csv_path = gleis_table_csv_path if table_name == 'gleis' else gleis_classification_csv_path
+        table_csv_importer = DB_Table_CSV_Importer(db_path, table_name, db_schema_config['tables'][table_name])
+        table_csv_importer.truncate_table()
+        table_csv_importer.load_csv_file(table_csv_path)
+        table_csv_importer.add_table_indexes()
+        table_csv_importer.close()
 
-    gleis_classification_rows = list(map_group_by_key.values())
-
-    return gleis_classification_rows, gleis_stop_info_rows
+    log_message('... DONE DB GLEIS INSERT')

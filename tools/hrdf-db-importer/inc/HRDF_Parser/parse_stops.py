@@ -14,8 +14,6 @@ def import_db_stops(hrdf_path, db_path, db_schema_config):
     stop_row_items = _parse_hrdf_stops(hrdf_path, fplan_stop_ids)
     truncate_and_load_table_records(db_path, 'stops', db_schema_config['tables']['stops'], stop_row_items)
 
-    print('')
-
 def _fetch_stops_from_fplan(db_path):
     db_handle = sqlite3.connect(db_path)
 

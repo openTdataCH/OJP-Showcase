@@ -9,8 +9,6 @@ def import_db_bitfeld(hrdf_path, db_path, db_schema_config):
 
     bitfeld_row_items = _parse_hrdf_bitfeld(hrdf_path)
     truncate_and_load_table_records(db_path, 'calendar', db_schema_config['tables']['calendar'], bitfeld_row_items)
-    
-    print('')
 
 def _parse_hrdf_bitfeld(hrdf_path):
     hrdf_from_date, hrdf_to_date = _parse_hrdf_eckdaten(hrdf_path)

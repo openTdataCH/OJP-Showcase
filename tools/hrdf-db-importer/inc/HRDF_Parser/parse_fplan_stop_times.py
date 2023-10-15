@@ -18,10 +18,10 @@ def import_db_stop_times(app_config, db_path):
     parser = HRDF_FPLAN_Stops_Parser(app_config, db_path)
 
     map_gleis = parser.fetch_map_gleis()
+    log_message('DONE map_gleis')
+    print('')
     
     parser.parse_fplan_stops(map_gleis)
-
-    print('')
 
 class HRDF_FPLAN_Stops_Parser:
     def __init__(self, app_config, db_path):
@@ -40,14 +40,28 @@ class HRDF_FPLAN_Stops_Parser:
         log_message(f"QUERY GLEIS ...")
         map_gleis = {}
 
-        sql = "SELECT gleis_classification_key, gleis_stop_info_id FROM gleis_classification"
+        sql = load_resource_from_bundle(self.app_config['map_sql_queries'], 'gleis_aggregated')
         select_cursor = self.db_handle.cursor()
         select_cursor.execute(sql)
+
+        row_idx = 0
         for db_row in select_cursor:
+            if row_idx % 1000000 == 0:
+                log_message(f"... parsed {row_idx} rows ...")
+
+            # gleis_data: 34400|8507000.#0000004|1624 -- 34401|8507000.#0000005|1636
+            gleis_rows = db_row['gleis_data'].split(' -- ')
+            
+            # use first one for now
+            first_gleis_parts = gleis_rows[0].split('|')
+            gleis_stop_info_id = first_gleis_parts[1]
+
             gleis_classification_key = db_row['gleis_classification_key']
-            gleis_stop_info_id = db_row['gleis_stop_info_id']
 
             map_gleis[gleis_classification_key] = gleis_stop_info_id
+
+            row_idx += 1
+        # loop SQL
         select_cursor.close()
 
         map_gleis_cno = len(map_gleis.keys())
@@ -134,7 +148,6 @@ class HRDF_FPLAN_Stops_Parser:
         print('')
         
         log_message('... DONE parse_fplan_stops')
-        print('')
 
     def parse_stop_times_from_fplan_content(self, fplan_content):
         stop_times_json = []
