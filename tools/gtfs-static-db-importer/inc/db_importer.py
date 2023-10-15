@@ -49,7 +49,7 @@ class GTFS_DB_Importer:
         return db_schema_config
 
     def _import_csv_tables(self):
-        table_names = ['agency', 'calendar', 'calendar_dates', 'routes', 'stop_times', 'stops', 'trips']
+        table_names = ['agency', 'calendar', 'calendar_dates', 'routes', 'shapes', 'stop_times', 'stops', 'trips']
 
         print('')
         log_message(f'START BATCH IMPORT')
@@ -67,6 +67,18 @@ class GTFS_DB_Importer:
             db_table_writer.truncate_table()
 
             gtfs_file_path = Path(f'{self.gtfs_folder_path}/{table_name}.txt')
+            if not os.path.isfile(gtfs_file_path):
+                is_skip_ok = False
+
+                if table_name == 'shapes':
+                    is_skip_ok = True
+                
+                if is_skip_ok:
+                    continue
+                else:
+                    print(f'ERROR = required table "{table_name}" not found {gtfs_file_path}')
+                    sys.exit()
+
             db_table_writer.load_csv_file(gtfs_file_path)
             db_table_writer.add_table_indexes()
             db_table_writer.close()
@@ -265,6 +277,7 @@ class GTFS_DB_Importer:
                 'trip_headsign': db_row['trip_headsign'],
                 'trip_short_name': db_row['trip_short_name'],
                 'direction_id': db_row['direction_id'],
+                'shape_id': db_row['shape_id'],
                 'departure_day_minutes': None,
                 'departure_time': None,
                 'arrival_day_minutes': None,

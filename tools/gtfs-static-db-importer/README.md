@@ -1,5 +1,7 @@
 ## GTFS DB importer
 
+See [CHANGELOG](./CHANGELOG.md) for latest changes
+
 Python tool that imports a GTFS dataset into SQLite DB.
 The DB schema is specified in [gtfs-db-importer/inc/config/gtfs_schema.yml](gtfs-db-importer/inc/config/gtfs_schema.yml).
 
