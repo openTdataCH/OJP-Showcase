@@ -72,6 +72,12 @@ class GTFS_DB_Importer:
 
                 if table_name == 'shapes':
                     is_skip_ok = True
+
+                if table_name == 'calendar':
+                    calendar_dates_path = f'{self.gtfs_folder_path}/calendar_dates.txt'
+                    if os.path.isfile(calendar_dates_path):
+                        log_message('... no calendar found, using calendar_dates instead')
+                        is_skip_ok = True
                 
                 if is_skip_ok:
                     continue
@@ -94,6 +100,9 @@ class GTFS_DB_Importer:
 
         rows_no = count_rows_table(db_handle, 'calendar')
         log_message(f'... found {rows_no} rows in calendar')
+
+        if rows_no == 0:
+            self._fill_calendar_from_calendar_dates()
 
         table_csv_path = Path(f'{self.db_tmp_path}/calendar_update_day_bits.csv')
         table_csv_updater = DB_Table_CSV_Updater(table_csv_path, ['service_id', 'day_bits'])
@@ -358,5 +367,73 @@ class GTFS_DB_Importer:
             stop_times_updater.update_table(db_handle, template_sql, rows_report_no=200000)
 
             log_message(f'DONE update stop_times RESET for {time_type}')
+            print('')
 
         db_handle.close()
+
+    def _fill_calendar_from_calendar_dates(self):
+        log_message(f'START filling calendar from calendar_dates')
+
+        db_handle = sqlite3.connect(self.db_path)
+        db_handle.row_factory = sqlite3.Row
+
+        calendar_dates_rows_no = count_rows_table(db_handle, 'calendar_dates')
+        if calendar_dates_rows_no == 0:
+            print('ERROR - empty calendar, calendar_dates ?')
+            sys.exit()
+        log_message(f'... found {calendar_dates_rows_no} rows')
+
+        sql = 'SELECT MIN(date) AS min_date FROM calendar_dates'
+        min_date_s = db_handle.cursor().execute(sql).fetchone()[0]
+
+        sql = 'SELECT MAX(date) AS min_date FROM calendar_dates'
+        max_date_s = db_handle.cursor().execute(sql).fetchone()[0]
+
+        sql = 'SELECT DISTINCT(service_id) AS service_id FROM calendar_dates'
+        db_cursor = db_handle.cursor()
+
+        calendar_column_names = fetch_column_names(db_handle, 'calendar')
+
+        calendar_table_csv_file_path = Path(f'{self.db_tmp_path}/calendar_update_from_calendar_dates.csv')
+        calendar_table_csv_file = open(calendar_table_csv_file_path, 'w', encoding='utf-8')
+        calendar_table_csv = csv.DictWriter(calendar_table_csv_file, calendar_column_names)
+        calendar_table_csv.writeheader()
+
+        row_idx = 0
+        for db_row in db_cursor.execute(sql):
+            trip_new_row = {
+                'service_id': db_row['service_id'],
+                'monday': 0, 
+                'tuesday': 0, 
+                'wednesday': 0, 
+                'thursday': 0, 
+                'friday': 0, 
+                'saturday': 0, 
+                'sunday': 0, 
+                'start_date': min_date_s, 
+                'end_date': max_date_s, 
+                'day_bits': '',
+            }
+            calendar_table_csv.writerow(trip_new_row)
+
+            row_idx += 1
+        #end loop SQL
+        db_cursor.close()
+
+        calendar_table_csv_file.close()
+
+        log_message(f'... found {row_idx} calendar entries')
+
+        table_config = self.db_schema_config['tables']['calendar']
+
+        log_message(f'START populate table calendar')
+        
+        db_table_writer = DB_Table_CSV_Importer(self.db_path, 'calendar', table_config)
+        db_table_writer.truncate_table()
+
+        db_table_writer.load_csv_file(calendar_table_csv_file_path)
+        db_table_writer.add_table_indexes()
+        db_table_writer.close()
+
+        log_message(f'DONE _fill_calendar_from_calendar_dates')
+        print()
