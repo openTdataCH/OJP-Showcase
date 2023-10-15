@@ -22,7 +22,10 @@ class Route:
 
         agency_id = db_row['agency_id']
         agency_db_row = map_agency[agency_id]
-        gtfs_agency = Agency.init_from_db_row(agency_db_row)
+        if isinstance(agency_db_row, Agency):
+            gtfs_agency = agency_db_row
+        else:
+            gtfs_agency = Agency.init_from_db_row(agency_db_row)
 
         entry = Route(route_id, gtfs_agency, route_short_name, route_long_name, route_desc, route_type)
 

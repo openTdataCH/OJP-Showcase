@@ -58,7 +58,7 @@ class HRDF_FPLAN_Parser:
 
         hrdf_file = open(hrdf_file_path, encoding='utf-8')
         for row_line in hrdf_file:
-            if (row_line_idx % 1000000) == 0:
+            if (row_line_idx % 5000000) == 0:
                 log_message(f"... parse {row_line_idx}/ {hrdf_file_rows_no} lines")
 
             row_line_type = extract_hrdf_content(row_line, 2, 5).strip()
@@ -92,19 +92,22 @@ class HRDF_FPLAN_Parser:
             log_message("Unhandled row_types:")
             print(map_ignore_row_types)
 
-        log_message('... DONE')
+        log_message('... DONE CREATE FPLAN CSV')
+        print('')
 
         log_message('START INSERT FPLAN CSV...')
         self.fplan_table_writer.close_csv_file()
         self.fplan_table_writer.load_csv_file(fplan_table_writer_csv_path)
         self.fplan_table_writer.add_table_indexes()
         log_message('... DONE')
+        print('')
         
         log_message('START INSERT FPLAN_BITFELD CSV...')
         self.fplan_bitfeld_table_writer.close_csv_file()
         self.fplan_bitfeld_table_writer.load_csv_file(fplan_bitfeld_table_writer_csv_path)
         self.fplan_bitfeld_table_writer.add_table_indexes()
         log_message('... DONE')
+        print('')
 
     def _insert_fplan_row(self, fplan_row_json):
         if not fplan_row_json:

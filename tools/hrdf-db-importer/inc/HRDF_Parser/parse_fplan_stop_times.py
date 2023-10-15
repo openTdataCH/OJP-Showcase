@@ -60,6 +60,7 @@ class HRDF_FPLAN_Stops_Parser:
         table_config = self.db_schema_config['tables']['fplan_stop_times']
         db_table_writer = DB_Table_CSV_Importer(self.db_path, 'fplan_stop_times', table_config)
         db_table_writer.truncate_table()
+        print('')
 
         db_table_writer_csv_path = f'/tmp/fplan_stop_times.csv'
         db_table_writer.create_csv_file(db_table_writer_csv_path)
@@ -71,9 +72,9 @@ class HRDF_FPLAN_Stops_Parser:
         select_cursor = self.db_handle.cursor()
         select_cursor.execute(sql)
 
-        trip_row_idx = 1
+        trip_row_idx = 0
         for db_row in select_cursor:
-            if trip_row_idx % 100000 == 0:
+            if trip_row_idx % 500000 == 0:
                 log_message(f"... parsed {trip_row_idx} rows ...")
 
             fplan_row_idx = db_row['row_idx']
@@ -113,23 +114,27 @@ class HRDF_FPLAN_Stops_Parser:
                 service_stop_times_json = []
                 # sys.exit()
                 continue
-            else:
-                service_stop_times_json = stop_times_json[from_idx : to_idx + 1]
-                service_stop_times_json[0]["stop_arrival"] = None
-                service_stop_times_json[0]["is_boarding_allowed"] = None
-                service_stop_times_json[-1]["stop_departure"] = None
-                service_stop_times_json[-1]["is_getoff_allowed"] = None
+
+            service_stop_times_json = stop_times_json[from_idx : to_idx + 1]
+            service_stop_times_json[0]["stop_arrival"] = None
+            service_stop_times_json[0]["is_boarding_allowed"] = None
+            service_stop_times_json[-1]["stop_departure"] = None
+            service_stop_times_json[-1]["is_getoff_allowed"] = None
 
             db_table_writer.write_csv_handle.writerows(service_stop_times_json)
 
             trip_row_idx += 1
         select_cursor.close()
+        print('')
 
         log_message('START INSERT FPLAN_STOP_TIMES CSV...')
         db_table_writer.close_csv_file()
-        db_table_writer.load_csv_file(db_table_writer_csv_path)
+        db_table_writer.load_csv_file(db_table_writer_csv_path, rows_report_no=5000000)
         db_table_writer.add_table_indexes()
-        log_message('... DONE')
+        print('')
+        
+        log_message('... DONE parse_fplan_stops')
+        print('')
 
     def parse_stop_times_from_fplan_content(self, fplan_content):
         stop_times_json = []

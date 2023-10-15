@@ -1,6 +1,8 @@
 import sqlite3
 import sys
 
+from typing import List
+
 from .log_helpers import log_message
 
 def truncate_and_load_table_records(db_path, table_name, table_config, row_items, log_lines_no = 100000):
@@ -73,7 +75,7 @@ def drop_and_recreate_table(db_handle, table_name, table_config):
     log_message("... DONE")
 
 def add_table_indexes(db_handle, table_name, table_config):
-    log_message(f"CREATE INDEX for table {table_name} ...")
+    log_message(f"... CREATE INDEX for table {table_name} ...")
 
     index_column_list = table_config.get('indexes', False) or []
     for column_name in index_column_list:
@@ -85,7 +87,7 @@ def add_table_indexes(db_handle, table_name, table_config):
 def load_sql_from_file(file_path: str):
     sql = ""
     
-    sql_file = open(file_path)
+    sql_file = open(file_path, encoding='utf-8')
     sql = sql_file.read()
     sql_file.close()
 
@@ -169,7 +171,7 @@ def fetch_db_table_names(db_handle: any = None, db_path: any = None):
 
     return table_names
     
-def execute_sql_queries(db_handle: None, query_items: [str], log_lines_no = 100000):
+def execute_sql_queries(db_handle: None, query_items: List[str], log_lines_no = 100000):
     query_items_groups = split_rows_in_groups(query_items, log_lines_no)
     for query_items_group in query_items_groups:
         queries_no = len(query_items_group)

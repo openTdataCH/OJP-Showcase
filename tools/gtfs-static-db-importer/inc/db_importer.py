@@ -44,7 +44,7 @@ class GTFS_DB_Importer:
     def _load_schema_config(self):
         script_path = Path(os.path.realpath(__file__))
         db_schema_path = f"{script_path.parent}/config/gtfs_schema.yml"
-        db_schema_config = yaml.safe_load(open(db_schema_path))
+        db_schema_config = yaml.safe_load(open(db_schema_path, encoding='utf-8'))
 
         return db_schema_config
 
@@ -72,16 +72,16 @@ class GTFS_DB_Importer:
             db_table_writer.close()
         
         log_message(f'DONE BATCH IMPORT')
+        print('')
 
     def _update_calendar(self):
-        print('')
         log_message('START update calendar')
         
         db_handle = sqlite3.connect(self.db_path)
         db_handle.row_factory = sqlite3.Row
 
         rows_no = count_rows_table(db_handle, 'calendar')
-        log_message(f'... found {rows_no} rows')
+        log_message(f'... found {rows_no} rows in calendar')
 
         table_csv_path = Path(f'{self.db_tmp_path}/calendar_update_day_bits.csv')
         table_csv_updater = DB_Table_CSV_Updater(table_csv_path, ['service_id', 'day_bits'])
@@ -141,6 +141,7 @@ class GTFS_DB_Importer:
         db_handle.close()
 
         log_message('DONE update calendar')
+        print('')
 
     def _compute_calendar_day_bits(self, calendar_db_row, calendar_days, start_date, end_date, calendar_weeks_no):
         map_weekdays_pattern = {}
@@ -203,7 +204,6 @@ class GTFS_DB_Importer:
             day_bits_list[day_idx] = day_bit
 
     def _update_trips(self):
-        print('')
         log_message('START update trips/stop_times')
         
         db_handle = sqlite3.connect(self.db_path)
@@ -319,11 +319,12 @@ class GTFS_DB_Importer:
             new_trips_table_csv.writerow(trip_new_row)
 
             row_id += 1
-
+        # loop trips SQL
         db_cursor.close()
 
         new_trips_table_csv_file.close()
 
+        print('')
         log_message(f"... INSERT new trips ...")
         
         trips_table_config = self.db_schema_config['tables']['trips']
@@ -334,6 +335,7 @@ class GTFS_DB_Importer:
         new_trips_table_writer.close()
 
         log_message(f"... DONE INSERT new trips ...")
+        print('')
 
         for time_type in map_stop_times_reset_table:
             stop_times_updater = map_stop_times_reset_table[time_type]

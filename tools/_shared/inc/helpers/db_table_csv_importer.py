@@ -25,19 +25,19 @@ class DB_Table_CSV_Importer:
     def truncate_table(self):
         drop_and_recreate_table(self.db_handle, self.table_name, self.table_config)
 
-    def load_csv_file(self, csv_path: Path):
+    def load_csv_file(self, csv_path: Path, rows_report_no = None):
         if isinstance(csv_path, str):
             csv_path = Path(csv_path)
 
-        log_message(f'START LOAD CSV: {csv_path.name}')
+        log_message(f'... START LOAD CSV: {csv_path.name}')
         lines_no = compute_file_rows_no(csv_path) - 1
         log_message(f'... found {lines_no} rows')
 
         csv_import_handler = open(csv_path, encoding='utf-8-sig')
         csv_reader = csv.DictReader(csv_import_handler)
-        csv_row_id = 1
 
-        rows_report_no = self._compute_rows_report_no(lines_no)
+        if rows_report_no is None:
+            rows_report_no = self._compute_rows_report_no(lines_no)
 
         column_names = fetch_column_names(self.db_handle, self.table_name)
         column_names_s = ', '.join(column_names)
@@ -49,6 +49,7 @@ class DB_Table_CSV_Importer:
 
         insert_cursor = self.db_handle.cursor()
 
+        csv_row_id = 0
         for csv_row in csv_reader:
             if csv_row_id % rows_report_no == 0:
                 log_message(f'... parsed {csv_row_id}/{lines_no} rows')
@@ -89,6 +90,9 @@ class DB_Table_CSV_Importer:
 
     def create_csv_file(self, csv_path: str):
         column_names = fetch_column_names(self.db_handle, self.table_name)
+        if len(column_names) == 0:
+            print(f'ERROR - no columns found, forgot to create table for "{self.table_name}"?')
+            sys.exit(1)
 
         self.write_csv_file = open(csv_path, 'w', encoding='utf-8')
         self.write_csv_handle = csv.DictWriter(self.write_csv_file, column_names)

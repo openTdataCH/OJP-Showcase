@@ -12,6 +12,7 @@ from .shared.inc.models.gtfs_static.trip import Trip as GTFS_Trip
 from .shared.inc.models.hrdf.trip_variant import Trip_Variant as HRDF_Trip_Variant
 
 from .shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path
+from .shared.inc.helpers.hrdf_helpers import compute_calendar_info
 from .shared.inc.helpers.file_helpers import compute_file_rows_no
 from .shared.inc.helpers.csv_updater import CSV_Updater
 from .shared.inc.helpers.bundle_helpers import load_resource_from_bundle
@@ -36,7 +37,7 @@ class GTFS_HRDF_Compare_Controller:
         self.gtfs_db_lookups = self._compute_lookups(self.gtfs_db)
         self.hrdf_db_lookups = self._compute_lookups(self.hrdf_db)
 
-        start_date, days_no = self._compute_calendar_info()
+        start_date, days_no = compute_calendar_info(self.gtfs_db)
         self.calendar_start_date = start_date
         self.calendar_days_no = days_no
         
@@ -214,24 +215,6 @@ class GTFS_HRDF_Compare_Controller:
             map_db_lookups[table_name] = table_select_rows(db_handle, table_name, group_by_key=pk_field)
 
         return map_db_lookups
-
-    def _compute_calendar_info(self):
-        sql = 'SELECT service_id, start_date, end_date, day_bits FROM calendar LIMIT 1'
-        
-        db_row = self.hrdf_db.execute(sql).fetchone()
-        start_date = datetime.strptime(db_row['start_date'], "%Y%m%d").date()
-        end_date = datetime.strptime(db_row['end_date'], "%Y%m%d").date()
-        days_no = (end_date - start_date).days + 1 # adds 1 to include also the last day of the interval
-
-        day_bits = db_row['day_bits'][0:days_no]
-        is_all_days = day_bits == len(day_bits) * '1'
-        if not is_all_days:
-            print('ERROR - calendar row is not representative')
-            service_id = db_row['service_id']
-            print(f'{service_id} => {day_bits}')
-            sys.exit(1)
-
-        return start_date, days_no
 
     def _compute_calendar_day_idx(self, for_date: datetime):
         day_idx = (for_date - self.calendar_start_date).days

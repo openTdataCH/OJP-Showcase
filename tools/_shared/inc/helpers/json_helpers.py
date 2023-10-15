@@ -14,7 +14,7 @@ def export_json_to_file(json_obj: any, json_path: Path, pretty_print = False):
     if pretty_print:
         json_file.write(json.dumps(json_obj, indent=4, ensure_ascii=False))
     else:
-        json_file.write(json_obj)
+        json.dump(json_obj, json_file)
     
     json_file.close()
 
