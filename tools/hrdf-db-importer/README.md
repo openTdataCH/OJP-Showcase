@@ -1,5 +1,7 @@
 ### HRDF DB importer
 
+See [CHANGELOG](./CHANGELOG.md) for latest changes
+
 Issue: https://github.com/openTdataCH/OJP-Showcase/issues/13
 
 Python tool that imports a HRDF v5.40 dataset into SQLite DB.
