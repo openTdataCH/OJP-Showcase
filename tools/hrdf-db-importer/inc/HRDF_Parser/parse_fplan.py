@@ -2,19 +2,18 @@ import os, sys
 import datetime
 import yaml
 
+from parse_infotext import parse_infotext
 from ..shared.inc.helpers.log_helpers import log_message
-from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
 from ..shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_fplan_trip_id, normalize_agency_id
 from ..shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
-from .parse_infotext import parse_infotext
 
 def import_db_fplan(app_config, hrdf_path, db_path):
-    log_message(f"IMPORT FPLAN")
+    log_message("IMPORT FPLAN")
 
     db_schema_config_path = app_config['other_configs']['schema_config_path']
     db_schema_config = yaml.safe_load(open(db_schema_config_path, encoding='utf-8'))
 
-    log_message(f"... HRDF_FPLAN_Parser init")
+    log_message("... HRDF_FPLAN_Parser init")
 
     default_service_id = app_config['hrdf_default_service_id']
 
@@ -30,16 +29,16 @@ class HRDF_FPLAN_Parser:
         fplan_table_config = db_schema_config['tables']['fplan']
         self.fplan_table_writer = DB_Table_CSV_Importer(db_path, 'fplan', fplan_table_config)
         self.fplan_table_writer.truncate_table()
-        
+
         fplan_bitfeld_table_config = db_schema_config['tables']['fplan_trip_bitfeld']
         self.fplan_bitfeld_table_writer = DB_Table_CSV_Importer(db_path, 'fplan_trip_bitfeld', fplan_bitfeld_table_config)
         self.fplan_bitfeld_table_writer.truncate_table()
 
     def parse_fplan(self):
-        fplan_table_writer_csv_path = f'/tmp/fplan.csv'
+        fplan_table_writer_csv_path = '/tmp/fplan.csv'
         self.fplan_table_writer.create_csv_file(fplan_table_writer_csv_path)
 
-        fplan_bitfeld_table_writer_csv_path = f'/tmp/fplan_trip_bitfeld.csv'
+        fplan_bitfeld_table_writer_csv_path = '/tmp/fplan_trip_bitfeld.csv'
         self.fplan_bitfeld_table_writer.create_csv_file(fplan_bitfeld_table_writer_csv_path)
 
         log_message('START PARSE FPLAN...')
@@ -84,10 +83,10 @@ class HRDF_FPLAN_Parser:
             # else - is a stop_time row, ignore it
 
             current_fplan_row_json["fplan_content_rows"].append(row_line.strip())
-            
+
             row_line_idx += 1
         hrdf_file.close()
-        
+
         # insert last *Z
         self._insert_fplan_row(current_fplan_row_json)
 
@@ -104,7 +103,7 @@ class HRDF_FPLAN_Parser:
         self.fplan_table_writer.add_table_indexes()
         log_message('... DONE')
         print('')
-        
+
         log_message('START INSERT FPLAN_BITFELD CSV...')
         self.fplan_bitfeld_table_writer.close_csv_file()
         self.fplan_bitfeld_table_writer.load_csv_file(fplan_bitfeld_table_writer_csv_path)
@@ -159,7 +158,7 @@ class HRDF_FPLAN_Parser:
         }
 
         return fplan_row_json
-    
+
     def _parse_g_line(self, row_line):
         vehicle_type = extract_hrdf_content(row_line, 4, 6)
         return vehicle_type
@@ -181,11 +180,11 @@ class HRDF_FPLAN_Parser:
         service_line = extract_hrdf_content(row_line, 4, 11)
         return service_line
 
-    # *I JY                        000000000 
+    # *I JY                        000000000
     def _parse_jy_line(self, row_line, map_infotext):
         infotext_id = row_line[29:38].strip()
         infotext_value = None
         if infotext_id in map_infotext:
             infotext_value = map_infotext[infotext_id]
-        
+
         return infotext_value
