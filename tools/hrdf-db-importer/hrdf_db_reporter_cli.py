@@ -1,5 +1,6 @@
+import os
+import sys
 import argparse
-import os, sys
 
 from inc.shared.inc.helpers.db_helpers import compute_db_tables_report
 

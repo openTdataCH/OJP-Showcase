@@ -1,5 +1,7 @@
-import os, sys
+import os
+import sys
 import argparse
+
 from pathlib import Path
 
 from inc.db_importer import HRDF_DB_Importer
