@@ -1,9 +1,9 @@
-import yaml
 import os, sys
 
 from pathlib import Path
 
 from .HRDF_Parser.shared.inc.helpers.log_helpers import log_message
+from .HRDF_Parser.shared.inc.helpers.config_helpers import load_yaml_config
 
 from .HRDF_Parser.parse_betrieb import import_db_betrieb
 from .HRDF_Parser.parse_bitfeld import import_db_bitfeld
@@ -29,7 +29,7 @@ class HRDF_DB_Importer:
         log_message(f'HRDF DB output path: {db_path}')
 
         db_schema_path = app_config['hrdf_db_schema_path']
-        self.db_schema_config = yaml.safe_load(open(db_schema_path, encoding='utf-8'))
+        self.db_schema_config = load_yaml_config(db_schema_path)
 
     def parse_all(self):
         log_message("HRDF IMPORT -- START")

@@ -1,12 +1,12 @@
 import datetime
 import json
 import sys
-import yaml
 
 from pathlib import Path
 
 from .shared.inc.helpers.log_helpers import log_message
 from .shared.inc.helpers.db_helpers import connect_db
+from .shared.inc.helpers.config_helpers import load_yaml_config
 from .shared.inc.helpers.hrdf_helpers import extract_hrdf_content
 from .shared.inc.helpers.bundle_helpers import load_resource_from_bundle
 from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
@@ -32,7 +32,7 @@ class HRDF_FPLAN_Stops_Parser:
         self.db_handle = connect_db(db_path)
 
         schema_config_path = app_config['other_configs']['schema_config_path']
-        self.db_schema_config = yaml.safe_load(open(schema_config_path, encoding='utf-8'))
+        self.db_schema_config = load_yaml_config(schema_config_path)
 
     def fetch_map_gleis(self):
         log_message(f"QUERY GLEIS ...")
