@@ -27,7 +27,7 @@ class HRDF_DB_Importer:
         self.db_path = db_path
 
         print('-' * 100)
-        log_message('HRDF IMPORT')
+        log_message('HRDF IMPORT - v.20231125-001')
         print('-' * 100)
         log_message(f'HRDF folder input path    : {hrdf_path}')
         log_message(f'HRDF DB output path       : {db_path}')
