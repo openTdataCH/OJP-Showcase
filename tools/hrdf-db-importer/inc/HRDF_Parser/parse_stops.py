@@ -1,5 +1,4 @@
-import datetime
-import json
+import os
 import sys
 
 from .shared.inc.helpers.log_helpers import log_message
@@ -7,7 +6,7 @@ from .shared.inc.helpers.db_helpers import truncate_and_load_table_records, conn
 from .shared.inc.helpers.hrdf_helpers import extract_hrdf_content
 
 def import_db_stops(hrdf_path, db_path, db_schema_config):
-    log_message(f"IMPORT BFKOORD_WGS")
+    log_message("IMPORT BFKOORD_WGS")
 
     fplan_stop_ids = _fetch_stops_from_fplan(db_path)
     stop_row_items = _parse_hrdf_stops(hrdf_path, fplan_stop_ids)
@@ -18,7 +17,7 @@ def _fetch_stops_from_fplan(db_path):
 
     fplan_stop_ids = []
 
-    log_message(f"QUERY stop_id FROM FPLAN ...")
+    log_message("QUERY stop_id FROM FPLAN ...")
 
     sql = "SELECT DISTINCT fplan_stop_times.stop_id FROM fplan_stop_times"
     select_cursor = db_handle.cursor()
@@ -36,7 +35,7 @@ def _fetch_stops_from_fplan(db_path):
 def _parse_hrdf_stops(hrdf_path, fplan_stop_ids):
     stop_row_items = []
 
-    log_message(f"Parse BFKOORD_WGS ...")
+    log_message("Parse BFKOORD_WGS ...")
     hrdf_file_path = f"{hrdf_path}/BFKOORD_WGS"
 
     hrdf_file = open(hrdf_file_path)

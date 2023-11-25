@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import datetime
 
 from .parse_infotext import parse_infotext

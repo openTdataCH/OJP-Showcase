@@ -24,7 +24,7 @@ def main():
     hrdf_path = Path(os.path.abspath(hrdf_folder_path))
 
     if not os.path.isdir(hrdf_path):
-        print(f'ERROR --hrdf-folder-path is not a valid folder path')
+        print('ERROR --hrdf-folder-path is not a valid folder path')
         print(f': {hrdf_path}')
         sys.exit(1)
 

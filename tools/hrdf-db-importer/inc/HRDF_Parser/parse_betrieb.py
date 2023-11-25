@@ -1,3 +1,5 @@
+import os
+import sys
 
 from .shared.inc.helpers.db_helpers import connect_db
 from .shared.inc.helpers.log_helpers import log_message
@@ -5,7 +7,7 @@ from .shared.inc.helpers.db_helpers import truncate_and_load_table_records
 from .shared.inc.helpers.hrdf_helpers import normalize_agency_id
 
 def import_db_betrieb(hrdf_path, db_path, db_schema_config):
-    log_message(f"IMPORT BETRIEB")
+    log_message("IMPORT BETRIEB")
 
     fplan_agency_ids = fetch_agency_from_fplan(db_path)
     agency_row_items = parse_hrdf_betrieb(hrdf_path, fplan_agency_ids)
@@ -16,7 +18,7 @@ def fetch_agency_from_fplan(db_path):
 
     fplan_agency_ids = []
 
-    log_message(f"QUERY agency_id FROM FPLAN ...")
+    log_message("QUERY agency_id FROM FPLAN ...")
 
     sql = "SELECT DISTINCT fplan.agency_id FROM fplan"
     select_cursor = db_handle.cursor()
@@ -34,7 +36,7 @@ def fetch_agency_from_fplan(db_path):
 def parse_hrdf_betrieb(hrdf_path, fplan_agency_ids):
     map_hrdf_id_agency = {}
 
-    log_message(f"Parse BETRIEB ...")
+    log_message("Parse BETRIEB ...")
     for lang in ["DE", "EN", "FR", "IT"]:
         map_hrdf_id_agency[lang] = {}
 

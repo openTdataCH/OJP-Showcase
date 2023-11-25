@@ -1,10 +1,11 @@
-import os, sys
+import os
+import sys
 
 from .shared.inc.helpers.log_helpers import log_message
 from .shared.inc.helpers.hrdf_helpers import compute_file_rows_no
 
 def parse_infotext(hrdf_path):
-    log_message(f"... PARSE INFOTEXT")
+    log_message("... PARSE INFOTEXT")
 
     hrdf_file_path = f"{hrdf_path}/INFOTEXT_DE"
     hrdf_file_rows_no = compute_file_rows_no(hrdf_file_path)
