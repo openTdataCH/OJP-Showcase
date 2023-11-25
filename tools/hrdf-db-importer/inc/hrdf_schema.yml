@@ -30,6 +30,7 @@ tables:
             - agency_id TEXT
             - vehicle_type TEXT                 # Verkehrsmittel *G
             - service_line TEXT                 # Linieninformation *L
+            - service_line_id TEXT              # FK to LINE
             - fplan_trip_id TEXT
             - service_ids_cno INTEGER
             - frequency_cno INTEGER             # Taktanzahl
@@ -106,6 +107,14 @@ tables:
         indexes:
             - stop_id
 
+    service_line:
+        columns:
+            - service_line_id TEXT PRIMARY KEY
+            - line_code TEXT
+            - short_line_name TEXT
+            - color TEXT
+            - bg_color TEXT
+        
     # Similar with stops.txt
     stops:
         columns:

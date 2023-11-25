@@ -7,6 +7,7 @@ from .shared.inc.helpers.log_helpers import log_message
 from .shared.inc.helpers.config_helpers import load_yaml_config
 from .shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_fplan_trip_id, normalize_agency_id
 from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
+from .shared.inc.helpers.db_helpers import connect_db, table_select_rows
 
 def import_db_fplan(app_config, hrdf_path, db_path):
     log_message("IMPORT FPLAN")
@@ -39,6 +40,8 @@ class HRDF_FPLAN_Parser:
     def parse_fplan(self):
         csv_write_base_path = f'/tmp/{self.db_path.name}'
 
+        map_service_line = self._fetch_service_line()
+
         fplan_table_writer_csv_path = f'{csv_write_base_path}-fplan.csv'
         self.fplan_table_writer.create_csv_file(fplan_table_writer_csv_path)
 
@@ -62,6 +65,8 @@ class HRDF_FPLAN_Parser:
 
         hrdf_file = open(hrdf_file_path, encoding='utf-8')
         for row_line in hrdf_file:
+            row_line = row_line.strip()
+
             if (row_line_idx % 5000000) == 0:
                 log_message(f"... parse {row_line_idx}/ {hrdf_file_rows_no} lines")
 
@@ -77,7 +82,16 @@ class HRDF_FPLAN_Parser:
                     service_id_json = self._parse_a_ve_line(row_line)
                     current_fplan_row_json["service_ids_json"].append(service_id_json)
                 elif row_line.startswith("*L"):
-                    current_fplan_row_json["service_line"] = self._parse_l_line(row_line)
+                    service_line = self._parse_l_line(row_line)
+
+                    # support for lookups to LINIE
+                    if service_line.startswith('#'):
+                        service_line_id = service_line
+                        if service_line_id in map_service_line:
+                            service_line = map_service_line[service_line]['short_line_name']
+                            current_fplan_row_json["service_line_id"] = service_line_id
+                    # endif
+                    current_fplan_row_json["service_line"] = service_line
                 elif row_line.startswith('*I JY'):
                     current_fplan_row_json['infotext_id'] = self._parse_jy_line(row_line, map_infotext)
                 else:
@@ -192,3 +206,11 @@ class HRDF_FPLAN_Parser:
             infotext_value = map_infotext[infotext_id]
 
         return infotext_value
+
+    def _fetch_service_line(self):
+        log_message("... FETCH SERVICE_LINE FROM DB")
+
+        db_handle = connect_db(self.db_path)
+        map_db_rows = table_select_rows(db_handle, 'service_line', None, 'service_line_id')
+
+        return map_db_rows

@@ -13,6 +13,7 @@ from .HRDF_Parser.parse_fplan import import_db_fplan
 from .HRDF_Parser.parse_gleis import import_db_gleis
 from .HRDF_Parser.parse_meta_stops import import_meta_stops
 from .HRDF_Parser.parse_stops import import_db_stops
+from .HRDF_Parser.parse_line import import_db_line
 
 class HRDF_DB_Importer:
     def __init__(self, app_config, hrdf_path, db_path):
