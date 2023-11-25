@@ -24,6 +24,7 @@ def import_db_fplan(app_config, hrdf_path, db_path):
 class HRDF_FPLAN_Parser:
     def __init__(self, hrdf_path, db_path, db_schema_config, default_service_id):
         self.hrdf_path = hrdf_path
+        self.db_path = db_path
 
         self.default_service_id = default_service_id
 
@@ -36,10 +37,12 @@ class HRDF_FPLAN_Parser:
         self.fplan_bitfeld_table_writer.truncate_table()
 
     def parse_fplan(self):
-        fplan_table_writer_csv_path = '/tmp/fplan.csv'
+        csv_write_base_path = f'/tmp/{self.db_path.name}'
+
+        fplan_table_writer_csv_path = f'{csv_write_base_path}-fplan.csv'
         self.fplan_table_writer.create_csv_file(fplan_table_writer_csv_path)
 
-        fplan_bitfeld_table_writer_csv_path = '/tmp/fplan_trip_bitfeld.csv'
+        fplan_bitfeld_table_writer_csv_path = f'{csv_write_base_path}-fplan_trip_bitfeld.csv'
         self.fplan_bitfeld_table_writer.create_csv_file(fplan_bitfeld_table_writer_csv_path)
 
         log_message('START PARSE FPLAN...')

@@ -17,12 +17,14 @@ def import_db_gleis(app_config, hrdf_path, db_path, db_schema_config):
 def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
     log_message('START CREATE GLEIS CSV files...')
 
+    csv_write_base_path = f'/tmp/{db_path.name}'
+
     gleis_classification_table_config = db_schema_config['tables']['gleis_classification']
-    gleis_classification_csv_path = f'/tmp/gleis_classification.csv'
+    gleis_classification_csv_path = f'{csv_write_base_path}-gleis_classification.csv'
     gleis_classification_csv_writer = CSV_Updater.init_with_table_config(gleis_classification_csv_path, gleis_classification_table_config)
 
     gleis_table_config = db_schema_config['tables']['gleis']
-    gleis_table_csv_path = f'/tmp/gleis.csv'
+    gleis_table_csv_path = f'{csv_write_base_path}-gleis.csv'
     gleis_table_csv_writer = CSV_Updater.init_with_table_config(gleis_table_csv_path, gleis_table_config)
 
     row_line_idx = 0
