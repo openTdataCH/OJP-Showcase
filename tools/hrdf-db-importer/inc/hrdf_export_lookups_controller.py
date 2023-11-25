@@ -26,12 +26,12 @@ class HRDF_Export_Lookups_Controller:
         self.map_table_keys = app_config['hrdf_db_lookups']['map_table_pks']
 
     def export(self):
-        print(f'=================================')
-        print(f'HRDF export lookups')
-        print(f'=================================')
+        print('=================================')
+        print('HRDF export lookups')
+        print('=================================')
         print(f'HRDF DB PATH: {self.hrdf_db_path}')
         print(f'EXPORT JSON PATH: {self.hrdf_db_lookups_json_path}')
-        print(f'=================================')
+        print('=================================')
         print('')
 
         log_message('START')

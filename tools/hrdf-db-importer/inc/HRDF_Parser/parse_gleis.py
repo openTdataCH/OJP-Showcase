@@ -8,7 +8,7 @@ from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 from .shared.inc.helpers.csv_updater import CSV_Updater
 
 def import_db_gleis(app_config, hrdf_path, db_path, db_schema_config):
-    log_message(f"IMPORT GLEIS")
+    log_message("IMPORT GLEIS")
 
     default_service_id = app_config['hrdf_default_service_id']
 
@@ -45,7 +45,7 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
             agency_id = normalize_agency_id(extract_hrdf_content(row_line, 16, 21))
             gleis_info_id = extract_hrdf_content(row_line, 23, 30)
             gleis_time = extract_hrdf_content(row_line, 32, 35)
-            
+
             service_id = extract_hrdf_content(row_line, 37, 42)
             if not service_id:
                 service_id = default_service_id
@@ -87,7 +87,7 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
             if "T" in track_definition_dict:
                 gleis_stop_info_json["delimiter"] = track_definition_dict["T"]
                 track_full_text_parts.append(track_definition_dict["T"])
-            
+
             if "A" in track_definition_dict:
                 gleis_stop_info_json["sector_no"] = track_definition_dict["A"]
                 track_full_text_parts.append(track_definition_dict["A"])
