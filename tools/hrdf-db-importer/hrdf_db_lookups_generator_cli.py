@@ -4,7 +4,7 @@ import argparse
 
 from pathlib import Path
 
-from inc.shared.inc.helpers.config_helpers import load_convenience_config
+from inc.HRDF_Parser.shared.inc.helpers.config_helpers import load_convenience_config
 from inc.hrdf_export_lookups_controller import HRDF_Export_Lookups_Controller
 
 def main():
