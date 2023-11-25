@@ -14,37 +14,6 @@ def extract_hrdf_content(hrdf_line: str, from_idx: int, to_idx: int, default_val
         hrdf_content = default_value
     return hrdf_content
 
-def parse_kennung_to_dict(kennung_s: str):
-    kennung_dict = {}
-
-    # Match ==A "CONTENT"== blocks
-    kennung_matches = re.findall("([:A-Z])\s\"([^\"]+?)\"", kennung_s)
-    for kennung_match in kennung_matches:
-        key = kennung_match[0]
-        value = kennung_match[1]
-        kennung_dict[key] = value
-        
-        kennung_s = kennung_s.replace(f"{key} \"{value}\"", "")
-
-    # Match ==A 'CONTENT'== blocks
-    kennung_matches = re.findall("([:A-Z])\s'([^']+?)'", kennung_s)
-    for kennung_match in kennung_matches:
-        key = kennung_match[0]
-        value = kennung_match[1]
-        kennung_dict[key] = value
-        
-        kennung_s = kennung_s.replace(f"{key} '{value}'", "")
-    
-    # Match remainings as 'A CONTENT' blocks
-    kennung_s = kennung_s.strip()
-    kennung_matches = re.findall("([:A-Z])\s([^\s]*)", kennung_s)
-    for kennung_match in kennung_matches:
-        key = kennung_match[0]
-        value = kennung_match[1]
-        kennung_dict[key] = value
-
-    return kennung_dict
-
 def normalize_agency_id(hrdf_s: str):
     hrdf_s = hrdf_s.lstrip("0")
     return hrdf_s

@@ -2,6 +2,8 @@ import os, sys
 import datetime
 import json
 
+import re
+
 from .shared.inc.helpers.log_helpers import log_message
 from .shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_fplan_trip_id, normalize_agency_id
 from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
@@ -70,7 +72,18 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
             gleis_info_id = extract_hrdf_content(row_line, 9, 16)
             track_definition_s = extract_hrdf_content(row_line, 18, 1000)
 
-            track_definition_dict = parse_kennung_to_dict(track_definition_s)
+            #           : G '1' A 'A'       => { 'G' => '1', 'A' => 'A' }
+            track_definition_matches = re.findall(r"([:A-Z])\s'([^']*)'", track_definition_s)
+            if len(track_definition_matches) == 0:
+                print('ERROR - no matches for GLEIS definition found')
+                print(f'line #{row_line_idx}:  {track_definition_s}')
+                sys.exit(1)
+
+            track_definition_dict = {}
+            for track_definition_match in track_definition_matches:
+                def_key = track_definition_match[0].strip()
+                def_val = track_definition_match[1].strip()
+                track_definition_dict[def_key] = def_val
 
             gleis_stop_info_json = {
                 "gleis_id": f"{stop_id}.{gleis_info_id}",
