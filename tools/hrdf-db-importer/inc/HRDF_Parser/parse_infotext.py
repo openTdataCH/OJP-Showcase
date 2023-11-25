@@ -26,6 +26,6 @@ def parse_infotext(hrdf_path):
         map_values[infotext_id] = infotext_value
     # loop hrdf_file lines
 
-    print('... PARSE_INFOTEXT - DONE')
+    log_message('... PARSE_INFOTEXT - DONE')
 
     return map_values
