@@ -40,14 +40,14 @@ tables:
             - frequency_cno INTEGER             # Taktanzahl
             - frequency_interval INTEGER        # Taktzeit in Minuten
             - fplan_content TEXT
-            - infotext_id TEXT
+            - swiss_journey_id TEXT             # *I JY value
         indexes:
             - agency_id
             - fplan_trip_id
             - service_ids_cno
             - frequency_cno
             - frequency_interval
-            - infotext_id
+            - swiss_journey_id
             - service_line_id                   
 
     # FPLAN table expanded for each service_id (calendar entry)

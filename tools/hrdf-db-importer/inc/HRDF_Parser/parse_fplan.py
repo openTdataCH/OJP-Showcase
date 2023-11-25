@@ -93,7 +93,7 @@ class HRDF_FPLAN_Parser:
                     # endif
                     current_fplan_row_json["service_line"] = service_line
                 elif row_line.startswith('*I JY'):
-                    current_fplan_row_json['infotext_id'] = self._parse_jy_line(row_line, map_infotext)
+                    current_fplan_row_json['swiss_journey_id'] = self._parse_jy_line(row_line, map_infotext)
                 else:
                     if row_line_type not in map_ignore_row_types:
                         map_ignore_row_types[row_line_type] = 0
