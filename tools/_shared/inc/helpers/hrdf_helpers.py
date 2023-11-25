@@ -55,8 +55,11 @@ def normalize_fplan_trip_id(hrdf_s: str):
 
 def compute_file_rows_no(file_path: str):
     # https://stackoverflow.com/questions/845058/how-to-get-line-count-of-a-large-file-cheaply-in-python
-    rows_no = sum(1 for line in open(file_path))
-    return rows_no
+    with open(file_path, encoding='utf-8') as file_handler:
+        rows_no = sum(1 for line in file_handler)
+        return rows_no
+
+    return 0
 
 def compute_formatted_date_from_hrdf_folder_path(folder_path: Path):
     if isinstance(folder_path, str):
@@ -64,6 +67,7 @@ def compute_formatted_date_from_hrdf_folder_path(folder_path: Path):
 
     # oev_sammlung_ch_hrdf_5_40_41_2021_20201220_033904
     opentransport_matches = re.match("^.+?_([0-9]{4})_([0-9]{4})([0-9]{2})([0-9]{2})_.*$", f'{folder_path}')
+
     if opentransport_matches:
         matched_year = opentransport_matches[2]
         matched_month = opentransport_matches[3]
