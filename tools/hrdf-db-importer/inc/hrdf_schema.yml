@@ -48,6 +48,7 @@ tables:
             - frequency_cno
             - frequency_interval
             - infotext_id
+            - service_line_id                   
 
     # FPLAN table expanded for each service_id (calendar entry)
     fplan_trip_bitfeld:
