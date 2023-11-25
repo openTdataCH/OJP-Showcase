@@ -12,8 +12,12 @@ tables:
             - full_name_fr TEXT
             - full_name_it TEXT
             - in_fplan INTEGER
+            - is_main INTEGER               # Sometimes we have several agency_id on the same HRDF row, keep the first one as main
+            - parent_agency_id TEXT         # reference to the parent agency_id - if any
         indexes:
             - in_fplan
+            - is_main
+            - parent_agency_id
 
     # Renamed HRDF BITFELD table to conform to GTFS
     calendar:
