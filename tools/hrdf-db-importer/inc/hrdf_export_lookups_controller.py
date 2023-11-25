@@ -3,10 +3,10 @@ import sys
 
 from pathlib import Path
 
-from .shared.inc.helpers.db_helpers import table_select_rows, connect_db
-from .shared.inc.helpers.log_helpers import log_message
-from .shared.inc.helpers.json_helpers import export_json_to_file
-from .shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_db_path, compute_calendar_info
+from .HRDF_Parser.shared.inc.helpers.db_helpers import table_select_rows, connect_db
+from .HRDF_Parser.shared.inc.helpers.log_helpers import log_message
+from .HRDF_Parser.shared.inc.helpers.json_helpers import export_json_to_file
+from .HRDF_Parser.shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_db_path, compute_calendar_info
 
 class HRDF_Export_Lookups_Controller:
     def __init__(self, app_config, hrdf_db_path: Path):
