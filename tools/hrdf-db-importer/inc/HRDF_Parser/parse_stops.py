@@ -2,10 +2,9 @@ import datetime
 import json
 import sys
 
-from ..shared.inc.helpers.db_helpers import log_message
-from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
-from ..shared.inc.helpers.hrdf_helpers import *
+from .shared.inc.helpers.log_helpers import log_message
 from .shared.inc.helpers.db_helpers import truncate_and_load_table_records, connect_db
+from .shared.inc.helpers.hrdf_helpers import extract_hrdf_content
 
 def import_db_stops(hrdf_path, db_path, db_schema_config):
     log_message(f"IMPORT BFKOORD_WGS")

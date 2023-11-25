@@ -1,8 +1,8 @@
 
-from ..shared.inc.helpers.log_helpers import log_message
-from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
-from ..shared.inc.helpers.hrdf_helpers import normalize_agency_id, parse_kennung_to_dict
 from .shared.inc.helpers.db_helpers import connect_db
+from .shared.inc.helpers.log_helpers import log_message
+from .shared.inc.helpers.db_helpers import truncate_and_load_table_records
+from .shared.inc.helpers.hrdf_helpers import normalize_agency_id
 
 def import_db_betrieb(hrdf_path, db_path, db_schema_config):
     log_message(f"IMPORT BETRIEB")

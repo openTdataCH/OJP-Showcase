@@ -3,7 +3,7 @@ import os, sys
 
 from pathlib import Path
 
-from .shared.inc.helpers.log_helpers import log_message
+from .HRDF_Parser.shared.inc.helpers.log_helpers import log_message
 
 from .HRDF_Parser.parse_betrieb import import_db_betrieb
 from .HRDF_Parser.parse_bitfeld import import_db_bitfeld

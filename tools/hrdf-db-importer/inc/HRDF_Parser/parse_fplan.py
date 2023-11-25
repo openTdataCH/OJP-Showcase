@@ -2,10 +2,10 @@ import os, sys
 import datetime
 import yaml
 
-from parse_infotext import parse_infotext
-from ..shared.inc.helpers.log_helpers import log_message
-from ..shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_fplan_trip_id, normalize_agency_id
-from ..shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
+from .parse_infotext import parse_infotext
+from .shared.inc.helpers.log_helpers import log_message
+from .shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_fplan_trip_id, normalize_agency_id
+from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 
 def import_db_fplan(app_config, hrdf_path, db_path):
     log_message("IMPORT FPLAN")

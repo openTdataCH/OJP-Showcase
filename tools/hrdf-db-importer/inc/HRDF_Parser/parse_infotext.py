@@ -1,7 +1,7 @@
 import os, sys
 
-from ..shared.inc.helpers.log_helpers import log_message
-from ..shared.inc.helpers.hrdf_helpers import compute_file_rows_no
+from .shared.inc.helpers.log_helpers import log_message
+from .shared.inc.helpers.hrdf_helpers import compute_file_rows_no
 
 def parse_infotext(hrdf_path):
     log_message(f"... PARSE INFOTEXT")
