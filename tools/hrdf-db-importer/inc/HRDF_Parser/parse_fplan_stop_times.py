@@ -1,6 +1,5 @@
 import datetime
 import json
-import sqlite3
 import sys
 import yaml
 
@@ -11,6 +10,7 @@ from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
 from ..shared.inc.helpers.hrdf_helpers import extract_hrdf_content
 from ..shared.inc.helpers.bundle_helpers import load_resource_from_bundle
 from ..shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
+from .shared.inc.helpers.db_helpers import connect_db
 
 def import_db_stop_times(app_config, db_path):
     log_message(f"CREATE fplan_stop_times")
@@ -30,9 +30,8 @@ class HRDF_FPLAN_Stops_Parser:
 
         self.app_config = app_config
         self.db_path = db_path
-        self.db_handle = sqlite3.connect(db_path)
-        self.db_handle.row_factory = sqlite3.Row
-        
+        self.db_handle = connect_db(db_path)
+
         schema_config_path = app_config['other_configs']['schema_config_path']
         self.db_schema_config = yaml.safe_load(open(schema_config_path, encoding='utf-8'))
 

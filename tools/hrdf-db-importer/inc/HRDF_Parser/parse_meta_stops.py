@@ -1,12 +1,12 @@
 import datetime
 import json
 import re
-import sqlite3
 import sys
 
 from ..shared.inc.helpers.log_helpers import log_message
 from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records, table_select_rows
 from ..shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_agency_id, normalize_fplan_trip_id
+from .shared.inc.helpers.db_helpers import connect_db
 
 def import_meta_stops(app_config, hrdf_path, db_path, db_schema_config):
     log_message(f"IMPORT METABHF")
@@ -164,7 +164,7 @@ def _parse_hrdf_umsteig_lines(hrdf_path):
     return stop_transfer_lines_rows
 
 def _parse_hrdf_umsteig_trips(hrdf_path, db_path, default_service_id):
-    db_handle = sqlite3.connect(db_path)
+    db_handle = connect_db(db_path)
 
     row_line_idx = 1
     hrdf_file_path = f"{hrdf_path}/UMSTEIGZ"

@@ -1,11 +1,11 @@
 import datetime
 import json
-import sqlite3
 import sys
 
 from ..shared.inc.helpers.db_helpers import log_message
 from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
 from ..shared.inc.helpers.hrdf_helpers import *
+from .shared.inc.helpers.db_helpers import truncate_and_load_table_records, connect_db
 
 def import_db_stops(hrdf_path, db_path, db_schema_config):
     log_message(f"IMPORT BFKOORD_WGS")
@@ -15,7 +15,7 @@ def import_db_stops(hrdf_path, db_path, db_schema_config):
     truncate_and_load_table_records(db_path, 'stops', db_schema_config['tables']['stops'], stop_row_items)
 
 def _fetch_stops_from_fplan(db_path):
-    db_handle = sqlite3.connect(db_path)
+    db_handle = connect_db(db_path)
 
     fplan_stop_ids = []
 

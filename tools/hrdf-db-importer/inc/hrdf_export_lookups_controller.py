@@ -1,10 +1,9 @@
 import os, sys
-import sqlite3
 from datetime import datetime
 
 from pathlib import Path
 
-from .shared.inc.helpers.db_helpers import table_select_rows
+from .shared.inc.helpers.db_helpers import table_select_rows, connect_db
 from .shared.inc.helpers.log_helpers import log_message
 from .shared.inc.helpers.json_helpers import export_json_to_file
 from .shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_db_path, compute_calendar_info
@@ -13,8 +12,8 @@ from .shared.inc.models.gtfs_static.calendar import Calendar as GTFS_Calendar
 class HRDF_Export_Lookups_Controller:
     def __init__(self, app_config, hrdf_db_path: Path):
         self.hrdf_db_path = hrdf_db_path
-        self.hrdf_db = sqlite3.connect(str(hrdf_db_path))
-        self.hrdf_db.row_factory = sqlite3.Row
+
+        self.hrdf_db = connect_db(hrdf_db_path)
 
         hrdf_db_filename = hrdf_db_path.name
         hrdf_day = compute_formatted_date_from_hrdf_db_path(hrdf_db_filename)

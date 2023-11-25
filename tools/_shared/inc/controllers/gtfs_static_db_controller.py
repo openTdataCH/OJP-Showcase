@@ -1,15 +1,12 @@
 import os, sys
-import sqlite3
 from datetime import datetime, timedelta, date
+from ..helpers.db_helpers import connect_db
 from pathlib import Path
 
 class GTFS_Static_DB_Controller:
 
     def __init__(self, gtfs_db_path: Path):
-        db = sqlite3.connect(str(gtfs_db_path))
-        db.row_factory = sqlite3.Row
-
-        self.db = db
+        self.db = connect_db(gtfs_db_path)
 
         (from_date, to_date) = self._fetch_calendar_dates()
         self.from_date = from_date

@@ -1,8 +1,8 @@
-import sqlite3
 
 from ..shared.inc.helpers.log_helpers import log_message
 from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
 from ..shared.inc.helpers.hrdf_helpers import normalize_agency_id, parse_kennung_to_dict
+from .shared.inc.helpers.db_helpers import connect_db
 
 def import_db_betrieb(hrdf_path, db_path, db_schema_config):
     log_message(f"IMPORT BETRIEB")
@@ -12,7 +12,7 @@ def import_db_betrieb(hrdf_path, db_path, db_schema_config):
     truncate_and_load_table_records(db_path, 'agency', db_schema_config['tables']['agency'], agency_row_items)
 
 def fetch_agency_from_fplan(db_path):
-    db_handle = sqlite3.connect(db_path)
+    db_handle = connect_db(db_path)
 
     fplan_agency_ids = []
 
