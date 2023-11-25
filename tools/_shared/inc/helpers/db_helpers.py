@@ -1,5 +1,7 @@
-import sqlite3
+import os
 import sys
+
+import sqlite3
 
 from typing import List
 
