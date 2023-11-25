@@ -1,10 +1,11 @@
-import os, sys
-from datetime import datetime, timedelta, date
+import os
+import sys
+
 from ..helpers.db_helpers import connect_db
+from datetime import datetime
 from pathlib import Path
 
 class GTFS_Static_DB_Controller:
-
     def __init__(self, gtfs_db_path: Path):
         self.db = connect_db(gtfs_db_path)
 
