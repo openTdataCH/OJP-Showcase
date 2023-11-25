@@ -70,7 +70,7 @@ class HRDF_FPLAN_Stops_Parser:
         return map_gleis
 
     def parse_fplan_stops(self, map_gleis):
-        log_message(f"TRUNCATE fplan_stop_times, create fplan_stop_times.csv ...")
+        log_message("TRUNCATE fplan_stop_times, create fplan_stop_times.csv ...")
         table_config = self.db_schema_config['tables']['fplan_stop_times']
         db_table_writer = DB_Table_CSV_Importer(self.db_path, 'fplan_stop_times', table_config)
         db_table_writer.truncate_table()
@@ -79,7 +79,7 @@ class HRDF_FPLAN_Stops_Parser:
         db_table_writer_csv_path = f'/tmp/fplan_stop_times.csv'
         db_table_writer.create_csv_file(db_table_writer_csv_path)
 
-        log_message(f"QUERY FPLAN_TRIP_BETRIEB ...")
+        log_message("QUERY FPLAN_TRIP_BETRIEB ...")
 
         sql = load_resource_from_bundle(self.app_config['map_sql_queries'], 'fplan_join_trip_bitfeld')
 
@@ -111,7 +111,7 @@ class HRDF_FPLAN_Stops_Parser:
                 if from_idx is None:
                     if from_stop_id == stop_id:
                         from_idx = stop_idx
-                
+
                 if to_stop_id == stop_id:
                     to_idx = stop_idx
 
