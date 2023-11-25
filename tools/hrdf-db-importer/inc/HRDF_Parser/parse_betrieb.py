@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 
 from .shared.inc.helpers.db_helpers import connect_db
 from .shared.inc.helpers.log_helpers import log_message
@@ -44,43 +45,74 @@ def parse_hrdf_betrieb(hrdf_path, fplan_agency_ids):
         with open(betrieb_path, encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
-                
+
                 hrdf_id = line[0:5]
 
                 if not hrdf_id in map_hrdf_id_agency[lang]:
                     map_hrdf_id_agency[lang][hrdf_id] = {}
 
-                kennung_s = line[6:]
+                line_data = line[6:].strip()
 
-                kennung_dict = parse_kennung_to_dict(kennung_s)
-                for key in kennung_dict:
-                    map_hrdf_id_agency[lang][hrdf_id][key] = kennung_dict[key]
+                is_agency_id_field = line_data[0] == ':'
+                if is_agency_id_field:
+                    # 00166 : 06____
+                    # TODO - we get also multiple agency_ids, handle this at the data source?
+                    # 00167 : 800631 800693 8006C4 8006C5 8006SH
+                    agency_ids = line_data[1:].strip().split(' ')
+                    agency_ids = [normalize_agency_id(x) for x in agency_ids]
+
+                    map_hrdf_id_agency[lang][hrdf_id]['agency_ids'] = agency_ids
+                else:
+                    # 00166 K "DB " L "DB Regio" V "DB Regio AG"
+                    name_matches = re.findall(r'([A-Z])\s"([^"]+?)"', line_data)
+                    if len(name_matches) == 0:
+                        print('ERROR - cant find names for agency')
+                        print(line_data)
+                        sys.exit(1)
+
+                    for name_match in name_matches:
+                        property_key = name_match[0].strip()
+                        map_hrdf_id_agency[lang][hrdf_id][property_key] = name_match[1].strip()
+                # if/else line type
+            # file loop line
+        # file close
+    # lang loop
 
     hrdf_agency_ids_cno = len(list(map_hrdf_id_agency.values())[0])
     log_message(f"... found {hrdf_agency_ids_cno} agency in HRDF")
 
     map_agency_json = {}
-    for lang in map_hrdf_id_agency:
-        for hrdf_id in map_hrdf_id_agency[lang]:
-            kennung_dict = map_hrdf_id_agency[lang][hrdf_id]
-            short_name = kennung_dict['K']
-            long_name = kennung_dict['L']
-            
-            agency_id = normalize_agency_id(kennung_dict[':'])
-            in_fplan = 1
-            if agency_id not in fplan_agency_ids:
-                in_fplan = 0
+    for lang, map_lang_data in map_hrdf_id_agency.items():
+        for hrdf_id, agency_properties in map_lang_data.items():
+            short_name = agency_properties['K']
+            long_name = agency_properties['L']
+            full_name = agency_properties['V']
 
-            if not agency_id in map_agency_json:
-                map_agency_json[agency_id] = {
-                    "agency_id": agency_id,
-                    "short_name": short_name,
-                    "long_name": long_name,
-                    "in_fplan": in_fplan,
-                }
-            
-            lang_key = f"full_name_{lang}".lower()
-            map_agency_json[agency_id][lang_key] = kennung_dict['V']
+            first_agency_id = agency_properties['agency_ids'][0]
+            for idx, agency_id in enumerate(agency_properties['agency_ids']):
+                is_first = idx == 0
+                is_main = 1 if is_first else 0
+                parent_agency_id = None if is_first else first_agency_id
+
+                in_fplan = 1
+                if agency_id not in fplan_agency_ids:
+                    in_fplan = 0
+
+                if not agency_id in map_agency_json:
+                    map_agency_json[agency_id] = {
+                        "agency_id": agency_id,
+                        "short_name": short_name,
+                        "long_name": long_name,
+                        "in_fplan": in_fplan,
+                        "is_main": is_main,
+                        "parent_agency_id": parent_agency_id,
+                    }
+
+                lang_key = f"full_name_{lang}".lower()
+                map_agency_json[agency_id][lang_key] = full_name
+            # loop agency_id
+        # loop per language
+    # loop languages
 
     agency_row_items = list(map_agency_json.values())
 
