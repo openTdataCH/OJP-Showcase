@@ -76,7 +76,9 @@ class HRDF_FPLAN_Stops_Parser:
         db_table_writer.truncate_table()
         print('')
 
-        db_table_writer_csv_path = f'/tmp/fplan_stop_times.csv'
+        csv_write_base_path = f'/tmp/{self.db_path.name}'
+
+        db_table_writer_csv_path = f'{csv_write_base_path}-fplan_stop_times.csv'
         db_table_writer.create_csv_file(db_table_writer_csv_path)
 
         log_message("QUERY FPLAN_TRIP_BETRIEB ...")
