@@ -1,7 +1,8 @@
+import os
+import sys
 import argparse
-import os, sys
 
-from inc.shared.inc.helpers.db_helpers import compute_db_tables_report
+from inc.HRDF_Parser.shared.inc.helpers.db_helpers import compute_db_tables_report
 
 parser = argparse.ArgumentParser(description = 'Generate DB report')
 parser.add_argument('--hrdf-db-path', '--hrdf-db-path')

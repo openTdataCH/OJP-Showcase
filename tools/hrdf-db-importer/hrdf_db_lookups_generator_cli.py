@@ -1,8 +1,10 @@
-import argparse, os, sys
-from pathlib import Path
-from datetime import datetime
+import os
+import sys
+import argparse
 
-from inc.shared.inc.helpers.config_helpers import load_convenience_config
+from pathlib import Path
+
+from inc.HRDF_Parser.shared.inc.helpers.config_helpers import load_convenience_config
 from inc.hrdf_export_lookups_controller import HRDF_Export_Lookups_Controller
 
 def main():
@@ -16,7 +18,7 @@ def main():
     args = parser.parse_args()
 
     if not args.hrdf_db_path:
-        print(f'Missing HRDF DB path')
+        print('Missing HRDF DB path')
         print(usage_help_s)
         sys.exit(1)
 

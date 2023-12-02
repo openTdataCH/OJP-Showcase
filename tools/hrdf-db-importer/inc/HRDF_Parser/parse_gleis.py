@@ -2,14 +2,15 @@ import os, sys
 import datetime
 import json
 
-from ..shared.inc.helpers.log_helpers import log_message
-from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
-from ..shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_fplan_trip_id, normalize_agency_id, parse_kennung_to_dict
-from ..shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
-from ..shared.inc.helpers.csv_updater import CSV_Updater
+import re
+
+from .shared.inc.helpers.log_helpers import log_message
+from .shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_content, normalize_fplan_trip_id, normalize_agency_id
+from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
+from .shared.inc.helpers.csv_updater import CSV_Updater
 
 def import_db_gleis(app_config, hrdf_path, db_path, db_schema_config):
-    log_message(f"IMPORT GLEIS")
+    log_message("IMPORT GLEIS")
 
     default_service_id = app_config['hrdf_default_service_id']
 
@@ -18,12 +19,14 @@ def import_db_gleis(app_config, hrdf_path, db_path, db_schema_config):
 def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
     log_message('START CREATE GLEIS CSV files...')
 
+    csv_write_base_path = f'/tmp/{db_path.name}'
+
     gleis_classification_table_config = db_schema_config['tables']['gleis_classification']
-    gleis_classification_csv_path = f'/tmp/gleis_classification.csv'
+    gleis_classification_csv_path = f'{csv_write_base_path}-gleis_classification.csv'
     gleis_classification_csv_writer = CSV_Updater.init_with_table_config(gleis_classification_csv_path, gleis_classification_table_config)
 
     gleis_table_config = db_schema_config['tables']['gleis']
-    gleis_table_csv_path = f'/tmp/gleis.csv'
+    gleis_table_csv_path = f'{csv_write_base_path}-gleis.csv'
     gleis_table_csv_writer = CSV_Updater.init_with_table_config(gleis_table_csv_path, gleis_table_config)
 
     row_line_idx = 0
@@ -44,7 +47,7 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
             agency_id = normalize_agency_id(extract_hrdf_content(row_line, 16, 21))
             gleis_info_id = extract_hrdf_content(row_line, 23, 30)
             gleis_time = extract_hrdf_content(row_line, 32, 35)
-            
+
             service_id = extract_hrdf_content(row_line, 37, 42)
             if not service_id:
                 service_id = default_service_id
@@ -69,7 +72,18 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
             gleis_info_id = extract_hrdf_content(row_line, 9, 16)
             track_definition_s = extract_hrdf_content(row_line, 18, 1000)
 
-            track_definition_dict = parse_kennung_to_dict(track_definition_s)
+            #           : G '1' A 'A'       => { 'G' => '1', 'A' => 'A' }
+            track_definition_matches = re.findall(r"([:A-Z])\s'([^']*)'", track_definition_s)
+            if len(track_definition_matches) == 0:
+                print('ERROR - no matches for GLEIS definition found')
+                print(f'line #{row_line_idx}:  {track_definition_s}')
+                sys.exit(1)
+
+            track_definition_dict = {}
+            for track_definition_match in track_definition_matches:
+                def_key = track_definition_match[0].strip()
+                def_val = track_definition_match[1].strip()
+                track_definition_dict[def_key] = def_val
 
             gleis_stop_info_json = {
                 "gleis_id": f"{stop_id}.{gleis_info_id}",
@@ -86,7 +100,7 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
             if "T" in track_definition_dict:
                 gleis_stop_info_json["delimiter"] = track_definition_dict["T"]
                 track_full_text_parts.append(track_definition_dict["T"])
-            
+
             if "A" in track_definition_dict:
                 gleis_stop_info_json["sector_no"] = track_definition_dict["A"]
                 track_full_text_parts.append(track_definition_dict["A"])

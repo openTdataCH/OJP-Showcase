@@ -1,10 +1,12 @@
-import os, sys
+import os
+import sys
 import argparse
+
 from pathlib import Path
 
 from inc.db_importer import HRDF_DB_Importer
-from inc.shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_folder_path, compute_hrdf_db_filename
-from inc.shared.inc.helpers.config_helpers import load_convenience_config
+from inc.HRDF_Parser.shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_folder_path, compute_hrdf_db_filename
+from inc.HRDF_Parser.shared.inc.helpers.config_helpers import load_convenience_config
 
 def main():
     script_path = Path(os.path.realpath(__file__))
@@ -24,7 +26,7 @@ def main():
     hrdf_path = Path(os.path.abspath(hrdf_folder_path))
 
     if not os.path.isdir(hrdf_path):
-        print(f'ERROR --hrdf-folder-path is not a valid folder path')
+        print('ERROR --hrdf-folder-path is not a valid folder path')
         print(f': {hrdf_path}')
         sys.exit(1)
 

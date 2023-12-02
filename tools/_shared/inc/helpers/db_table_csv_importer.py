@@ -5,12 +5,12 @@ import csv
 
 from .log_helpers import log_message
 from .file_helpers import compute_file_rows_no
-from .db_helpers import drop_and_recreate_table, fetch_column_names, add_table_indexes
+from .db_helpers import drop_and_recreate_table, fetch_column_names, add_table_indexes, connect_db
 
 class DB_Table_CSV_Importer:
     def __init__(self, db_path: Path, table_name: str, table_config: any):
         self.db_path = db_path
-        self.db_handle = sqlite3.connect(db_path)
+        self.db_handle = connect_db(db_path, is_read_only=False)
         
         self.db_handle.execute('PRAGMA synchronous = OFF')
         self.db_handle.execute('PRAGMA journal_mode = OFF')

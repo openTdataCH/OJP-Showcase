@@ -1,10 +1,11 @@
-import os, sys
+import os
+import sys
 
-from ..shared.inc.helpers.log_helpers import log_message
-from ..shared.inc.helpers.hrdf_helpers import compute_file_rows_no
+from .shared.inc.helpers.log_helpers import log_message
+from .shared.inc.helpers.hrdf_helpers import compute_file_rows_no
 
 def parse_infotext(hrdf_path):
-    log_message(f"... PARSE INFOTEXT")
+    log_message("... PARSE INFOTEXT")
 
     hrdf_file_path = f"{hrdf_path}/INFOTEXT_DE"
     hrdf_file_rows_no = compute_file_rows_no(hrdf_file_path)
@@ -25,6 +26,6 @@ def parse_infotext(hrdf_path):
         map_values[infotext_id] = infotext_value
     # loop hrdf_file lines
 
-    print('... PARSE_INFOTEXT - DONE')
+    log_message('... PARSE_INFOTEXT - DONE')
 
     return map_values

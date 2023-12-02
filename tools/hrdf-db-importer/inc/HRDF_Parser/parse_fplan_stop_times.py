@@ -1,16 +1,17 @@
+import os
+import sys
+
 import datetime
 import json
-import sqlite3
-import sys
-import yaml
 
 from pathlib import Path
 
-from ..shared.inc.helpers.log_helpers import log_message
-from ..shared.inc.helpers.db_helpers import truncate_and_load_table_records
-from ..shared.inc.helpers.hrdf_helpers import extract_hrdf_content
-from ..shared.inc.helpers.bundle_helpers import load_resource_from_bundle
-from ..shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
+from .shared.inc.helpers.log_helpers import log_message
+from .shared.inc.helpers.db_helpers import connect_db
+from .shared.inc.helpers.config_helpers import load_yaml_config
+from .shared.inc.helpers.hrdf_helpers import extract_hrdf_content
+from .shared.inc.helpers.bundle_helpers import load_resource_from_bundle
+from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 
 def import_db_stop_times(app_config, db_path):
     log_message(f"CREATE fplan_stop_times")
@@ -30,11 +31,10 @@ class HRDF_FPLAN_Stops_Parser:
 
         self.app_config = app_config
         self.db_path = db_path
-        self.db_handle = sqlite3.connect(db_path)
-        self.db_handle.row_factory = sqlite3.Row
-        
+        self.db_handle = connect_db(db_path)
+
         schema_config_path = app_config['other_configs']['schema_config_path']
-        self.db_schema_config = yaml.safe_load(open(schema_config_path, encoding='utf-8'))
+        self.db_schema_config = load_yaml_config(schema_config_path)
 
     def fetch_map_gleis(self):
         log_message(f"QUERY GLEIS ...")
@@ -70,16 +70,18 @@ class HRDF_FPLAN_Stops_Parser:
         return map_gleis
 
     def parse_fplan_stops(self, map_gleis):
-        log_message(f"TRUNCATE fplan_stop_times, create fplan_stop_times.csv ...")
+        log_message("TRUNCATE fplan_stop_times, create fplan_stop_times.csv ...")
         table_config = self.db_schema_config['tables']['fplan_stop_times']
         db_table_writer = DB_Table_CSV_Importer(self.db_path, 'fplan_stop_times', table_config)
         db_table_writer.truncate_table()
         print('')
 
-        db_table_writer_csv_path = f'/tmp/fplan_stop_times.csv'
+        csv_write_base_path = f'/tmp/{self.db_path.name}'
+
+        db_table_writer_csv_path = f'{csv_write_base_path}-fplan_stop_times.csv'
         db_table_writer.create_csv_file(db_table_writer_csv_path)
 
-        log_message(f"QUERY FPLAN_TRIP_BETRIEB ...")
+        log_message("QUERY FPLAN_TRIP_BETRIEB ...")
 
         sql = load_resource_from_bundle(self.app_config['map_sql_queries'], 'fplan_join_trip_bitfeld')
 
@@ -111,7 +113,7 @@ class HRDF_FPLAN_Stops_Parser:
                 if from_idx is None:
                     if from_stop_id == stop_id:
                         from_idx = stop_idx
-                
+
                 if to_stop_id == stop_id:
                     to_idx = stop_idx
 

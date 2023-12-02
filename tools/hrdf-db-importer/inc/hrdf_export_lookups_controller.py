@@ -1,20 +1,18 @@
-import os, sys
-import sqlite3
-from datetime import datetime
+import os
+import sys
 
 from pathlib import Path
 
-from .shared.inc.helpers.db_helpers import table_select_rows
-from .shared.inc.helpers.log_helpers import log_message
-from .shared.inc.helpers.json_helpers import export_json_to_file
-from .shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_db_path, compute_calendar_info
-from .shared.inc.models.gtfs_static.calendar import Calendar as GTFS_Calendar
+from .HRDF_Parser.shared.inc.helpers.db_helpers import table_select_rows, connect_db
+from .HRDF_Parser.shared.inc.helpers.log_helpers import log_message
+from .HRDF_Parser.shared.inc.helpers.json_helpers import export_json_to_file
+from .HRDF_Parser.shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_db_path, compute_calendar_info
 
 class HRDF_Export_Lookups_Controller:
     def __init__(self, app_config, hrdf_db_path: Path):
         self.hrdf_db_path = hrdf_db_path
-        self.hrdf_db = sqlite3.connect(str(hrdf_db_path))
-        self.hrdf_db.row_factory = sqlite3.Row
+
+        self.hrdf_db = connect_db(hrdf_db_path)
 
         hrdf_db_filename = hrdf_db_path.name
         hrdf_day = compute_formatted_date_from_hrdf_db_path(hrdf_db_filename)
@@ -28,12 +26,12 @@ class HRDF_Export_Lookups_Controller:
         self.map_table_keys = app_config['hrdf_db_lookups']['map_table_pks']
 
     def export(self):
-        print(f'=================================')
-        print(f'HRDF export lookups')
-        print(f'=================================')
+        print('=================================')
+        print('HRDF export lookups')
+        print('=================================')
         print(f'HRDF DB PATH: {self.hrdf_db_path}')
         print(f'EXPORT JSON PATH: {self.hrdf_db_lookups_json_path}')
-        print(f'=================================')
+        print('=================================')
         print('')
 
         log_message('START')

@@ -1,12 +1,14 @@
-import sqlite3
+import os
 import sys
+
+import sqlite3
 
 from typing import List
 
 from .log_helpers import log_message
 
 def truncate_and_load_table_records(db_path, table_name, table_config, row_items, log_lines_no = 100000):
-    db_handle = sqlite3.connect(db_path)
+    db_handle = connect_db(db_path, is_read_only=False)
 
     drop_and_recreate_table(db_handle, table_name, table_config)
 
@@ -38,6 +40,16 @@ def truncate_and_load_table_records(db_path, table_name, table_config, row_items
 
     add_table_indexes(db_handle, table_name, table_config)
     db_handle.close()
+
+def connect_db(db_path, is_read_only = True):
+    conn_ds = f'file:{db_path}'
+    if is_read_only:
+        conn_ds = f'{conn_ds}?mode=ro'
+
+    db_handle = sqlite3.connect(conn_ds, uri=True)
+    db_handle.row_factory = sqlite3.Row
+
+    return db_handle
 
 def fetch_column_names(db_handle, table_name):
     sql = f"PRAGMA table_info({table_name})"
@@ -131,7 +143,7 @@ def compute_db_tables_report(db_handle: any = None, db_path: any = None):
         sys.exit(1)
     
     if db_path:
-        db_handle = sqlite3.connect(db_path)
+        db_handle = connect_db(db_path)
 
     report_line_separator = "=" * 42
 
@@ -157,7 +169,7 @@ def compute_db_tables_report(db_handle: any = None, db_path: any = None):
 
 def fetch_db_table_names(db_handle: any = None, db_path: any = None):
     if db_handle is None:
-        db_handle = sqlite3.connect(db_path)
+        db_handle = connect_db(db_path)
 
     table_names = []
 

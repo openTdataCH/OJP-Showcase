@@ -2,13 +2,27 @@ other_configs:
   schema_config_path: [APP_PATH]/inc/hrdf_schema.yml
 
 map_sql_queries:
-  fplan_join_trip_bitfeld: [APP_PATH]/inc/shared/inc/sql/hrdf/fplan_join_trip_bitfeld.sql
-  gleis_aggregated: [APP_PATH]/inc/shared/inc/sql/hrdf/gleis_aggregate.sql
+  fplan_join_trip_bitfeld: [APP_PATH]/inc/HRDF_Parser/shared/inc/sql/hrdf/fplan_join_trip_bitfeld.sql
+  gleis_aggregated: [APP_PATH]/inc/HRDF_Parser/shared/inc/sql/hrdf/gleis_aggregate.sql
 
 hrdf_default_service_id: "000017" # All days
 
 hrdf_dbs_base_path: [APP_PATH]/data/hrdf-dbs
 hrdf_db_schema_path: "[APP_PATH]/inc/hrdf_schema.yml"
+
+# See 7.5.1 in HRDF realisation guide
+# File with line definitions LINIE Line property
+map_hrdf_line_properties:
+  K   : Line code
+  W   : Internal line designation
+  N T : Short line name
+  L T : Long line name
+  R T : Region name of line (reserved for FOT ID)
+  D T : Description of line
+  F   : Line colour
+  B   : Line background colour
+  H   : Main line
+  I   : Line info texts
 
 hrdf_db_lookups:
   base_path: [APP_PATH]/data/hrdf-db-lookups

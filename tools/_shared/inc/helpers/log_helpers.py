@@ -1,5 +1,8 @@
-import os, psutil
+import os
+import sys
+
 from datetime import datetime
+import psutil
 
 def log_message(message: str):
     memory_debug = False
@@ -7,7 +10,7 @@ def log_message(message: str):
     # 5.Oct.2021 - temporarely
     memory_debug = True
 
-    datetime_s = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
+    datetime_s = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
     message = f"[{datetime_s}] - {message}"
     
     if memory_debug:

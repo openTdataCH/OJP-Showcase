@@ -1,4 +1,6 @@
-import os, sys
+import os
+import sys
+
 from pathlib import Path
 import re
 from datetime import datetime
@@ -12,37 +14,6 @@ def extract_hrdf_content(hrdf_line: str, from_idx: int, to_idx: int, default_val
         hrdf_content = default_value
     return hrdf_content
 
-def parse_kennung_to_dict(kennung_s: str):
-    kennung_dict = {}
-
-    # Match ==A "CONTENT"== blocks
-    kennung_matches = re.findall("([:A-Z])\s\"([^\"]+?)\"", kennung_s)
-    for kennung_match in kennung_matches:
-        key = kennung_match[0]
-        value = kennung_match[1]
-        kennung_dict[key] = value
-        
-        kennung_s = kennung_s.replace(f"{key} \"{value}\"", "")
-
-    # Match ==A 'CONTENT'== blocks
-    kennung_matches = re.findall("([:A-Z])\s'([^']+?)'", kennung_s)
-    for kennung_match in kennung_matches:
-        key = kennung_match[0]
-        value = kennung_match[1]
-        kennung_dict[key] = value
-        
-        kennung_s = kennung_s.replace(f"{key} '{value}'", "")
-    
-    # Match remainings as 'A CONTENT' blocks
-    kennung_s = kennung_s.strip()
-    kennung_matches = re.findall("([:A-Z])\s([^\s]*)", kennung_s)
-    for kennung_match in kennung_matches:
-        key = kennung_match[0]
-        value = kennung_match[1]
-        kennung_dict[key] = value
-
-    return kennung_dict
-
 def normalize_agency_id(hrdf_s: str):
     hrdf_s = hrdf_s.lstrip("0")
     return hrdf_s
@@ -53,8 +24,11 @@ def normalize_fplan_trip_id(hrdf_s: str):
 
 def compute_file_rows_no(file_path: str):
     # https://stackoverflow.com/questions/845058/how-to-get-line-count-of-a-large-file-cheaply-in-python
-    rows_no = sum(1 for line in open(file_path))
-    return rows_no
+    with open(file_path, encoding='utf-8') as file_handler:
+        rows_no = sum(1 for line in file_handler)
+        return rows_no
+
+    return 0
 
 def compute_formatted_date_from_hrdf_folder_path(folder_path: Path):
     if isinstance(folder_path, str):
@@ -62,6 +36,7 @@ def compute_formatted_date_from_hrdf_folder_path(folder_path: Path):
 
     # oev_sammlung_ch_hrdf_5_40_41_2021_20201220_033904
     opentransport_matches = re.match("^.+?_([0-9]{4})_([0-9]{4})([0-9]{2})([0-9]{2})_.*$", f'{folder_path}')
+
     if opentransport_matches:
         matched_year = opentransport_matches[2]
         matched_month = opentransport_matches[3]

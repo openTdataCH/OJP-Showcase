@@ -12,8 +12,12 @@ tables:
             - full_name_fr TEXT
             - full_name_it TEXT
             - in_fplan INTEGER
+            - is_main INTEGER               # Sometimes we have several agency_id on the same HRDF row, keep the first one as main
+            - parent_agency_id TEXT         # reference to the parent agency_id - if any
         indexes:
             - in_fplan
+            - is_main
+            - parent_agency_id
 
     # Renamed HRDF BITFELD table to conform to GTFS
     calendar:
@@ -30,19 +34,21 @@ tables:
             - agency_id TEXT
             - vehicle_type TEXT                 # Verkehrsmittel *G
             - service_line TEXT                 # Linieninformation *L
+            - service_line_id TEXT              # FK to LINE
             - fplan_trip_id TEXT
             - service_ids_cno INTEGER
             - frequency_cno INTEGER             # Taktanzahl
             - frequency_interval INTEGER        # Taktzeit in Minuten
             - fplan_content TEXT
-            - infotext_id TEXT
+            - swiss_journey_id TEXT             # *I JY value
         indexes:
             - agency_id
             - fplan_trip_id
             - service_ids_cno
             - frequency_cno
             - frequency_interval
-            - infotext_id
+            - swiss_journey_id
+            - service_line_id                   
 
     # FPLAN table expanded for each service_id (calendar entry)
     fplan_trip_bitfeld:
@@ -106,6 +112,14 @@ tables:
         indexes:
             - stop_id
 
+    service_line:
+        columns:
+            - service_line_id TEXT PRIMARY KEY
+            - line_code TEXT
+            - short_line_name TEXT
+            - color TEXT
+            - bg_color TEXT
+        
     # Similar with stops.txt
     stops:
         columns:
