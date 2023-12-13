@@ -391,8 +391,7 @@ class GTFS_DB_Importer:
         log_message(f"... DONE INSERT new trips ...")
         print('')
 
-        for time_type in map_stop_times_reset_table:
-            stop_times_updater = map_stop_times_reset_table[time_type]
+        for time_type, stop_times_updater in map_stop_times_reset_table.items():
             template_sql_path = self.map_sql_queries['update_stop_times_reset']
             template_sql = load_sql_from_file(template_sql_path)
             template_sql = template_sql.replace('[COLUMN_TO_RESET]', time_type)
