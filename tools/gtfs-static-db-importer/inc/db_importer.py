@@ -12,7 +12,7 @@ from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 from .shared.inc.helpers.db_table_csv_updater import DB_Table_CSV_Updater
 from .shared.inc.helpers.gtfs_helpers import convert_datetime_to_day_minutes, massage_datetime_to_hhmm
 from .shared.inc.helpers.log_helpers import log_message
-from .shared.inc.helpers.db_helpers import fetch_column_names, count_rows_table, load_sql_from_file
+from .shared.inc.helpers.db_helpers import fetch_column_names, count_rows_table, load_sql_from_file, connect_db
 
 class GTFS_DB_Importer:
     def __init__(self, app_config, gtfs_folder_path, db_path: Path):
@@ -20,6 +20,7 @@ class GTFS_DB_Importer:
 
         self.gtfs_folder_path = gtfs_folder_path
         self.db_path = db_path
+        self.db_handle = connect_db(db_path, is_read_only=False)
         self.db_schema_config = self._load_schema_config()
 
         self.db_tmp_path = f'{db_path.parent}/{db_path.name}-tmp'
@@ -34,6 +35,8 @@ class GTFS_DB_Importer:
         self._update_calendar()
         self._update_trips()
         self._cleanup()
+
+        self.db_handle.close()
 
         log_message("DONE GTFS IMPORT")
 
@@ -92,10 +95,7 @@ class GTFS_DB_Importer:
     def _update_calendar(self):
         log_message('START update calendar')
         
-        db_handle = sqlite3.connect(self.db_path)
-        db_handle.row_factory = sqlite3.Row
-
-        rows_no = count_rows_table(db_handle, 'calendar')
+        rows_no = count_rows_table(self.db_handle, 'calendar')
         log_message(f'... found {rows_no} rows in calendar')
 
         if rows_no == 0:
@@ -105,9 +105,9 @@ class GTFS_DB_Importer:
         table_csv_updater = DB_Table_CSV_Updater(table_csv_path, ['service_id', 'day_bits', 'start_date', 'end_date'])
 
         sql = 'SELECT MIN(start_date) AS min_date FROM calendar'
-        min_date_s = db_handle.cursor().execute(sql).fetchone()[0]
+        min_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
         sql = 'SELECT MAX(end_date) AS min_date FROM calendar'
-        max_date_s = db_handle.cursor().execute(sql).fetchone()[0]
+        max_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
         calendar_start_date = datetime.datetime.strptime(min_date_s, "%Y%m%d")
         calendar_end_date = datetime.datetime.strptime(max_date_s, "%Y%m%d")
 
@@ -142,15 +142,15 @@ class GTFS_DB_Importer:
 
         log_message(f"... running calendar SQL")
 
-        db_handle.execute("UPDATE calendar SET day_bits = ''")
-        db_handle.commit()
+        self.db_handle.execute("UPDATE calendar SET day_bits = ''")
+        self.db_handle.commit()
 
         sql_path = self.map_sql_queries['select_calendar_dates_group_by']
         sql = load_sql_from_file(sql_path)
 
         calendar_days = list(calendar.day_name)
 
-        db_cursor = db_handle.cursor()
+        db_cursor = self.db_handle.cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 10000 == 0:
@@ -173,9 +173,7 @@ class GTFS_DB_Importer:
         db_cursor.close()
         
         sql_template = 'UPDATE calendar SET day_bits = :day_bits, start_date = :start_date, end_date = :end_date  WHERE service_id = :service_id'
-        table_csv_updater.update_table(db_handle, sql_template, rows_report_no=10000)
-
-        db_handle.close()
+        table_csv_updater.update_table(self.db_handle, sql_template, rows_report_no=10000)
 
         log_message('DONE update calendar')
         print('')
@@ -262,19 +260,16 @@ class GTFS_DB_Importer:
     def _update_trips(self):
         log_message('START update trips/stop_times')
         
-        db_handle = sqlite3.connect(self.db_path)
-        db_handle.row_factory = sqlite3.Row
-
-        trips_column_names = fetch_column_names(db_handle, 'trips')
+        trips_column_names = fetch_column_names(self.db_handle, 'trips')
         new_trips_table_csv_file_path = Path(f'{self.db_tmp_path}/new_trips.csv')
         new_trips_table_csv_file = open(new_trips_table_csv_file_path, 'w', encoding='utf-8')
         new_trips_table_csv = csv.DictWriter(new_trips_table_csv_file, trips_column_names)
         new_trips_table_csv.writeheader()
 
-        rows_no = count_rows_table(db_handle, 'trips')
+        rows_no = count_rows_table(self.db_handle, 'trips')
         log_message(f'... found {rows_no} rows')
         
-        db_cursor = db_handle.cursor()
+        db_cursor = self.db_handle.cursor()
 
         map_stop_times_reset_table = {}
         for time_type in ['arrival_time', 'departure_time']:
@@ -287,7 +282,7 @@ class GTFS_DB_Importer:
 
         log_message(f"... running select_stop_times_group_by SQL")
 
-        db_cursor = db_handle.cursor()
+        db_cursor = self.db_handle.cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 200000 == 0:
@@ -399,35 +394,30 @@ class GTFS_DB_Importer:
             template_sql_path = self.map_sql_queries['update_stop_times_reset']
             template_sql = load_sql_from_file(template_sql_path)
             template_sql = template_sql.replace('[COLUMN_TO_RESET]', time_type)
-            stop_times_updater.update_table(db_handle, template_sql, rows_report_no=200000)
+            stop_times_updater.update_table(self.db_handle, template_sql, rows_report_no=200000)
 
             log_message(f'DONE update stop_times RESET for {time_type}')
             print('')
 
-        db_handle.close()
-
     def _fill_calendar_from_calendar_dates(self):
         log_message(f'START filling calendar from calendar_dates')
 
-        db_handle = sqlite3.connect(self.db_path)
-        db_handle.row_factory = sqlite3.Row
-
-        calendar_dates_rows_no = count_rows_table(db_handle, 'calendar_dates')
+        calendar_dates_rows_no = count_rows_table(self.db_handle, 'calendar_dates')
         if calendar_dates_rows_no == 0:
             print('ERROR - empty calendar, calendar_dates ?')
             sys.exit()
         log_message(f'... found {calendar_dates_rows_no} rows')
 
         sql = 'SELECT MIN(date) AS min_date FROM calendar_dates'
-        min_date_s = db_handle.cursor().execute(sql).fetchone()[0]
+        min_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
 
         sql = 'SELECT MAX(date) AS min_date FROM calendar_dates'
-        max_date_s = db_handle.cursor().execute(sql).fetchone()[0]
+        max_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
 
         sql = 'SELECT DISTINCT(service_id) AS service_id FROM calendar_dates'
-        db_cursor = db_handle.cursor()
+        db_cursor = self.db_handle.cursor()
 
-        calendar_column_names = fetch_column_names(db_handle, 'calendar')
+        calendar_column_names = fetch_column_names(self.db_handle, 'calendar')
 
         calendar_table_csv_file_path = Path(f'{self.db_tmp_path}/calendar_update_from_calendar_dates.csv')
         calendar_table_csv_file = open(calendar_table_csv_file_path, 'w', encoding='utf-8')
