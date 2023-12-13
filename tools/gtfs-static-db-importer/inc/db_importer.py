@@ -255,7 +255,9 @@ class GTFS_DB_Importer:
                 sys.exit()
 
             day_idx = (row_date-start_date).days
-            day_bits_list[day_idx] = day_bit
+            if day_idx < len(day_bits_list):
+                # this case happens when we have to cap the calendar to +1year
+                day_bits_list[day_idx] = day_bit
 
     def _update_trips(self):
         log_message('START update trips/stop_times')
