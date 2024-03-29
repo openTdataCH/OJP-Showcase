@@ -1,3 +1,5 @@
+import os, sys
+
 import sqlite3
 
 from typing import List, Union
@@ -31,12 +33,13 @@ class Trip:
     @staticmethod
     def init_from_db_row(db_row: sqlite3.Row, map_calendar, map_agency, map_routes, map_stops):
         trip_id = db_row['trip_id']
-        trip_short_name = db_row['trip_short_name']
-        departure_day_minutes = db_row['departure_day_minutes']
-        arrival_day_minutes = db_row['arrival_day_minutes']
-        departure_time = db_row['departure_time']
-        arrival_time = db_row['arrival_time']
-        stop_times_s = db_row['stop_times_s']
+        
+        trip_short_name = Helpers.parse_value(db_row, 'trip_short_name')
+        departure_day_minutes = Helpers.parse_value(db_row, 'departure_day_minutes')
+        arrival_day_minutes = Helpers.parse_value(db_row, 'arrival_day_minutes')
+        departure_time = Helpers.parse_value(db_row, 'departure_time')
+        arrival_time = Helpers.parse_value(db_row, 'arrival_time')
+        stop_times_s = Helpers.parse_value(db_row, 'stop_times_s')
 
         service_id = db_row['service_id']
         service_res = map_calendar[service_id]
