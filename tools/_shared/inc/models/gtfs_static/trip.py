@@ -14,8 +14,16 @@ class Trip:
         self.trip_short_name = trip_short_name
         self.departure_day_minutes = departure_day_minutes
         self.arrival_day_minutes = arrival_day_minutes
-        self.departure_time = departure_time[0:5]
-        self.arrival_time = arrival_time[0:5]
+        
+        if departure_time is not None:
+            self.departure_time = departure_time[0:5]
+        else:
+            self.departure_time = None
+        if arrival_time is not None:
+            self.arrival_time = arrival_time[0:5]
+        else:
+            self.arrival_time = None
+        
         self.stop_times = stop_times
         self.service = service
         self.route = route
