@@ -57,9 +57,9 @@ class Trip:
 
         stop_times = Helpers.parse_DB_row_stop_times(stop_times_s, map_stops)
         
-        entry = Trip(trip_id, trip_short_name, departure_day_minutes, arrival_day_minutes, departure_time, arrival_time, stop_times, gtfs_calendar, gtfs_route)
+        trip = Trip(trip_id, trip_short_name, departure_day_minutes, arrival_day_minutes, departure_time, arrival_time, stop_times, gtfs_calendar, gtfs_route)
 
-        return entry
+        return trip
 
     def pretty_print(self):
         header_separator_s = '-' * 60
