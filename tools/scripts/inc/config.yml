@@ -1,4 +1,8 @@
 data_paths:
+  gtfs-db-lookups: [APP_PATH]/data/gtfs-db-lookups
+  gtfs-rt-snapshot: [APP_PATH]/data/gtfs-rt-snapshot
+  gtfs-rt-static-compare-report: [APP_PATH]/data/gtfs-rt-static-compare-report
+  gtfs-rt-static-compare-tmp: [APP_PATH]/data/gtfs-rt-static-compare-tmp
   gtfs-static: &GTFS_STATIC_DATA_PATH [APP_PATH]/data/opentransportdata.swiss/gtfs-static
   gtfs-static-dbs: &GTFS_STATIC_DBS_PATH [APP_PATH]/data/gtfs-static-dbs
   gtfs-query-db-cache: [APP_PATH]/data/gtfs-query-db-cache
