@@ -55,6 +55,6 @@ def compute_date_from_gtfs_db_filename(db_filename: str):
 
     return gtfs_date
 
-def compute_gtfs_db_filename(hrdf_day: str):
-    db_filename = f'gtfs_{hrdf_day}.sqlite'
+def compute_gtfs_db_filename(gtfs_day: str):
+    db_filename = f'gtfs_{gtfs_day}.sqlite'
     return db_filename
