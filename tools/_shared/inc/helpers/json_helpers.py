@@ -12,7 +12,7 @@ def export_json_to_file(json_obj: any, json_path: Path, pretty_print = False):
 
     json_file = open(json_path, 'w', encoding='utf-8')
     if pretty_print:
-        json_file.write(json.dumps(json_obj, indent=4, ensure_ascii=False))
+        json_file.write(json.dumps(json_obj, indent=2, ensure_ascii=False))
     else:
         json.dump(json_obj, json_file)
     
@@ -27,4 +27,3 @@ def load_json_from_file(json_path: Path):
     json_file.close()
 
     return json_obj
-
