@@ -1,5 +1,8 @@
 # CHANGELOG hrdf-db-importer
 
+18.Jan 2024
+- adapt to the new changes of BFKOORD_WGS file - [PR #41](https://github.com/openTdataCH/OJP-Showcase/pull/41)
+
 25.Nov 2023
 - import `LINIE` service_lines metadata in DB `service_line` table, adjust FPLAN lookups for service lines
 - adds support for multiple agency_id in BETRIEB file, i.e. `00167 : 800631 800693 8006C4 8006C5 8006SH`
