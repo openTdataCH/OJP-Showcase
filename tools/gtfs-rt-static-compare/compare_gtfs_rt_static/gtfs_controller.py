@@ -45,6 +45,8 @@ class GTFS_DB:
         self.map_trips: dict[str, TripDB] = {}
         for trip_id, trip_db_json in gtfs_trips_db.items():
             self.map_trips[trip_id] = TripDB(**trip_db_json)
+            # Dont use Trip because is slower init
+            # self.map_trips[trip_id] = Trip.init_from_db_row(trip_db_json, gtfs_calendar_db, gtfs_agency_db, gtfs_routes_db, gtfs_stops_db)
         
     def _load_gtfs_table(self, table_name: str, map_by_field: str = None):
         res_cache_path = None
@@ -70,7 +72,7 @@ class GTFS_DB:
             export_json_to_file(res_json, res_cache_path, pretty_print=True)
         
         return res_json
-        
+
 class GTFS_Controller:
     def __init__(self, app_path: Path):
         config_path = f'{app_path}/config/config.yml'
