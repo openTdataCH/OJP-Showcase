@@ -41,10 +41,10 @@ def _parse_hrdf_stops(hrdf_path, fplan_stop_ids):
     with open(hrdf_file_path, encoding='utf-8') as hrdf_file:
         for row_line in hrdf_file:
             stop_id = extract_hrdf_content(row_line, 1, 7)
-            stop_name = extract_hrdf_content(row_line, 40, 1000)
-            stop_longitude = float(extract_hrdf_content(row_line, 9, 18))
-            stop_latitude = float(extract_hrdf_content(row_line, 20, 29))
-            stop_altitude = int(extract_hrdf_content(row_line, 31, 36))
+            stop_name = extract_hrdf_content(row_line, 42, 1000)
+            stop_longitude = float(extract_hrdf_content(row_line, 9, 19))
+            stop_latitude = float(extract_hrdf_content(row_line, 21, 31))
+            stop_altitude = int(extract_hrdf_content(row_line, 33, 38))
 
             in_fplan = 1
             if stop_id not in fplan_stop_ids:
