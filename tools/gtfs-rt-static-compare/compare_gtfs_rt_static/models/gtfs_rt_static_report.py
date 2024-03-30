@@ -1,7 +1,7 @@
 import os, sys
 
 from dataclasses import dataclass, asdict
-from typing import List
+from typing import List, Dict
 from datetime import datetime
 
 from .gtfs_rt import Entity
@@ -69,5 +69,15 @@ class GTFS_RT_Static_Report:
     def as_json(self):
         data_json = asdict(self)
         data_json['metadata'] = self.metadata.as_json()
+        
+        return data_json
+    
+@dataclass
+class GTFS_RT_Static_Monthly_Report:
+    comments: str
+    report_days: Dict[str, Dict[str, GTFS_RT_Static_Report_Metadata]]
+    
+    def as_json(self):
+        data_json = asdict(self)
         
         return data_json
