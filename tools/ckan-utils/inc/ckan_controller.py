@@ -20,7 +20,7 @@ class CKAN_Controller:
         log_message(f'  RESOURCE_TITLE  : {resource_title}')
 
         ds_resource = self._fetch_package_resource(package_key, resource_title)
-        ds_filename = ds_resource['name']['en'].lower()
+        ds_filename = ds_resource['title']['en'].lower()
         ds_folder = ds_filename[0:-4]
 
         package_data = self.app_config['map_packages'][package_key]
