@@ -1,3 +1,5 @@
+import os, sys
+
 from .stop import Stop
 from .stop_time import Stop_Time
 
@@ -50,3 +52,13 @@ class Helpers:
             s = s[0:2] + ':' + s[2:4]
 
         return s
+    
+    @staticmethod
+    def parse_value(dict_or_db_row: any, key: str, default_value: any = None):
+        if isinstance(dict_or_db_row, dict):
+            dict_row: dict = dict_or_db_row
+            value = dict_row.get(key, default_value)
+            return value
+        
+        return dict_or_db_row[key]
+        

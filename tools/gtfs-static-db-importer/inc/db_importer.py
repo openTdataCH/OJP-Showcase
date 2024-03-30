@@ -12,8 +12,7 @@ from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 from .shared.inc.helpers.db_table_csv_updater import DB_Table_CSV_Updater
 from .shared.inc.helpers.gtfs_helpers import convert_datetime_to_day_minutes, massage_datetime_to_hhmm
 from .shared.inc.helpers.log_helpers import log_message
-from .shared.inc.helpers.db_helpers import truncate_and_load_table_records, table_select_rows, execute_sql_queries, drop_and_recreate_table, fetch_column_names, add_table_indexes, count_rows_table, load_sql_from_file
-from .shared.inc.helpers.file_helpers import compute_file_rows_no
+from .shared.inc.helpers.db_helpers import fetch_column_names, count_rows_table, load_sql_from_file, connect_db
 
 class GTFS_DB_Importer:
     def __init__(self, app_config, gtfs_folder_path, db_path: Path):
@@ -21,6 +20,7 @@ class GTFS_DB_Importer:
 
         self.gtfs_folder_path = gtfs_folder_path
         self.db_path = db_path
+        self.db_handle = connect_db(db_path, is_read_only=False)
         self.db_schema_config = self._load_schema_config()
 
         self.db_tmp_path = f'{db_path.parent}/{db_path.name}-tmp'
@@ -29,14 +29,14 @@ class GTFS_DB_Importer:
 
     def start(self):
         log_message("START GTFS IMPORT")
-        log_message(f'DB FILENAME: {self.db_path.name}')
+        log_message(f'DB PATH: {self.db_path}')
 
         self._import_csv_tables()
         self._update_calendar()
         self._update_trips()
+        self._cleanup()
 
-        log_message(f'Remove temp folder {self.db_tmp_path}')
-        shutil.rmtree(self.db_tmp_path)
+        self.db_handle.close()
 
         log_message("DONE GTFS IMPORT")
 
@@ -95,60 +95,76 @@ class GTFS_DB_Importer:
     def _update_calendar(self):
         log_message('START update calendar')
         
-        db_handle = sqlite3.connect(self.db_path)
-        db_handle.row_factory = sqlite3.Row
-
-        rows_no = count_rows_table(db_handle, 'calendar')
+        rows_no = count_rows_table(self.db_handle, 'calendar')
         log_message(f'... found {rows_no} rows in calendar')
 
         if rows_no == 0:
             self._fill_calendar_from_calendar_dates()
 
         table_csv_path = Path(f'{self.db_tmp_path}/calendar_update_day_bits.csv')
-        table_csv_updater = DB_Table_CSV_Updater(table_csv_path, ['service_id', 'day_bits'])
+        table_csv_updater = DB_Table_CSV_Updater(table_csv_path, ['service_id', 'day_bits', 'start_date', 'end_date'])
+
+        sql = 'SELECT MIN(start_date) AS min_date FROM calendar'
+        min_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
+        sql = 'SELECT MAX(end_date) AS min_date FROM calendar'
+        max_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
+        calendar_start_date = datetime.datetime.strptime(min_date_s, "%Y%m%d")
+        calendar_end_date = datetime.datetime.strptime(max_date_s, "%Y%m%d")
+
+        print('')
+        log_message('CALENDAR DATES:')
+
+        MAX_DAYS_NO = 366
+
+        today_date = datetime.datetime.combine(datetime.datetime.today(), datetime.datetime.min.time())
+        datetime.datetime.today()
+
+        today_start_date_diff = (today_date - calendar_start_date).days
+        if today_start_date_diff > MAX_DAYS_NO:
+            log_message(f'   ... too far back START - {calendar_start_date} - {today_start_date_diff} days to today')
+            calendar_start_date = today_date - datetime.timedelta(days=MAX_DAYS_NO)
+            log_message(f'   ... set to - {calendar_start_date}')
+
+        today_end_date_diff = (calendar_end_date - today_date).days
+        if today_end_date_diff > MAX_DAYS_NO:
+            log_message(f'   ... too far away END - {calendar_end_date} - {today_end_date_diff} days from today')
+            calendar_end_date = today_date + datetime.timedelta(days=MAX_DAYS_NO)
+            log_message(f'   ... set to - {calendar_end_date}')
+
+        calendar_days_no = (calendar_end_date - calendar_start_date).days
+        calendar_weeks_no = math.ceil(calendar_days_no / 7)
+        
+        log_message(f'   START      : {calendar_start_date}')
+        log_message(f'   END        : {calendar_end_date}')
+        log_message(f'   DAYS NO    : {calendar_days_no + 1}')
+        log_message(f'   WEEKS NO   : {calendar_weeks_no}')
+        print('')
+
+        log_message(f"... running calendar SQL")
+
+        self.db_handle.execute("UPDATE calendar SET day_bits = ''")
+        self.db_handle.commit()
 
         sql_path = self.map_sql_queries['select_calendar_dates_group_by']
         sql = load_sql_from_file(sql_path)
 
-        log_message(f"... running calendar SQL")
-
-        calendar_start_date = None
-        calendar_end_date = None
-        calendar_weeks_no = None
         calendar_days = list(calendar.day_name)
 
-        db_handle.execute("UPDATE calendar SET day_bits = ''")
-        db_handle.commit()
-
-        db_cursor = db_handle.cursor()
+        db_cursor = self.db_handle.cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 10000 == 0:
                 log_message(f'... parsed {row_id} rows')
 
             service_id = db_row['service_id']
+            day_bits = self._compute_calendar_day_bits(db_row, calendar_days, calendar_start_date, calendar_end_date)
 
-            start_date_s = db_row['start_date']
-            end_date_s = db_row['end_date']
 
-            start_date = datetime.datetime.strptime(start_date_s, "%Y%m%d")
-            end_date = datetime.datetime.strptime(end_date_s, "%Y%m%d")
-
-            if not (calendar_start_date and calendar_end_date):
-                log_message(f'... init calendar dates')
-                calendar_start_date = start_date
-                calendar_end_date = end_date
-                calendar_days_no = (end_date - start_date).days
-                calendar_weeks_no = math.ceil(calendar_days_no / 7)
-                log_message(f'... FROM    : {start_date}')
-                log_message(f'... TO      : {end_date}')
-                log_message(f'... days_no: {calendar_days_no + 1}')
-                log_message(f'... weeks_no: {calendar_weeks_no}')
-
-            day_bits = self._compute_calendar_day_bits(db_row, calendar_days, start_date, end_date, calendar_weeks_no)
             row_dict = {
                 'service_id': service_id,
                 'day_bits': day_bits,
+                'start_date': calendar_start_date.strftime("%Y%m%d"),
+                'end_date': calendar_end_date.strftime("%Y%m%d"),
             }
             table_csv_updater.prepare_row(row_dict)
 
@@ -156,29 +172,46 @@ class GTFS_DB_Importer:
         
         db_cursor.close()
         
-        sql_template = 'UPDATE calendar SET day_bits = :day_bits WHERE service_id = :service_id'
-        table_csv_updater.update_table(db_handle, sql_template, rows_report_no=10000)
-
-        db_handle.close()
+        sql_template = 'UPDATE calendar SET day_bits = :day_bits, start_date = :start_date, end_date = :end_date  WHERE service_id = :service_id'
+        table_csv_updater.update_table(self.db_handle, sql_template, rows_report_no=10000)
 
         log_message('DONE update calendar')
         print('')
 
-    def _compute_calendar_day_bits(self, calendar_db_row, calendar_days, start_date, end_date, calendar_weeks_no):
+    def _compute_calendar_day_bits(self, calendar_db_row, calendar_days, calendar_start_date, calendar_end_date):
+        start_date_s = calendar_db_row['start_date']
+        end_date_s = calendar_db_row['end_date']
+
+        start_date = datetime.datetime.strptime(start_date_s, "%Y%m%d")
+        if start_date < calendar_start_date:
+            start_date = calendar_start_date
+
+        end_date = datetime.datetime.strptime(end_date_s, "%Y%m%d")
+        if end_date > calendar_end_date:
+            end_date = calendar_end_date
+
+        days_no = (end_date - start_date).days
+        weeks_no = math.ceil(days_no / 7)
+
         map_weekdays_pattern = {}
         for calendar_day in calendar_days:
             day_key = calendar_day.lower()
             is_enabled = int(calendar_db_row[day_key]) == 1
             map_weekdays_pattern[calendar_day] = is_enabled
 
-        day_bits_list = self._fill_day_bits_pattern(start_date, end_date, calendar_weeks_no, map_weekdays_pattern)
+        day_bits_list = self._fill_day_bits_pattern(start_date, end_date, weeks_no, map_weekdays_pattern)
         self._update_day_bits_from_calendar_dates(day_bits_list, calendar_db_row, start_date)
 
         day_bits = ''.join(day_bits_list)
-        
+
+        days_no_before = (start_date - calendar_start_date).days
+        days_no_after = (calendar_end_date - end_date).days
+
+        day_bits = '0' * days_no_before + day_bits + '0' * days_no_after
+
         return day_bits
 
-    def _fill_day_bits_pattern(self, start_date, end_date, calendar_weeks_no, map_weekdays_pattern):
+    def _fill_day_bits_pattern(self, start_date, end_date, weeks_no, map_weekdays_pattern):
         day_bits_7d = []
         current_date = start_date
         while current_date <= end_date:
@@ -191,7 +224,7 @@ class GTFS_DB_Importer:
             if len(day_bits_7d) == 7:
                 break
 
-        day_bits_s = ''.join(day_bits_7d) * calendar_weeks_no
+        day_bits_s = ''.join(day_bits_7d) * weeks_no
         days_no = (end_date - start_date).days
         day_bits_end_idx = days_no + 1
         day_bits_s = day_bits_s[0:day_bits_end_idx]
@@ -199,7 +232,7 @@ class GTFS_DB_Importer:
         day_bits = list(day_bits_s)
 
         return day_bits
-
+    
     def _update_day_bits_from_calendar_dates(self, day_bits_list, calendar_db_row, start_date):
         calendar_dates_cno = calendar_db_row['calendar_dates_cno']
         if calendar_dates_cno == 0:
@@ -222,24 +255,23 @@ class GTFS_DB_Importer:
                 sys.exit()
 
             day_idx = (row_date-start_date).days
-            day_bits_list[day_idx] = day_bit
+            if day_idx < len(day_bits_list):
+                # this case happens when we have to cap the calendar to +1year
+                day_bits_list[day_idx] = day_bit
 
     def _update_trips(self):
         log_message('START update trips/stop_times')
         
-        db_handle = sqlite3.connect(self.db_path)
-        db_handle.row_factory = sqlite3.Row
-
-        trips_column_names = fetch_column_names(db_handle, 'trips')
+        trips_column_names = fetch_column_names(self.db_handle, 'trips')
         new_trips_table_csv_file_path = Path(f'{self.db_tmp_path}/new_trips.csv')
         new_trips_table_csv_file = open(new_trips_table_csv_file_path, 'w', encoding='utf-8')
         new_trips_table_csv = csv.DictWriter(new_trips_table_csv_file, trips_column_names)
         new_trips_table_csv.writeheader()
 
-        rows_no = count_rows_table(db_handle, 'trips')
+        rows_no = count_rows_table(self.db_handle, 'trips')
         log_message(f'... found {rows_no} rows')
         
-        db_cursor = db_handle.cursor()
+        db_cursor = self.db_handle.cursor()
 
         map_stop_times_reset_table = {}
         for time_type in ['arrival_time', 'departure_time']:
@@ -252,7 +284,7 @@ class GTFS_DB_Importer:
 
         log_message(f"... running select_stop_times_group_by SQL")
 
-        db_cursor = db_handle.cursor()
+        db_cursor = self.db_handle.cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 200000 == 0:
@@ -359,40 +391,34 @@ class GTFS_DB_Importer:
         log_message(f"... DONE INSERT new trips ...")
         print('')
 
-        for time_type in map_stop_times_reset_table:
-            stop_times_updater = map_stop_times_reset_table[time_type]
+        for time_type, stop_times_updater in map_stop_times_reset_table.items():
             template_sql_path = self.map_sql_queries['update_stop_times_reset']
             template_sql = load_sql_from_file(template_sql_path)
             template_sql = template_sql.replace('[COLUMN_TO_RESET]', time_type)
-            stop_times_updater.update_table(db_handle, template_sql, rows_report_no=200000)
+            stop_times_updater.update_table(self.db_handle, template_sql, rows_report_no=200000)
 
             log_message(f'DONE update stop_times RESET for {time_type}')
             print('')
 
-        db_handle.close()
-
     def _fill_calendar_from_calendar_dates(self):
         log_message(f'START filling calendar from calendar_dates')
 
-        db_handle = sqlite3.connect(self.db_path)
-        db_handle.row_factory = sqlite3.Row
-
-        calendar_dates_rows_no = count_rows_table(db_handle, 'calendar_dates')
+        calendar_dates_rows_no = count_rows_table(self.db_handle, 'calendar_dates')
         if calendar_dates_rows_no == 0:
             print('ERROR - empty calendar, calendar_dates ?')
             sys.exit()
         log_message(f'... found {calendar_dates_rows_no} rows')
 
         sql = 'SELECT MIN(date) AS min_date FROM calendar_dates'
-        min_date_s = db_handle.cursor().execute(sql).fetchone()[0]
+        min_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
 
         sql = 'SELECT MAX(date) AS min_date FROM calendar_dates'
-        max_date_s = db_handle.cursor().execute(sql).fetchone()[0]
+        max_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
 
         sql = 'SELECT DISTINCT(service_id) AS service_id FROM calendar_dates'
-        db_cursor = db_handle.cursor()
+        db_cursor = self.db_handle.cursor()
 
-        calendar_column_names = fetch_column_names(db_handle, 'calendar')
+        calendar_column_names = fetch_column_names(self.db_handle, 'calendar')
 
         calendar_table_csv_file_path = Path(f'{self.db_tmp_path}/calendar_update_from_calendar_dates.csv')
         calendar_table_csv_file = open(calendar_table_csv_file_path, 'w', encoding='utf-8')
@@ -437,3 +463,7 @@ class GTFS_DB_Importer:
 
         log_message(f'DONE _fill_calendar_from_calendar_dates')
         print()
+
+    def _cleanup(self):
+        log_message(f'Remove temp folder {self.db_tmp_path}')
+        shutil.rmtree(self.db_tmp_path)

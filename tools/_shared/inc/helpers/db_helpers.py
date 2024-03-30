@@ -109,16 +109,14 @@ def count_rows_table(db_handle: any, table_name: str, where_clause = None):
     sql = f"SELECT COUNT(*) AS cno FROM {table_name} {where_clause}"
     return db_handle.cursor().execute(sql).fetchone()[0]
 
-def table_select_rows(db_handle: any, table_name: str, where_clause = "", group_by_key = None):
-    column_names = fetch_column_names(db_handle, table_name)
-
-    column_names_s = ", ".join(column_names)
-    sql = f"SELECT {column_names_s} FROM {table_name} {where_clause}"
-
+def _query_db(db_handle: sqlite3.Connection, sql: str):
     row_items = []
 
     cursor = db_handle.cursor()
     cursor.execute(sql)
+    
+    column_names = [description[0] for description in cursor.description]
+    
     for db_row in cursor:
         db_row_dict = {}
         for column_idx, column_name in enumerate(column_names):
@@ -126,6 +124,16 @@ def table_select_rows(db_handle: any, table_name: str, where_clause = "", group_
 
         row_items.append(db_row_dict)
     cursor.close()
+    
+    return row_items
+
+def table_select_rows(db_handle: any, table_name: str, where_clause = "", group_by_key = None):
+    column_names = fetch_column_names(db_handle, table_name)
+
+    column_names_s = ", ".join(column_names)
+    sql = f"SELECT {column_names_s} FROM {table_name} {where_clause}"
+    
+    row_items = _query_db(db_handle, sql)
 
     if group_by_key:
         map_rows_by_key = {}

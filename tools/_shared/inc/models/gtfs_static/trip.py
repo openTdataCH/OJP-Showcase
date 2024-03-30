@@ -1,3 +1,5 @@
+import os, sys
+
 import sqlite3
 
 from typing import List, Union
@@ -14,8 +16,16 @@ class Trip:
         self.trip_short_name = trip_short_name
         self.departure_day_minutes = departure_day_minutes
         self.arrival_day_minutes = arrival_day_minutes
-        self.departure_time = departure_time[0:5]
-        self.arrival_time = arrival_time[0:5]
+        
+        if departure_time is not None:
+            self.departure_time = departure_time[0:5]
+        else:
+            self.departure_time = None
+        if arrival_time is not None:
+            self.arrival_time = arrival_time[0:5]
+        else:
+            self.arrival_time = None
+        
         self.stop_times = stop_times
         self.service = service
         self.route = route
@@ -23,12 +33,13 @@ class Trip:
     @staticmethod
     def init_from_db_row(db_row: sqlite3.Row, map_calendar, map_agency, map_routes, map_stops):
         trip_id = db_row['trip_id']
-        trip_short_name = db_row['trip_short_name']
-        departure_day_minutes = db_row['departure_day_minutes']
-        arrival_day_minutes = db_row['arrival_day_minutes']
-        departure_time = db_row['departure_time']
-        arrival_time = db_row['arrival_time']
-        stop_times_s = db_row['stop_times_s']
+        
+        trip_short_name = Helpers.parse_value(db_row, 'trip_short_name')
+        departure_day_minutes = Helpers.parse_value(db_row, 'departure_day_minutes')
+        arrival_day_minutes = Helpers.parse_value(db_row, 'arrival_day_minutes')
+        departure_time = Helpers.parse_value(db_row, 'departure_time')
+        arrival_time = Helpers.parse_value(db_row, 'arrival_time')
+        stop_times_s = Helpers.parse_value(db_row, 'stop_times_s')
 
         service_id = db_row['service_id']
         service_res = map_calendar[service_id]
@@ -37,9 +48,6 @@ class Trip:
         else:
             gtfs_calendar = Calendar.init_from_db_row(service_res)
 
-        if stop_times_s is None:
-            raise Exception('ERROR - stop_times_s is not populated')
-
         route_id = db_row['route_id']
         route_res = map_routes[route_id]
         if isinstance(route_res, Route):
@@ -47,11 +55,13 @@ class Trip:
         else:
             gtfs_route = Route.init_from_db_row(route_res, map_agency)
 
-        stop_times = Helpers.parse_DB_row_stop_times(stop_times_s, map_stops)
+        stop_times = []
+        if stop_times_s is not None:
+            stop_times = Helpers.parse_DB_row_stop_times(stop_times_s, map_stops)       
         
-        entry = Trip(trip_id, trip_short_name, departure_day_minutes, arrival_day_minutes, departure_time, arrival_time, stop_times, gtfs_calendar, gtfs_route)
+        trip = Trip(trip_id, trip_short_name, departure_day_minutes, arrival_day_minutes, departure_time, arrival_time, stop_times, gtfs_calendar, gtfs_route)
 
-        return entry
+        return trip
 
     def pretty_print(self):
         header_separator_s = '-' * 60
