@@ -1,0 +1,146 @@
+import os
+import sys
+from pathlib import Path
+
+from typing import Dict, List
+from datetime import datetime
+
+from inc.shared.inc.helpers.config_helpers import load_convenience_config
+from inc.shared.inc.models.gtfs_static_db_catalog import GTFS_Static_Catalog_Report, GTFS_Static_Catalog_Item
+from inc.shared.inc.models.ckan_data import CKAN_Data, CKAN_Resource
+from inc.shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
+from inc.shared.inc.helpers.gtfs_helpers import compute_date_from_gtfs_db_filename, compute_datetime_from_gtfs_resource_filename
+from inc.shared.inc.helpers.db_engine import SQLiteDBEngine
+
+def main():
+    script_path = Path(os.path.realpath(__file__))
+    app_config = load_convenience_config(script_path)
+
+    _process(app_config)
+
+def _scan_local_dbs(app_config: any) -> Dict[str, Path]:
+    map_local_dbs = {}
+    
+    gtfs_dbs_base_path = Path(app_config['gtfs_dbs_base_path'])
+    gtfs_db_paths = gtfs_dbs_base_path.rglob('gtfs_*.sqlite')
+    
+    for gtfs_db_path in gtfs_db_paths:
+        gtfs_db_lock_path = Path(f'{gtfs_db_path}.lock')
+        if os.path.isfile(gtfs_db_lock_path):
+            continue
+        
+        gtfs_db_date = compute_date_from_gtfs_db_filename(gtfs_db_path.name)
+        if gtfs_db_date is None:
+            print('ERROR - cant extract day from filename')
+            print(gtfs_db_path.name)
+            sys.exit(1)
+            
+        gtfs_day = gtfs_db_date.strftime('%Y-%m-%d')
+        
+        relative_path = gtfs_db_path.relative_to(gtfs_dbs_base_path)
+        
+        map_local_dbs[gtfs_day] = relative_path
+        
+    return map_local_dbs
+
+def _load_ckan_data(app_config: any) -> List[CKAN_Resource]:
+    gtfs_ckan_json_path = app_config['gtfs_ckan_json_path']
+    gtfs_ckan_json = load_json_from_file(gtfs_ckan_json_path)
+    gtfs_ckan = CKAN_Data.from_ckan_json(gtfs_ckan_json)
+    
+    return gtfs_ckan.result.resources
+
+def _compute_map_gtfs_static_catalog(app_config) -> Dict[str, GTFS_Static_Catalog_Item]:
+    gtfs_static_db_path_report_path = app_config['gtfs_dbs_json_path']
+    
+    map_gtfs_catalog_items = {}
+    
+    if not os.path.isfile(gtfs_static_db_path_report_path):
+        return map_gtfs_catalog_items
+    
+    gtfs_static_db_path_report_json = load_json_from_file(gtfs_static_db_path_report_path)
+    gtfs_static_db_path_report = GTFS_Static_Catalog_Report.from_json(gtfs_static_db_path_report_json)
+    for gtfs_catalog_item in gtfs_static_db_path_report.items:
+        gtfs_db_day = gtfs_catalog_item.gtfs_day
+        map_gtfs_catalog_items[gtfs_db_day] = gtfs_catalog_item
+    
+    return map_gtfs_catalog_items
+    
+def _process(app_config: any):
+    map_gtfs_static_catalog = _compute_map_gtfs_static_catalog(app_config)
+    map_local_dbs = _scan_local_dbs(app_config)
+    ckan_data = _load_ckan_data(app_config)
+    
+    gtfs_dbs_base_path = Path(app_config['gtfs_dbs_base_path'])
+    
+    gtfs_rt_updates_splits_dt: List[datetime] = []
+    gtfs_rt_update_times: List[str] = []
+    for gtfs_update_interval_config in app_config['gtfs_rt_updates']:
+        to_dt = datetime.strptime(gtfs_update_interval_config['to'], '%Y-%m-%d')
+        gtfs_rt_updates_splits_dt.append(to_dt)
+        
+        gtfs_rt_update_times.append(gtfs_update_interval_config['switch'])
+    # loop app_config['gtfs_rt_updates']
+    
+    # loop through all CKAN resources and create new GTFS_Static_DB_Item objects if needed
+    for ckan_resource in ckan_data:
+        gtfs_dt = compute_datetime_from_gtfs_resource_filename(ckan_resource.identifier)
+        if gtfs_dt is None:
+            print(f'ERROR - cant extract GTFS day from resource: {ckan_resource.identifier}')
+            sys.exit(1)
+        
+        gtfs_day = gtfs_dt.strftime('%Y-%m-%d')
+        if gtfs_day in map_gtfs_static_catalog:
+            continue
+        
+        gtfs_db_relative_path = map_local_dbs.get(gtfs_day, None)
+        gtfs_dt_f = gtfs_dt.strftime('%Y-%m-%d %H:%M')
+        
+        gtfs_rt_update_time = gtfs_dt.strftime('%H:%M')
+        for idx, gtfs_rt_updates_split_dt in enumerate(gtfs_rt_updates_splits_dt):
+            if gtfs_dt.timestamp() < gtfs_rt_updates_split_dt.timestamp():
+                gtfs_rt_update_time = gtfs_rt_update_times[idx]
+                break
+        # loop gtfs_rt_updates_splits_dt
+        
+        gtfs_rt_switch_datetime_s = f'{gtfs_day} {gtfs_rt_update_time}'
+        
+        gtfs_catalog_item = GTFS_Static_Catalog_Item(
+            gtfs_datetime_s=gtfs_dt_f,
+            gtfs_day=gtfs_day,
+            gtfs_rt_switch_datetime_s=gtfs_rt_switch_datetime_s,
+            table_stats={}, # compute them in the next loop
+            db_relative_path=gtfs_db_relative_path,
+        )
+        
+        map_gtfs_static_catalog[gtfs_day] = gtfs_catalog_item
+    # loop ckan_resource in ckan_data
+    
+    # loop through all catalog items and validate if DB file is present locally
+    for gtfs_day, gtfs_catalog_item in map_gtfs_static_catalog.items():
+        gtfs_db_relative_path = map_local_dbs.get(gtfs_day, None)
+        if gtfs_db_relative_path is None:
+            gtfs_catalog_item.db_relative_path = None
+        else:
+            gtfs_catalog_item.db_relative_path = f'{gtfs_db_relative_path}' # format otherwise JSON encoder will scream
+        
+        # compute stats only if necessary
+        if gtfs_catalog_item.table_stats == {} and gtfs_db_relative_path is not None:
+            gtfs_db_path = f'{gtfs_dbs_base_path}/{gtfs_db_relative_path}'
+            gtfs_db_engine = SQLiteDBEngine(gtfs_db_path)
+            gtfs_catalog_item.table_stats = gtfs_db_engine.compute_table_stats()
+    
+    # build a list and sort descending by gtfs_day
+    gtfs_catalog_items = list(map_gtfs_static_catalog.values())
+    gtfs_catalog_items = sorted(gtfs_catalog_items, key=lambda x: x.gtfs_day, reverse=True)
+    
+    now_f = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    metadata = f'Created at {now_f}'
+    gtfs_catalog = GTFS_Static_Catalog_Report(metadata, items=gtfs_catalog_items)
+    
+    gtfs_catalog_path = app_config['gtfs_dbs_json_path']
+    gtfs_catalog_json = gtfs_catalog.as_json()
+    export_json_to_file(gtfs_catalog_json, gtfs_catalog_path, pretty_print=True)
+    
+if __name__ == "__main__":
+    main()
