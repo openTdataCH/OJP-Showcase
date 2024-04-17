@@ -18,6 +18,28 @@ class SQLiteDBEngine:
         self._db_handle = sqlite3.connect(conn_ds, uri=True)
         self._db_handle.row_factory = sqlite3.Row
         
+    def fetch_table_names(self):
+        table_names = []
+        
+        sql = "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%';"
+        cursor = self._db_handle.cursor()
+        cursor.execute(sql)
+        for db_row in cursor:
+            table_name = db_row[0]
+            table_names.append(table_name)
+        cursor.close()
+
+        return table_names
+    
+    def compute_table_stats(self):
+        table_stats = {}
+        
+        table_names = self.fetch_table_names()
+        for table_name in table_names:
+            table_stats[table_name] = self.count_rows_table(table_name)
+            
+        return table_stats
+        
     def table_columns_names(self, table_name: str):
         sql = f"PRAGMA table_info({table_name})"
         columns_cursor = self._db_handle.cursor()
@@ -56,3 +78,7 @@ class SQLiteDBEngine:
             return map_row_items
         else:
             return row_items
+        
+    def count_rows_table(self, table_name: str, where_clause = None):
+        sql = f"SELECT COUNT(1) AS cno FROM {table_name} {where_clause}"
+        return self._db_handle.cursor().execute(sql).fetchone()[0]
