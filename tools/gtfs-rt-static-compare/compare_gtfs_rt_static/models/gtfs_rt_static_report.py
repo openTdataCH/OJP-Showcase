@@ -10,6 +10,7 @@ from .gtfs_rt import Entity
 class GTFS_RT_Static_Report_Metadata:
     report_dt: datetime
     gtfs_db_filename: str
+    gtfs_db_age: float
     gtfs_rt_filename: str
     gtfs_rt_ts: int
     gtfs_rt_dt: datetime
