@@ -81,6 +81,9 @@ def _db_import(app_config, script_path, gtfs_data_path):
     return gtfs_db_path
 
 def _dbs_aggregate(script_path):
+    print(f'')
+    print(f'STEP 4 - BUILD GTFS DB catalog')
+    
     cli_path = f'{script_path.parent}/../gtfs-static-db-importer/cli_aggregate_dbs.py'
     cli_sh = f'python3 {cli_path}'
     print(cli_sh, flush=True)
