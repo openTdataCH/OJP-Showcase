@@ -15,6 +15,8 @@ def main():
     gtfs_data_path = _check_latest_data_folder(app_config)
     _db_import(app_config, script_path, gtfs_data_path)
     
+    _dbs_aggregate(script_path)
+    
 def _fetch_latest_resource(script_path, package_key):
     # fetch latest archive
     ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
@@ -77,6 +79,12 @@ def _db_import(app_config, script_path, gtfs_data_path):
         os.system(import_sh)
 
     return gtfs_db_path
+
+def _dbs_aggregate(script_path):
+    cli_path = f'{script_path.parent}/../gtfs-static-db-importer/cli_aggregate_dbs.py'
+    cli_sh = f'python3 {cli_path}'
+    print(cli_sh, flush=True)
+    os.system(cli_sh)
 
 if __name__ == "__main__":
     main()
