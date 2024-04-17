@@ -2,23 +2,34 @@ import os, sys
 import re
 import datetime
 
+from typing import Union
+
 from pathlib import Path
 
 def compute_formatted_date_from_gtfs_folder_path(folder_path: Path):
-    if isinstance(folder_path, str):
-        folder_path = Path(folder_path)
+    gtfs_filename_dt = compute_datetime_from_gtfs_resource_filename(folder_path)
+    if gtfs_filename_dt is None:
+        return None
+    
+    formatted_date = gtfs_filename_dt.strftime('%Y-%m-%d')
+    
+    return formatted_date
 
+def compute_datetime_from_gtfs_resource_filename(file_path: str) -> Union[datetime.datetime, None]:
+    if isinstance(file_path, str):
+        file_path = Path(file_path)
+        
     # gtfs_fp2021_2021-02-17_09-10
-    opentransport_matches = re.match("^.+?fp([0-9]{4})_([0-9]{4})-([0-9]{2})-([0-9]{2})_.*$", folder_path.name)
-
-    if opentransport_matches:
-        matched_year = opentransport_matches[2]
-        matched_month = opentransport_matches[3]
-        matched_day = opentransport_matches[4]
-        formatted_date = f"{matched_year}-{matched_month}-{matched_day}"
-        return formatted_date
-
-    return None
+    # GTFS_FP2024_2024-04-15_08-54.zip
+    dt_matches = re.match("^.+?[fpFP]([0-9]{4})_([0-9]{4})-([0-9]{2})-([0-9]{2})_([0-9]{2})-([0-9]{2}).*$", file_path.name)
+    
+    if dt_matches is None:
+        return None
+    
+    file_dt_s = f'{dt_matches[2]}-{dt_matches[3]}-{dt_matches[4]} {dt_matches[5]}:{dt_matches[6]}'
+    file_dt = datetime.datetime.strptime(file_dt_s, '%Y-%m-%d %H:%M')
+    
+    return file_dt
 
 def convert_datetime_to_day_minutes(datetime_s: str):
     # fix HRDF bug - see emails 5.01.2022
