@@ -1,9 +1,6 @@
 import argparse, os, sys
 from pathlib import Path
 
-# from inc.db_importer import GTFS_DB_Importer
-# from inc.shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path
-
 from inc.gtfs_reader import GTFS_Reader
 
 def main():
