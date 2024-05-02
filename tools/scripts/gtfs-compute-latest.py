@@ -4,8 +4,11 @@ from pathlib import Path
 
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
 from inc.shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path, compute_gtfs_db_filename
+from inc.shared.inc.helpers.json_helpers import load_json_from_file
+from inc.shared.inc.models.ckan_data import CKAN_Data
 
 # .hrdf_helpers import compute_formatted_date_from_hrdf_folder_path, compute_hrdf_db_filename, compute_formatted_date_from_hrdf_db_path
+row_delimiter_s = '='*70
 
 def main():
     script_path = Path(os.path.realpath(__file__))
@@ -30,33 +33,29 @@ def _fetch_latest_resource(script_path, package_key):
 def _check_latest_data_folder(app_config):
     # check latest folder
     print('')
-    hrdf_data_base_folder_path = app_config['data_paths']['gtfs-static']
-    resource_paths = glob.glob(f'{hrdf_data_base_folder_path}/*')
-    resource_paths.sort(reverse=True)
-
-    gtfs_data_path = None
-    gtfs_day = None
-    for resource_path in resource_paths:
-        if not os.path.isdir(resource_path):
-            continue
-
-        resource_path = Path(resource_path)
-        gtfs_day = compute_formatted_date_from_gtfs_folder_path(resource_path.name)
-        if gtfs_day is None:
-            continue
-
-        gtfs_data_path = resource_path
-        break
-
-    if gtfs_data_path is None:
-        print(f'ERROR - cant find a new GTFS folder data in {hrdf_data_base_folder_path}')
-        sys.exit()
-
-    print(f'=> found {gtfs_data_path}')
-    print(f'=> GTFS day {gtfs_day}')
     print('STEP 2 - CHECK LATEST GTFS DATASET')
     
-    return gtfs_data_path
+    gtfs_ckan_json_path = app_config['resource_paths']['ckan_gtfs_static_json']
+    gtfs_ckan_json = load_json_from_file(gtfs_ckan_json_path)
+    gtfs_ckan = CKAN_Data.from_ckan_json(gtfs_ckan_json)
+    
+    ckan_resource = gtfs_ckan.result.resources[0]
+    
+    resources_base_folder_path = app_config['data_paths']['gtfs-static']
+    resource_folder_name = ckan_resource.title['en'][0:-4]
+    resource_path = Path(f'{resources_base_folder_path}/{resource_folder_name}')
+    
+    if not os.path.isdir(resource_path):
+        print()
+        print(row_delimiter_s)
+        print('ERROR - latest resource not found at path')
+        print(resource_path)
+        print(row_delimiter_s)
+        sys.exit(1)
+        
+    print(f'... use following resource: {resource_path}')
+        
+    return resource_path
 
 def _db_import(app_config, script_path, gtfs_data_path):
     gtfs_day = compute_formatted_date_from_gtfs_folder_path(gtfs_data_path)
