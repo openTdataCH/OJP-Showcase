@@ -31,7 +31,7 @@ def _fetch_latest_resource(script_path, package_key):
 def _check_latest_data_folder(app_config):
     # check latest folder
     print('')
-    print('STEP 2 - CHCEK LATEST FOLDER')
+    print('STEP 2 - CHECK LATEST FOLDER')
     hrdf_data_base_folder_path = app_config['data_paths']['hrdf-opentransportdata.swiss']
     resource_paths = glob.glob(f'{hrdf_data_base_folder_path}/*')
     resource_paths.sort(reverse=True)

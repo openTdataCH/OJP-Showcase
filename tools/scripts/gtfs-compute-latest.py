@@ -30,7 +30,6 @@ def _fetch_latest_resource(script_path, package_key):
 def _check_latest_data_folder(app_config):
     # check latest folder
     print('')
-    print('STEP 2 - CHCEK LATEST FOLDER')
     hrdf_data_base_folder_path = app_config['data_paths']['gtfs-static']
     resource_paths = glob.glob(f'{hrdf_data_base_folder_path}/*')
     resource_paths.sort(reverse=True)
@@ -55,6 +54,7 @@ def _check_latest_data_folder(app_config):
 
     print(f'=> found {gtfs_data_path}')
     print(f'=> GTFS day {gtfs_day}')
+    print('STEP 2 - CHECK LATEST GTFS DATASET')
     
     return gtfs_data_path
 
