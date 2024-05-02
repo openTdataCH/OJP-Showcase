@@ -10,12 +10,14 @@ class CKAN_Resource:
     mimetype: str
     title: Dict[str, str]
     url: str
+    modified_s: str
 
     def __init__(self, **kwargs):
         self.identifier = kwargs['identifier']
         self.mimetype = kwargs['mimetype']
         self.title = kwargs['title']
         self.url = kwargs['url']
+        self.modified_s = kwargs['modified']
         
 @dataclass
 class CKAN_Result:
