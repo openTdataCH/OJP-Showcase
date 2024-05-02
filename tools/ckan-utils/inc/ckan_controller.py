@@ -33,7 +33,7 @@ class CKAN_Controller:
             print('')
             log_message(f'... resource already downloaded at path {ds_zip_path}')
         else:
-            ds_url = ds_resource['url']
+            ds_url = ds_resource.url
             download_resource(ds_url, ds_zip_path)
 
         if os.path.isdir(ds_folder_path):
