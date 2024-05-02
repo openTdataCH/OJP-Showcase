@@ -57,9 +57,15 @@ class CKAN_Controller:
 
             if resource_title[0:-4] == filter_resource_title[0:-4]:
                 return ds_resource
-
+            
+        row_delimiter_s = '='*70
+        
+        print()
+        print(row_delimiter_s)
         print(f'ERROR - cant find resource with title {filter_resource_title}')
-        print(f'Available resources:')
+        print(row_delimiter_s)
+        print(f'Available resources:                        - Last modified')
+        print(row_delimiter_s)
 
         for ds_resource in ckan_data.result.resources:
             resource_title: str = ds_resource.title['en'].strip().lower()
@@ -68,8 +74,10 @@ class CKAN_Controller:
             last_modified_hh_mm = ds_resource.modified_s[11:16]
             last_modified_s = f'{last_modified_day} {last_modified_hh_mm}'
 
-            print(f'-- {resource_title} - {last_modified_s}')
-        sys.exit()
+            print(f'-- {resource_title.ljust(40)} - {last_modified_s}')
+        # loop resources
+        
+        sys.exit(1)
 
     def _fetch_ckan_data(self, package_key):
         package_data_json_path = f"{self.app_config['package_cache']['local_path']}"
