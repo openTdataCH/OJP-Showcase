@@ -9,7 +9,7 @@ from inc.shared.inc.helpers.config_helpers import load_convenience_config
 from inc.shared.inc.models.gtfs_static_db_catalog import GTFS_Static_Catalog_Report, GTFS_Static_Catalog_Item
 from inc.shared.inc.models.ckan_data import CKAN_Data, CKAN_Resource
 from inc.shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
-from inc.shared.inc.helpers.gtfs_helpers import compute_date_from_gtfs_db_filename, compute_datetime_from_gtfs_resource_filename
+from inc.shared.inc.helpers.gtfs_helpers import compute_date_from_gtfs_db_filename, compute_gtfs_day_from_resource_path
 from inc.shared.inc.helpers.db_engine import SQLiteDBEngine
 
 def main():
@@ -84,41 +84,44 @@ def _process(app_config: any):
     
     # loop through all CKAN resources and create new GTFS_Static_DB_Item objects if needed
     for ckan_resource in ckan_data:
-        gtfs_dt = compute_datetime_from_gtfs_resource_filename(ckan_resource.identifier)
-        if gtfs_dt is None:
+        gtfs_day = compute_gtfs_day_from_resource_path(ckan_resource.identifier)
+        if gtfs_day is None:
             print(f'ERROR - cant extract GTFS day from resource: {ckan_resource.identifier}')
             sys.exit(1)
-        
-        gtfs_day = gtfs_dt.strftime('%Y-%m-%d')
-        if gtfs_day in map_gtfs_static_catalog:
+            
+        gtfs_day_f = f'{gtfs_day}'
+            
+        if gtfs_day_f in map_gtfs_static_catalog:
             continue
         
-        gtfs_db_relative_path = map_local_dbs.get(gtfs_day, None)
-        gtfs_dt_f = gtfs_dt.strftime('%Y-%m-%d %H:%M')
+        resource_dt = datetime.fromisoformat(ckan_resource.modified_s)
         
-        gtfs_rt_update_time = gtfs_dt.strftime('%H:%M')
+        gtfs_db_relative_path = map_local_dbs.get(gtfs_day_f, None)
+        gtfs_dt_f = resource_dt.strftime('%Y-%m-%d %H:%M')
+        
+        gtfs_rt_update_time = gtfs_day.strftime('%H:%M')
         for idx, gtfs_rt_updates_split_dt in enumerate(gtfs_rt_updates_splits_dt):
-            if gtfs_dt.timestamp() < gtfs_rt_updates_split_dt.timestamp():
+            if resource_dt.timestamp() < gtfs_rt_updates_split_dt.timestamp():
                 gtfs_rt_update_time = gtfs_rt_update_times[idx]
                 break
         # loop gtfs_rt_updates_splits_dt
         
-        gtfs_rt_switch_datetime_s = f'{gtfs_day} {gtfs_rt_update_time}'
+        gtfs_rt_switch_datetime_s = f'{gtfs_day_f} {gtfs_rt_update_time}'
         
         gtfs_catalog_item = GTFS_Static_Catalog_Item(
             gtfs_datetime_s=gtfs_dt_f,
-            gtfs_day=gtfs_day,
+            gtfs_day=gtfs_day_f,
             gtfs_rt_switch_datetime_s=gtfs_rt_switch_datetime_s,
             table_stats={}, # compute them in the next loop
             db_relative_path=gtfs_db_relative_path,
         )
         
-        map_gtfs_static_catalog[gtfs_day] = gtfs_catalog_item
+        map_gtfs_static_catalog[gtfs_day_f] = gtfs_catalog_item
     # loop ckan_resource in ckan_data
     
     # loop through all catalog items and validate if DB file is present locally
-    for gtfs_day, gtfs_catalog_item in map_gtfs_static_catalog.items():
-        gtfs_db_relative_path = map_local_dbs.get(gtfs_day, None)
+    for gtfs_day_f, gtfs_catalog_item in map_gtfs_static_catalog.items():
+        gtfs_db_relative_path = map_local_dbs.get(gtfs_day_f, None)
         if gtfs_db_relative_path is None:
             gtfs_catalog_item.db_relative_path = None
         else:
