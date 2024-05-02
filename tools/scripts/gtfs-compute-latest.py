@@ -3,11 +3,10 @@ import glob
 from pathlib import Path
 
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
-from inc.shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path, compute_gtfs_db_filename
 from inc.shared.inc.helpers.json_helpers import load_json_from_file
+from inc.shared.inc.helpers.gtfs_helpers import compute_gtfs_day_from_resource_path, compute_gtfs_db_filename
 from inc.shared.inc.models.ckan_data import CKAN_Data
 
-# .hrdf_helpers import compute_formatted_date_from_hrdf_folder_path, compute_hrdf_db_filename, compute_formatted_date_from_hrdf_db_path
 row_delimiter_s = '='*70
 
 def main():
@@ -58,7 +57,7 @@ def _check_latest_data_folder(app_config):
     return resource_path
 
 def _db_import(app_config, script_path, gtfs_data_path):
-    gtfs_day = compute_formatted_date_from_gtfs_folder_path(gtfs_data_path)
+    gtfs_day = compute_gtfs_day_from_resource_path(gtfs_data_path)
     gtfs_dbs_path = app_config['data_paths']['gtfs-static-dbs']
     gtfs_db_filename = compute_gtfs_db_filename(gtfs_day)
     gtfs_db_path = f'{gtfs_dbs_path}/{gtfs_db_filename}'
