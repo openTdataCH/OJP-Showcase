@@ -12,6 +12,8 @@ from inc.shared.inc.helpers.json_helpers import export_json_to_file, load_json_f
 from inc.shared.inc.helpers.gtfs_helpers import compute_date_from_gtfs_db_filename, compute_gtfs_day_from_resource_path
 from inc.shared.inc.helpers.db_engine import SQLiteDBEngine
 
+from inc.shared.inc.helpers.log_helpers import log_message
+
 def main():
     script_path = Path(os.path.realpath(__file__))
     app_config = load_convenience_config(script_path)
@@ -144,6 +146,8 @@ def _process(app_config: any):
     gtfs_catalog_path = app_config['gtfs_dbs_json_path']
     gtfs_catalog_json = gtfs_catalog.as_json()
     export_json_to_file(gtfs_catalog_json, gtfs_catalog_path, pretty_print=True)
+    
+    log_message(f'... saved to {gtfs_catalog_path}')    
     
 if __name__ == "__main__":
     main()
