@@ -12,3 +12,6 @@ data_paths:
   hrdf-db-lookups: [APP_PATH]/data/hrdf-db-lookups
   hrdf-duplicates-reports: [APP_PATH]/data/hrdf-duplicates-reports
   hrdf-duplicates-reports-csv: [APP_PATH]/data/hrdf-duplicates-reports/hrdf-duplicates-reports-csv
+
+resource_paths:
+  ckan_gtfs_static_json: [APP_PATH]/data/ckan-utils-tmp/ckan_gtfs_static.json
