@@ -1,5 +1,7 @@
 # GTFS RT <-> GTFS static compare tool
 
+See [CHANGELOG](./CHANGELOG.md) for latest changes
+
 ## Scripts
 
 ### cli_compare_latest.py
