@@ -4,6 +4,7 @@ map_sql_queries:
     query_day_active_trips: "[APP_PATH]/inc/sql/gtfs/query_day_active_trips.sql"
     where_from_to_trips: "[APP_PATH]/inc/sql/gtfs/where/where_from_to_trips.sql"
 
+# exported from https://opentransportdata.swiss/de/dataset/go-realtime
 go_realtime_csv_path: "[APP_PATH]/inc/config/go-realtime.csv"
 
 app_db_cache_path: "[APP_PATH]/data/gtfs-query-db-cache"
