@@ -3,15 +3,15 @@ import csv
 
 from pathlib import Path
 
-from .shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path
+from .shared.inc.helpers.gtfs_helpers import compute_gtfs_day_from_resource_path
 from .shared.inc.helpers.file_helpers import compute_file_rows_no
 
 class GTFS_Reader:
     def compute_gtfs_stats(gtfs_a_path: Path, gtfs_b_path: Path):
         gtfs_table_names = ['agency', 'calendar_dates', 'calendar', 'routes', 'stop_times', 'stops', 'transfers', 'trips']
 
-        gtfs_a_date_f = compute_formatted_date_from_gtfs_folder_path(gtfs_a_path)
-        gtfs_b_date_f = compute_formatted_date_from_gtfs_folder_path(gtfs_b_path)
+        gtfs_a_date_f = compute_gtfs_day_from_resource_path(gtfs_a_path)
+        gtfs_b_date_f = compute_gtfs_day_from_resource_path(gtfs_b_path)
 
         print(f'--------------------------------------------------------------------------------')
         print(f'| table              | GTFS {gtfs_a_date_f} | GTFS {gtfs_b_date_f} |  DELTA |')

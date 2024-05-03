@@ -20,6 +20,7 @@ class GTFS_DB_Importer:
 
         self.gtfs_folder_path = gtfs_folder_path
         self.db_path = db_path
+        self.db_lock_path = Path(f'{self.db_path}.lock')
         self.db_handle = connect_db(db_path, is_read_only=False)
         self.db_schema_config = self._load_schema_config()
 
@@ -30,6 +31,13 @@ class GTFS_DB_Importer:
     def start(self):
         log_message("START GTFS IMPORT")
         log_message(f'DB PATH: {self.db_path}')
+        
+        if os.path.isfile(self.db_lock_path):
+            print('ERROR: lock path present, ABORT')
+            print(f'ls -al {self.db_lock_path.parent}')
+            sys.exit(1)
+        
+        self._write_lock_file()
 
         self._import_csv_tables()
         self._update_calendar()
@@ -37,6 +45,8 @@ class GTFS_DB_Importer:
         self._cleanup()
 
         self.db_handle.close()
+        
+        self._remove_lock_file()
 
         log_message("DONE GTFS IMPORT")
 
@@ -47,6 +57,16 @@ class GTFS_DB_Importer:
         db_schema_config = yaml.safe_load(open(db_schema_path, encoding='utf-8'))
 
         return db_schema_config
+    
+    def _write_lock_file(self):
+        now_f = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        lock_file_text = f'START: {now_f}'
+        lock_file = open(self.db_lock_path, 'w', encoding='utf-8')
+        lock_file.write(lock_file_text)
+        lock_file.close()
+        
+    def _remove_lock_file(self):
+        os.remove(self.db_lock_path)
 
     def _import_csv_tables(self):
         table_names = ['agency', 'calendar', 'calendar_dates', 'routes', 'shapes', 'stop_times', 'stops', 'trips']

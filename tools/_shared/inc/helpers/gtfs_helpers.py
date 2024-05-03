@@ -4,21 +4,23 @@ import datetime
 
 from pathlib import Path
 
-def compute_formatted_date_from_gtfs_folder_path(folder_path: Path):
-    if isinstance(folder_path, str):
-        folder_path = Path(folder_path)
+from typing import Union
 
+def compute_gtfs_day_from_resource_path(resource_path: Path):
+    if isinstance(resource_path, str):
+        resource_path = Path(resource_path)
+    
     # gtfs_fp2021_2021-02-17_09-10
-    opentransport_matches = re.match("^.+?fp([0-9]{4})_([0-9]{4})-([0-9]{2})-([0-9]{2})_.*$", folder_path.name)
-
-    if opentransport_matches:
-        matched_year = opentransport_matches[2]
-        matched_month = opentransport_matches[3]
-        matched_day = opentransport_matches[4]
-        formatted_date = f"{matched_year}-{matched_month}-{matched_day}"
-        return formatted_date
-
-    return None
+    # GTFS_FP2024_2024-04-15_08-54.zip
+    # GTFS_FP2024_2024-05-02
+    dt_matches = re.match("^gtfs_fp([0-9]{4})_([0-9]{4})-([0-9]{2})-([0-9]{2}).*$", resource_path.name.lower())
+    if dt_matches is None:
+        return None
+    
+    gtfs_day_f = f'{dt_matches[2]}-{dt_matches[3]}-{dt_matches[4]}'
+    gtfs_day = datetime.datetime.strptime(gtfs_day_f, '%Y-%m-%d').date()
+    
+    return gtfs_day
 
 def convert_datetime_to_day_minutes(datetime_s: str):
     # fix HRDF bug - see emails 5.01.2022

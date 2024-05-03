@@ -1,4 +1,8 @@
 data_paths:
+  gtfs-db-lookups: [APP_PATH]/data/gtfs-db-lookups
+  gtfs-rt-snapshot: [APP_PATH]/data/gtfs-rt-snapshot
+  gtfs-rt-static-compare-report: [APP_PATH]/data/gtfs-rt-static-compare-report
+  gtfs-rt-static-compare-tmp: [APP_PATH]/data/gtfs-rt-static-compare-tmp
   gtfs-static: &GTFS_STATIC_DATA_PATH [APP_PATH]/data/opentransportdata.swiss/gtfs-static
   gtfs-static-dbs: &GTFS_STATIC_DBS_PATH [APP_PATH]/data/gtfs-static-dbs
   gtfs-query-db-cache: [APP_PATH]/data/gtfs-query-db-cache
@@ -8,3 +12,6 @@ data_paths:
   hrdf-db-lookups: [APP_PATH]/data/hrdf-db-lookups
   hrdf-duplicates-reports: [APP_PATH]/data/hrdf-duplicates-reports
   hrdf-duplicates-reports-csv: [APP_PATH]/data/hrdf-duplicates-reports/hrdf-duplicates-reports-csv
+
+resource_paths:
+  ckan_gtfs_static_json: [APP_PATH]/data/ckan-utils-tmp/ckan_gtfs_static.json

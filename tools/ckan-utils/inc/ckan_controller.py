@@ -7,6 +7,7 @@ from pathlib import Path
 from .shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
 from .shared.inc.helpers.log_helpers import log_message
 
+from .shared.inc.models.ckan_data import CKAN_Data
 class CKAN_Controller:
     def __init__(self, app_config):
         self.app_config = app_config
@@ -20,7 +21,7 @@ class CKAN_Controller:
         log_message(f'  RESOURCE_TITLE  : {resource_title}')
 
         ds_resource = self._fetch_package_resource(package_key, resource_title)
-        ds_filename = ds_resource['title']['en'].lower()
+        ds_filename = ds_resource.title['en']
         ds_folder = ds_filename[0:-4]
 
         package_data = self.app_config['map_packages'][package_key]
@@ -32,7 +33,7 @@ class CKAN_Controller:
             print('')
             log_message(f'... resource already downloaded at path {ds_zip_path}')
         else:
-            ds_url = ds_resource['url']
+            ds_url = ds_resource.url
             download_resource(ds_url, ds_zip_path)
 
         if os.path.isdir(ds_folder_path):
@@ -44,33 +45,41 @@ class CKAN_Controller:
         log_message(f'CKAN - DONE')
 
     def _fetch_package_resource(self, package_key: str, filter_resource_title):
-        package_data_json = self._fetch_package_json(package_key)
-
+        ckan_data = self._fetch_ckan_data(package_key)
+        
         if filter_resource_title is None:
-            return package_data_json['result']['resources'][0]
-
+            return ckan_data.result.resources[0]
+        
         filter_resource_title = filter_resource_title.strip().lower()
         
-        for ds_resource in package_data_json['result']['resources']:
-            resource_title = ds_resource['title']['en'].strip().lower()
+        for ds_resource in ckan_data.result.resources:
+            resource_title = ds_resource.title['en'].strip().lower()
 
             if resource_title[0:-4] == filter_resource_title[0:-4]:
                 return ds_resource
-
-        print(f'ERROR - cant find resource with title {filter_resource_title}')
-        print(f'Available resources:')
-
-        for ds_resource in package_data_json['result']['resources']:
-            resource_title = ds_resource['title']['en'].strip().lower()
             
-            last_modified_day = ds_resource['last_modified'][0:10]
-            last_modified_hh_mm = ds_resource['last_modified'][11:16]
+        row_delimiter_s = '='*70
+        
+        print()
+        print(row_delimiter_s)
+        print(f'ERROR - cant find resource with title {filter_resource_title}')
+        print(row_delimiter_s)
+        print(f'Available resources:                        - Last modified')
+        print(row_delimiter_s)
+
+        for ds_resource in ckan_data.result.resources:
+            resource_title: str = ds_resource.title['en'].strip().lower()
+            
+            last_modified_day = ds_resource.modified_s[0:10]
+            last_modified_hh_mm = ds_resource.modified_s[11:16]
             last_modified_s = f'{last_modified_day} {last_modified_hh_mm}'
 
-            print(f'-- {resource_title} - {last_modified_s}')
-        sys.exit()
+            print(f'-- {resource_title.ljust(40)} - {last_modified_s}')
+        # loop resources
+        
+        sys.exit(1)
 
-    def _fetch_package_json(self, package_key):
+    def _fetch_ckan_data(self, package_key):
         package_data_json_path = f"{self.app_config['package_cache']['local_path']}"
         package_data_json_path = package_data_json_path.replace('[PACKAGE_KEY]', package_key)
 
@@ -82,7 +91,8 @@ class CKAN_Controller:
             if cache_age < package_data_json_ttl:
                 log_message(f'... load package JSON from {package_data_json_path}')
                 package_data_json = load_json_from_file(package_data_json_path)
-                return package_data_json
+                ckan_data = CKAN_Data.from_ckan_json(package_data_json)
+                return ckan_data
 
         package_data = self.app_config['map_packages'][package_key]
         package_id = package_data['package_id']
@@ -96,8 +106,10 @@ class CKAN_Controller:
 
         package_data_json = fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization)
         export_json_to_file(package_data_json, package_data_json_path, pretty_print=True)
+        
+        ckan_data = CKAN_Data.from_ckan_json(package_data_json)
 
-        return package_data_json
+        return ckan_data
 
 def fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
     request_headers = {

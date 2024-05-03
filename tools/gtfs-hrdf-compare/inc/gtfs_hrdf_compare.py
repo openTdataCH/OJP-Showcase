@@ -11,7 +11,6 @@ from .shared.inc.models.gtfs_static.calendar import Calendar as GTFS_Calendar
 from .shared.inc.models.gtfs_static.trip import Trip as GTFS_Trip
 from .shared.inc.models.hrdf.trip_variant import Trip_Variant as HRDF_Trip_Variant
 
-from .shared.inc.helpers.gtfs_helpers import compute_formatted_date_from_gtfs_folder_path
 from .shared.inc.helpers.hrdf_helpers import compute_calendar_info
 from .shared.inc.helpers.file_helpers import compute_file_rows_no
 from .shared.inc.helpers.csv_updater import CSV_Updater
