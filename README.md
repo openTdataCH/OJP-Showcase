@@ -25,7 +25,7 @@ You can run the tools in two ways
 ## 1. Using local Python installation
 
 - Python 3.x
-- Dependencies `pip3 install pyyaml`
+- Dependencies `python3 -m pip install -r requirements.txt`
 
 ## 2. Using Docker
 
