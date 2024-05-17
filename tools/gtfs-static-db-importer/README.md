@@ -13,4 +13,4 @@ Usage: `gtfs_db_importer_cli.py [-h] [--gtfs-folder-path GTFS_FOLDER_PATH] [--ou
 |--output-db-path|path to output SQLite DB, relative or absolute. If not givem the script will create it under ./output/gtfs_db folder|/tmp/foo.db|
 
 `$ python3 gtfs_db_importer_cli.py --gtfs-folder-path data/gtfs-static/current/gtfs_fp2021_2021-04-07_09-10`
-The script tries to guess the HRDF date from the path, in the case above will create and fill `./output/gtfs_db/gtfs_2021-04-07.sqlite` DB.
+The script tries to guess the GTFS date from the path, in the case above will create and fill `./output/gtfs_db/gtfs_2021-04-07.sqlite` DB.
