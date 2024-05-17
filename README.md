@@ -26,7 +26,14 @@ You can run the tools in two ways
 ## 1. Using local Python installation
 
 - Python 3.x
-- Dependencies `python3 -m pip install -r requirements.txt`
+- install dependencies 
+```
+$ python3 -m pip install -r requirements.txt
+```
+- check Python SQLite3 version
+```
+$ python3 -c "import sqlite3; print(sqlite3.sqlite_version)"
+```
 
 ## 2. Using Docker
 
