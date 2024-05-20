@@ -34,8 +34,9 @@ def _check_latest_data_folder(app_config):
     print('STEP 2 - CHECK LATEST FOLDER')
     hrdf_data_base_folder_path = app_config['data_paths']['hrdf-opentransportdata.swiss']
     resource_paths = glob.glob(f'{hrdf_data_base_folder_path}/*')
-    resource_paths.sort(reverse=True)
-
+    resource_paths = [Path(path_s) for path_s in resource_paths]
+    resource_paths = sorted(resource_paths, key=lambda x: x.name.lower(), reverse=True)
+    
     hrdf_data_path = None
     hrdf_day = None
     for resource_path in resource_paths:
