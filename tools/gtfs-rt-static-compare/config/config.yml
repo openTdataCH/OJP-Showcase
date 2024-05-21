@@ -1,4 +1,5 @@
 resource_paths:
+  app_path: [APP_PATH]
   gtfs_rt_snapshot: [APP_PATH]/data/gtfs-rt-snapshot/[YEAR]/[MONTH]/[DAY]/GTFS_RT-[YEAR]-[MONTH]-[DAY]-[HHMM].json
   gtfs_db: [APP_PATH]/data/gtfs-static-dbs/[GTFS_FILENAME]
   gtfs_dbs_json_path: [APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json
