@@ -77,7 +77,8 @@ def main():
 
         file_idx = 0
         for gtfs_rt_file_key, gtfs_rt_file_path in map_gtfs_rt_file_paths.items():
-            log_message(f'... PROCESSING {file_idx} / {gtfs_rt_files_no}: {gtfs_rt_file_path.name}')
+            if file_idx % 10 == 0:
+                log_message(f'... PROCESSING {file_idx} / {gtfs_rt_files_no}: {gtfs_rt_file_path.name}')
 
             gtfs_rt_file_dt = datetime.strptime(f'{gtfs_rt_file_key}', '%Y-%m-%d %H%M')
             gtfs_controller.compare_gtfs_rt_from_file(gtfs_rt_file_dt, gtfs_rt_file_path, gtfs_catalog_item, gtfs_db)
