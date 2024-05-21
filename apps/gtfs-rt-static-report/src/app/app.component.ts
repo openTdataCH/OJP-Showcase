@@ -34,8 +34,9 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    this.dataService.getMonthlyReport('2024-03').subscribe((response) => {
-      console.log(response);
+    this.dataService.getMonthlyReport('2024-05').subscribe((response) => {
+      const report = response as GTFS_RT_Static_Monthly_Report;
+      console.log(report.comments);
     });
   }
 }
