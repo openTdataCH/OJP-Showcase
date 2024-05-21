@@ -44,7 +44,11 @@ class GTFS_Controller:
         
     # PRIVATE
     def _compare_compare_latest_gtfs_rt_static(self):
+        header_separator_s = '-' * 60
+        
+        print(header_separator_s)
         log_message(f'START COMPARE GTFS -RT GTFS STATIC')
+        print(header_separator_s)
         
         fetch_dt = datetime.now()
         
@@ -55,6 +59,9 @@ class GTFS_Controller:
         gtfs_rt_snapshot_path = compute_resource_snapshot_path(resource_path, fetch_dt)
         
         gtfs_rt_response = fetch_latest(self.app_config, gtfs_rt_snapshot_path)
+        log_message(f'... DONE fetch')
+        print(f'saved to {gtfs_rt_snapshot_path}')
+        print(header_separator_s)
         
         gtfs_rt_dt = datetime.fromtimestamp(gtfs_rt_response.header.timestamp)
         gtfs_catalog_item = self._compute_gtfs_db_catalog_item(gtfs_rt_dt)
@@ -62,13 +69,51 @@ class GTFS_Controller:
             print('WHOOPS - cant find a GTFS catalog item')
             sys.exit(1)
             
-        gtfs_db = self._load_gtfs_db(gtfs_catalog_item)
+        log_message(f'... LOAD DB GTFS-DAY: {gtfs_catalog_item.gtfs_day} - {gtfs_catalog_item.db_relative_path}')
             
-        self._compare_file_gtfs_rt_static(
+        gtfs_db = self._load_gtfs_db(gtfs_catalog_item)
+        
+        log_message(f'... DONE LOAD DB')
+        print(header_separator_s)
+        
+        report = self._compare_file_gtfs_rt_static(
             fetch_dt,  
             gtfs_rt_snapshot_path, gtfs_rt_response, 
             gtfs_catalog_item, gtfs_db
         )
+        
+        print()
+        print(header_separator_s)
+        log_message('GTFS-RT <-> GTFS-STATIC Report')
+        print(header_separator_s)
+        
+        print(f'GTFS-RT age         : {report.metadata.gtfs_rt_age} seconds')
+        print(f'GTFS-static DB age  : {report.metadata.gtfs_db_age} days')
+        print()
+        
+        print(f'GTFS-RT     rows no : {report.metadata.total_rows_no}')
+        print(f'           trips OK : {report.metadata.tripOK_routeOK_no}')
+        print()
+        print(f' tripOK_routeNOK_no : {report.metadata.tripOK_routeNOK_no}')
+        print(f' tripNOK_routeOK_no : {report.metadata.tripNOK_routeOK_no}')
+        print(f'tripNOK_routeNOK_no : {report.metadata.tripNOK_routeNOK_no}')
+        print(f'tripNOK_NOJP_no     : {report.metadata.tripNOK_NOJP_no}')
+        print()
+        
+        report_path = self.app_config['resource_paths']['gtfs_rt_static_report']
+        report_path = compute_resource_snapshot_path(report_path, fetch_dt)
+        
+        dt_year = fetch_dt.strftime('%Y')
+        dt_month = fetch_dt.strftime('%m')
+        dt_day = fetch_dt.strftime('%d')
+        report_url = f'https://tools.odpch.ch/gtfs-rt-static-compare-report/{dt_year}/{dt_month}/{dt_day}/{report_path.name}';
+        print(f'tripNOK_NOJP_no     : {report_url}')
+        print()
+        
+        print(f'saved to {report_path}')
+        print(header_separator_s)
+        
+        log_message('... DONE')
         
     def _load_gtfs_db(self, gtfs_catalog_item: GTFS_Static_Catalog_Item):
         gtfs_dbs_basepath = Path(self.app_config['resource_paths']['gtfs_db']).parent
