@@ -86,16 +86,14 @@ class GTFS_Controller:
         print(header_separator_s)
         log_message('GTFS-RT <-> GTFS-STATIC Report')
         print(header_separator_s)
-        
         print(f'GTFS-RT age         : {report.metadata.gtfs_rt_age} seconds')
         print(f'GTFS-static DB age  : {report.metadata.gtfs_db_age} days')
         print()
-        
-        print(f'GTFS-RT     rows no : {report.metadata.total_rows_no}')
-        print(f'           trips OK : {report.metadata.tripOK_routeOK_no}')
+        print(f'rows no             : {report.metadata.total_rows_no}')
+        print(f'trips OK            : {report.metadata.tripOK_routeOK_no}')
         print()
-        print(f' tripOK_routeNOK_no : {report.metadata.tripOK_routeNOK_no}')
-        print(f' tripNOK_routeOK_no : {report.metadata.tripNOK_routeOK_no}')
+        print(f'tripOK_routeNOK_no  : {report.metadata.tripOK_routeNOK_no}')
+        print(f'tripNOK_routeOK_no  : {report.metadata.tripNOK_routeOK_no}')
         print(f'tripNOK_routeNOK_no : {report.metadata.tripNOK_routeNOK_no}')
         print(f'tripNOK_NOJP_no     : {report.metadata.tripNOK_NOJP_no}')
         print()
@@ -107,10 +105,10 @@ class GTFS_Controller:
         dt_month = fetch_dt.strftime('%m')
         dt_day = fetch_dt.strftime('%d')
         report_url = f'https://tools.odpch.ch/gtfs-rt-static-compare-report/{dt_year}/{dt_month}/{dt_day}/{report_path.name}';
-        print(f'tripNOK_NOJP_no     : {report_url}')
-        print()
+        print(f'Report URL          : {report_url}')
+        print(header_separator_s)
         
-        print(f'saved to {report_path}')
+        print(f'... saved to {report_path}')
         print(header_separator_s)
         
         log_message('... DONE')
