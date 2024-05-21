@@ -50,6 +50,9 @@ def main():
         file_dt = datetime.strptime(f'{file_date_f} {file_hhmm}', '%Y-%m-%d %H%M')
         
         gtfs_catalog_item = gtfs_controller.compute_gtfs_db_dt(file_dt)
+        if gtfs_catalog_item is None:
+            continue
+        
         gtfs_day = gtfs_catalog_item.gtfs_day
         
         if gtfs_day not in map_file_file_paths:
