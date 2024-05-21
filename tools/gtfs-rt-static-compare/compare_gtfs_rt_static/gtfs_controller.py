@@ -2,7 +2,9 @@ import os, sys
 
 from pathlib import Path
 
-from typing import Union, List
+import re
+
+from typing import Union
 
 from datetime import datetime
 
@@ -42,7 +44,11 @@ class GTFS_Controller:
         
     # PRIVATE
     def _compare_compare_latest_gtfs_rt_static(self):
+        header_separator_s = '-' * 60
+        
+        print(header_separator_s)
         log_message(f'START COMPARE GTFS -RT GTFS STATIC')
+        print(header_separator_s)
         
         fetch_dt = datetime.now()
         
@@ -51,9 +57,11 @@ class GTFS_Controller:
         
         resource_path = self.app_config['resource_paths']['gtfs_rt_snapshot']
         gtfs_rt_snapshot_path = compute_resource_snapshot_path(resource_path, fetch_dt)
-
-        gtfs_rt_response = fetch_latest(self.app_config, gtfs_rt_snapshot_path)
         
+        gtfs_rt_response = fetch_latest(self.app_config, gtfs_rt_snapshot_path)
+        log_message(f'... DONE fetch')
+        print(f'saved to {gtfs_rt_snapshot_path}')
+        print(header_separator_s)
         
         gtfs_rt_dt = datetime.fromtimestamp(gtfs_rt_response.header.timestamp)
         gtfs_catalog_item = self._compute_gtfs_db_catalog_item(gtfs_rt_dt)
@@ -61,17 +69,51 @@ class GTFS_Controller:
             print('WHOOPS - cant find a GTFS catalog item')
             sys.exit(1)
             
-        gtfs_db = self._load_gtfs_db(gtfs_catalog_item)
+        log_message(f'... LOAD DB GTFS-DAY: {gtfs_catalog_item.gtfs_day} - {gtfs_catalog_item.db_relative_path}')
             
-        self._compare_file_gtfs_rt_static(
+        gtfs_db = self._load_gtfs_db(gtfs_catalog_item)
+        
+        log_message(f'... DONE LOAD DB')
+        print(header_separator_s)
+        
+        report = self._compare_file_gtfs_rt_static(
             fetch_dt,  
             gtfs_rt_snapshot_path, gtfs_rt_response, 
             gtfs_catalog_item, gtfs_db
         )
         
-    def _load_gtfs_db(self, gtfs_catalog_item: GTFS_Static_Catalog_Item):
-        log_message(f'START GTFS lookups')
+        print()
+        print(header_separator_s)
+        log_message('GTFS-RT <-> GTFS-STATIC Report')
+        print(header_separator_s)
+        print(f'GTFS-RT age         : {report.metadata.gtfs_rt_age} seconds')
+        print(f'GTFS-static DB age  : {report.metadata.gtfs_db_age} days')
+        print()
+        print(f'rows no             : {report.metadata.total_rows_no}')
+        print(f'trips OK            : {report.metadata.tripOK_routeOK_no}')
+        print()
+        print(f'tripOK_routeNOK_no  : {report.metadata.tripOK_routeNOK_no}')
+        print(f'tripNOK_routeOK_no  : {report.metadata.tripNOK_routeOK_no}')
+        print(f'tripNOK_routeNOK_no : {report.metadata.tripNOK_routeNOK_no}')
+        print(f'tripNOK_NOJP_no     : {report.metadata.tripNOK_NOJP_no}')
+        print()
         
+        report_path = self.app_config['resource_paths']['gtfs_rt_static_report']
+        report_path = compute_resource_snapshot_path(report_path, fetch_dt)
+        
+        dt_year = fetch_dt.strftime('%Y')
+        dt_month = fetch_dt.strftime('%m')
+        dt_day = fetch_dt.strftime('%d')
+        report_url = f'https://tools.odpch.ch/gtfs-rt-static-compare-report/{dt_year}/{dt_month}/{dt_day}/{report_path.name}';
+        print(f'Report URL          : {report_url}')
+        print(header_separator_s)
+        
+        print(f'... saved to {report_path}')
+        print(header_separator_s)
+        
+        log_message('... DONE')
+        
+    def _load_gtfs_db(self, gtfs_catalog_item: GTFS_Static_Catalog_Item):
         gtfs_dbs_basepath = Path(self.app_config['resource_paths']['gtfs_db']).parent
         gtfs_db_path = Path(f'{gtfs_dbs_basepath}/{gtfs_catalog_item.db_relative_path}')
             
@@ -83,13 +125,9 @@ class GTFS_Controller:
         gtfs_db = GTFS_DB(db_path=gtfs_db_path, resources_path_config=self.app_config['resource_paths'])
         gtfs_db.init_lookups()
         
-        log_message(f'... DONE GTFS lookups')
-        
         return gtfs_db
     
     def _compare_gtfs_rt_from_file(self, gtfs_rt_file_dt: datetime, gtfs_rt_path: Path, gtfs_catalog_item: GTFS_Static_Catalog_Item, gtfs_db: GTFS_DB):
-        log_message(f'... JSON path: {gtfs_rt_path}')
-        
         gtfs_rt_json = load_json_from_file(gtfs_rt_path)
         gtfs_rt_response = GTFS_RT_Response.from_gtfs_rt_json(gtfs_rt_json)
         
@@ -125,15 +163,9 @@ class GTFS_Controller:
             gtfs_db: GTFS_DB,
         ):
         gtfs_rt_dt = datetime.fromtimestamp(gtfs_rt_response.header.timestamp)
-        log_message(f'... RESPONSE')
-        log_message(f'... rows: {len(gtfs_rt_response.entity)}')
-        log_message(f'... TS RESPONSE   : {gtfs_rt_dt}')
         
         gtfs_static_day = gtfs_catalog_item.gtfs_day
         gtfs_rt_age = round(gtfs_rt_dt.timestamp() - report_dt.timestamp())
-        
-        log_message(f'... STATIC DB DAY : {gtfs_static_day}')
-        log_message(f'... STATIC DB     : {gtfs_catalog_item.db_relative_path}')
         
         gtfs_db_dt = datetime.strptime(gtfs_catalog_item.gtfs_datetime_s, '%Y-%m-%d %H:%M')
         gtfs_db_age = round((gtfs_rt_dt.timestamp() - gtfs_db_dt.timestamp()) / (3600 * 24), 2)
@@ -153,6 +185,7 @@ class GTFS_Controller:
             tripOK_routeNOK_no=0,
             tripNOK_routeOK_no=0,
             tripNOK_routeNOK_no=0,
+            tripNOK_NOJP_no=0
         )
         
         report_stats = GTFS_RT_Static_Report.init_with_metadata(report_metdata)
@@ -180,25 +213,17 @@ class GTFS_Controller:
             if not trip_OK and not route_OK:
                 report_stats.tripNOK_routeNOK.append(entity.id)
                 report_stats.metadata.tripNOK_routeNOK_no += 1
+            
+            # match tripId that DOESNT start with 'ojp:' 'atv:'
+            special_trip_id_matches = re.match('^[a-z]{3}:', trip_id)
+            if not trip_OK and not special_trip_id_matches:
+                report_stats.metadata.tripNOK_NOJP_no += 1
         # loop entity
-
-        print(f'age                 : {gtfs_rt_age}')
-        if abs(gtfs_rt_age) > 60:
-            print(f'                    : ERROR, TOO OLD')
-            print(f'                    : ' + gtfs_rt_dt.strftime('%Y-%m-%d %H:%M:%S'))
-            print(f'                    : ' + report_dt.strftime('%Y-%m-%d %H:%M:%S'))
-            print()
-        print(f'rows                : {report_stats.metadata.total_rows_no}')
-        print(f'OK                  : {report_stats.metadata.tripOK_routeOK_no}')
-        print(f'tripOK  - routeNOT  : {len(report_stats.tripOK_routeNOK)}')
-        print(f'tripNOT - routeOK   : {len(report_stats.tripNOK_routeOK)}')
-        print(f'tripNOT - routeNOT  : {len(report_stats.tripNOK_routeNOK)}')
-        print()
         
         report_path = self.app_config['resource_paths']['gtfs_rt_static_report']
         report_path = compute_resource_snapshot_path(report_path, report_dt)
         report_json = report_stats.as_json()
         export_json_to_file(report_json, report_path, pretty_print=True)
-        log_message(f'... saved to {report_path}')
-        
-        log_message('... DONE')
+
+        return report_stats
+    # _compare_file_gtfs_rt_static

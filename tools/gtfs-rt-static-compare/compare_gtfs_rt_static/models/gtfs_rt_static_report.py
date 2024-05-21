@@ -17,10 +17,18 @@ class GTFS_RT_Static_Report_Metadata:
     gtfs_rt_age: int
     
     total_rows_no: int
+    # Trip/Route matched with GTFS
     tripOK_routeOK_no: int
+    
+    # Count Issues
+    # Trip matched / Route not matched against GTFS         - should be 0 items
     tripOK_routeNOK_no: int
+    # Trip NOT matched / Route matched against GTFS         - usually with tripId starts with ojp:
     tripNOK_routeOK_no: int
+    # Trip NOT matched / Route NOT matched against GTFS     - usually with tripId, routeId starts with ojp:
     tripNOK_routeNOK_no: int
+    # Trip NOT matched, TripId DOESNT start with ojp:       - should be 0 items
+    tripNOK_NOJP_no: int
     
     @staticmethod
     def from_json(data_json):
