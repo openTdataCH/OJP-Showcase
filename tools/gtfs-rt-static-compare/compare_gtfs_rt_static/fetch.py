@@ -17,13 +17,13 @@ def fetch_latest(app_config: dict, gtfs_rt_snapshot_path: Path):
     
     return gtfs_rt_response
 
-def compute_resource_snapshot_path(resource_path: str, fetch_dt: datetime):
+def compute_resource_snapshot_path(resource_path_template: str, fetch_dt: datetime):
     dt_year = fetch_dt.strftime('%Y')
     dt_month = fetch_dt.strftime('%m')
     dt_day = fetch_dt.strftime('%d')
     dt_hhmm = fetch_dt.strftime('%H%M')
     
-    resource_path = resource_path.replace('[YEAR]', dt_year)
+    resource_path = resource_path_template.replace('[YEAR]', dt_year)
     resource_path = resource_path.replace('[MONTH]', dt_month)
     resource_path = resource_path.replace('[DAY]', dt_day)
     resource_path = resource_path.replace('[HHMM]', dt_hhmm)
