@@ -21,6 +21,8 @@ class GTFS_RT_Static_Report_Metadata:
     tripOK_routeNOK_no: int
     tripNOK_routeOK_no: int
     tripNOK_routeNOK_no: int
+    # Trip NOT matched, TripId DOESNT start with ojp:       - should be 0 items
+    tripNOK_NOJP_no: int
     
     @staticmethod
     def from_json(data_json):

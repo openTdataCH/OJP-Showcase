@@ -153,6 +153,7 @@ class GTFS_Controller:
             tripOK_routeNOK_no=0,
             tripNOK_routeOK_no=0,
             tripNOK_routeNOK_no=0,
+            tripNOK_NOJP_no=0
         )
         
         report_stats = GTFS_RT_Static_Report.init_with_metadata(report_metdata)
@@ -180,6 +181,11 @@ class GTFS_Controller:
             if not trip_OK and not route_OK:
                 report_stats.tripNOK_routeNOK.append(entity.id)
                 report_stats.metadata.tripNOK_routeNOK_no += 1
+            
+            # match tripId that DOESNT start with 'ojp:' 'atv:'
+            special_trip_id_matches = re.match('^[a-z]{3}:', trip_id)
+            if not trip_OK and not special_trip_id_matches:
+                report_stats.metadata.tripNOK_NOJP_no += 1
         # loop entity
 
         print(f'age                 : {gtfs_rt_age}')
