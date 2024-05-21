@@ -4,7 +4,6 @@ resource_paths:
   gtfs_dbs_json_path: [APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json
   cache_gtfs_db_table: [APP_PATH]/data/gtfs-rt-static-compare-tmp/[GTFS_FILENAME].[TABLE_NAME]-v1.json
   gtfs_rt_static_report: [APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/[MONTH]/[DAY]/gtfs_rt_static_report-[YEAR]-[MONTH]-[DAY]-[HHMM].json
-  gtfs_rt_static_mo_report: [APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/[MONTH]/gtfs_rt_static_report-[YEAR]-[MONTH].html
   gtfs_rt_static_mo_json: [APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/gtfs_rt_static_report-[YEAR]-[MONTH].json
 
 opentransportdata:
