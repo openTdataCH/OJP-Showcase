@@ -50,15 +50,24 @@ const monthItems: string[] = (() => {
   return items.slice().reverse();
 })();
 
+interface PageModel {
+  monthItems: string[],
+  selectedMonth: string,
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  public model: PageModel;
 
   constructor(private dataService: DataService) {
-
+    this.model = {
+      monthItems: monthItems,
+      selectedMonth: monthItems[0],
+    }
   }
 
   ngOnInit() {
