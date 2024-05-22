@@ -7,6 +7,12 @@ interface GTFS_RT_Static_Monthly_Report_JSON {
   report_days: Record<string, Record<string, GTFS_RT_Static_Report_Metadata_JSON>>
 }
 
+interface DayCell {
+  date: Date,
+  dateF: string,
+  isWeekend: boolean
+}
+
 interface GTFS_RT_Static_Report_Metadata_JSON {
   report_dt: String
   gtfs_db_filename: String
@@ -21,6 +27,17 @@ interface GTFS_RT_Static_Report_Metadata_JSON {
   tripNOK_routeOK_no: Number
   tripNOK_routeNOK_no: Number
   tripNOK_NOJP_no: Number
+}
+
+type HoursReport = (GTFS_RT_Static_Report_Metadata_JSON | null)[];
+type DayHoursReport = HoursReport[];
+
+interface PageModel {
+  monthItems: string[],
+  selectedMonth: string,
+  dayHoursReport: DayHoursReport,
+  currentReport: GTFS_RT_Static_Report_Metadata_JSON | null,
+  dayCells: DayCell[],
 }
 
 const monthItems: string[] = (() => {
@@ -52,11 +69,6 @@ const monthItems: string[] = (() => {
   return items.slice().reverse();
 })();
 
-interface PageModel {
-  monthItems: string[],
-  selectedMonth: string,
-}
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -69,6 +81,9 @@ export class AppComponent {
     this.model = {
       monthItems: monthItems,
       selectedMonth: monthItems[0],
+      dayHoursReport: [],
+      currentReport: null,
+      dayCells: []
     }
   }
 
@@ -143,5 +158,30 @@ export class AppComponent {
 
       currentDay += 1;
     }
+
+    this.model.dayHoursReport = dayHoursReport;
+    this.model.dayCells = dayCells;
+
+    let nowDayIdx = 0;
+    // use current day for current month
+    if (DateHelpers.isSameMonth(currentDate)) {
+      const nowDay = new Date().getDate();
+      nowDayIdx = nowDay - 1;
+    }
+
+    const hourReportRows = dayHoursReport[nowDayIdx] ?? null;
+    if (hourReportRows === null) {
+      this.model.currentReport = null;
+    } else {
+      // Find last non-null report hour
+      for (let idx = hourReportRows.length - 1; idx >= 0; idx--) {
+        if (hourReportRows[idx] !== null) {
+          this.model.currentReport = hourReportRows[idx];
+          break;
+        }
+      }
+    }
+
+    console.log(this.model);
   }
 }
