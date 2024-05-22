@@ -1,1 +1,35 @@
-hello
+<div class="container-fluid d-flex flex-column vh-100">
+  <header class="row page-row">
+    <div class="col-12">
+      <h2>GTFS-RT - GTFS static Report</h2>
+    </div>
+  </header>
+
+  <main class="row page-row flex-fill">
+    <div class="col-9">
+      <div class="d-flex flex-row align-items-center">
+        <label for="monthSelect">Choose Month</label>
+        <div class="mx-2">
+          <select class="form-control" id="monthSelect" [(ngModel)]="this.model.selectedMonth" (ngModelChange)="onMonthSelectChange()">
+            <option *ngFor="let monthItem of this.model.monthItems" [ngValue]="monthItem">{{ monthItem }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="p-1 mb-2">
+        Cucuvban
+      </div>
+    </div>
+
+    <div class="col-3">
+      <p class="h5">Detail 2024-05-21</p>
+      <div class="form-group">
+        <textarea class="form-control" rows="20"></textarea>
+      </div>
+    </div>
+  </main>
+
+  <footer class="row page-row">
+    <div class="col-12">(c) 2024 Open data platform mobility Switzerland</div>
+  </footer>
+</div>
