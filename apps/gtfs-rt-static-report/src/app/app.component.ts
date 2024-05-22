@@ -21,6 +21,35 @@ interface GTFS_RT_Static_Report_Metadata {
   tripNOK_NOJP_no: Number
 }
 
+const monthItems: string[] = (() => {
+  const startMonthS = '2024-01';
+
+  const startMoParts = startMonthS.split('-');
+  const startY = Number(startMoParts[0]);
+  const startM = Number(startMoParts[1]);
+  const startDay = new Date(startY, startM - 1);
+
+  const now = new Date();
+  now.setDate(1);
+
+  const items: string[] = [];
+  
+  while (startDay <= now) {
+    const yearF = startDay.getFullYear();
+    const monthF = (startDay.getMonth() + 1).toString().padStart(2, '0');
+    items.push(yearF + '-' + monthF);
+
+    if (items.length > 100) {
+      // prevent long loops
+      break;
+    }
+
+    startDay.setMonth(startDay.getMonth() + 1);
+  }
+
+  return items.slice().reverse();
+})();
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
