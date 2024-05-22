@@ -7,6 +7,7 @@ from inc.shared.inc.helpers.json_helpers import load_json_from_file
 from inc.shared.inc.helpers.gtfs_helpers import compute_gtfs_day_from_resource_path, compute_gtfs_db_filename
 from inc.shared.inc.models.ckan_data import CKAN_Data
 
+PYTHON_PATH = sys.executable
 row_delimiter_s = '='*70
 
 def main():
@@ -22,7 +23,7 @@ def main():
 def _fetch_latest_resource(script_path, package_key):
     # fetch latest archive
     ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
-    ckan_fetch_sh = f'python3 {ckan_fetch_cli_path} --package_key {package_key}'
+    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_key {package_key}'
     
     print('')
     print('STEP 1 - FETCH LATEST ARCHIVE')
@@ -72,7 +73,7 @@ def _db_import(app_config, script_path, gtfs_data_path):
         print(f'=> {gtfs_db_path}')
     else:
         import_cli_path = f'{script_path.parent}/../gtfs-static-db-importer/gtfs_db_importer_cli.py'
-        import_sh = f'python3 {import_cli_path} --gtfs-folder-path {gtfs_data_path}'
+        import_sh = f'{PYTHON_PATH} {import_cli_path} --gtfs-folder-path {gtfs_data_path}'
         print(import_sh, flush=True)
         os.system(import_sh)
 
@@ -83,7 +84,7 @@ def _dbs_aggregate(script_path):
     print(f'STEP 4 - BUILD GTFS DB catalog')
     
     cli_path = f'{script_path.parent}/../gtfs-static-db-importer/cli_aggregate_dbs.py'
-    cli_sh = f'python3 {cli_path}'
+    cli_sh = f'{PYTHON_PATH} {cli_path}'
     print(cli_sh, flush=True)
     os.system(cli_sh)
 

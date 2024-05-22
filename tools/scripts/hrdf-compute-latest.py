@@ -7,6 +7,8 @@ import time
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
 from inc.shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_folder_path, compute_hrdf_db_filename, compute_formatted_date_from_hrdf_db_path
 
+PYTHON_PATH = sys.executable
+
 def main():
     script_path = Path(os.path.realpath(__file__))
     app_config = load_convenience_config(script_path)
@@ -21,7 +23,7 @@ def main():
 def _fetch_latest_resource(script_path, package_key):
     # fetch latest archive
     ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
-    ckan_fetch_sh = f'python3 {ckan_fetch_cli_path} --package_key {package_key}'
+    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_key {package_key}'
     
     print('')
     print('STEP 1 - FETCH LATEST ARCHIVE')
@@ -76,7 +78,7 @@ def _db_import(app_config, script_path, hrdf_data_path):
         print(f'=> {hrdf_db_path}')
     else:
         hrdf_import_cli_path = f'{script_path.parent}/../hrdf-db-importer/hrdf_db_importer_cli.py'
-        hrdf_import_sh = f'python3 {hrdf_import_cli_path} --hrdf-folder-path {hrdf_data_path}'
+        hrdf_import_sh = f'{PYTHON_PATH} {hrdf_import_cli_path} --hrdf-folder-path {hrdf_data_path}'
         print(hrdf_import_sh, flush=True)
         os.system(hrdf_import_sh)
 
@@ -101,7 +103,7 @@ def _hrdf_check_duplicates(script_path, hrdf_db_path):
         print(f'=> {hrdf_duplicates_report_path}')
     else:
         tool_cli_path = f'{hrdf_duplicates_tool_folder_path}/hrdf_check_duplicates_cli.py'
-        tool_cli_sh = f"python3 {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
+        tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
         print(tool_cli_sh, flush=True)
         os.system(tool_cli_sh)
 
@@ -126,7 +128,7 @@ def _hrdf_build_aggregated_duplicates(script_path):
 
     if run_cli:
         tool_cli_path = f'{hrdf_duplicates_tool_folder_path}/hrdf_build_consolidated_report_cli.py'
-        tool_cli_sh = f"python3 {tool_cli_path}"
+        tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path}"
         print(tool_cli_sh, flush=True)
         os.system(tool_cli_sh)
     else:
@@ -143,7 +145,7 @@ def _hrdf_generate_lookups(script_path, hrdf_db_path):
     # No need to do extra checks for the file existance because the generation is fast
 
     tool_cli_path = f'{tool_cli_folder_path}/hrdf_db_lookups_generator_cli.py'
-    tool_cli_sh = f"python3 {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
+    tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
     print(tool_cli_sh, flush=True)
     os.system(tool_cli_sh)
 
