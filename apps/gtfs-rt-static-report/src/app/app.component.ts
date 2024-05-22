@@ -71,9 +71,17 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    this.dataService.getMonthlyReport('2024-05').subscribe((response) => {
+    this.updateReport();
+  }
+
+  private updateReport() {
+    this.dataService.getMonthlyReport(this.model.selectedMonth).subscribe((response) => {
       const report = response as GTFS_RT_Static_Monthly_Report;
-      console.log(report.comments);
+      console.log(report);
     });
+  }
+
+  public onMonthSelectChange() {
+    this.updateReport();
   }
 }
