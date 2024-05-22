@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { DataService } from './data.service';
+import { DateHelpers } from './helpers/date-helpers';
 
 interface GTFS_RT_Static_Monthly_Report {
   comments: string
@@ -83,5 +84,63 @@ export class AppComponent {
 
   public onMonthSelectChange() {
     this.updateReport();
+  }
+
+  private updateReportModel(report: GTFS_RT_Static_Monthly_Report_JSON) {
+    const currentDateParts = this.model.selectedMonth.split('-');
+    const currentDateYear = Number(currentDateParts[0]);
+    const currentDateMonth = Number(currentDateParts[1]);
+
+    const currentDate = new Date(this.model.selectedMonth + '-01');
+    const selectedMonthDaysNo = DateHelpers.computeMonthDaysNo(currentDate);
+
+    const dayHoursReport: DayHoursReport = [];
+    const dayCells: DayCell[] = [];
+
+    let currentDay = 1;
+    while (currentDay <= selectedMonthDaysNo) {
+      const dayF = currentDay.toString().padStart(2, '0');
+
+      const hourReportRows: HoursReport = [];
+      const mapHourlyReports = report.report_days[dayF] ?? null;
+
+      let currentHr = 0;
+      while (currentHr <= 23) {
+        if (mapHourlyReports === null) {
+          hourReportRows.push(null);
+        } else {
+          const hrF = currentHr.toString().padStart(2, '0');
+          const hrMinF = hrF + '00';
+
+          const hourReport = mapHourlyReports[hrMinF] ?? null;
+          hourReportRows.push(hourReport);
+        }
+
+        currentHr += 1;
+      }
+
+      dayHoursReport.push(hourReportRows);
+
+      const currentDayDate = new Date(currentDateYear, currentDateMonth - 1, currentDay);
+      let currentDayF = currentDayDate.toLocaleDateString('en-US', {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+      });
+      currentDayF = currentDayF.replace(',', '');
+      const currentDayFParts = currentDayF.split(' ');
+      currentDayF = currentDayFParts[0] + ' ' + currentDayFParts[2] + '.' + currentDayFParts[1].replace(',', '');
+      const isWeekend = ['Sat', 'Sun'].includes(currentDayFParts[0]);
+
+      const dayCell: DayCell = {
+        date: currentDayDate,
+        dateF: currentDayF,
+        isWeekend: isWeekend,
+      }
+
+      dayCells.push(dayCell);
+
+      currentDay += 1;
+    }
   }
 }
