@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { DataService } from './data.service';
 import { DateHelpers } from './helpers/date-helpers';
 
-interface GTFS_RT_Static_Monthly_Report {
+interface GTFS_RT_Static_Monthly_Report_JSON {
   comments: string
-  report_days: Record<string, Record<string, GTFS_RT_Static_Report_Metadata>>
+  report_days: Record<string, Record<string, GTFS_RT_Static_Report_Metadata_JSON>>
 }
-interface GTFS_RT_Static_Report_Metadata {
+
+interface GTFS_RT_Static_Report_Metadata_JSON {
   report_dt: String
   gtfs_db_filename: String
   gtfs_db_age: String
@@ -72,18 +73,18 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    this.updateReport();
+    this.fetchAndUpdateReport();
   }
 
-  private updateReport() {
+  private fetchAndUpdateReport() {
     this.dataService.getMonthlyReport(this.model.selectedMonth).subscribe((response) => {
-      const report = response as GTFS_RT_Static_Monthly_Report;
-      console.log(report);
+      const report = response as GTFS_RT_Static_Monthly_Report_JSON;
+      this.updateReportModel(report);
     });
   }
 
   public onMonthSelectChange() {
-    this.updateReport();
+    this.fetchAndUpdateReport();
   }
 
   private updateReportModel(report: GTFS_RT_Static_Monthly_Report_JSON) {
