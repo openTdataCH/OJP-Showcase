@@ -27,7 +27,6 @@ interface GTFS_RT_Static_Report_Metadata {
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'gtfs-rt-static-report';
 
   constructor(private dataService: DataService) {
 
