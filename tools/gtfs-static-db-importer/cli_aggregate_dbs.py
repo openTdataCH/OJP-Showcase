@@ -9,7 +9,7 @@ from inc.shared.inc.helpers.config_helpers import load_convenience_config
 from inc.shared.inc.models.gtfs_static_db_catalog import GTFS_Static_Catalog_Report, GTFS_Static_Catalog_Item
 from inc.shared.inc.models.ckan_data import CKAN_Data, CKAN_Resource
 from inc.shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
-from inc.shared.inc.helpers.gtfs_helpers import compute_date_from_gtfs_db_filename, compute_gtfs_day_from_resource_path
+from inc.shared.inc.helpers.gtfs_helpers import compute_date_from_gtfs_db_filename, compute_gtfs_day_from_resource_path, compute_gtfs_dt_from_resource_path
 from inc.shared.inc.helpers.db_engine import SQLiteDBEngine
 
 from inc.shared.inc.helpers.log_helpers import log_message
@@ -96,7 +96,19 @@ def _process(app_config: any):
         if gtfs_day_f in map_gtfs_static_catalog:
             continue
         
-        resource_dt = datetime.fromisoformat(ckan_resource.modified_s)
+        # for datasets before may 2024 try to get the datetime from the filename, i.e. GTFS_FP2024_2024-04-15_08-54.zip
+        # otherwise CKAN .created and .updated are not reflecting the dataset publishing date
+        resource_dt = compute_gtfs_dt_from_resource_path(ckan_resource.identifier)
+        if resource_dt is None:
+            # if no info in the filename then rely on the CKAN .created datetime
+            resource_dt = datetime.fromisoformat(ckan_resource.created_s)
+        
+        gtfs_day_dt = datetime(gtfs_day.year, gtfs_day.month, gtfs_day.day)
+        gtfs_dt_age = round((resource_dt.timestamp() - gtfs_day_dt.timestamp()) / (3600 * 24), 2)
+        if gtfs_dt_age > 1.0:
+            error_message = f'ERROR - {gtfs_day} - GTFS DT age too high: {gtfs_dt_age}'
+            print(ckan_resource)
+            raise Exception(error_message)
         
         gtfs_db_relative_path = map_local_dbs.get(gtfs_day_f, None)
         gtfs_dt_f = resource_dt.strftime('%Y-%m-%d %H:%M')

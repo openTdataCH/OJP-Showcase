@@ -15,13 +15,13 @@ def main():
     app_path = Path(os.path.realpath(__file__)).parent
     
     report_now = datetime.now()
-    report_ym = report_now.strftime('%Y-%m')
+    report_date_filter = report_now.strftime('%Y-%m')
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('--month', '--month', default=report_ym)
+    parser.add_argument('--filter', '--filter', default=report_date_filter)
     args = parser.parse_args()
     
-    report_ym = args.month
+    report_date_filter = args.filter
 
     gtfs_rt_snapshot_files_path = Path(f'{app_path}/data/gtfs-rt-snapshot')
     
@@ -36,7 +36,7 @@ def main():
     map_file_file_paths: Dict[str, Dict[str, Path]] = {}
     for gtfs_rt_file_path in gtfs_rt_file_paths:
         keep_file = False
-        if gtfs_rt_file_path.name.startswith(f'GTFS_RT-{report_ym}'):
+        if gtfs_rt_file_path.name.startswith(f'GTFS_RT-{report_date_filter}'):
             keep_file = True
         if not keep_file:
             continue
