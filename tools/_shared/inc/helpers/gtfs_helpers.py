@@ -7,13 +7,7 @@ from pathlib import Path
 from typing import Union
 
 def compute_gtfs_day_from_resource_path(resource_path: Path):
-    if isinstance(resource_path, str):
-        resource_path = Path(resource_path)
-    
-    # gtfs_fp2021_2021-02-17_09-10
-    # GTFS_FP2024_2024-04-15_08-54.zip
-    # GTFS_FP2024_2024-05-02
-    dt_matches = re.match("^gtfs_fp([0-9]{4})_([0-9]{4})-([0-9]{2})-([0-9]{2}).*$", resource_path.name.lower())
+    dt_matches = _compute_gtfs_dt_matches_from_resource_path(resource_path)
     if dt_matches is None:
         return None
     
@@ -21,6 +15,33 @@ def compute_gtfs_day_from_resource_path(resource_path: Path):
     gtfs_day = datetime.datetime.strptime(gtfs_day_f, '%Y-%m-%d').date()
     
     return gtfs_day
+
+def _compute_gtfs_dt_matches_from_resource_path(resource_path: Path):
+    if isinstance(resource_path, str):
+        resource_path = Path(resource_path)
+    
+    # gtfs_fp2021_2021-02-17_09-10
+    # GTFS_FP2024_2024-04-15_08-54.zip
+    # GTFS_FP2024_2024-05-02
+    dt_matches = re.match("^gtfs_fp([0-9]{4})_([0-9]{4})-([0-9]{2})-([0-9]{2})(.*)$", resource_path.name.lower())
+    
+    return dt_matches
+
+# useful for old file formats which included the created date
+# GTFS_FP2024_2024-04-15_08-54.zip
+def compute_gtfs_dt_from_resource_path(resource_path: Path):
+    dt_matches = _compute_gtfs_dt_matches_from_resource_path(resource_path)
+    if dt_matches is None:
+        return None
+    
+    hhmm_matches = re.match("^_([0-9]{2})-([0-9]{2}).*", dt_matches[5])
+    if hhmm_matches is None:
+        return None
+    
+    gtfs_dt_f = f'{dt_matches[2]}-{dt_matches[3]}-{dt_matches[4]} {hhmm_matches[1]}:{hhmm_matches[2]}'
+    gtfs_dt = datetime.datetime.strptime(gtfs_dt_f, '%Y-%m-%d %H:%M')
+    
+    return gtfs_dt
 
 def convert_datetime_to_day_minutes(datetime_s: str):
     # fix HRDF bug - see emails 5.01.2022
