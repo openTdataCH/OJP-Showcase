@@ -47,10 +47,63 @@
       </table>
     </div>
 
-      <p class="h5">Detail 2024-05-21</p>
-      <div class="form-group">
-        <textarea class="form-control" rows="20"></textarea>
     <div class="col-2">
+      <div *ngIf="this.model.selectedReportCell !== null">
+        <p class="h5">{{ this.model.selectedReportCell.dayCell.dateF }} {{ this.model.selectedReportCell.hourCell.hourF }}:00</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Key</th>
+              <th scope="col">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Report URL</th>
+              <td><a [href]="computeReportURL()" target="_blank">{{ this.model.selectedReportCell.report?.report_dt }}</a></td>
+            </tr>
+            <tr>
+              <th scope="row">GTFS-DB</th>
+              <td><a href="https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json" target="_blank">{{ this.model.selectedReportCell.report?.gtfs_db_filename }}</a></td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('gtfs_db_age') }}</th>
+              <td>{{ computeDetailLookupValue('gtfs_db_age') }} days</td>
+            </tr>
+            <tr>
+              <th scope="row">GTFS-RT</th>
+              <td><a [href]="computeGTFS_RT_URL(this.model.selectedReportCell.report)" target="_blank">{{ this.model.selectedReportCell.report?.gtfs_rt_filename }}</a></td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('gtfs_rt_age') }}</th>
+              <td>{{ computeDetailLookupValue('gtfs_rt_age') }}"</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('total_rows_no') }}</th>
+              <td>{{ computeDetailLookupValue('total_rows_no') }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('tripOK_routeOK_no') }}</th>
+              <td>{{ computeDetailLookupValue('tripOK_routeOK_no') }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('tripOK_routeNOK_no') }}</th>
+              <td>{{ computeDetailLookupValue('tripOK_routeNOK_no') }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('tripNOK_routeOK_no') }}</th>
+              <td>{{ computeDetailLookupValue('tripNOK_routeOK_no') }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('tripNOK_routeNOK_no') }}</th>
+              <td>{{ computeDetailLookupValue('tripNOK_routeNOK_no') }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('tripNOK_NOJP_no') }}</th>
+              <td>{{ computeDetailLookupValue('tripNOK_NOJP_no') }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </main>
