@@ -167,8 +167,8 @@ export class AppComponent {
 
   private fetchAndUpdateReport() {
     this.dataService.getMonthlyReport(this.model.selectedMonth).subscribe((response) => {
-      const report = response as GTFS_RT_Static_Monthly_Report_JSON;
-      this.updateReportModel(report);
+      this.model.reportJSON = response;
+      this.updateReportModel();
     });
   }
 
@@ -176,7 +176,13 @@ export class AppComponent {
     this.fetchAndUpdateReport();
   }
 
-  private updateReportModel(report: GTFS_RT_Static_Monthly_Report_JSON) {
+  private updateReportModel() {
+    if (this.model.reportJSON === null) {
+      return;
+    }
+
+    const report = this.model.reportJSON;
+
     const currentDateParts = this.model.selectedMonth.split('-');
     const currentDateYear = Number(currentDateParts[0]);
     const currentDateMonth = Number(currentDateParts[1]);
