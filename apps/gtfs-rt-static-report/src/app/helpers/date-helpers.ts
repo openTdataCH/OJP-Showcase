@@ -22,4 +22,16 @@ export class DateHelpers {
 
         return dateAYear === dateBYear && dateAMonth === dateBMonth;
     }
+
+    public static isSameDay(date: Date, anotherDate: Date = new Date()) {
+        const isSameMonth = DateHelpers.isSameMonth(date, anotherDate);
+        if (isSameMonth) {
+            const dateADay = date.getDate();
+            const dateBDay = anotherDate.getDate();
+
+            return dateADay === dateBDay;
+        } else {
+            return false;
+        }
+    }
 }
