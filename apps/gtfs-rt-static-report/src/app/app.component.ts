@@ -368,4 +368,25 @@ export class AppComponent {
 
     return url;
   }
+
+  public computeDetailLookupCaption(key: ReportValueLookupType) {
+    const caption = mapReportValueLookups[key] ?? null;
+
+    return caption;
+  }
+
+  public computeDetailLookupValue(key: string) {
+    const metadata = this.model.selectedReportCell?.report ?? null;
+    if (metadata === null) {
+      return '';
+    }
+
+    const reportAny = metadata as any;
+    const reportValue = reportAny[key] ?? null;
+    if (typeof reportValue === 'number' && isFinite(reportValue)) {
+      return reportValue.toLocaleString('de-CH');
+    }
+
+    return reportValue;
+  }
 }
