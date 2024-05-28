@@ -176,6 +176,10 @@ export class AppComponent {
     this.fetchAndUpdateReport();
   }
 
+  public onReportValueTypeChange() {
+    this.updateReportModel();
+  }
+
   private updateReportModel() {
     if (this.model.reportJSON === null) {
       return;
