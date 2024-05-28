@@ -11,11 +11,18 @@ interface DayCell {
   date: Date,
   dateF: string,
   isWeekend: boolean
+}
+
 interface HourCell {
   hour: number,
   hourF: string
 }
 
+type ReportValueLookupType = 'gtfs_db_age' | 'gtfs_rt_age' | 'total_rows_no' | 'tripOK_routeOK_no' | 'tripOK_routeNOK_no' | 'tripNOK_routeOK_no' | 'tripNOK_routeNOK_no' | 'tripNOK_NOJP_no'
+
+interface ReportValueLookup {
+  type: ReportValueLookupType,
+  caption: string
 }
 
 interface GTFS_RT_Static_Report_Metadata_JSON {
@@ -43,7 +50,32 @@ interface PageModel {
   dayHoursReport: DayHoursReport,
   currentReport: GTFS_RT_Static_Report_Metadata_JSON | null,
   dayCells: DayCell[],
+const mapReportValueLookups: Record<ReportValueLookupType, string> = {
+  gtfs_db_age: 'GTFS-DB Age',
+  gtfs_rt_age: 'GTFS-RT Age',
+  total_rows_no: 'GTFS-RT Trips',
+  tripOK_routeOK_no: 'Matched Trips',
+  tripOK_routeNOK_no: 'Matched Trips / Not-matched Routes',
+  tripNOK_routeOK_no: 'Not-matched Trips / Matched Routes',
+  tripNOK_routeNOK_no: 'Not-matched Trips / Not-matched Routes',
+  tripNOK_NOJP_no: 'Not-matched Trips without ojp: prefix',
 }
+
+const reportValueLookups = (() => {
+  const lookups: ReportValueLookup[] = [];
+
+  const reportValueLookupTypes: ReportValueLookupType[] = ['total_rows_no', 'gtfs_db_age', 'gtfs_rt_age', 'tripOK_routeOK_no', 'tripOK_routeNOK_no', 'tripNOK_routeOK_no', 'tripNOK_routeNOK_no', 'tripNOK_NOJP_no'];
+
+  reportValueLookupTypes.forEach(reportValueLookupType => {
+    const lookup: ReportValueLookup = {
+      type: reportValueLookupType,
+      caption: mapReportValueLookups[reportValueLookupType]
+    }
+    lookups.push(lookup);
+  });
+
+  return lookups;
+})();
 
 const monthItems: string[] = (() => {
   const startMonthS = '2024-01';
