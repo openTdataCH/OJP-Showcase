@@ -10,7 +10,7 @@ interface GTFS_RT_Static_Monthly_Report_JSON {
 interface DayCell {
   date: Date,
   dateF: string,
-  isWeekend: boolean
+  isSunday: boolean
 }
 
 interface HourCell {
@@ -187,81 +187,144 @@ export class AppComponent {
     const currentDateYear = Number(currentDateParts[0]);
     const currentDateMonth = Number(currentDateParts[1]);
 
-    const currentDate = new Date(this.model.selectedMonth + '-01');
-    const selectedMonthDaysNo = DateHelpers.computeMonthDaysNo(currentDate);
+    const nowDate = new Date();
+    const nowHHMM = nowDate.toTimeString().substring(0, 5);
 
-    const dayHoursReport: DayHoursReport = [];
+    const monthDay1Date = new Date(this.model.selectedMonth + '-01');
+    const selectedMonthDaysNo = DateHelpers.computeMonthDaysNo(monthDay1Date);
+
+    const isSameMonth = DateHelpers.isSameMonth(monthDay1Date);
+
+    const dayReportCells: ReportCell[][] = [];
     const dayCells: DayCell[] = [];
+
+    let classDBSource: CellClassDB = 'odd';
+    let prevDBName: string | null = null;
 
     let currentDay = 1;
     while (currentDay <= selectedMonthDaysNo) {
+      const dayCell: DayCell = (() => {
+        const currentDayDate = new Date(currentDateYear, currentDateMonth - 1, currentDay);
+        let currentDayF = currentDayDate.toLocaleDateString('en-US', {
+          weekday: 'short',
+          day: '2-digit',
+          month: 'short',
+        });
+        currentDayF = currentDayF.replace(',', '');
+        const currentDayFParts = currentDayF.split(' ');
+        currentDayF = currentDayFParts[0] + ' ' + currentDayFParts[2] + '.' + currentDayFParts[1].replace(',', '');
+        const isSunday = currentDayFParts[0] === 'Sun';
+
+        return {
+          date: currentDayDate,
+          dateF: currentDayF,
+          isSunday: isSunday,
+        }
+      })();
+
       const dayF = currentDay.toString().padStart(2, '0');
+      const hourReportCells: ReportCell[] = [];
+      const mapDataHourlyReports = report.report_days[dayF] ?? null;
 
-      const hourReportRows: HoursReport = [];
-      const mapHourlyReports = report.report_days[dayF] ?? null;
-
-      let currentHr = 0;
-      while (currentHr <= 23) {
-        if (mapHourlyReports === null) {
-          hourReportRows.push(null);
-        } else {
-          const hrF = currentHr.toString().padStart(2, '0');
-          const hrMinF = hrF + '00';
-
-          const hourReport = mapHourlyReports[hrMinF] ?? null;
-          hourReportRows.push(hourReport);
+      hourCells.forEach(hourCell => {
+        const reportCell: ReportCell = {
+          report: null,
+          className: 'ok_empty',
+          cellValue: '',
+          error: null,
+          dayCell: dayCell,
+          hourCell: hourCell,
         }
 
-        currentHr += 1;
-      }
+        if (mapDataHourlyReports !== null) {
+          let hrMinF = hourCell.hourF + '00';
+          
+          const reportHR = mapDataHourlyReports[hrMinF] ?? null;
+          if (reportHR === null) {
+            if (prevDBName !== null) {
+              const isFuture = hourCell.hourF > nowHHMM;
+              if (!isFuture) {
+                // Discard future entries
+                reportCell.cellValue = 'n/a';
+                reportCell.error = 'DATA';
+              }
+            }
+          } else {
+            const reportAny = reportHR as any;
+            const reportValue = reportAny[this.model.selectedReportValueLookup.type] ?? null;
+            if (reportValue === null) {
+              reportCell.cellValue = 'n/a'
+            } else {
+              reportCell.cellValue = reportValue.toLocaleString('de-CH');
+            }
+ 
+            if (Math.abs(reportHR.gtfs_rt_age) > 60) {
+              reportCell.error = 'RT age';
+            }
 
-      dayHoursReport.push(hourReportRows);
+            if (reportHR.tripNOK_NOJP_no > 0) {
+              reportCell.error = 'Match';
+            }
 
-      const currentDayDate = new Date(currentDateYear, currentDateMonth - 1, currentDay);
-      let currentDayF = currentDayDate.toLocaleDateString('en-US', {
-        weekday: 'short',
-        day: '2-digit',
-        month: 'short',
+            if (prevDBName !== null && (prevDBName !== reportHR.gtfs_db_filename)) {
+              classDBSource = classDBSource === 'odd' ? 'even' : 'odd';
+            }
+            prevDBName = reportHR.gtfs_db_filename;
+
+            reportCell.className = 'ok_' + classDBSource;
+          }
+          
+          reportCell.report = reportHR;
+        }
+
+        hourReportCells.push(reportCell);
       });
-      currentDayF = currentDayF.replace(',', '');
-      const currentDayFParts = currentDayF.split(' ');
-      currentDayF = currentDayFParts[0] + ' ' + currentDayFParts[2] + '.' + currentDayFParts[1].replace(',', '');
-      const isWeekend = ['Sat', 'Sun'].includes(currentDayFParts[0]);
 
-      const dayCell: DayCell = {
-        date: currentDayDate,
-        dateF: currentDayF,
-        isWeekend: isWeekend,
-      }
+      dayReportCells.push(hourReportCells);
 
       dayCells.push(dayCell);
 
       currentDay += 1;
     }
 
-    this.model.dayHoursReport = dayHoursReport;
+    this.model.monthlyHoursReport = dayReportCells;
     this.model.dayCells = dayCells;
 
-    let nowDayIdx = 0;
-    // use current day for current month
-    if (DateHelpers.isSameMonth(currentDate)) {
-      const nowDay = new Date().getDate();
-      nowDayIdx = nowDay - 1;
-    }
-
-    const hourReportRows = dayHoursReport[nowDayIdx] ?? null;
-    if (hourReportRows === null) {
-      this.model.currentReport = null;
-    } else {
-      // Find last non-null report hour
-      for (let idx = hourReportRows.length - 1; idx >= 0; idx--) {
-        if (hourReportRows[idx] !== null) {
-          this.model.currentReport = hourReportRows[idx];
-          break;
+    this.model.selectedReportCell = (() => {
+      const nowDayIdx = (() => {
+        if (isSameMonth) {
+          // use current day for current month
+          const nowDay = new Date().getDate();
+          return nowDay - 1;
+        } else {
+          // otherwise use first day of month
+          return 0;
         }
-      }
-    }
+      })();
 
-    console.log(this.model);
+      const hourReportRows = dayReportCells[nowDayIdx] ?? null;
+      if (hourReportRows === null) {
+        return null;
+      }
+
+      // filter for non-null reports
+      const hourReportNotNullRows = hourReportRows.filter(el => el.report !== null);
+      if (hourReportNotNullRows.length === 0) {
+        return null;
+      }
+
+      const cellIndex = (() => {
+        if (isSameMonth) {
+          // for current month use latest report
+          return hourReportNotNullRows.length - 1;
+        }
+
+        return 0;
+      })();
+
+      return hourReportNotNullRows[cellIndex];
+    })();
+
+    console.log(this.model.selectedReportCell);
   }
 }
