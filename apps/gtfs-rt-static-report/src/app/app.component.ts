@@ -14,19 +14,19 @@ interface DayCell {
 }
 
 interface GTFS_RT_Static_Report_Metadata_JSON {
-  report_dt: String
-  gtfs_db_filename: String
-  gtfs_db_age: String
-  gtfs_rt_filename: String
-  gtfs_rt_ts: Number
-  gtfs_rt_dt: String
-  gtfs_rt_age: Number
-  total_rows_no: Number
-  tripOK_routeOK_no: Number
-  tripOK_routeNOK_no: Number
-  tripNOK_routeOK_no: Number
-  tripNOK_routeNOK_no: Number
-  tripNOK_NOJP_no: Number
+  report_dt: string
+  gtfs_db_filename: string
+  gtfs_db_age: number
+  gtfs_rt_filename: string
+  gtfs_rt_ts: number
+  gtfs_rt_dt: string
+  gtfs_rt_age: number
+  total_rows_no: number
+  tripOK_routeOK_no: number
+  tripOK_routeNOK_no: number
+  tripNOK_routeOK_no: number
+  tripNOK_routeNOK_no: number
+  tripNOK_NOJP_no: number
 }
 
 type HoursReport = (GTFS_RT_Static_Report_Metadata_JSON | null)[];
