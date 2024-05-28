@@ -327,4 +327,41 @@ export class AppComponent {
 
     console.log(this.model.selectedReportCell);
   }
+
+  private computeSnapshotURLFromTemplate(templateURL: string, metadata: GTFS_RT_Static_Report_Metadata_JSON) {
+    let url = templateURL;
+
+    const timeMatches = metadata.gtfs_rt_filename.match(/-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/);
+    if (timeMatches) {
+      url = url.replaceAll('[YYYY]', timeMatches[1]);
+      url = url.replaceAll('[MM]', timeMatches[2]);
+      url = url.replaceAll('[DD]', timeMatches[3]);
+      url = url.replaceAll('[HHMM]', timeMatches[4]);
+    }
+
+    return url;
+  }
+
+  public computeReportURL() {
+    const metadata = this.model.selectedReportCell?.report ?? null;
+    if (metadata === null) {
+      return '';
+    }
+
+    const templateURL = 'https://tools.odpch.ch/gtfs-rt-static-compare-report/[YYYY]/[MM]/[DD]/gtfs_rt_static_report-[YYYY]-[MM]-[DD]-[HHMM].json';
+    const url = this.computeSnapshotURLFromTemplate(templateURL, metadata);
+
+    return url;
+  }
+
+  public computeGTFS_RT_URL(metadata: GTFS_RT_Static_Report_Metadata_JSON | null) {
+    if (metadata === null) {
+      return '';
+    }
+
+    const templateURL = 'https://tools.odpch.ch/gtfs-rt-snapshot/[YYYY]/[MM]/[DD]/' + metadata.gtfs_rt_filename;
+    const url = this.computeSnapshotURLFromTemplate(templateURL, metadata);
+
+    return url;
+  }
 }
