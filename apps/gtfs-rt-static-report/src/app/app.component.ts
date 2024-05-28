@@ -11,6 +11,11 @@ interface DayCell {
   date: Date,
   dateF: string,
   isWeekend: boolean
+interface HourCell {
+  hour: number,
+  hourF: string
+}
+
 }
 
 interface GTFS_RT_Static_Report_Metadata_JSON {
@@ -67,6 +72,25 @@ const monthItems: string[] = (() => {
   }
 
   return items.slice().reverse();
+})();
+
+const hourCells: HourCell[] = (() => {
+  const cells: HourCell[] = [];
+
+  let hour = 0;
+  while (hour <= 23) {
+    const hourF = hour.toString().padStart(2, '0');
+
+    const cell: HourCell = {
+      hour: hour,
+      hourF: hourF,
+    };
+    cells.push(cell);
+
+    hour += 1;
+  }
+
+  return cells;
 })();
 
 @Component({
