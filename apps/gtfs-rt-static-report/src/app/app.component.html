@@ -14,6 +14,12 @@
             <option *ngFor="let monthItem of this.model.monthItems" [ngValue]="monthItem">{{ monthItem }}</option>
           </select>
         </div>
+        <label for="reportValueTypeSelect">Choose Cell Value</label>
+        <div class="mx-2">
+          <select class="form-control" id="reportValueTypeSelect" [(ngModel)]="this.model.selectedReportValueLookup" (ngModelChange)="onReportValueTypeChange()">
+            <option *ngFor="let reportValueLookup of this.model.reportValueLookups" [ngValue]="reportValueLookup">{{ reportValueLookup.caption }}</option>
+          </select>
+        </div>
       </div>
 
       <div class="p-1 mb-2">
