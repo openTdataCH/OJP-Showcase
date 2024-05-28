@@ -41,15 +41,29 @@ interface GTFS_RT_Static_Report_Metadata_JSON {
   tripNOK_NOJP_no: number
 }
 
-type HoursReport = (GTFS_RT_Static_Report_Metadata_JSON | null)[];
-type DayHoursReport = HoursReport[];
+type CellClassDB = 'odd' | 'even'
+
+interface ReportCell {
+  report: GTFS_RT_Static_Report_Metadata_JSON | null
+  className: string
+  cellValue: string
+  error: string | null
+  dayCell: DayCell,
+  hourCell: HourCell,
+}
 
 interface PageModel {
+  reportJSON: GTFS_RT_Static_Monthly_Report_JSON | null
   monthItems: string[],
   selectedMonth: string,
-  dayHoursReport: DayHoursReport,
-  currentReport: GTFS_RT_Static_Report_Metadata_JSON | null,
+  monthlyHoursReport: ReportCell[][],
+  selectedReportCell: ReportCell | null,
   dayCells: DayCell[],
+  hourCells: HourCell[],
+  reportValueLookups: ReportValueLookup[],
+  selectedReportValueLookup: ReportValueLookup
+}
+
 const mapReportValueLookups: Record<ReportValueLookupType, string> = {
   gtfs_db_age: 'GTFS-DB Age',
   gtfs_rt_age: 'GTFS-RT Age',
@@ -135,11 +149,15 @@ export class AppComponent {
 
   constructor(private dataService: DataService) {
     this.model = {
+      reportJSON: null,
       monthItems: monthItems,
       selectedMonth: monthItems[0],
-      dayHoursReport: [],
-      currentReport: null,
-      dayCells: []
+      monthlyHoursReport: [],
+      selectedReportCell: null,
+      dayCells: [],
+      hourCells: hourCells,
+      reportValueLookups: reportValueLookups,
+      selectedReportValueLookup: reportValueLookups[0],
     }
   }
 
