@@ -3,6 +3,7 @@ import { DataService } from './data.service';
 import { DateHelpers } from './helpers/date-helpers';
 
 interface GTFS_RT_Static_Monthly_Report_JSON {
+  last_update_dt: string
   comments: string
   report_days: Record<string, Record<string, GTFS_RT_Static_Report_Metadata_JSON>>
 }
@@ -185,6 +186,7 @@ export class AppComponent {
       return;
     }
 
+    const reportLastUpdate = new Date(this.model.reportJSON.last_update_dt);
     const report = this.model.reportJSON;
 
     const currentDateParts = this.model.selectedMonth.split('-');
@@ -240,18 +242,27 @@ export class AppComponent {
           hourCell: hourCell,
         }
 
-        if (mapDataHourlyReports !== null) {
-          let hrMinF = hourCell.hourF + '00';
-          
+        const hasData: boolean = (() => {
+          const reportCellDateS = this.model.selectedMonth + '-' + dayF + ' ' + hourCell.hourF + ':00:00';
+          const reportCellDate = new Date(reportCellDateS);
+
+          const isFuture = reportCellDate > reportLastUpdate;
+          // Discard future event cells
+          if (isFuture) {
+            return false;
+          }
+
+          // Otherwise check if we have a report
+          return mapDataHourlyReports !== null;
+        })();
+
+        if (hasData) {
+          const hrMinF = hourCell.hourF + '00';
           const reportHR = mapDataHourlyReports[hrMinF] ?? null;
           if (reportHR === null) {
             if (prevDBName !== null) {
-              const isFuture = hourCell.hourF > nowHHMM;
-              if (!isFuture) {
-                // Discard future entries
-                reportCell.cellValue = 'n/a';
-                reportCell.error = 'DATA';
-              }
+              reportCell.cellValue = 'n/a';
+              reportCell.error = 'DATA';
             }
           } else {
             const reportAny = reportHR as any;
