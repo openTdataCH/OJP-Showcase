@@ -22,9 +22,29 @@
         </div>
       </div>
 
-      <div class="p-1 mb-2">
-        Cucuvban
-      </div>
+      <table class="table table-bordered report">
+        <thead>
+          <tr>
+            <th scope="col">Day-Hr</th>
+            <th *ngFor="let hourCell of this.model.hourCells" class="text-center">{{ hourCell.hourF }}</th>
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          <tr class="align-middle"
+            *ngFor="let dayCell of this.model.dayCells; index as dayIdx">
+            <th scope="row"[ngClass]="{'separator': dayCell.isSunday}">{{ dayCell.dateF }}</th>
+            <td *ngFor="let reportCell of this.model.monthlyHoursReport[dayIdx]; index as hrIdx"
+              [ngClass]="{'selected': reportCell === this.model.selectedReportCell, 'separator': reportCell.dayCell.isSunday}"
+              (click)="this.model.selectedReportCell = reportCell"
+              class="{{ reportCell.className }} text-center">
+              <div class="d-flex flex-column">
+                <div>{{ reportCell.cellValue }}</div>
+                <div class="cell_error"><span class="badge rounded-pill text-bg-danger">{{ reportCell.error }}</span></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <div class="col-3">
