@@ -2,6 +2,7 @@
 
 ## Apps
 
+- [GTFS-RT -static Report](apps/gtfs-rt-static-report)
 - [GTFS-RT -static Comparsion](apps/gtfs-rt-status)
 - [GTFS -static Query API](apps/gtfs-query)
 - [HRDF Check Duplicates](apps/hrdf-duplicates-report)
