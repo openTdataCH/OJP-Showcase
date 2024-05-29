@@ -67,6 +67,7 @@ def main():
     report_comments = f'generated {report_now_f} with {Path(__file__).name}'
     
     gtfs_rt_static_monthly_report = GTFS_RT_Static_Monthly_Report(
+        last_update_dt=report_now_f,
         comments=report_comments,
         report_days=map_report_days
     )

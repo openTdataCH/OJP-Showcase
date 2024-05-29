@@ -84,6 +84,7 @@ class GTFS_RT_Static_Report:
 @dataclass
 class GTFS_RT_Static_Monthly_Report:
     comments: str
+    last_update_dt: str
     report_days: Dict[str, Dict[str, GTFS_RT_Static_Report_Metadata]]
     
     def as_json(self):
