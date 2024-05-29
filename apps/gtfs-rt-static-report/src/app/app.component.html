@@ -54,7 +54,7 @@
       <div>Report Last Update: {{ this.model.reportJSON?.last_update_dt }}</div>
     </div>
 
-    <div class="col-2">
+    <div class="col-2 right-column">
       <div *ngIf="this.model.selectedReportCell !== null">
         <p class="h5">{{ this.model.selectedReportCell.dayCell.dateF }} {{ this.model.selectedReportCell.hourCell.hourF }}:00</p>
         <table class="table">
