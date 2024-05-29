@@ -62,7 +62,8 @@ interface PageModel {
   dayCells: DayCell[],
   hourCells: HourCell[],
   reportValueLookups: ReportValueLookup[],
-  selectedReportValueLookup: ReportValueLookup
+  selectedReportValueLookup: ReportValueLookup,
+  appVersion: string
 }
 
 const mapReportValueLookups: Record<ReportValueLookupType, string> = {
@@ -159,6 +160,7 @@ export class AppComponent {
       hourCells: hourCells,
       reportValueLookups: reportValueLookups,
       selectedReportValueLookup: reportValueLookups[0],
+      appVersion: '2024-05-28-1'
     }
   }
 
