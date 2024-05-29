@@ -1,0 +1,44 @@
+header {
+    background-color: orange;
+}
+
+.main {
+    background-color: antiquewhite;
+}
+
+footer {
+    background-color: goldenrod;
+}
+
+.page-row {
+    padding: 16px;
+}
+
+.page-row h3 {
+    margin-bottom: 0px;
+}
+
+.right-column {
+    border-left: 1px dashed #333;
+}
+
+.report {
+    font-size: 14px;
+}
+
+.ok_odd {
+    background-color: #F0F8FF;
+}
+
+.ok_even {
+    background-color: #ADD8E6;
+}
+
+.selected {
+    border-width: 3px;
+    border-color: #0047AB;
+}
+
+.separator {
+    border-bottom: 2px solid #515151;
+}

@@ -1,0 +1,125 @@
+<div class="container-fluid d-flex flex-column vh-100">
+  <header class="row page-row">
+    <div class="col-12">
+      <h2>GTFS-RT - GTFS static Report</h2>
+    </div>
+  </header>
+
+  <main class="row page-row flex-fill">
+    <div class="col-10">
+      <div class="d-flex flex-row align-items-center mb-2">
+        <label for="monthSelect">Choose Month</label>
+        <div class="mx-2">
+          <select class="form-control" id="monthSelect" [(ngModel)]="this.model.selectedMonth" (ngModelChange)="onMonthSelectChange()">
+            <option *ngFor="let monthItem of this.model.monthItems" [ngValue]="monthItem">{{ monthItem }}</option>
+          </select>
+        </div>
+        
+        <div class="mx-2"></div>
+        
+        <label for="reportValueTypeSelect">Choose Cell Value</label>
+        <div class="mx-2">
+          <select class="form-control" id="reportValueTypeSelect" [(ngModel)]="this.model.selectedReportValueLookup" (ngModelChange)="onReportValueTypeChange()">
+            <option *ngFor="let reportValueLookup of this.model.reportValueLookups" [ngValue]="reportValueLookup">{{ reportValueLookup.caption }}</option>
+          </select>
+        </div>
+
+        <div class="ms-auto p-2"><a href="https://github.com/openTdataCH/OJP-Showcase/blob/develop/tools/gtfs-rt-static-compare/docs/gtfs-rt-static-compare.md" target="_blank">Documentation</a></div>
+      </div>
+
+      <table class="table table-bordered report mb-2">
+        <thead>
+          <tr>
+            <th scope="col">Day-Hr</th>
+            <th *ngFor="let hourCell of this.model.hourCells" class="text-center">{{ hourCell.hourF }}</th>
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          <tr class="align-middle"
+            *ngFor="let dayCell of this.model.dayCells; index as dayIdx">
+            <th scope="row"[ngClass]="{'separator': dayCell.isSunday}">{{ dayCell.dateF }}</th>
+            <td *ngFor="let reportCell of this.model.monthlyHoursReport[dayIdx]; index as hrIdx"
+              [ngClass]="{'selected': reportCell === this.model.selectedReportCell, 'separator': reportCell.dayCell.isSunday}"
+              (click)="this.model.selectedReportCell = reportCell"
+              class="{{ reportCell.className }} text-center">
+              <div class="d-flex flex-column">
+                <div>{{ reportCell.cellValue }}</div>
+                <div class="cell_error"><span class="badge rounded-pill text-bg-danger">{{ reportCell.error }}</span></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div>Report Last Update: {{ this.model.reportJSON?.last_update_dt }}</div>
+    </div>
+
+    <div class="col-2 right-column">
+      <div *ngIf="this.model.selectedReportCell !== null">
+        <p class="h5">Report {{ this.model.selectedReportCell.dayCell.dateF }} {{ this.model.selectedReportCell.hourCell.hourF }}:00</p>
+        <hr/>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Key</th>
+              <th scope="col">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Report URL</th>
+              <td><a [href]="computeReportURL()" target="_blank">{{ this.model.selectedReportCell.report?.report_dt }}</a></td>
+            </tr>
+            <tr>
+              <th scope="row">GTFS-DB</th>
+              <td><a href="https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json" target="_blank">{{ this.model.selectedReportCell.report?.gtfs_db_filename }}</a></td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('gtfs_db_age') }}</th>
+              <td>{{ computeDetailLookupValue('gtfs_db_age') }} days</td>
+            </tr>
+            <tr>
+              <th scope="row">GTFS-RT (large file!)</th>
+              <td><a [href]="computeGTFS_RT_URL(this.model.selectedReportCell.report)" target="_blank">{{ this.model.selectedReportCell.report?.gtfs_rt_filename }}</a></td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('gtfs_rt_age') }}</th>
+              <td>{{ computeDetailLookupValue('gtfs_rt_age') }}"</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('total_rows_no') }}</th>
+              <td>{{ computeDetailLookupValue('total_rows_no') }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('tripOK_routeOK_no') }}</th>
+              <td>{{ computeDetailLookupValue('tripOK_routeOK_no') }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('tripOK_routeNOK_no') }}</th>
+              <td>{{ computeDetailLookupValue('tripOK_routeNOK_no') }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('tripNOK_routeOK_no') }}</th>
+              <td>{{ computeDetailLookupValue('tripNOK_routeOK_no') }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('tripNOK_routeNOK_no') }}</th>
+              <td>{{ computeDetailLookupValue('tripNOK_routeNOK_no') }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{{ computeDetailLookupCaption('tripNOK_NOJP_no') }}</th>
+              <td>{{ computeDetailLookupValue('tripNOK_NOJP_no') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer class="row page-row">
+    <div class="d-flex justify-content-between">
+      <div>(c) 2024 Open data platform mobility Switzerland</div>
+      <div>Version: {{ this.model.appVersion }}</div>
+    </div>
+  </footer>
+</div>
