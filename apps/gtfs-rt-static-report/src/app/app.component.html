@@ -56,7 +56,8 @@
 
     <div class="col-2 right-column">
       <div *ngIf="this.model.selectedReportCell !== null">
-        <p class="h5">{{ this.model.selectedReportCell.dayCell.dateF }} {{ this.model.selectedReportCell.hourCell.hourF }}:00</p>
+        <p class="h5">Report {{ this.model.selectedReportCell.dayCell.dateF }} {{ this.model.selectedReportCell.hourCell.hourF }}:00</p>
+        <hr/>
         <table class="table">
           <thead>
             <tr>
