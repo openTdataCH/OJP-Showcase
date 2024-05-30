@@ -3,9 +3,6 @@
 class GTFS_DB_Controller {
     var $is_dev;
     var $request_URI;
-    var $db_path;
-
-    var $day;
     
     var $db;
 
@@ -15,37 +12,18 @@ class GTFS_DB_Controller {
     var $go_realtime_csv_path;
     var $app_db_cache_path;
 
-    function __construct($config, $day, $hhmm) {
+    function __construct($config, $gtfs_db_day) {
         $this->is_dev = APP_PROFILE === 'dev';
         $this->request_URI = $_SERVER['REQUEST_URI'];
 
-        if (is_null($day)) {
-            $day = date('Y-m-d');
-        }
-
-        if (is_null($hhmm)) {
-            $hhmm = date('Hi');
-        }
-
         $gtfs_dbs_path = $config['ojp_gtfs_dbs_path'];
 
-        $gtfs_db_day = $this->compute_gtfs_day_from_date($day, $hhmm);
         $gtfs_db_path = $this->compute_gtfs_db_path_from_day($gtfs_dbs_path, $gtfs_db_day);
-
         if (!file_exists($gtfs_db_path)) {
-            $request_dt_s = $day . '-' . $hhmm;
-            $gtfs_db_path = $this->compute_gtfs_db_path_from_datetime($gtfs_dbs_path, $request_dt_s);
-
-            if (!$gtfs_db_path) {
-                $message = array(
-                    "error" => "Cant find DB for " . $request_dt_s,
-                );
-                JsonView::dump_error('400', $message);
-            }
+            print('error - cant find db for ' . $gtfs_db_day);
+            exit(1);
         }
 
-        $this->db_path = $gtfs_db_path;
-        $this->day = $day;
         $this->db = new SQLite3($gtfs_db_path, SQLITE3_OPEN_READONLY);
 
         $this->map_sql_queries = $config['map_sql_queries'];
@@ -57,46 +35,12 @@ class GTFS_DB_Controller {
         $this->cache_prefix = 'v1_' . $gtfs_db_day;
     }
 
-    private function compute_gtfs_day_from_date($day, $hhmm) {
-        $day_w_WED = 3;
-
-        $day_w = (int) date('w', strtotime($day));
-        // WEDNESDAY
-        if ($day_w === $day_w_WED) {
-            if ($hhmm >= '1400') {
-                return $day;
-            }
-        }
-
-        $last_wednesday_ts = strtotime('last wednesday', strtotime($day));
-        $last_wednesday_f = date('Y-m-d', $last_wednesday_ts);
-        return $last_wednesday_f;
-    }
-
     private function compute_gtfs_db_path_from_day($gtfs_dbs_path, $gtfs_day) {
         $gtfs_db_filename = 'gtfs_' . $gtfs_day . '.sqlite';
         $gtfs_db_path = $gtfs_dbs_path . '/' . $gtfs_db_filename;
         return $gtfs_db_path;
     }
 
-    private function compute_gtfs_db_path_from_datetime($gtfs_db_path, $request_dt_s) {
-        $db_file_paths = glob($gtfs_db_path . "/*.sqlite");
-        rsort($db_file_paths);
-
-        foreach ($db_file_paths as $idx => $db_path) {
-            $db_path_parts = explode('/', $db_path);
-            $db_filename = end($db_path_parts);
-            $db_dt_matches_found = preg_match('/gtfs_([0-9-]+?)\.sqlite/', $db_filename, $db_dt_matches);
-            if (!$db_dt_matches_found) {
-                continue;
-            }
-
-            // new dataset starts at 14:00
-            $db_dt = $db_dt_matches[1] . '-1400';
-
-            if ($request_dt_s >= $db_dt) {
-                return $db_path;
-            }
         }
 
         return null;
