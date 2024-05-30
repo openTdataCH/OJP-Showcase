@@ -1,8 +1,9 @@
 import Date_Helpers from '../_shared/helpers/date-helpers';
 import { DOM_Helpers } from '../helpers/DOM_Helpers';
 import { Response_GTFS_Lookup } from '../models/response_gtfs_lookup';
-import { GTFS_RT, Response_GTFS_RT, Response_GTFS_RT_Entity } from './../models/response_gtfs_rt'
-import { GTFS_Static_Trip, GTFS_Static_Trip_Condensed } from './../models/response_gtfs_static_query'
+import { Response_GTFS_RT_Entity } from '../_shared/types/gtfs-rt/entity'
+import { Response_GTFS_RT } from '../_shared/types/gtfs-rt/gtfs-rt-response'
+import { StopTimeUpdate } from '../_shared/types/gtfs-rt/gtfs-rt'
 
 import Agency from '../_shared/models/gtfs/agency';
 import Calendar from '../_shared/models/gtfs/calendar';
