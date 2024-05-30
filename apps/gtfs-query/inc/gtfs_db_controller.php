@@ -284,4 +284,39 @@ class GTFS_DB_Controller {
 
         return $result_rows;
     }
+
+    public function query_trip($trip_id) {
+        $result = array(
+            'message' => array(),
+            'result' => array(
+                'trip' => null,
+                'calendar' => null,
+            )
+        );
+
+        $trip_rows = $this->fetch_table_rows('trips', "trip_id = '" . $trip_id . "'");
+        if (count($trip_rows) !== 1) {
+            $result['message']['error'] = 'no trip found for ' . $trip_id;
+            return $result;
+        }
+
+        $trip_db = $trip_rows[0];
+
+        $service_id = $trip_db['service_id'] ?: null;
+        if (is_null($service_id)) {
+            $result['message']['error'] = 'no service found in trip ' . $trip_id;
+            return $result;
+        }
+
+        $calendar_rows = $this->fetch_table_rows('calendar', "service_id = '" . $service_id . "'");
+        if (count($trip_rows) !== 1) {
+            $result['message']['error'] = 'no calendar found ' . $service_id;
+            return $result;
+        }
+
+        $result['result']['trip'] = $trip_db;
+        $result['result']['calendar'] = $calendar_rows[0];
+
+        return $result;
+    }
 }
