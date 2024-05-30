@@ -7,6 +7,7 @@ class GTFS_DB_Controller {
     var $db;
 
     var $use_cache;
+    var $cache_prefix;
 
     var $map_sql_queries;
     var $go_realtime_csv_path;
