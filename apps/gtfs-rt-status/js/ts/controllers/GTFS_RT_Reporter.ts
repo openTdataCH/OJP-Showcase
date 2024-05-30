@@ -317,10 +317,17 @@ export default class GTFS_RT_Reporter {
             mapGTFS_StaticAgencyIDs[agencyData.agency.agency_id] = 1;
         });
 
+        // Promote non ojp: atv: TripIds 
+        let tripIds = Object.keys(this.map_gtfs_rt_trips);
+        const tripOJPIds = tripIds.filter(el => el.startsWith('ojp') || el.startsWith('atv'));
+        const tripRestIds = tripIds.filter(el => !tripOJPIds.includes(el));
+        tripIds = tripRestIds.concat(tripOJPIds);
+
         let gtfs_rt_issues_no = 0;
-        for (const trip_id in this.map_gtfs_rt_trips) {
-            if (trip_id in this.map_gtfs_all_trips) {
-                continue;
+        tripIds.forEach(trip_id => {
+            if (trip_id in this.map_gtfs_all_trips_JSON) {
+                // Trip is matched in GTFS-DB
+                return;
             }
 
             const gtfsRT = this.map_gtfs_rt_trips[trip_id];
@@ -328,7 +335,7 @@ export default class GTFS_RT_Reporter {
             if (!routeID) {
                 console.log('ERROR: invalid GTFS_RT response');
                 console.log(gtfsRT);
-                continue;
+                return;
             }
 
             let tableRowTDs: string[] = [];
@@ -360,7 +367,7 @@ export default class GTFS_RT_Reporter {
                         mapMissingAgency[agencyID].rt_cno += 1
 
                         // Don't show the trips from the agencies that are not in GO-Realtime, just report the agencies
-                        continue;
+                        return;
                     }
                 }
             }
@@ -401,7 +408,7 @@ export default class GTFS_RT_Reporter {
             gtfsRT_ReportTRs.push(gtfsRT_ReportTR);
 
             gtfs_rt_issues_no += 1;
-        }
+        });
 
         let mapAgencyWithoutGTFS_RT: Record<string, number> = {};
         this.trips_by_agency.forEach(agencyData => {
