@@ -622,8 +622,8 @@ export default class GTFS_RT_Reporter {
             trip.stop_times.forEach((stop_time, stop_idx) => {
                 const stop_data = stop_time.stop;
 
-                const stop_display_time = stop_time.stop_departure ? stop_time.stop_departure : stop_time.stop_arrival;
-                const stop_display_time_s = Date_Helpers.formatDateYMDHIS(stop_display_time!).substr(11, 5);
+                const stop_display_time = stop_time.departureDateTime ? stop_time.departureDateTime : stop_time.arrivalDateTime;
+                const stop_display_time_s = stop_time.departureTimeS ? stop_time.departureTimeS : stop_time.arrivalTimeS;
 
                 let stop_time_css_class = "stop-time";
                 if (stop_display_time! < this.request_datetime) {
