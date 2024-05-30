@@ -14,6 +14,8 @@ if (APP_PROFILE === 'dev') {
     ini_set('display_errors', 0);
 }
 
+ini_set('max_execution_time', 60);
+
 ini_set('date.timezone', 'Europe/Zurich');
 
 include(APP_PATH . '/inc/libs/yaml/yaml.php');

@@ -4,6 +4,11 @@ Demo URL: https://tools.odpch.ch/gtfs-rt-status/
 
 ----
 
+30.May 2024
+- use [GTFS DB Catalog](https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json) to fetch info about the latest imported DB
+- use shared GTFS models
+- promote the GTFS-RT not matched TripIds which are not prefixed with `ojp:` or `atv:`
+
 29.May 2022
 - use new demo URL - https://tools.odpch.ch/gtfs-rt-status/
 

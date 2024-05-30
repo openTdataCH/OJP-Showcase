@@ -1,42 +1,61 @@
-import { Response_GTFS_RT_Entity } from "./response_gtfs_rt"
-import { Date_Helpers } from './../helpers/Date_Helpers' 
 import SphericalMercator from '@mapbox/sphericalmercator'
 
-export interface GTFS_Static_Trip_Condensed {
-    trip_id: string,
-    trip_short_name: string,
-    route_id: string,
-    stop_times_s: string
-}
+import Date_Helpers from '../../helpers/date-helpers'
 
-export class GTFS_Static_Trip {
+import { Response_GTFS_RT_Entity } from '../../types/gtfs-rt/entity'
+import { GTFS_Static_Trip_Condensed } from '../../types/gtfs/trip-with-stops.interface'
+import Calendar from './calendar'
+import Route from './route'
+import Stop from './stop'
+import StopTime from './stop_time'
+
+export class Trip {
     public tripID: string
+    
+    public stop_times: StopTime[]
+    public route: Route
+    public calendar: Calendar
+
     public departureTime: Date
     public arrivalTime: Date
-    public route: GTFS.Route
-    public agency: GTFS.Agency
-    public stop_times: GTFS.Stop_Time[]
     
     public gtfsRT: Response_GTFS_RT_Entity | null
+
+    public trip_short_name: string
     
-    constructor(trip_id: string, stop_times: GTFS.Stop_Time[], agency: GTFS.Agency, route: GTFS.Route) {
+    constructor(trip_id: string, stop_times: StopTime[], route: Route, calendar: Calendar, trip_short_name: string) {
         this.tripID = trip_id;
 
         const first_stop = stop_times[0]
-        this.departureTime = first_stop.stop_departure || new Date()
+        this.departureTime = first_stop.departureDateTime || new Date()
 
         const last_stop = stop_times[stop_times.length - 1]
-        this.arrivalTime = last_stop.stop_arrival || new Date();
+        this.arrivalTime = last_stop.arrivalDateTime || new Date();
         
         this.route = route
-        this.agency = agency
+        this.calendar = calendar
+
         this.stop_times = stop_times
         this.gtfsRT = null
+
+        this.trip_short_name = trip_short_name
     }
 
-    public static initWithCondensedTrip(condensed_trip: GTFS_Static_Trip_Condensed, agency: GTFS.Agency, route: GTFS.Route, trip_day_midnight: Date, map_gtfs_stops: Record<string, GTFS.Stop>) {
-        let stop_times: GTFS.Stop_Time[] = [];
+    public static initWithCondensedTrip(
+        condensed_trip: GTFS_Static_Trip_Condensed,
+        map_routes: Record<string, Route>,
+        map_stops: Record<string, Stop>,
+        map_calendar: Record<string, Calendar>,
+        trip_day_midnight: Date | null = null
+    ) {
+        if (trip_day_midnight === null) {
+            trip_day_midnight = Date_Helpers.setHHMMToDate(new Date(), "00:00");
+        }
+        
+        let stop_times: StopTime[] = [];
 
+        // 8505209:0:3||22:25 -- 8505212:0:1|22:35|22:35 -- 8505213:0:4|22:39|22:46 
+        // -- 8518475:0:1|23:24|23:24 -- 8505305:0:4|23:27|
         const stops_data = condensed_trip.stop_times_s.split(' -- ');
         stops_data.forEach((stop_data_s, idx) => {
             const is_first_stop = idx === 0;
@@ -46,30 +65,29 @@ export class GTFS_Static_Trip {
 
             const stop_id = stop_data_parts[0];
             
-            let stop_arrival = null;
+            let arrival_s: string | null = null;
             if (!is_first_stop) {
-                const arrival_s = stop_data_parts[1];
-                stop_arrival = Date_Helpers.setHHMMToDate(trip_day_midnight, arrival_s);
+                arrival_s = stop_data_parts[1];
             }
 
-            let stop_departure = null;
+            let departure_s: string | null = null;
             if (!is_last_stop) {
-                const departure_s = stop_data_parts[2];
-                stop_departure = Date_Helpers.setHHMMToDate(trip_day_midnight, departure_s);
+                departure_s = stop_data_parts[2];
             }
 
-            const stop = map_gtfs_stops[stop_id];
-
-            const stop_time = <GTFS.Stop_Time>{
-                stop: stop,
-                stop_arrival: stop_arrival,
-                stop_departure: stop_departure,
-            };
+            const stop = map_stops[stop_id];
+            const stop_time = new StopTime(stop, idx + 1, arrival_s, departure_s, trip_day_midnight);
 
             stop_times.push(stop_time);
         });
 
-        const trip = new GTFS_Static_Trip(condensed_trip.trip_id, stop_times, agency, route);
+        const route = map_routes[condensed_trip.route_id];
+
+        const calendar = map_calendar[condensed_trip.service_id];
+        const trip_short_name = condensed_trip.trip_short_name
+
+        const trip = new Trip(condensed_trip.trip_id, stop_times, route, calendar, trip_short_name);
+
         return trip;
     }
 
@@ -143,19 +161,19 @@ export class GTFS_Static_Trip {
                     return;
                 }
 
-                const stop_time_date = stop_time_b.stop_arrival;
+                const stop_time_date = stop_time_b.arrivalDateTime;
                 if (stop_time_date === null) {
                     return;
                 }
 
                 if (stop_time_date > request_time) {
                     const stop_time_a = this.stop_times[idx - 1];
-                    if (stop_time_a.stop_departure == null) {
+                    if (stop_time_a.departureDateTime == null) {
                         return;
                     }
 
-                    const stop_time_ab = (stop_time_date.getTime() - stop_time_a.stop_departure.getTime()) / 1000;
-                    const stop_time_ac = (request_time.getTime() - stop_time_a.stop_departure.getTime()) / 1000;
+                    const stop_time_ab = (stop_time_date.getTime() - stop_time_a.departureDateTime.getTime()) / 1000;
+                    const stop_time_ac = (request_time.getTime() - stop_time_a.departureDateTime.getTime()) / 1000;
                     const delta_longitude_ab = stop_time_b.stop.stop_lon - stop_time_a.stop.stop_lon;
                     const delta_latitude_ab = stop_time_b.stop.stop_lat - stop_time_a.stop.stop_lat;
                     

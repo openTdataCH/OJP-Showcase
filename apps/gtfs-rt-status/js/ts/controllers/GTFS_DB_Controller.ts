@@ -1,7 +1,9 @@
 import Progress_Controller from './Progress_Controller'
-import { Date_Helpers } from './../helpers/Date_Helpers' 
+import Date_Helpers from '../_shared/helpers/date-helpers'
 import { URL_Helpers } from '../helpers/URL_Helpers';
 import GTFS_RT_Reporter from './GTFS_RT_Reporter';
+
+import { GTFS_Static_DB_Catalog_JSON, GTFS_Static_DB_Catalog_Item_JSON } from '../_shared/models/gtfs_catalog'
 
 export default class GTFS_DB_Controller {
     public progress_controller: Progress_Controller | null = null;
@@ -16,12 +18,16 @@ export default class GTFS_DB_Controller {
     private query_interval_from_time_el: HTMLInputElement;
     private query_interval_to_time_el: HTMLInputElement;
 
-    private request_datetime = new Date();
+    private gtfs_day: string | null;
+
+    private request_datetime: Date;
 
     private is_dev = false;
     private use_mocked_data = false;
 
-    constructor() {
+    constructor(request_datetime: Date = new Date()) {
+        this.request_datetime = request_datetime;
+        this.gtfs_day = null;
         this.gtfs_query_btn = document.getElementById('gtfs_query_btn') as HTMLButtonElement;
         this.gtfs_query_btn.addEventListener('click', () => {
             this.handle_gtfs_query_btn_click();
@@ -67,14 +73,42 @@ export default class GTFS_DB_Controller {
         this.query_interval_to_time_el.value = to_date_hhmm;
     }
 
+    public loadGTFS_Catalog(completion: () => void) {
+        const url = 'https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json';
+        fetch(url).then(response => response.json()).then(responseJSON => {
+            const dbCatalog = responseJSON as GTFS_Static_DB_Catalog_JSON;
+            let foundItem = false;
+            
+            dbCatalog.items.forEach(catalogItem => {
+                if (foundItem) {
+                    return;
+                }
+
+                if (catalogItem.db_relative_path === null) {
+                    return;
+                }
+
+                const catalogGTFS_RT_SwitchDate = new Date(catalogItem.gtfs_rt_switch_datetime_s + ':00');
+                if (this.request_datetime > catalogGTFS_RT_SwitchDate) {
+                    this.gtfs_day = catalogItem.gtfs_day;
+                    foundItem = true;
+
+                    completion();
+                }
+            });
+
+            if (foundItem === false) {
+                console.error('No GTFS-DB static file can be found for ' + this.request_datetime);
+                console.log(dbCatalog);
+            }
+        });
+    }
+
     public load_resources(completion: () => void) {
         this.progress_controller?.setBusy('Loading Resources...');
 
-        const date_f = Date_Helpers.formatDateYMDHIS(this.request_datetime);
-
         const gtfs_query_lookups_qs_params = {
-            day: date_f.substring(0, 10),
-            hhmm: date_f.substring(11, 16).replace(':', ''),
+            gtfs_day: this.gtfs_day,
         };
         const gtfs_query_lookups_address = this.gtfs_query_base_address + '/db_lookups?' 
             + URL_Helpers.dict_to_querystring(gtfs_query_lookups_qs_params);
@@ -111,10 +145,9 @@ export default class GTFS_DB_Controller {
         this.progress_controller?.setBusy('Fetching GTFS static / RT ...');
         this.gtfs_query_btn.disabled = true;
 
-        this.update_request_time();
-
         let gtfs_rt_url = 'https://www.webgis.ro/tmp/proxy-gtfsrt2020/gtfsrt2020';
         const gtfs_query_active_trips_params = {
+            gtfs_day: this.gtfs_day,
             day: this.query_request_day_el.value,
             hhmm: this.query_request_time_el.value.replace(':', ''),
             from_hhmm: this.query_interval_from_time_el.value.replace(':', ''),

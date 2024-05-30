@@ -3,47 +3,29 @@
 class GTFS_DB_Controller {
     var $is_dev;
     var $request_URI;
-    var $db_path;
-
-    var $day;
+    
+    var $db;
 
     var $use_cache;
+    var $cache_prefix;
 
     var $map_sql_queries;
     var $go_realtime_csv_path;
     var $app_db_cache_path;
 
-    function __construct($config, $day, $hhmm) {
+    function __construct($config, $gtfs_db_day) {
         $this->is_dev = APP_PROFILE === 'dev';
         $this->request_URI = $_SERVER['REQUEST_URI'];
 
-        if (is_null($day)) {
-            $day = date('Y-m-d');
-        }
-
-        if (is_null($hhmm)) {
-            $hhmm = date('Hi');
-        }
-
         $gtfs_dbs_path = $config['ojp_gtfs_dbs_path'];
 
-        $gtfs_db_day = $this->compute_gtfs_day_from_date($day, $hhmm);
         $gtfs_db_path = $this->compute_gtfs_db_path_from_day($gtfs_dbs_path, $gtfs_db_day);
-
         if (!file_exists($gtfs_db_path)) {
-            $request_dt_s = $day . '-' . $hhmm;
-            $gtfs_db_path = $this->compute_gtfs_db_path_from_datetime($gtfs_dbs_path, $request_dt_s);
-
-            if (!$gtfs_db_path) {
-                $message = array(
-                    "error" => "Cant find DB for " . $request_dt_s,
-                );
-                JsonView::dump_error('400', $message);
-            }
+            print('error - cant find db for ' . $gtfs_db_day);
+            exit(1);
         }
 
-        $this->db_path = $gtfs_db_path;
-        $this->day = $day;
+        $this->db = new SQLite3($gtfs_db_path, SQLITE3_OPEN_READONLY);
 
         $this->map_sql_queries = $config['map_sql_queries'];
         $this->go_realtime_csv_path = $config['go_realtime_csv_path'];
@@ -54,52 +36,17 @@ class GTFS_DB_Controller {
         $this->cache_prefix = 'v1_' . $gtfs_db_day;
     }
 
-    private function compute_gtfs_day_from_date($day, $hhmm) {
-        $day_w_WED = 3;
-
-        $day_w = (int) date('w', strtotime($day));
-        // WEDNESDAY
-        if ($day_w === $day_w_WED) {
-            if ($hhmm >= '1400') {
-                return $day;
-            }
-        }
-
-        $last_wednesday_ts = strtotime('last wednesday', strtotime($day));
-        $last_wednesday_f = date('Y-m-d', $last_wednesday_ts);
-        return $last_wednesday_f;
-    }
-
     private function compute_gtfs_db_path_from_day($gtfs_dbs_path, $gtfs_day) {
         $gtfs_db_filename = 'gtfs_' . $gtfs_day . '.sqlite';
         $gtfs_db_path = $gtfs_dbs_path . '/' . $gtfs_db_filename;
         return $gtfs_db_path;
     }
 
-    private function compute_gtfs_db_path_from_datetime($gtfs_db_path, $request_dt_s) {
-        $db_file_paths = glob($gtfs_db_path . "/*.sqlite");
-        rsort($db_file_paths);
-
-        foreach ($db_file_paths as $idx => $db_path) {
-            $db_path_parts = explode('/', $db_path);
-            $db_filename = end($db_path_parts);
-            $db_dt_matches_found = preg_match('/gtfs_([0-9-]+?)\.sqlite/', $db_filename, $db_dt_matches);
-            if (!$db_dt_matches_found) {
-                continue;
-            }
-
-            // new dataset starts at 14:00
-            $db_dt = $db_dt_matches[1] . '-1400';
-
-            if ($request_dt_s >= $db_dt) {
-                return $db_path;
-            }
+    public function query_active_trips($day, $from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type) {
+        if (is_null($day)) {
+            $from_hhmm = date('Y-m-d');
         }
-
-        return null;
-    }
-
-    public function query_active_trips($from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type) {
+        
         if (is_null($from_hhmm)) {
             $from_hhmm = date('Hi');
         }
@@ -109,7 +56,7 @@ class GTFS_DB_Controller {
         }
 
         $cache_agency_ids = $filter_agency_ids ? implode('-', $filter_agency_ids) : '';
-        $cache_filename = 'query_trips_' . $this->cache_prefix . '_day_' . $this->day ;
+        $cache_filename = 'query_trips_' . $this->cache_prefix . '_day_' . $day ;
         $cache_filename .= '_from_' . $from_hhmm . '_to_' . $to_hhmm; 
         $cache_filename .= '_agency_ids_' . $cache_agency_ids . '_db_row_type_' . $parse_db_row_type . '.json';
         $cache_path = $this->app_db_cache_path . '/' . $cache_filename;
@@ -120,7 +67,7 @@ class GTFS_DB_Controller {
             $db_rows = json_decode($db_rows_s, TRUE);
             $data_source = 'cache: ' . $cache_filename;
         } else {
-            $db_rows = $this->query_db_active_trips($from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type);
+            $db_rows = $this->query_db_active_trips($day, $from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type);
             file_put_contents($cache_path, json_encode($db_rows));
             $data_source = 'DB';
         }
@@ -134,13 +81,12 @@ class GTFS_DB_Controller {
         return $result_json;
     }
 
-    private function query_db_active_trips($from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type) {
-        $db = new SQLite3($this->db_path);
+    private function query_db_active_trips($day, $from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type) {
         $sql = "SELECT start_date FROM calendar LIMIT 1";
-        $gtfs_start_dt_s = $db->querySingle($sql);
+        $gtfs_start_dt_s = $this->db->querySingle($sql);
         $gtfs_from_date = date_create_from_format("Ymd", $gtfs_start_dt_s);
 
-        $request_day_date = date_create_from_format("Y-m-d", $this->day);
+        $request_day_date = date_create_from_format("Y-m-d", $day);
         $day_idx = $request_day_date->diff($gtfs_from_date)->days;
 
         $request_from_day_minutes = $this->convert_hhmm_day_minutes($from_hhmm);
@@ -167,7 +113,7 @@ class GTFS_DB_Controller {
         $sql = str_replace('[INTERVAL_FROM]', $request_from_day_minutes, $sql);
         $sql = str_replace('[INTERVAL_TO]', $request_to_day_minutes, $sql);
 
-        $result = $db->query($sql);
+        $result = $this->db->query($sql);
 
         $result_rows = array();
 
@@ -290,7 +236,7 @@ class GTFS_DB_Controller {
     }
 
     public function query_table($table_name) {
-        $allowed_tables = array('agency', 'routes', 'stops'); 
+        $allowed_tables = array('agency', 'calendar', 'routes', 'stops'); 
         if (!in_array($table_name, $allowed_tables)) {
             $message = array(
                 "error" => "No lookup found for " . $table_name,
@@ -322,10 +268,13 @@ class GTFS_DB_Controller {
         return $result_json;
     }
 
-    private function fetch_table_rows($table_name) {
+    private function fetch_table_rows($table_name, $filter = null) {
         $sql = "SELECT * FROM $table_name";
-        $db = new SQLite3($this->db_path);
-        $result = $db->query($sql);
+        if ($filter) {
+            $sql .= " WHERE " . $filter;
+        }
+        
+        $result = $this->db->query($sql);
 
         $result_rows = array();
 
@@ -334,5 +283,40 @@ class GTFS_DB_Controller {
         }
 
         return $result_rows;
+    }
+
+    public function query_trip($trip_id) {
+        $result = array(
+            'message' => array(),
+            'result' => array(
+                'trip' => null,
+                'calendar' => null,
+            )
+        );
+
+        $trip_rows = $this->fetch_table_rows('trips', "trip_id = '" . $trip_id . "'");
+        if (count($trip_rows) !== 1) {
+            $result['message']['error'] = 'no trip found for ' . $trip_id;
+            return $result;
+        }
+
+        $trip_db = $trip_rows[0];
+
+        $service_id = $trip_db['service_id'] ?: null;
+        if (is_null($service_id)) {
+            $result['message']['error'] = 'no service found in trip ' . $trip_id;
+            return $result;
+        }
+
+        $calendar_rows = $this->fetch_table_rows('calendar', "service_id = '" . $service_id . "'");
+        if (count($trip_rows) !== 1) {
+            $result['message']['error'] = 'no calendar found ' . $service_id;
+            return $result;
+        }
+
+        $result['result']['trip'] = $trip_db;
+        $result['result']['calendar'] = $calendar_rows[0];
+
+        return $result;
     }
 }

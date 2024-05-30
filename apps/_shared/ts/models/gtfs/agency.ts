@@ -1,4 +1,5 @@
 import { HRDF_Agency_DB } from "../../types/hrdf/agency_db"
+import { AgencyJSON } from "../../types/gtfs/gtfs"
 
 export default class Agency {
     public agency_id: string
@@ -17,6 +18,19 @@ export default class Agency {
         this.agency_timezone = null
         this.agency_lang = null
         this.agency_phone = null
+    }
+
+    public static initFromAgencyJSON(agencyJSON: AgencyJSON) {
+        const agency_id = agencyJSON.agency_id
+        const agency_name = agencyJSON.agency_name
+        
+        const agency = new Agency(agency_id, agency_name)
+        agency.agency_url = agencyJSON.agency_url
+        agency.agency_timezone = agencyJSON.agency_timezone
+        agency.agency_lang = agencyJSON.agency_lang
+        agency.agency_phone = agencyJSON.agency_phone
+
+        return agency
     }
 
     public static initFromHRDFAgencyDB(agencyDB: HRDF_Agency_DB) {

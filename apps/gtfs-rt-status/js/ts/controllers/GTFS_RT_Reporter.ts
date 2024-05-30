@@ -1,19 +1,29 @@
-import { Date_Helpers } from '../helpers/Date_Helpers';
+import Date_Helpers from '../_shared/helpers/date-helpers';
 import { DOM_Helpers } from '../helpers/DOM_Helpers';
 import { Response_GTFS_Lookup } from '../models/response_gtfs_lookup';
-import { GTFS_RT, Response_GTFS_RT, Response_GTFS_RT_Entity } from './../models/response_gtfs_rt'
-import { GTFS_Static_Trip, GTFS_Static_Trip_Condensed } from './../models/response_gtfs_static_query'
+import { Response_GTFS_RT_Entity } from '../_shared/types/gtfs-rt/entity'
+import { Response_GTFS_RT } from '../_shared/types/gtfs-rt/gtfs-rt-response'
+import { StopTimeUpdate } from '../_shared/types/gtfs-rt/gtfs-rt'
+import { Trip } from '../_shared/models/gtfs/trip';
+import { GTFS_Static_Trip_Condensed } from '../_shared/types/gtfs/trip-with-stops.interface';
+import { AgencyJSON, RouteJSON, StopJSON } from '../_shared/types/gtfs/gtfs'
+
+import Agency from '../_shared/models/gtfs/agency';
+import Calendar from '../_shared/models/gtfs/calendar';
+import Route from '../_shared/models/gtfs/route';
+import Stop from '../_shared/models/gtfs/stop';
 
 export default class GTFS_RT_Reporter {
     private map_gtfs_rt_trips: Record<string, Response_GTFS_RT_Entity>
     
-    private map_gtfs_all_trips: Record<string, GTFS_Static_Trip_Condensed>
+    private map_gtfs_all_trips_JSON: Record<string, GTFS_Static_Trip_Condensed>
     private trips_by_agency: Report_TripsByAgency[];
     private gtfs_trips_stats: GTFS_Static_Stats | null
 
-    private map_gtfs_agency: Record<string, GTFS.Agency>
-    private map_gtfs_routes: Record<string, GTFS.Route>
-    private map_gtfs_stops: Record<string, GTFS.Stop>
+    private map_gtfs_agency: Record<string, Agency>
+    private map_gtfs_calendar: Record<string, Calendar>
+    private map_gtfs_routes: Record<string, Route>
+    private map_gtfs_stops: Record<string, Stop>
 
     private request_datetime = new Date()
 
@@ -24,12 +34,13 @@ export default class GTFS_RT_Reporter {
 
     constructor() {
         this.map_gtfs_rt_trips = {};
-        this.map_gtfs_all_trips = {};
+        this.map_gtfs_all_trips_JSON = {};
 
         this.trips_by_agency = [];
         this.gtfs_trips_stats = null;
 
         this.map_gtfs_agency = {};
+        this.map_gtfs_calendar = {};
         this.map_gtfs_routes = {};
         this.map_gtfs_stops = {};
 
@@ -93,30 +104,30 @@ export default class GTFS_RT_Reporter {
     public loadAgency(response_json: Response_GTFS_Lookup) {
         this.map_gtfs_agency = {};
 
-        const response_rows = response_json.rows as GTFS.Agency[];
-        response_rows.forEach(agency => {
-            const agency_id = agency.agency_id;
-            this.map_gtfs_agency[agency_id] = agency;
+        const response_rows = response_json.rows as AgencyJSON[];
+        response_rows.forEach(agencyJSON => {
+            const agency = Agency.initFromAgencyJSON(agencyJSON)
+            this.map_gtfs_agency[agency.agency_id] = agency;
         });
     }
 
     public loadRoutes(response_json: Response_GTFS_Lookup) {
         this.map_gtfs_routes = {};
 
-        const response_rows = response_json.rows as GTFS.Route[];
-        response_rows.forEach(route => {
-            const route_id = route.route_id;
-            this.map_gtfs_routes[route_id] = route;
+        const response_rows = response_json.rows as RouteJSON[];
+        response_rows.forEach(routeJSON => {
+            const route = Route.initFromJSON(routeJSON, this.map_gtfs_agency);
+            this.map_gtfs_routes[route.route_id] = route;
         });
     }
 
     public loadStops(response_json: Response_GTFS_Lookup) {
         this.map_gtfs_stops = {};
 
-        const response_rows = response_json.rows as GTFS.Stop[];
-        response_rows.forEach(stop => {
-            const stop_id = stop.stop_id;
-            this.map_gtfs_stops[stop_id] = stop;
+        const response_rows = response_json.rows as StopJSON[];
+        response_rows.forEach(stopJSON => {
+            const stop = Stop.initFromJSON(stopJSON)
+            this.map_gtfs_stops[stop.stop_id] = stop;
         });
     }
 
@@ -125,11 +136,10 @@ export default class GTFS_RT_Reporter {
     }
 
     public loadTrips(response_json: GTFS_Static_Trip_Condensed[]) {
-        this.map_gtfs_all_trips = {};
+        this.map_gtfs_all_trips_JSON = {};
 
         response_json.forEach(trip_condensed => {
-            const trip_id = trip_condensed.trip_id;
-            this.map_gtfs_all_trips[trip_id] = trip_condensed;
+            this.map_gtfs_all_trips_JSON[trip_condensed.trip_id] = trip_condensed;
         });
     }
 
@@ -157,13 +167,13 @@ export default class GTFS_RT_Reporter {
 
         let trips_finished_count = 0;
 
-        let map_active_trips: Record<string, Record<string, GTFS_Static_Trip[]>> = {};
-        for (const trip_id in this.map_gtfs_all_trips) {
-            const condensed_trip = this.map_gtfs_all_trips[trip_id];
-
-            const route = this.map_gtfs_routes[condensed_trip.route_id];
-            const agency = this.map_gtfs_agency[route.agency_id];
-            const trip = GTFS_Static_Trip.initWithCondensedTrip(condensed_trip, agency, route, trip_day_midnight, this.map_gtfs_stops);
+        let map_active_trips: Record<string, Record<string, Trip[]>> = {};
+        for (const trip_id in this.map_gtfs_all_trips_JSON) {
+            const condensed_trip_JSON = this.map_gtfs_all_trips_JSON[trip_id];
+            const trip = Trip.initWithCondensedTrip(condensed_trip_JSON, this.map_gtfs_routes, this.map_gtfs_stops, this.map_gtfs_calendar, trip_day_midnight);
+            
+            const route = trip.route;
+            const agency = route.agency;
 
             // Test the trip to be inside [-0.5h .. +3h]
             // This check is now(oct 2021) redundant, the trips are already filtered in the API.
@@ -286,7 +296,7 @@ export default class GTFS_RT_Reporter {
         this.trips_by_agency = trips_by_agency;
 
         this.gtfs_trips_stats = {
-            trips_count: Object.keys(this.map_gtfs_all_trips).length,
+            trips_count: Object.keys(this.map_gtfs_all_trips_JSON).length,
             trips_finished_count: trips_finished_count,
             agencies_count: trips_by_agency.length,
             missing_rt_trips_count: missing_rt_trips_count,
@@ -307,10 +317,17 @@ export default class GTFS_RT_Reporter {
             mapGTFS_StaticAgencyIDs[agencyData.agency.agency_id] = 1;
         });
 
+        // Promote non ojp: atv: TripIds 
+        let tripIds = Object.keys(this.map_gtfs_rt_trips);
+        const tripOJPIds = tripIds.filter(el => el.startsWith('ojp') || el.startsWith('atv'));
+        const tripRestIds = tripIds.filter(el => !tripOJPIds.includes(el));
+        tripIds = tripRestIds.concat(tripOJPIds);
+
         let gtfs_rt_issues_no = 0;
-        for (const trip_id in this.map_gtfs_rt_trips) {
-            if (trip_id in this.map_gtfs_all_trips) {
-                continue;
+        tripIds.forEach(trip_id => {
+            if (trip_id in this.map_gtfs_all_trips_JSON) {
+                // Trip is matched in GTFS-DB
+                return;
             }
 
             const gtfsRT = this.map_gtfs_rt_trips[trip_id];
@@ -318,7 +335,7 @@ export default class GTFS_RT_Reporter {
             if (!routeID) {
                 console.log('ERROR: invalid GTFS_RT response');
                 console.log(gtfsRT);
-                continue;
+                return;
             }
 
             let tableRowTDs: string[] = [];
@@ -332,18 +349,17 @@ export default class GTFS_RT_Reporter {
             let scheduleRelationshipS = gtfsRT.TripUpdate?.Trip?.ScheduleRelationship ?? '-';
             tableRowTDs.push('<td><span class="badge bg-success">' + scheduleRelationshipS + '</span></td>');
 
-            let agencyData: GTFS.Agency | null = null;
-            const routeData = this.map_gtfs_routes[routeID] ?? null;
-            if (routeData) {
-                const agencyID = routeData.agency_id;
-                agencyData = this.map_gtfs_agency[agencyID] ?? null;
-
-                if (agencyData) {
+            let agency: Agency | null = null;
+            const route = this.map_gtfs_routes[routeID] ?? null;
+            if (route) {
+                agency = this.map_gtfs_agency[route.agency.agency_id] ?? null;
+                if (agency) {
+                    const agencyID = agency.agency_id;
                     const hasAgencyInGTFS_Static = agencyID in mapGTFS_StaticAgencyIDs;
                     if (!hasAgencyInGTFS_Static) {
                         if (!(agencyID in mapMissingAgency)) {
                             mapMissingAgency[agencyID] = <Report_MissingAgency>{
-                                agency: agencyData,
+                                agency: agency,
                                 rt_cno: 0
                             };
                         }
@@ -351,14 +367,14 @@ export default class GTFS_RT_Reporter {
                         mapMissingAgency[agencyID].rt_cno += 1
 
                         // Don't show the trips from the agencies that are not in GO-Realtime, just report the agencies
-                        continue;
+                        return;
                     }
                 }
             }
 
-            if (agencyData) {
-                tableRowTDs.push('<td>' + agencyData.agency_id + '</td>');
-                tableRowTDs.push('<td>' + agencyData.agency_name + '</td>');
+            if (agency) {
+                tableRowTDs.push('<td>' + agency.agency_id + '</td>');
+                tableRowTDs.push('<td>' + agency.agency_name + '</td>');
             } else {
                 tableRowTDs.push('<td>-</td>');
                 tableRowTDs.push('<td>-</td>');
@@ -373,7 +389,7 @@ export default class GTFS_RT_Reporter {
             tableRowTDs.push('<td>' + startTimeS + '</td>');
 
             let stopNames: string[] = [];
-            const gtfsRTStopTimes: GTFS_RT.StopTimeUpdate[] = gtfsRT.TripUpdate?.StopTimeUpdate ?? [];
+            const gtfsRTStopTimes: StopTimeUpdate[] = gtfsRT.TripUpdate?.StopTimeUpdate ?? [];
             gtfsRTStopTimes.forEach(stopTime => {
                 const stopData = this.map_gtfs_stops[stopTime.StopId] ?? null
 
@@ -392,7 +408,7 @@ export default class GTFS_RT_Reporter {
             gtfsRT_ReportTRs.push(gtfsRT_ReportTR);
 
             gtfs_rt_issues_no += 1;
-        }
+        });
 
         let mapAgencyWithoutGTFS_RT: Record<string, number> = {};
         this.trips_by_agency.forEach(agencyData => {
@@ -606,8 +622,8 @@ export default class GTFS_RT_Reporter {
             trip.stop_times.forEach((stop_time, stop_idx) => {
                 const stop_data = stop_time.stop;
 
-                const stop_display_time = stop_time.stop_departure ? stop_time.stop_departure : stop_time.stop_arrival;
-                const stop_display_time_s = Date_Helpers.formatDateYMDHIS(stop_display_time!).substr(11, 5);
+                const stop_display_time = stop_time.departureDateTime ? stop_time.departureDateTime : stop_time.arrivalDateTime;
+                const stop_display_time_s = stop_time.departureTimeS ? stop_time.departureTimeS : stop_time.arrivalTimeS;
 
                 let stop_time_css_class = "stop-time";
                 if (stop_display_time! < this.request_datetime) {
@@ -654,13 +670,13 @@ export default class GTFS_RT_Reporter {
 }
 
 interface Report_MissingAgency {
-    agency: GTFS.Agency
+    agency: Agency
     rt_cno: number
 }
 
 interface Report_TripsByAgency {
     agency_row_idx: number
-    agency: GTFS.Agency
+    agency: AgencyJSON
     stats: TripRT_Stats
     show_all_trips: boolean
     routes_data: TripsByRouteName[]
@@ -671,7 +687,7 @@ interface TripsByRouteName {
     routeName: string
     stats: TripRT_Stats
     show_all_trips: boolean
-    trips: GTFS_Static_Trip[]
+    trips: Trip[]
 }
 
 interface TripRT_Stats {
