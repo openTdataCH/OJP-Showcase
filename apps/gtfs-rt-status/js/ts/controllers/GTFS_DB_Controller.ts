@@ -145,8 +145,6 @@ export default class GTFS_DB_Controller {
         this.progress_controller?.setBusy('Fetching GTFS static / RT ...');
         this.gtfs_query_btn.disabled = true;
 
-        this.update_request_time();
-
         let gtfs_rt_url = 'https://www.webgis.ro/tmp/proxy-gtfsrt2020/gtfsrt2020';
         const gtfs_query_active_trips_params = {
             gtfs_day: this.gtfs_day,
