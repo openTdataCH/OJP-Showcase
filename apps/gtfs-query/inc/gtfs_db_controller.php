@@ -42,12 +42,11 @@ class GTFS_DB_Controller {
         return $gtfs_db_path;
     }
 
+    public function query_active_trips($day, $from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type) {
+        if (is_null($day)) {
+            $from_hhmm = date('Y-m-d');
         }
-
-        return null;
-    }
-
-    public function query_active_trips($from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type) {
+        
         if (is_null($from_hhmm)) {
             $from_hhmm = date('Hi');
         }
@@ -57,7 +56,7 @@ class GTFS_DB_Controller {
         }
 
         $cache_agency_ids = $filter_agency_ids ? implode('-', $filter_agency_ids) : '';
-        $cache_filename = 'query_trips_' . $this->cache_prefix . '_day_' . $this->day ;
+        $cache_filename = 'query_trips_' . $this->cache_prefix . '_day_' . $day ;
         $cache_filename .= '_from_' . $from_hhmm . '_to_' . $to_hhmm; 
         $cache_filename .= '_agency_ids_' . $cache_agency_ids . '_db_row_type_' . $parse_db_row_type . '.json';
         $cache_path = $this->app_db_cache_path . '/' . $cache_filename;
@@ -68,7 +67,7 @@ class GTFS_DB_Controller {
             $db_rows = json_decode($db_rows_s, TRUE);
             $data_source = 'cache: ' . $cache_filename;
         } else {
-            $db_rows = $this->query_db_active_trips($from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type);
+            $db_rows = $this->query_db_active_trips($day, $from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type);
             file_put_contents($cache_path, json_encode($db_rows));
             $data_source = 'DB';
         }
@@ -82,12 +81,12 @@ class GTFS_DB_Controller {
         return $result_json;
     }
 
-    private function query_db_active_trips($from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type) {
+    private function query_db_active_trips($day, $from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type) {
         $sql = "SELECT start_date FROM calendar LIMIT 1";
         $gtfs_start_dt_s = $this->db->querySingle($sql);
         $gtfs_from_date = date_create_from_format("Ymd", $gtfs_start_dt_s);
 
-        $request_day_date = date_create_from_format("Y-m-d", $this->day);
+        $request_day_date = date_create_from_format("Y-m-d", $day);
         $day_idx = $request_day_date->diff($gtfs_from_date)->days;
 
         $request_from_day_minutes = $this->convert_hhmm_day_minutes($from_hhmm);
