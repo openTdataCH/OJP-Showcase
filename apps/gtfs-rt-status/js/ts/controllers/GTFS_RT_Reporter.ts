@@ -4,6 +4,9 @@ import { Response_GTFS_Lookup } from '../models/response_gtfs_lookup';
 import { Response_GTFS_RT_Entity } from '../_shared/types/gtfs-rt/entity'
 import { Response_GTFS_RT } from '../_shared/types/gtfs-rt/gtfs-rt-response'
 import { StopTimeUpdate } from '../_shared/types/gtfs-rt/gtfs-rt'
+import { Trip } from '../_shared/models/gtfs/trip';
+import { GTFS_Static_Trip_Condensed } from '../_shared/types/gtfs/trip-with-stops.interface';
+import { AgencyJSON, RouteJSON, StopJSON } from '../_shared/types/gtfs/gtfs'
 
 import Agency from '../_shared/models/gtfs/agency';
 import Calendar from '../_shared/models/gtfs/calendar';
