@@ -6,6 +6,8 @@ class GTFS_DB_Controller {
     var $db_path;
 
     var $day;
+    
+    var $db;
 
     var $use_cache;
 
@@ -44,6 +46,7 @@ class GTFS_DB_Controller {
 
         $this->db_path = $gtfs_db_path;
         $this->day = $day;
+        $this->db = new SQLite3($gtfs_db_path, SQLITE3_OPEN_READONLY);
 
         $this->map_sql_queries = $config['map_sql_queries'];
         $this->go_realtime_csv_path = $config['go_realtime_csv_path'];
@@ -135,9 +138,8 @@ class GTFS_DB_Controller {
     }
 
     private function query_db_active_trips($from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type) {
-        $db = new SQLite3($this->db_path);
         $sql = "SELECT start_date FROM calendar LIMIT 1";
-        $gtfs_start_dt_s = $db->querySingle($sql);
+        $gtfs_start_dt_s = $this->db->querySingle($sql);
         $gtfs_from_date = date_create_from_format("Ymd", $gtfs_start_dt_s);
 
         $request_day_date = date_create_from_format("Y-m-d", $this->day);
@@ -167,7 +169,7 @@ class GTFS_DB_Controller {
         $sql = str_replace('[INTERVAL_FROM]', $request_from_day_minutes, $sql);
         $sql = str_replace('[INTERVAL_TO]', $request_to_day_minutes, $sql);
 
-        $result = $db->query($sql);
+        $result = $this->db->query($sql);
 
         $result_rows = array();
 
