@@ -1,3 +1,4 @@
+import { StopJSON } from "../../types/gtfs/gtfs"
 import { HRDF_Stop_DB } from "../../types/hrdf/stop_db"
 
 export default class Stop {
@@ -16,6 +17,19 @@ export default class Stop {
 
         this.location_type = null
         this.parent_station = null
+    }
+
+    public static initFromJSON(stopJSON: StopJSON) {
+        const stop_id = stopJSON.stop_id
+        const stop_name = stopJSON.stop_name
+        const stop_lon = stopJSON.stop_lon
+        const stop_lat = stopJSON.stop_lat
+
+        const stop = new Stop(stop_id, stop_name, stop_lon, stop_lat)
+        stop.location_type = stopJSON.location_type
+        stop.parent_station = stopJSON.parent_station
+        
+        return stop
     }
 
     public static initFromHRDFStopDB(stopDB: HRDF_Stop_DB) {

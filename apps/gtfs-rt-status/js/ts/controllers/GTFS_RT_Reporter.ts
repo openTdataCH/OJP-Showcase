@@ -4,6 +4,11 @@ import { Response_GTFS_Lookup } from '../models/response_gtfs_lookup';
 import { GTFS_RT, Response_GTFS_RT, Response_GTFS_RT_Entity } from './../models/response_gtfs_rt'
 import { GTFS_Static_Trip, GTFS_Static_Trip_Condensed } from './../models/response_gtfs_static_query'
 
+import Agency from '../_shared/models/gtfs/agency';
+import Calendar from '../_shared/models/gtfs/calendar';
+import Route from '../_shared/models/gtfs/route';
+import Stop from '../_shared/models/gtfs/stop';
+
 export default class GTFS_RT_Reporter {
     private map_gtfs_rt_trips: Record<string, Response_GTFS_RT_Entity>
     
