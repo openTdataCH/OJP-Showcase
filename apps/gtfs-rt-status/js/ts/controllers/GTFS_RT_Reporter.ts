@@ -365,9 +365,9 @@ export default class GTFS_RT_Reporter {
                 }
             }
 
-            if (agencyData) {
-                tableRowTDs.push('<td>' + agencyData.agency_id + '</td>');
-                tableRowTDs.push('<td>' + agencyData.agency_name + '</td>');
+            if (agency) {
+                tableRowTDs.push('<td>' + agency.agency_id + '</td>');
+                tableRowTDs.push('<td>' + agency.agency_name + '</td>');
             } else {
                 tableRowTDs.push('<td>-</td>');
                 tableRowTDs.push('<td>-</td>');
