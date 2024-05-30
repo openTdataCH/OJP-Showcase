@@ -322,10 +322,13 @@ class GTFS_DB_Controller {
         return $result_json;
     }
 
-    private function fetch_table_rows($table_name) {
+    private function fetch_table_rows($table_name, $filter = null) {
         $sql = "SELECT * FROM $table_name";
-        $db = new SQLite3($this->db_path);
-        $result = $db->query($sql);
+        if ($filter) {
+            $sql .= " WHERE " . $filter;
+        }
+        
+        $result = $this->db->query($sql);
 
         $result_rows = array();
 
