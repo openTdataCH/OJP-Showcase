@@ -40,7 +40,7 @@ export interface StopJSON {
     parent_station: string
 }
 
-export interface Stop_Time {
+export interface Stop_TimeJSON {
     stop_id: string
     stop_arrival: Date | null
     stop_departure: Date | null
