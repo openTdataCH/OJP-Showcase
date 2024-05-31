@@ -22,9 +22,6 @@ export default class GTFS_DB_Controller {
 
     private request_datetime: Date;
 
-    private is_dev = false;
-    private use_mocked_data = false;
-
     constructor(request_datetime: Date = new Date()) {
         this.request_datetime = request_datetime;
         this.gtfs_day = null;
