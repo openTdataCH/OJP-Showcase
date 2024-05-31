@@ -232,6 +232,9 @@ class GTFS_DB_Controller {
             fclose($csv_handle);
         }
 
+        // filter out null or empty string values
+        $agency_ids = array_filter($agency_ids);
+
         return $agency_ids;
     }
 
