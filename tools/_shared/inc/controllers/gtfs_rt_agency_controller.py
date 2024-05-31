@@ -14,7 +14,7 @@ class GTFS_RT_Agency_Controller:
             self._parse_csv(go_realtime_csv_path)
         
     def _parse_csv(self, csv_path: Path):
-        csv_handler = open(csv_path)
+        csv_handler = open(csv_path, encoding='utf-8')
         csv_reader = csv.DictReader(csv_handler)
         
         for row in csv_reader:
@@ -23,6 +23,7 @@ class GTFS_RT_Agency_Controller:
 
     def compute_agency_ids(self):
         agency_ids = self.map_rt_agency.keys()
+        agency_ids = [item for item in agency_ids if item not in ('', None)]
         return agency_ids
     
     def is_rt_enabled(self, agency_id: str):

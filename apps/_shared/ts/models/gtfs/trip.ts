@@ -4,6 +4,8 @@ import Date_Helpers from '../../helpers/date-helpers'
 
 import { Response_GTFS_RT_Entity } from '../../types/gtfs-rt/entity'
 import { GTFS_Static_Trip_Condensed } from '../../types/gtfs/trip-with-stops.interface'
+import { TripJSON } from '../../types/gtfs/gtfs'
+
 import Calendar from './calendar'
 import Route from './route'
 import Stop from './stop'
@@ -21,9 +23,9 @@ export class Trip {
     
     public gtfsRT: Response_GTFS_RT_Entity | null
 
-    public trip_short_name: string
+    public trip_short_name: string | null
     
-    constructor(trip_id: string, stop_times: StopTime[], route: Route, calendar: Calendar, trip_short_name: string) {
+    constructor(trip_id: string, stop_times: StopTime[], route: Route, calendar: Calendar, trip_short_name: string | null = null) {
         this.tripID = trip_id;
 
         const first_stop = stop_times[0]
@@ -200,5 +202,40 @@ export class Trip {
         const url_address = 'https://maps2.trafimage.ch/ch.sbb.netzkarte?baselayers=ch.sbb.netzkarte,ch.sbb.netzkarte.dark,ch.sbb.netzkarte.luftbild.group,ch.sbb.netzkarte.landeskarte,ch.sbb.netzkarte.landeskarte.grau&display_srs=EPSG:2056&lang=de&layers=ch.sbb.puenktlichkeit-all,ch.sbb.netzkarte.buslinien&x=' + stop_x + '&y=' + stop_y + '&z=' + zoom;
 
         return url_address;
+    }
+}
+
+// Trip model without StopTimes
+// used for quick lookups
+export class TripLight {
+    public tripID: string
+    
+    public route: Route
+    public calendar: Calendar
+    
+    public trip_short_name: string | null
+    
+    constructor(trip_id: string, route: Route, calendar: Calendar, trip_short_name: string | null = null) {
+        this.tripID = trip_id;
+
+        this.route = route
+        this.calendar = calendar
+
+        this.trip_short_name = trip_short_name
+    }
+
+    public static initFromJSON(tripJSON: TripJSON, map_routes: Record<string, Route>, map_calendar: Record<string, Calendar>) {
+        const trip_id = tripJSON.trip_id;
+        const route_id = tripJSON.route_id;
+        const service_id = tripJSON.service_id;
+
+        const route = map_routes[route_id];
+        const calendar = map_calendar[service_id];
+
+        const trip = new TripLight(trip_id, route, calendar);
+
+        trip.trip_short_name = tripJSON.trip_short_name;
+        
+        return trip;
     }
 }

@@ -7,6 +7,7 @@ if (isset($_SERVER) && isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] ==
 define('APP_PROFILE', $app_profile);
 
 error_reporting(E_ALL);
+ini_set('memory_limit', '1024M');
 
 if (APP_PROFILE === 'dev') {
     ini_set('display_errors', 1);  

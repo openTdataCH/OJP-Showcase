@@ -4,9 +4,9 @@ import { Response_GTFS_Lookup } from '../models/response_gtfs_lookup';
 import { Response_GTFS_RT_Entity } from '../_shared/types/gtfs-rt/entity'
 import { Response_GTFS_RT } from '../_shared/types/gtfs-rt/gtfs-rt-response'
 import { StopTimeUpdate } from '../_shared/types/gtfs-rt/gtfs-rt'
-import { Trip } from '../_shared/models/gtfs/trip';
+import { Trip, TripLight } from '../_shared/models/gtfs/trip';
 import { GTFS_Static_Trip_Condensed } from '../_shared/types/gtfs/trip-with-stops.interface';
-import { AgencyJSON, RouteJSON, StopJSON } from '../_shared/types/gtfs/gtfs'
+import { AgencyJSON, RouteJSON, StopJSON, TripJSON } from '../_shared/types/gtfs/gtfs'
 
 import Agency from '../_shared/models/gtfs/agency';
 import Calendar from '../_shared/models/gtfs/calendar';
@@ -16,7 +16,7 @@ import Stop from '../_shared/models/gtfs/stop';
 export default class GTFS_RT_Reporter {
     private map_gtfs_rt_trips: Record<string, Response_GTFS_RT_Entity>
     
-    private map_gtfs_all_trips_JSON: Record<string, GTFS_Static_Trip_Condensed>
+    private map_gtfs_active_trips: Record<string, GTFS_Static_Trip_Condensed>
     private trips_by_agency: Report_TripsByAgency[];
     private gtfs_trips_stats: GTFS_Static_Stats | null
 
@@ -24,6 +24,7 @@ export default class GTFS_RT_Reporter {
     private map_gtfs_calendar: Record<string, Calendar>
     private map_gtfs_routes: Record<string, Route>
     private map_gtfs_stops: Record<string, Stop>
+    private map_gtfs_day_trips: Record<string, TripLight>
 
     private request_datetime = new Date()
 
@@ -34,7 +35,7 @@ export default class GTFS_RT_Reporter {
 
     constructor() {
         this.map_gtfs_rt_trips = {};
-        this.map_gtfs_all_trips_JSON = {};
+        this.map_gtfs_active_trips = {};
 
         this.trips_by_agency = [];
         this.gtfs_trips_stats = null;
@@ -43,6 +44,7 @@ export default class GTFS_RT_Reporter {
         this.map_gtfs_calendar = {};
         this.map_gtfs_routes = {};
         this.map_gtfs_stops = {};
+        this.map_gtfs_day_trips = {};
 
         this.wrapperGTFS_StaticReportElement = document.getElementById('content_wrapper') as HTMLElement;
         this.wrapperGTFS_RTReportElement = document.getElementById('hrdf_rt_wrapper') as HTMLElement;
@@ -135,11 +137,21 @@ export default class GTFS_RT_Reporter {
         this.request_datetime = request_datetime;
     }
 
-    public loadTrips(response_json: GTFS_Static_Trip_Condensed[]) {
-        this.map_gtfs_all_trips_JSON = {};
+    // active == day from/to trips
+    public loadActiveTrips(response_json: GTFS_Static_Trip_Condensed[]) {
+        this.map_gtfs_active_trips = {};
 
         response_json.forEach(trip_condensed => {
-            this.map_gtfs_all_trips_JSON[trip_condensed.trip_id] = trip_condensed;
+            this.map_gtfs_active_trips[trip_condensed.trip_id] = trip_condensed;
+        });
+    }
+
+    public loadDayTrips(response_json: TripJSON[]) {
+        this.map_gtfs_day_trips = {};
+
+        response_json.forEach(tripJSON => {
+            const trip = TripLight.initFromJSON(tripJSON, this.map_gtfs_routes, this.map_gtfs_calendar);
+            this.map_gtfs_day_trips[trip.tripID] = trip;
         });
     }
 
@@ -168,8 +180,8 @@ export default class GTFS_RT_Reporter {
         let trips_finished_count = 0;
 
         let map_active_trips: Record<string, Record<string, Trip[]>> = {};
-        for (const trip_id in this.map_gtfs_all_trips_JSON) {
-            const condensed_trip_JSON = this.map_gtfs_all_trips_JSON[trip_id];
+        for (const trip_id in this.map_gtfs_active_trips) {
+            const condensed_trip_JSON = this.map_gtfs_active_trips[trip_id];
             const trip = Trip.initWithCondensedTrip(condensed_trip_JSON, this.map_gtfs_routes, this.map_gtfs_stops, this.map_gtfs_calendar, trip_day_midnight);
             
             const route = trip.route;
@@ -296,7 +308,7 @@ export default class GTFS_RT_Reporter {
         this.trips_by_agency = trips_by_agency;
 
         this.gtfs_trips_stats = {
-            trips_count: Object.keys(this.map_gtfs_all_trips_JSON).length,
+            trips_count: Object.keys(this.map_gtfs_active_trips).length,
             trips_finished_count: trips_finished_count,
             agencies_count: trips_by_agency.length,
             missing_rt_trips_count: missing_rt_trips_count,
@@ -325,8 +337,13 @@ export default class GTFS_RT_Reporter {
 
         let gtfs_rt_issues_no = 0;
         tripIds.forEach(trip_id => {
-            if (trip_id in this.map_gtfs_all_trips_JSON) {
+            if (trip_id in this.map_gtfs_active_trips) {
                 // Trip is matched in GTFS-DB
+                return;
+            }
+
+            if (trip_id in this.map_gtfs_day_trips) {
+                // Trip is outside of the from/to map_gtfs_active_trips but it is actually present in the day
                 return;
             }
 

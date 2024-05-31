@@ -1,8 +1,13 @@
 ojp_gtfs_dbs_path: "[APP_PATH]/data/gtfs-static-dbs"
 
 map_sql_queries:
-    query_day_active_trips: "[APP_PATH]/inc/sql/gtfs/query_day_active_trips.sql"
+    # select
+    query_day_trips: "[APP_PATH]/inc/sql/gtfs/query_day_trips.sql"
+    # where
     where_from_to_trips: "[APP_PATH]/inc/sql/gtfs/where/where_from_to_trips.sql"
+    # fields
+    fields_query_day_full_trips: "[APP_PATH]/inc/sql/gtfs/fields/query_day_full_trips.sql"
+    fields_query_day_light_trips: "[APP_PATH]/inc/sql/gtfs/fields/query_day_light_trips.sql"
 
 # exported from https://opentransportdata.swiss/de/dataset/go-realtime
 go_realtime_csv_path: "[APP_PATH]/inc/config/go-realtime.csv"

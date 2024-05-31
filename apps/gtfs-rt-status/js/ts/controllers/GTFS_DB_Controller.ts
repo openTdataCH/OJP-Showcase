@@ -22,9 +22,6 @@ export default class GTFS_DB_Controller {
 
     private request_datetime: Date;
 
-    private is_dev = false;
-    private use_mocked_data = false;
-
     constructor(request_datetime: Date = new Date()) {
         this.request_datetime = request_datetime;
         this.gtfs_day = null;
@@ -42,7 +39,7 @@ export default class GTFS_DB_Controller {
 
         this.gtfs_query_base_address = './api/gtfs-query'
 
-        this.update_request_time();
+        this.update_query_inputs();
     }
 
     private update_query_inputs() {
@@ -135,12 +132,6 @@ export default class GTFS_DB_Controller {
         });
     }
 
-    private update_request_time() {
-        this.request_datetime = new Date();
-
-        this.update_query_inputs();
-    }
-
     private handle_gtfs_query_btn_click() {
         this.progress_controller?.setBusy('Fetching GTFS static / RT ...');
         this.gtfs_query_btn.disabled = true;
@@ -149,18 +140,24 @@ export default class GTFS_DB_Controller {
         const gtfs_query_active_trips_params = {
             gtfs_day: this.gtfs_day,
             day: this.query_request_day_el.value,
-            hhmm: this.query_request_time_el.value.replace(':', ''),
             from_hhmm: this.query_interval_from_time_el.value.replace(':', ''),
             to_hhmm: this.query_interval_to_time_el.value.replace(':', ''),
             filter_agency_ids: 'HAS_GTFS_RT',
-            parse_type: 'FLAT',
         };
-        const gtfs_query_active_trips_address = this.gtfs_query_base_address + '/query_active_trips?' 
+        const gtfs_query_active_trips_address = this.gtfs_query_base_address + '/query_day_from_to_trips?' 
             + URL_Helpers.dict_to_querystring(gtfs_query_active_trips_params);
+
+        const gtfs_query_day_trips_params = {
+            gtfs_day: this.gtfs_day,
+            day: this.query_request_day_el.value,
+        };
+        const gtfs_query_day_trips_address = this.gtfs_query_base_address + '/query_day_trips?' 
+            + URL_Helpers.dict_to_querystring(gtfs_query_day_trips_params);
 
         const resource_files = [
             gtfs_rt_url,
             gtfs_query_active_trips_address,
+            gtfs_query_day_trips_address,
         ]
 
         Promise.all(resource_files.map( resource_file => fetch(resource_file))).then(responses =>
@@ -173,7 +170,10 @@ export default class GTFS_DB_Controller {
             this.gtfs_rt_reporter?.setRequestDatetime(this.request_datetime);
 
             const data_response_active_trips = data_responses[1];
-            this.gtfs_rt_reporter?.loadTrips(data_response_active_trips.rows);
+            this.gtfs_rt_reporter?.loadActiveTrips(data_response_active_trips.rows);
+
+            const data_response_day_trips = data_responses[2];
+            this.gtfs_rt_reporter?.loadDayTrips(data_response_day_trips.rows);
 
             const request_interval_from_hhmm = this.query_interval_from_time_el.value;
             const request_interval_from_date = Date_Helpers.setHHMMToDate(this.request_datetime, request_interval_from_hhmm);
