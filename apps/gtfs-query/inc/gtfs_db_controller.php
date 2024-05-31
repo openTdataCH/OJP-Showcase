@@ -116,7 +116,7 @@ class GTFS_DB_Controller {
 
         if (($from_hhmm !== null) && ($to_hhmm !== null)) {
             $sql_where_from_to = file_get_contents($this->map_sql_queries['where_from_to_trips']);
-            array_push($sql_where_items, $sql_where_from_to);
+            array_push($sql_where_items, 'AND ' . $sql_where_from_to);
         }
 
         $sql_where_s = implode("\n", $sql_where_items);
