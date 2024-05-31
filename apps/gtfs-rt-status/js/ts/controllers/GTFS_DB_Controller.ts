@@ -42,7 +42,7 @@ export default class GTFS_DB_Controller {
 
         this.gtfs_query_base_address = './api/gtfs-query'
 
-        this.update_request_time();
+        this.update_query_inputs();
     }
 
     private update_query_inputs() {
@@ -133,12 +133,6 @@ export default class GTFS_DB_Controller {
         }).catch( error => {
             this.progress_controller?.setError('ERROR loading resources');
         });
-    }
-
-    private update_request_time() {
-        this.request_datetime = new Date();
-
-        this.update_query_inputs();
     }
 
     private handle_gtfs_query_btn_click() {
