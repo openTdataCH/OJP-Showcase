@@ -42,23 +42,35 @@ class GTFS_DB_Controller {
         return $gtfs_db_path;
     }
 
-    public function query_active_trips($day, $from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type) {
-        if (is_null($day)) {
-            $from_hhmm = date('Y-m-d');
+    public function query_day_from_to_trips($day, $filter_agency_ids_s, $from_hhmm, $to_hhmm) {
+        $sql_fields = file_get_contents($this->map_sql_queries['fields_query_day_full_trips']);
+
+        $result_json = $this->_query_day_trips($sql_fields, $day, $filter_agency_ids_s, $from_hhmm, $to_hhmm);
+        
+        return $result_json;
+    }
+
+    private function _query_day_trips($sql_fields, $day, $filter_agency_ids_s, $from_hhmm = null, $to_hhmm = null, $parse_db_row_type = 'FLAT') {
+        $cache_filename_parts = array(
+            'query_day_trips_' . $this->cache_prefix,
+            'day_' . $day,
+        );
+        
+        if ($from_hhmm !== null) {
+            array_push($cache_filename_parts, 'from_' . $from_hhmm);
+        }
+        if ($to_hhmm !== null) {
+            array_push($cache_filename_parts, 'from_' . $to_hhmm);
+        }
+
+        $filter_agency_ids = explode(',', $filter_agency_ids_s);
+        array_push($cache_filename_parts, 'agency_ids_' . implode('-', $filter_agency_ids));
+
+        if ($parse_db_row_type !== null) {
+            array_push($cache_filename_parts, 'db_row_type_' . $parse_db_row_type);
         }
         
-        if (is_null($from_hhmm)) {
-            $from_hhmm = date('Hi');
-        }
-
-        if (is_null($to_hhmm)) {
-            $to_hhmm = date('Hi');
-        }
-
-        $cache_agency_ids = $filter_agency_ids ? implode('-', $filter_agency_ids) : '';
-        $cache_filename = 'query_trips_' . $this->cache_prefix . '_day_' . $day ;
-        $cache_filename .= '_from_' . $from_hhmm . '_to_' . $to_hhmm; 
-        $cache_filename .= '_agency_ids_' . $cache_agency_ids . '_db_row_type_' . $parse_db_row_type . '.json';
+        $cache_filename = implode('__', $cache_filename_parts) . '.json';
         $cache_path = $this->app_db_cache_path . '/' . $cache_filename;
 
         $data_source = null;
@@ -67,7 +79,7 @@ class GTFS_DB_Controller {
             $db_rows = json_decode($db_rows_s, TRUE);
             $data_source = 'cache: ' . $cache_filename;
         } else {
-            $db_rows = $this->query_db_active_trips($day, $from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type);
+            $db_rows = $this->query_db_trips($sql_fields, $day, $filter_agency_ids, $from_hhmm, $to_hhmm, $parse_db_row_type);
             file_put_contents($cache_path, json_encode($db_rows));
             $data_source = 'DB';
         }
@@ -81,37 +93,41 @@ class GTFS_DB_Controller {
         return $result_json;
     }
 
-    private function query_db_active_trips($day, $from_hhmm, $to_hhmm, $filter_agency_ids, $parse_db_row_type) {
-        $sql = "SELECT start_date FROM calendar LIMIT 1";
-        $gtfs_start_dt_s = $this->db->querySingle($sql);
+    private function query_db_trips($sql_fields, $day, $filter_agency_ids, $from_hhmm = null, $to_hhmm = null, $parse_db_row_type = null) {
+        // START compute DAY_IDX
+        $calendar_sql = "SELECT start_date FROM calendar LIMIT 1";
+        $gtfs_start_dt_s = $this->db->querySingle($calendar_sql);
         $gtfs_from_date = date_create_from_format("Ymd", $gtfs_start_dt_s);
+
+        $sql_path = $this->map_sql_queries['query_day_trips'];
+        $sql = file_get_contents($sql_path);
+
+        $sql = str_replace('[SQL_FIELDS]', $sql_fields, $sql);
 
         $request_day_date = date_create_from_format("Y-m-d", $day);
         $day_idx = $request_day_date->diff($gtfs_from_date)->days;
-
-        $request_from_day_minutes = $this->convert_hhmm_day_minutes($from_hhmm);
-        $request_to_day_minutes = $this->convert_hhmm_day_minutes($to_hhmm);
+        $sql = str_replace('[DAY_IDX]', $day_idx, $sql);
+        // DONE
         
-        $extra_sql_filters = array();
-        $agency_ids_filter = $this->compute_agency_ids_sql_filter($filter_agency_ids);
-        if ($agency_ids_filter) {
-            array_push($extra_sql_filters, $agency_ids_filter);
+        $sql_where_items = array();
+        
+        $sql_where_agency = $this->compute_agency_ids_sql_filter($filter_agency_ids);
+        array_push($sql_where_items, $sql_where_agency);
+
+        if (($from_hhmm !== null) && ($to_hhmm !== null)) {
+            $sql_where_from_to = file_get_contents($this->map_sql_queries['where_from_to_trips']);
+            array_push($sql_where_items, $sql_where_from_to);
         }
 
-        $from_to_trips_where_path = $this->map_sql_queries['where_from_to_trips'];
-        $from_to_trips_where = file_get_contents($from_to_trips_where_path);
-        $from_to_trips_filter = "AND " . $from_to_trips_where;
-        array_push($extra_sql_filters, $from_to_trips_filter);
+        $sql_where_s = implode("\n", $sql_where_items);
+        $sql = str_replace('[EXTRA_WHERE]', $sql_where_s, $sql);
 
-        $extra_where_s = implode("\n", $extra_sql_filters);
-
-        $sql_path = $this->map_sql_queries['query_day_active_trips'];
-        $sql = file_get_contents($sql_path);
-
-        $sql = str_replace('[EXTRA_WHERE]', $extra_where_s, $sql);
-        $sql = str_replace('[DAY_IDX]', $day_idx, $sql);
-        $sql = str_replace('[INTERVAL_FROM]', $request_from_day_minutes, $sql);
-        $sql = str_replace('[INTERVAL_TO]', $request_to_day_minutes, $sql);
+        if (($from_hhmm !== null) && ($to_hhmm !== null)) {
+            $request_from_day_minutes = $this->convert_hhmm_day_minutes($from_hhmm);
+            $request_to_day_minutes = $this->convert_hhmm_day_minutes($to_hhmm);
+            $sql = str_replace('[INTERVAL_FROM]', $request_from_day_minutes, $sql);
+            $sql = str_replace('[INTERVAL_TO]', $request_to_day_minutes, $sql);
+        }
 
         $result = $this->db->query($sql);
 

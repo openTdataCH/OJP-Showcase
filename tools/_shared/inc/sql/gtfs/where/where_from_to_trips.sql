@@ -1,4 +1,4 @@
-(
+AND (
     -- ARRIVE AFTER [FROM ... ]
     trips.arrival_day_minutes > [INTERVAL_FROM]
     AND
