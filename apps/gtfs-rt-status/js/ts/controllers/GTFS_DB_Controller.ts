@@ -147,7 +147,7 @@ export default class GTFS_DB_Controller {
             to_hhmm: this.query_interval_to_time_el.value.replace(':', ''),
             filter_agency_ids: 'HAS_GTFS_RT',
         };
-        const gtfs_query_active_trips_address = this.gtfs_query_base_address + '/query_active_trips?' 
+        const gtfs_query_active_trips_address = this.gtfs_query_base_address + '/query_day_from_to_trips?' 
             + URL_Helpers.dict_to_querystring(gtfs_query_active_trips_params);
 
         const resource_files = [
