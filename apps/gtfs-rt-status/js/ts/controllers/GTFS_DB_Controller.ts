@@ -143,11 +143,9 @@ export default class GTFS_DB_Controller {
         const gtfs_query_active_trips_params = {
             gtfs_day: this.gtfs_day,
             day: this.query_request_day_el.value,
-            hhmm: this.query_request_time_el.value.replace(':', ''),
             from_hhmm: this.query_interval_from_time_el.value.replace(':', ''),
             to_hhmm: this.query_interval_to_time_el.value.replace(':', ''),
             filter_agency_ids: 'HAS_GTFS_RT',
-            parse_type: 'FLAT',
         };
         const gtfs_query_active_trips_address = this.gtfs_query_base_address + '/query_active_trips?' 
             + URL_Helpers.dict_to_querystring(gtfs_query_active_trips_params);
