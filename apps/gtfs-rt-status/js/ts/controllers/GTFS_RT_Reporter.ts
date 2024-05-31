@@ -342,6 +342,11 @@ export default class GTFS_RT_Reporter {
                 return;
             }
 
+            if (trip_id in this.map_gtfs_day_trips) {
+                // Trip is outside of the from/to map_gtfs_active_trips but it is actually present in the day
+                return;
+            }
+
             const gtfsRT = this.map_gtfs_rt_trips[trip_id];
             const routeID = gtfsRT.TripUpdate?.Trip?.RouteId;
             if (!routeID) {
