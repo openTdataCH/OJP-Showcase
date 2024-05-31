@@ -7,6 +7,7 @@ map_sql_queries:
     where_from_to_trips: "[APP_PATH]/inc/sql/gtfs/where/where_from_to_trips.sql"
     # fields
     fields_query_day_full_trips: "[APP_PATH]/inc/sql/gtfs/fields/query_day_full_trips.sql"
+    fields_query_day_light_trips: "[APP_PATH]/inc/sql/gtfs/fields/query_day_light_trips.sql"
 
 # exported from https://opentransportdata.swiss/de/dataset/go-realtime
 go_realtime_csv_path: "[APP_PATH]/inc/config/go-realtime.csv"

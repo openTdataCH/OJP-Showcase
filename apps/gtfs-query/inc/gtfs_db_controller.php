@@ -50,6 +50,14 @@ class GTFS_DB_Controller {
         return $result_json;
     }
 
+    public function query_day_trips($day, $filter_agency_ids_s) {
+        $sql_fields = file_get_contents($this->map_sql_queries['fields_query_day_light_trips']);
+
+        $result_json = $this->_query_day_trips($sql_fields, $day, $filter_agency_ids_s);
+        
+        return $result_json;
+    }
+
     private function _query_day_trips($sql_fields, $day, $filter_agency_ids_s, $from_hhmm = null, $to_hhmm = null, $parse_db_row_type = 'FLAT') {
         $cache_filename_parts = array(
             'query_day_trips_' . $this->cache_prefix,

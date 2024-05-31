@@ -2,6 +2,7 @@ RewriteEngine On
 
 RewriteRule ([0-9]{4}-[0-9]{2}-[0-9]{2})/trip/(.*)$ trip.php?gtfs_day=$1&trip_id=$2 [L,QSA]
 RewriteRule db_lookups$ db_lookups.php [L,QSA]
+RewriteRule query_day_trips$ query_day_trips.php [L,QSA]
 RewriteRule query_active_trips$ query_day_from_to_trips.php [L,QSA] # remove this after release
 RewriteRule query_day_from_to_trips$ query_day_from_to_trips.php [L,QSA]
 RewriteRule lookup/([a-zA-Z0-9]+?)$ select_table.php?table_name=$1 [L]
