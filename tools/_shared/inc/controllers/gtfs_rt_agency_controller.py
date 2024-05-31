@@ -23,6 +23,7 @@ class GTFS_RT_Agency_Controller:
 
     def compute_agency_ids(self):
         agency_ids = self.map_rt_agency.keys()
+        agency_ids = [item for item in agency_ids if item not in ('', None)]
         return agency_ids
     
     def is_rt_enabled(self, agency_id: str):
