@@ -45,3 +45,11 @@ export interface Stop_TimeJSON {
     stop_arrival: Date | null
     stop_departure: Date | null
 }
+
+export interface TripJSON {
+    trip_id: string
+    route_id: string
+    service_id: string
+    trip_headsign: string | null
+    trip_short_name: string | null
+}
