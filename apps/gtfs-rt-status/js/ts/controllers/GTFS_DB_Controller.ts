@@ -165,7 +165,7 @@ export default class GTFS_DB_Controller {
             this.gtfs_rt_reporter?.setRequestDatetime(this.request_datetime);
 
             const data_response_active_trips = data_responses[1];
-            this.gtfs_rt_reporter?.loadTrips(data_response_active_trips.rows);
+            this.gtfs_rt_reporter?.loadActiveTrips(data_response_active_trips.rows);
 
             const request_interval_from_hhmm = this.query_interval_from_time_el.value;
             const request_interval_from_date = Date_Helpers.setHHMMToDate(this.request_datetime, request_interval_from_hhmm);
