@@ -14,7 +14,7 @@ class GTFS_RT_Agency_Controller:
             self._parse_csv(go_realtime_csv_path)
         
     def _parse_csv(self, csv_path: Path):
-        csv_handler = open(csv_path)
+        csv_handler = open(csv_path, encoding='utf-8')
         csv_reader = csv.DictReader(csv_handler)
         
         for row in csv_reader:
