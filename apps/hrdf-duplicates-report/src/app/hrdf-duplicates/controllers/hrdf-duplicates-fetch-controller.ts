@@ -73,8 +73,14 @@ export default class HRDF_DuplicatesFetchController {
         if (firstTrip.service_line) {
           const digits_matches = firstTrip.service_line.match(/\d+/);
           const digits_matches_s = digits_matches ? digits_matches[0] : '';
+
+          let repeat_no = 5 - digits_matches_s.length;
+          if (repeat_no < 0) {
+            repeat_no = 0;
+          }
+
           const sort_key_line =
-            '0'.repeat(5 - digits_matches_s.length) +
+            '0'.repeat(repeat_no) +
             digits_matches_s +
             '_' +
             firstTrip.service_line;
