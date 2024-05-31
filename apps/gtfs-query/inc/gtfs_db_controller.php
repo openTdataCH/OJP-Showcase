@@ -118,14 +118,15 @@ class GTFS_DB_Controller {
         $result_rows = array();
 
         while ($db_row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $result_row = NULL;
+            // FLAT by default
+            $result_row = $db_row;
 
             if ($parse_db_row_type === 'FULL') {
                 $result_row = $this->parse_db_trip_full($db_row);
             }
 
-            if ($parse_db_row_type === 'FLAT') {
-                $result_row = $this->parse_db_trip_flat($db_row);
+            if (array_key_exists('day_bit', $result_row)) {
+                unset($result_row['day_bit']);
             }
 
             array_push($result_rows, $result_row);
@@ -169,17 +170,6 @@ class GTFS_DB_Controller {
             'agency_id' => $db_row['agency_id'],
             'has_day' => $db_row['day_bit'] === '1',
             'stop_times' => $stop_times,
-        );
-
-        return $result_row;
-    }
-
-    private function parse_db_trip_flat($db_row) {
-        $result_row = array(
-            'trip_id' => $db_row['trip_id'],
-            'trip_short_name' => $db_row['trip_short_name'],
-            'route_id' => $db_row['route_id'],
-            'stop_times_s' => $db_row['stop_times_s'],
         );
 
         return $result_row;
