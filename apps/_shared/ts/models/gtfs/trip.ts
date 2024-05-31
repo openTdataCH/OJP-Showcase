@@ -21,9 +21,9 @@ export class Trip {
     
     public gtfsRT: Response_GTFS_RT_Entity | null
 
-    public trip_short_name: string
+    public trip_short_name: string | null
     
-    constructor(trip_id: string, stop_times: StopTime[], route: Route, calendar: Calendar, trip_short_name: string) {
+    constructor(trip_id: string, stop_times: StopTime[], route: Route, calendar: Calendar, trip_short_name: string | null = null) {
         this.tripID = trip_id;
 
         const first_stop = stop_times[0]
