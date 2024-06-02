@@ -19,6 +19,7 @@ async function main() {
     const gtfs_rt_reporter = new GTFS_RT_Reporter(progress_controller, catalogItem.gtfs_day, nowDate);
     await gtfs_rt_reporter.load_resources();
 
+    gtfs_rt_reporter.setReady();
 }
 
 main();

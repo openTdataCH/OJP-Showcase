@@ -145,6 +145,11 @@ export default class GTFS_RT_Reporter {
         return promise;
     }
 
+    public setReady() {
+        this.gtfs_query_btn.disabled = false;
+        this.progress_controller?.setIdle();
+    }
+
     private handle_gtfs_query_btn_click() {
         this.progress_controller?.setBusy('Fetching GTFS static / RT ...');
         this.gtfs_query_btn.disabled = true;
