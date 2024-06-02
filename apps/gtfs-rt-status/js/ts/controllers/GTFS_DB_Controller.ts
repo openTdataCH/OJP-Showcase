@@ -164,7 +164,6 @@ export default class GTFS_DB_Controller {
             this.progress_controller?.setIdle();
 
             const gtfs_rt_response = data_responses[0];
-            this.gtfs_rt_reporter?.setRequestDatetime(this.request_datetime);
 
             const data_response_active_trips = data_responses[1];
             this.gtfs_rt_reporter?.loadActiveTrips(data_response_active_trips.rows);

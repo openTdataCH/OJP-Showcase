@@ -14,6 +14,8 @@ import Route from '../_shared/models/gtfs/route';
 import Stop from '../_shared/models/gtfs/stop';
 
 export default class GTFS_RT_Reporter {
+    public request_datetime;
+
     private map_gtfs_rt_trips: Record<string, Response_GTFS_RT_Entity>
     
     private map_gtfs_active_trips: Record<string, GTFS_Static_Trip_Condensed>
@@ -26,14 +28,14 @@ export default class GTFS_RT_Reporter {
     private map_gtfs_stops: Record<string, Stop>
     private map_gtfs_day_trips: Record<string, TripLight>
 
-    private request_datetime = new Date()
-
     private map_html_templates: Record<string, string>;
 
     private wrapperGTFS_StaticReportElement: HTMLElement;
     private wrapperGTFS_RTReportElement: HTMLElement;
 
-    constructor() {
+    constructor(request_datetime: Date = new Date()) {
+        this.request_datetime = request_datetime;
+
         this.map_gtfs_rt_trips = {};
         this.map_gtfs_active_trips = {};
 
@@ -133,10 +135,6 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public setRequestDatetime(request_datetime: Date) {
-        this.request_datetime = request_datetime;
-    }
-
     // active == day from/to trips
     public loadActiveTrips(response_json: GTFS_Static_Trip_Condensed[]) {
         this.map_gtfs_active_trips = {};
@@ -174,8 +172,7 @@ export default class GTFS_RT_Reporter {
     }
 
     private computeActiveTrips(request_interval_from_date: Date, request_interval_to_date: Date) {
-        const trip_day = new Date(this.request_datetime);
-        const trip_day_midnight = Date_Helpers.setHHMMToDate(trip_day, "00:00");
+        const trip_day_midnight = Date_Helpers.setHHMMToDate(this.request_datetime, "00:00");
 
         let trips_finished_count = 0;
 
