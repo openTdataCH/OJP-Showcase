@@ -252,7 +252,7 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public loadAgency(response_json: Response_GTFS_Lookup) {
+    private loadAgency(response_json: Response_GTFS_Lookup) {
         this.map_gtfs_agency = {};
 
         const response_rows = response_json.rows as AgencyJSON[];
@@ -262,7 +262,7 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public loadRoutes(response_json: Response_GTFS_Lookup) {
+    private loadRoutes(response_json: Response_GTFS_Lookup) {
         this.map_gtfs_routes = {};
 
         const response_rows = response_json.rows as RouteJSON[];
@@ -272,7 +272,7 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public loadStops(response_json: Response_GTFS_Lookup) {
+    private loadStops(response_json: Response_GTFS_Lookup) {
         this.map_gtfs_stops = {};
 
         const response_rows = response_json.rows as StopJSON[];
@@ -283,7 +283,7 @@ export default class GTFS_RT_Reporter {
     }
 
     // active == day from/to trips
-    public loadActiveTrips(response_json: GTFS_Static_Trip_Condensed[]) {
+    private loadActiveTrips(response_json: GTFS_Static_Trip_Condensed[]) {
         this.map_gtfs_active_trips = {};
 
         response_json.forEach(trip_condensed => {
@@ -291,7 +291,7 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public loadDayTrips(response_json: TripJSON[]) {
+    private loadDayTrips(response_json: TripJSON[]) {
         this.map_gtfs_day_trips = {};
 
         response_json.forEach(tripJSON => {
@@ -300,7 +300,7 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public loadGTFS_RT(response_gtfs_rt: Response_GTFS_RT, request_interval_from_date: Date, request_interval_to_date: Date) {
+    private loadGTFS_RT(response_gtfs_rt: Response_GTFS_RT, request_interval_from_date: Date, request_interval_to_date: Date) {
         this.map_gtfs_rt_trips = {};
         response_gtfs_rt.Entity.forEach(gtfs_rt_row => {
             const trip_id = gtfs_rt_row.TripUpdate?.Trip?.TripId;
@@ -315,7 +315,7 @@ export default class GTFS_RT_Reporter {
         this.computeActiveTrips(request_interval_from_date, request_interval_to_date);
     }
 
-    public updateReport() {
+    private updateReport() {
         this.updateGTFS_RTReport();
         this.updateGTFS_StaticReport();
     }
