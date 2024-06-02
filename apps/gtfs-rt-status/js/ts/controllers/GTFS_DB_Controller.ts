@@ -14,7 +14,6 @@ export default class GTFS_DB_Controller {
     private gtfs_query_btn: HTMLButtonElement;
 
     private query_request_day_el: HTMLInputElement;
-    private query_request_time_el: HTMLInputElement;
     private query_interval_from_time_el: HTMLInputElement;
     private query_interval_to_time_el: HTMLInputElement;
 
@@ -31,7 +30,6 @@ export default class GTFS_DB_Controller {
         });
 
         this.query_request_day_el = document.getElementById('request-day') as HTMLInputElement;
-        this.query_request_time_el = document.getElementById('request-time') as HTMLInputElement;
         this.query_interval_from_time_el = document.getElementById('interval-from-time') as HTMLInputElement;
         this.query_interval_to_time_el = document.getElementById('interval-to-time') as HTMLInputElement;
 
@@ -56,7 +54,6 @@ export default class GTFS_DB_Controller {
         const to_date_f = Date_Helpers.formatDateYMDHIS(to_date);
 
         this.query_request_day_el.value = date_f.substring(0, 10);
-        this.query_request_time_el.value = date_f.substring(11, 16);
 
         const from_date_hhmm = from_date_f.substring(11, 16);
         this.query_interval_from_time_el.value = from_date_hhmm;
