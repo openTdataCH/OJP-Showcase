@@ -166,7 +166,9 @@ export default class GTFS_RT_Reporter {
         });
 
         this.computeActiveTrips(request_interval_from_date, request_interval_to_date);
+    }
 
+    public updateReport() {
         this.updateGTFS_RTReport();
         this.updateGTFS_StaticReport();
     }

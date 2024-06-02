@@ -181,6 +181,8 @@ export default class GTFS_DB_Controller {
             }
             
             this.gtfs_rt_reporter?.loadGTFS_RT(gtfs_rt_response, request_interval_from_date, request_interval_to_date);
+
+            this.gtfs_rt_reporter?.updateReport();
         });
     }
 }
