@@ -3,9 +3,10 @@ import Date_Helpers from '../_shared/helpers/date-helpers'
 import { URL_Helpers } from '../helpers/URL_Helpers';
 import GTFS_RT_Reporter from './GTFS_RT_Reporter';
 
-import { GTFS_Static_DB_Catalog_JSON, GTFS_Static_DB_Catalog_Item_JSON } from '../_shared/models/gtfs_catalog'
-
 export default class GTFS_DB_Controller {
+    private gtfs_day: string;
+    private report_datetime: Date
+
     public progress_controller: Progress_Controller | null = null;
     public gtfs_rt_reporter: GTFS_RT_Reporter | null = null;
 
@@ -17,13 +18,10 @@ export default class GTFS_DB_Controller {
     private query_interval_from_time_el: HTMLInputElement;
     private query_interval_to_time_el: HTMLInputElement;
 
-    private gtfs_day: string | null;
-
-    private request_datetime: Date;
-
-    constructor(request_datetime: Date = new Date()) {
-        this.request_datetime = request_datetime;
-        this.gtfs_day = null;
+    constructor(gtfs_day: string, report_datetime: Date = new Date()) {
+        this.gtfs_day = gtfs_day;
+        this.report_datetime = report_datetime;
+        
         this.gtfs_query_btn = document.getElementById('gtfs_query_btn') as HTMLButtonElement;
         this.gtfs_query_btn.addEventListener('click', () => {
             this.handle_gtfs_query_btn_click();
@@ -41,16 +39,14 @@ export default class GTFS_DB_Controller {
     }
 
     private update_query_inputs() {
-        const now_date = this.request_datetime;
-
-        const date_f = Date_Helpers.formatDateYMDHIS(now_date);
+        const date_f = Date_Helpers.formatDateYMDHIS(this.report_datetime);
 
         // - 30min
-        const from_date = new Date(now_date.getTime() + (-30) * 60 * 1000);
+        const from_date = new Date(this.report_datetime.getTime() + (-30) * 60 * 1000);
         const from_date_f = Date_Helpers.formatDateYMDHIS(from_date);
 
         // + 3hours
-        const to_date = new Date(now_date.getTime() + (3 * 60) * 60 * 1000);
+        const to_date = new Date(this.report_datetime.getTime() + (3 * 60) * 60 * 1000);
         const to_date_f = Date_Helpers.formatDateYMDHIS(to_date);
 
         this.query_request_day_el.value = date_f.substring(0, 10);
@@ -67,66 +63,38 @@ export default class GTFS_DB_Controller {
         this.query_interval_to_time_el.value = to_date_hhmm;
     }
 
-    public loadGTFS_Catalog(completion: () => void) {
-        const url = 'https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json';
-        fetch(url).then(response => response.json()).then(responseJSON => {
-            const dbCatalog = responseJSON as GTFS_Static_DB_Catalog_JSON;
-            let foundItem = false;
-            
-            dbCatalog.items.forEach(catalogItem => {
-                if (foundItem) {
-                    return;
-                }
-
-                if (catalogItem.db_relative_path === null) {
-                    return;
-                }
-
-                const catalogGTFS_RT_SwitchDate = new Date(catalogItem.gtfs_rt_switch_datetime_s + ':00');
-                if (this.request_datetime > catalogGTFS_RT_SwitchDate) {
-                    this.gtfs_day = catalogItem.gtfs_day;
-                    foundItem = true;
-
-                    completion();
-                }
-            });
-
-            if (foundItem === false) {
-                console.error('No GTFS-DB static file can be found for ' + this.request_datetime);
-                console.log(dbCatalog);
-            }
-        });
-    }
-
-    public load_resources(completion: () => void) {
+    public async load_resources() {
         this.progress_controller?.setBusy('Loading Resources...');
-
-        const gtfs_query_lookups_qs_params = {
-            gtfs_day: this.gtfs_day,
-        };
-        const gtfs_query_lookups_address = this.gtfs_query_base_address + '/db_lookups?' 
-            + URL_Helpers.dict_to_querystring(gtfs_query_lookups_qs_params);
-
-        const resource_files = [
-            gtfs_query_lookups_address,
-        ]
-
-        Promise.all(resource_files.map( resource_file => fetch(resource_file))).then(responses =>
-            Promise.all(responses.map(response => response.json()))
-        ).then(data_responses => {
-            this.gtfs_rt_reporter?.setRequestDatetime(this.request_datetime);
-
-            const data_response_lookups = data_responses[0];
-            this.gtfs_rt_reporter?.loadAgency(data_response_lookups.agency);
-            this.gtfs_rt_reporter?.loadStops(data_response_lookups.stops);
-            this.gtfs_rt_reporter?.loadRoutes(data_response_lookups.routes);
-
-            this.gtfs_query_btn.disabled = false;
-            this.progress_controller?.setIdle();
-            completion();
-        }).catch( error => {
-            this.progress_controller?.setError('ERROR loading resources');
+        
+        const promise = new Promise<void>(async (resolve, reject) => {
+            const gtfs_query_lookups_qs_params = {
+                gtfs_day: this.gtfs_day,
+            };
+            const gtfs_query_lookups_address = this.gtfs_query_base_address + '/db_lookups?' 
+                + URL_Helpers.dict_to_querystring(gtfs_query_lookups_qs_params);
+    
+            const resource_files = [
+                gtfs_query_lookups_address,
+            ]
+    
+            Promise.all(resource_files.map( resource_file => fetch(resource_file))).then(responses =>
+                Promise.all(responses.map(response => response.json()))
+            ).then(data_responses => {
+                const data_response_lookups = data_responses[0];
+                this.gtfs_rt_reporter?.loadAgency(data_response_lookups.agency);
+                this.gtfs_rt_reporter?.loadStops(data_response_lookups.stops);
+                this.gtfs_rt_reporter?.loadRoutes(data_response_lookups.routes);
+    
+                this.gtfs_query_btn.disabled = false;
+                this.progress_controller?.setIdle();
+                resolve();
+            }).catch( error => {
+                this.progress_controller?.setError('ERROR loading resources');
+                reject('ERROR loading resources');
+            });
         });
+
+        return promise;
     }
 
     private handle_gtfs_query_btn_click() {
@@ -171,11 +139,13 @@ export default class GTFS_DB_Controller {
             const data_response_day_trips = data_responses[2];
             this.gtfs_rt_reporter?.loadDayTrips(data_response_day_trips.rows);
 
+            const requestDay = new Date(this.query_request_day_el.value + ' 00:00:00');
+
             const request_interval_from_hhmm = this.query_interval_from_time_el.value;
-            const request_interval_from_date = Date_Helpers.setHHMMToDate(this.request_datetime, request_interval_from_hhmm);
+            const request_interval_from_date = Date_Helpers.setHHMMToDate(requestDay, request_interval_from_hhmm);
 
             const request_interval_to_hhmm = this.query_interval_to_time_el.value;
-            let request_interval_to_date = Date_Helpers.setHHMMToDate(this.request_datetime, request_interval_to_hhmm);
+            let request_interval_to_date = Date_Helpers.setHHMMToDate(requestDay, request_interval_to_hhmm);
             if (request_interval_to_date < request_interval_from_date) {
                 request_interval_to_date.setDate(request_interval_to_date.getDate() + 1);
             }
