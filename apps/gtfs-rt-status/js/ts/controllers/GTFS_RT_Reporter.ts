@@ -174,14 +174,15 @@ export default class GTFS_RT_Reporter {
         return promise;
     }
 
-    public static async loadCustomReport(reportDateTime: string) {
+    public static async loadCustomReport(reportFilename: string) {
         const promise = new Promise<GTFS_RT_Static_Report | null>(async (resolve, reject) => {
-            const reportDateTimeMatches = reportDateTime.match(/([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/);
+            const reportDateTimeMatches = reportFilename.match(/([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/);
             if (reportDateTimeMatches === null) {
                 resolve(null);
                 return;
             }
 
+            const reportDateTime = reportDateTimeMatches[0];
             const reportY = reportDateTimeMatches[1];
             const reportM = reportDateTimeMatches[2];
             const reportD = reportDateTimeMatches[3];
