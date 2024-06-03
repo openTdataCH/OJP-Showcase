@@ -160,7 +160,7 @@ export class AppComponent {
       hourCells: hourCells,
       reportValueLookups: reportValueLookups,
       selectedReportValueLookup: reportValueLookups[0],
-      appVersion: '2024-05-28-1'
+      appVersion: '2024-06-03-1'
     }
   }
 
