@@ -11,6 +11,8 @@ import { AgencyJSON, RouteJSON, StopJSON, TripJSON } from '../_shared/types/gtfs
 
 import { GTFS_Static_Trip_Condensed } from '../_shared/types/gtfs/trip-with-stops.interface';
 
+import { GTFS_RT_Static_Report } from '../_shared/models/gtfs_rt_static_report'
+
 import Agency from '../_shared/models/gtfs/agency';
 import Calendar from '../_shared/models/gtfs/calendar';
 import Route from '../_shared/models/gtfs/route';
@@ -143,6 +145,33 @@ export default class GTFS_RT_Reporter {
                 this.progress_controller?.setError('ERROR loading resources');
                 reject('ERROR loading resources');
             });
+        });
+
+        return promise;
+    }
+
+    public static async loadCustomReport(reportDateTime: string) {
+        const promise = new Promise<GTFS_RT_Static_Report | null>(async (resolve, reject) => {
+            const reportDateTimeMatches = reportDateTime.match(/([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/);
+            if (reportDateTimeMatches === null) {
+                resolve(null);
+                return;
+            }
+
+            const reportY = reportDateTimeMatches[1];
+            const reportM = reportDateTimeMatches[2];
+            const reportD = reportDateTimeMatches[3];
+
+            let url = 'https://tools.odpch.ch/gtfs-rt-static-compare-report/[YYYY]/[MM]/[DD]/gtfs_rt_static_report-[REPORT_DATETIME].json';
+            url = url.replace('[YYYY]', reportY);
+            url = url.replace('[MM]', reportM);
+            url = url.replace('[DD]', reportD);
+            url = url.replace('[REPORT_DATETIME]', reportDateTime);
+
+            const responseJSON = await (await fetch(url)).json();
+
+            const report = responseJSON as GTFS_RT_Static_Report;
+            resolve(report);
         });
 
         return promise;
