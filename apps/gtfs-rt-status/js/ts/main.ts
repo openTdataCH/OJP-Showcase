@@ -15,8 +15,7 @@ async function main() {
         return;
     }
 
-    const nowDate = new Date();
-    const gtfs_rt_reporter = new GTFS_RT_Reporter(progress_controller, catalogItem.gtfs_day, nowDate);
+    let gtfsDay = catalogItem.gtfs_day;
     let customReportFilename: string | null = null;
     
     const queryParams = new URLSearchParams(document.location.search);
@@ -34,8 +33,11 @@ async function main() {
             return;
         }
 
+        gtfsDay = gtfsDayMatches[1];
         customReportFilename = customReport.metadata.gtfs_rt_filename;
     }
+
+    const gtfs_rt_reporter = new GTFS_RT_Reporter(progress_controller, gtfsDay, customReportFilename);
     await gtfs_rt_reporter.load_resources();
 
     gtfs_rt_reporter.setReady();

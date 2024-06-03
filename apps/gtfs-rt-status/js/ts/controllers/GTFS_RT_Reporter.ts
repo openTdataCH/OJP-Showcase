@@ -26,6 +26,7 @@ export default class GTFS_RT_Reporter {
     private report_datetime;
 
     private gtfs_query_base_address: string;
+    private gtfs_rt_url: string;
 
     private gtfs_query_btn: HTMLButtonElement;
 
@@ -51,13 +52,36 @@ export default class GTFS_RT_Reporter {
     private wrapperGTFS_StaticReportElement: HTMLElement;
     private wrapperGTFS_RTReportElement: HTMLElement;
 
-    constructor(progress_controller: Progress_Controller, gtfs_day: string, report_datetime: Date = new Date()) {
+    constructor(progress_controller: Progress_Controller, gtfs_day: string, customReportFilename: string | null = null) {
         this.progress_controller = progress_controller;
         
         this.gtfs_day = gtfs_day;
-        this.report_datetime = report_datetime;
 
         this.gtfs_query_base_address = './api/gtfs-query'
+        
+        this.report_datetime = new Date();
+        this.gtfs_rt_url = 'https://www.webgis.ro/tmp/proxy-gtfsrt2020/gtfsrt2020';
+
+        if (customReportFilename !== null) {
+            const reportDateTimeMatches = customReportFilename.match(/([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})([0-9]{2})/);
+            if (reportDateTimeMatches !== null) {
+                const reportYear = reportDateTimeMatches[1];
+                const reportMonth = reportDateTimeMatches[2];
+                const reportDay = reportDateTimeMatches[3];
+                const reportHour = reportDateTimeMatches[4];
+                const reportMin = reportDateTimeMatches[5];
+
+                this.report_datetime = new Date(reportYear + '-' + reportMonth + '-' + reportDay + ' ' + reportHour + ':' + reportMin + ':00');
+                let gtfs_rt_url = 'https://tools.odpch.ch/gtfs-rt-snapshot/[YYYY]/[MM]/[DD]/[GTFS_RT_FILENAME]';
+                gtfs_rt_url = gtfs_rt_url.replace('[YYYY]', reportYear);
+                gtfs_rt_url = gtfs_rt_url.replace('[MM]', reportMonth);
+                gtfs_rt_url = gtfs_rt_url.replace('[DD]', reportDay);
+                gtfs_rt_url = gtfs_rt_url.replace('[GTFS_RT_FILENAME]', customReportFilename);
+
+                this.gtfs_rt_url = gtfs_rt_url;
+            }
+        }
+
         this.gtfs_query_btn = document.getElementById('gtfs_query_btn') as HTMLButtonElement;
 
         this.gtfs_day_el = document.getElementById('gtfs-day') as HTMLInputElement;
@@ -186,7 +210,6 @@ export default class GTFS_RT_Reporter {
         this.progress_controller?.setBusy('Fetching GTFS static / RT ...');
         this.gtfs_query_btn.disabled = true;
 
-        let gtfs_rt_url = 'https://www.webgis.ro/tmp/proxy-gtfsrt2020/gtfsrt2020';
         const gtfs_query_active_trips_params = {
             gtfs_day: this.gtfs_day,
             day: this.query_request_day_el.value,
@@ -205,7 +228,7 @@ export default class GTFS_RT_Reporter {
             + URL_Helpers.dict_to_querystring(gtfs_query_day_trips_params);
 
         const resource_files = [
-            gtfs_rt_url,
+            this.gtfs_rt_url,
             gtfs_query_active_trips_address,
             gtfs_query_day_trips_address,
         ]
