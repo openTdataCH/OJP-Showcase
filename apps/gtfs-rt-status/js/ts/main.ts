@@ -17,6 +17,25 @@ async function main() {
 
     const nowDate = new Date();
     const gtfs_rt_reporter = new GTFS_RT_Reporter(progress_controller, catalogItem.gtfs_day, nowDate);
+    let customReportFilename: string | null = null;
+    
+    const queryParams = new URLSearchParams(document.location.search);
+    const customReportS = queryParams.get('report');
+    if (customReportS !== null) {
+        const customReport = await GTFS_RT_Reporter.loadCustomReport(customReportS);
+        if (customReport === null) {
+            progress_controller.setError('No custom report found');
+            return;
+        }
+
+        const gtfsDayMatches = customReport.metadata.gtfs_db_filename.match(/gtfs_([0-9-]{10}).sqlite/);
+        if (gtfsDayMatches === null) {
+            progress_controller.setError('No DB found in the report');
+            return;
+        }
+
+        customReportFilename = customReport.metadata.gtfs_rt_filename;
+    }
     await gtfs_rt_reporter.load_resources();
 
     gtfs_rt_reporter.setReady();
