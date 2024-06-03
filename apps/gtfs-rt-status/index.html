@@ -9,7 +9,7 @@
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
         
-        <link href="assets/css/page.css?v=7" rel="stylesheet" />
+        <link href="assets/css/page.css?v=13" rel="stylesheet" />
     </head>
 
     <body>
@@ -35,18 +35,23 @@
                 <div class="d-flex flex-row align-items-center">
                     <div class="p-1">
                         <div class="input-group input-group-sm">
-                            <span class="input-group-text">Day</span>
+                            <span class="input-group-text">GTFS Day</span>
+                            <input id="gtfs-day" type="text" class="form-control" value="2020-02-02" readonly style="width:100px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="d-flex flex-row align-items-center">
+                    <div class="p-1">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">Request Day</span>
                             <input id="request-day" type="text" class="form-control" value="2020-02-02" readonly style="width:100px;">
                         </div>
                     </div>
                     <div class="p-1">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text">Time</span>
-                            <input id="request-time" type="text" class="form-control" value="09:00" style="width:60px;">
-                        </div>
-                    </div>
-                    <div class="p-1">
-                        From
+                        Query Trips from
                     </div>
                     <div class="p-1">
                         <div class="input-group input-group-sm">
@@ -78,6 +83,9 @@
             <hr class="mt-2 mb-2"/>
 
             <div>
+                <div>
+                    <strong>Monthly report:</strong> <a href="https://tools.odpch.ch/gtfs-rt-static-report/" target="_blank">https://tools.odpch.ch/gtfs-rt-static-report/</a>
+                </div>
                 <div>
                     <strong>Source code:</strong> <a href="https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/gtfs-rt-status" target="_blank">@openTdataCH/OJP-Showcase</a> on Github
                 </div>
@@ -195,6 +203,6 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
         
-        <script src="js/dist/bundle.js?v=12" charset="utf-8"></script>
+        <script src="js/dist/bundle.js?v=13" charset="utf-8"></script>
     </body>
 </html>

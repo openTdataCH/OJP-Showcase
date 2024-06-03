@@ -1,19 +1,40 @@
 import Date_Helpers from '../_shared/helpers/date-helpers';
+import { URL_Helpers } from '../helpers/URL_Helpers';
 import { DOM_Helpers } from '../helpers/DOM_Helpers';
+
 import { Response_GTFS_Lookup } from '../models/response_gtfs_lookup';
 import { Response_GTFS_RT_Entity } from '../_shared/types/gtfs-rt/entity'
 import { Response_GTFS_RT } from '../_shared/types/gtfs-rt/gtfs-rt-response'
 import { StopTimeUpdate } from '../_shared/types/gtfs-rt/gtfs-rt'
 import { Trip, TripLight } from '../_shared/models/gtfs/trip';
-import { GTFS_Static_Trip_Condensed } from '../_shared/types/gtfs/trip-with-stops.interface';
 import { AgencyJSON, RouteJSON, StopJSON, TripJSON } from '../_shared/types/gtfs/gtfs'
+
+import { GTFS_Static_Trip_Condensed } from '../_shared/types/gtfs/trip-with-stops.interface';
+
+import { GTFS_RT_Static_Report } from '../_shared/models/gtfs_rt_static_report'
 
 import Agency from '../_shared/models/gtfs/agency';
 import Calendar from '../_shared/models/gtfs/calendar';
 import Route from '../_shared/models/gtfs/route';
 import Stop from '../_shared/models/gtfs/stop';
 
+import Progress_Controller from './Progress_Controller';
+
 export default class GTFS_RT_Reporter {
+    private progress_controller: Progress_Controller;
+    private gtfs_day: string;
+    private report_datetime;
+
+    private gtfs_query_base_address: string;
+    private gtfs_rt_url: string;
+
+    private gtfs_query_btn: HTMLButtonElement;
+
+    private gtfs_day_el: HTMLInputElement;
+    private query_request_day_el: HTMLInputElement;
+    private query_interval_from_time_el: HTMLInputElement;
+    private query_interval_to_time_el: HTMLInputElement;
+
     private map_gtfs_rt_trips: Record<string, Response_GTFS_RT_Entity>
     
     private map_gtfs_active_trips: Record<string, GTFS_Static_Trip_Condensed>
@@ -26,14 +47,48 @@ export default class GTFS_RT_Reporter {
     private map_gtfs_stops: Record<string, Stop>
     private map_gtfs_day_trips: Record<string, TripLight>
 
-    private request_datetime = new Date()
-
     private map_html_templates: Record<string, string>;
 
     private wrapperGTFS_StaticReportElement: HTMLElement;
     private wrapperGTFS_RTReportElement: HTMLElement;
 
-    constructor() {
+    constructor(progress_controller: Progress_Controller, gtfs_day: string, customReportFilename: string | null = null) {
+        this.progress_controller = progress_controller;
+        
+        this.gtfs_day = gtfs_day;
+
+        this.gtfs_query_base_address = './api/gtfs-query'
+        
+        this.report_datetime = new Date();
+        this.gtfs_rt_url = 'https://www.webgis.ro/tmp/proxy-gtfsrt2020/gtfsrt2020';
+
+        if (customReportFilename !== null) {
+            const reportDateTimeMatches = customReportFilename.match(/([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})([0-9]{2})/);
+            if (reportDateTimeMatches !== null) {
+                const reportYear = reportDateTimeMatches[1];
+                const reportMonth = reportDateTimeMatches[2];
+                const reportDay = reportDateTimeMatches[3];
+                const reportHour = reportDateTimeMatches[4];
+                const reportMin = reportDateTimeMatches[5];
+
+                this.report_datetime = new Date(reportYear + '-' + reportMonth + '-' + reportDay + ' ' + reportHour + ':' + reportMin + ':00');
+                let gtfs_rt_url = 'https://tools.odpch.ch/gtfs-rt-snapshot/[YYYY]/[MM]/[DD]/[GTFS_RT_FILENAME]';
+                gtfs_rt_url = gtfs_rt_url.replace('[YYYY]', reportYear);
+                gtfs_rt_url = gtfs_rt_url.replace('[MM]', reportMonth);
+                gtfs_rt_url = gtfs_rt_url.replace('[DD]', reportDay);
+                gtfs_rt_url = gtfs_rt_url.replace('[GTFS_RT_FILENAME]', customReportFilename);
+
+                this.gtfs_rt_url = gtfs_rt_url;
+            }
+        }
+
+        this.gtfs_query_btn = document.getElementById('gtfs_query_btn') as HTMLButtonElement;
+
+        this.gtfs_day_el = document.getElementById('gtfs-day') as HTMLInputElement;
+        this.query_request_day_el = document.getElementById('request-day') as HTMLInputElement;
+        this.query_interval_from_time_el = document.getElementById('interval-from-time') as HTMLInputElement;
+        this.query_interval_to_time_el = document.getElementById('interval-to-time') as HTMLInputElement;
+
         this.map_gtfs_rt_trips = {};
         this.map_gtfs_active_trips = {};
 
@@ -49,17 +104,172 @@ export default class GTFS_RT_Reporter {
         this.wrapperGTFS_StaticReportElement = document.getElementById('content_wrapper') as HTMLElement;
         this.wrapperGTFS_RTReportElement = document.getElementById('hrdf_rt_wrapper') as HTMLElement;
 
-        this.addEventHandlers();
-
         this.map_html_templates = {
             card_agency: (document.getElementById('template_agency') as HTMLElement).innerHTML,
             card_route: (document.getElementById('template_route_name') as HTMLElement).innerHTML,
             gtfs_rt_report: (document.getElementById('template_gtfs_rt_report') as HTMLElement).innerHTML,
             gtfs_static_report: (document.getElementById('template_gtfs_static_report') as HTMLElement).innerHTML,
         };
+
+        this.initUI();
+        this.addEventHandlers();
+    }
+
+    private initUI() {
+        this.gtfs_query_btn.disabled = true;
+
+        const date_f = Date_Helpers.formatDateYMDHIS(this.report_datetime);
+
+        // - 30min
+        const from_date = new Date(this.report_datetime.getTime() + (-30) * 60 * 1000);
+        const from_date_f = Date_Helpers.formatDateYMDHIS(from_date);
+
+        // + 3hours
+        const to_date = new Date(this.report_datetime.getTime() + (3 * 60) * 60 * 1000);
+        const to_date_f = Date_Helpers.formatDateYMDHIS(to_date);
+
+        this.gtfs_day_el.value = this.gtfs_day;
+        this.query_request_day_el.value = date_f.substring(0, 10);
+
+        const from_date_hhmm = from_date_f.substring(11, 16);
+        this.query_interval_from_time_el.value = from_date_hhmm;
+
+        let to_date_hhmm = to_date_f.substring(11, 16);
+        if (to_date_hhmm < from_date_hhmm) {
+            const day_hrs = parseInt(to_date_hhmm.substring(0, 2), 10) + 24
+            const day_mins_f = to_date_hhmm.substring(3, 5);
+            to_date_hhmm = day_hrs.toString() + ':' + day_mins_f;
+        }
+        this.query_interval_to_time_el.value = to_date_hhmm;
+    }
+
+    public async load_resources() {
+        this.progress_controller?.setBusy('Loading Resources...');
+        
+        const promise = new Promise<void>(async (resolve, reject) => {
+            const gtfs_query_lookups_qs_params = {
+                gtfs_day: this.gtfs_day,
+            };
+            const gtfs_query_lookups_address = this.gtfs_query_base_address + '/db_lookups?' 
+                + URL_Helpers.dict_to_querystring(gtfs_query_lookups_qs_params);
+    
+            const resource_files = [
+                gtfs_query_lookups_address,
+            ]
+    
+            Promise.all(resource_files.map( resource_file => fetch(resource_file))).then(responses =>
+                Promise.all(responses.map(response => response.json()))
+            ).then(data_responses => {
+                const data_response_lookups = data_responses[0];
+                this.loadAgency(data_response_lookups.agency);
+                this.loadStops(data_response_lookups.stops);
+                this.loadRoutes(data_response_lookups.routes);
+                resolve();
+            }).catch( error => {
+                this.progress_controller?.setError('ERROR loading resources');
+                reject('ERROR loading resources');
+            });
+        });
+
+        return promise;
+    }
+
+    public static async loadCustomReport(reportFilename: string) {
+        const promise = new Promise<GTFS_RT_Static_Report | null>(async (resolve, reject) => {
+            const reportDateTimeMatches = reportFilename.match(/([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/);
+            if (reportDateTimeMatches === null) {
+                resolve(null);
+                return;
+            }
+
+            const reportDateTime = reportDateTimeMatches[0];
+            const reportY = reportDateTimeMatches[1];
+            const reportM = reportDateTimeMatches[2];
+            const reportD = reportDateTimeMatches[3];
+
+            let url = 'https://tools.odpch.ch/gtfs-rt-static-compare-report/[YYYY]/[MM]/[DD]/gtfs_rt_static_report-[REPORT_DATETIME].json';
+            url = url.replace('[YYYY]', reportY);
+            url = url.replace('[MM]', reportM);
+            url = url.replace('[DD]', reportD);
+            url = url.replace('[REPORT_DATETIME]', reportDateTime);
+
+            const responseJSON = await (await fetch(url)).json();
+
+            const report = responseJSON as GTFS_RT_Static_Report;
+            resolve(report);
+        });
+
+        return promise;
+    }
+
+    public setReady() {
+        this.gtfs_query_btn.disabled = false;
+        this.progress_controller?.setIdle();
+    }
+
+    private handle_gtfs_query_btn_click() {
+        this.progress_controller?.setBusy('Fetching GTFS static / RT ...');
+        this.gtfs_query_btn.disabled = true;
+
+        const gtfs_query_active_trips_params = {
+            gtfs_day: this.gtfs_day,
+            day: this.query_request_day_el.value,
+            from_hhmm: this.query_interval_from_time_el.value.replace(':', ''),
+            to_hhmm: this.query_interval_to_time_el.value.replace(':', ''),
+            filter_agency_ids: 'HAS_GTFS_RT',
+        };
+        const gtfs_query_active_trips_address = this.gtfs_query_base_address + '/query_day_from_to_trips?' 
+            + URL_Helpers.dict_to_querystring(gtfs_query_active_trips_params);
+
+        const gtfs_query_day_trips_params = {
+            gtfs_day: this.gtfs_day,
+            day: this.query_request_day_el.value,
+        };
+        const gtfs_query_day_trips_address = this.gtfs_query_base_address + '/query_day_trips?' 
+            + URL_Helpers.dict_to_querystring(gtfs_query_day_trips_params);
+
+        const resource_files = [
+            this.gtfs_rt_url,
+            gtfs_query_active_trips_address,
+            gtfs_query_day_trips_address,
+        ]
+
+        Promise.all(resource_files.map( resource_file => fetch(resource_file))).then(responses =>
+            Promise.all(responses.map(response => response.json()))
+        ).then(data_responses => {
+            this.gtfs_query_btn.disabled = false;
+            this.progress_controller?.setIdle();
+
+            const gtfs_rt_response = data_responses[0];
+
+            const data_response_active_trips = data_responses[1];
+            this.loadActiveTrips(data_response_active_trips.rows);
+
+            const data_response_day_trips = data_responses[2];
+            this.loadDayTrips(data_response_day_trips.rows);
+
+            const requestDay = new Date(this.query_request_day_el.value + ' 00:00:00');
+
+            const request_interval_from_hhmm = this.query_interval_from_time_el.value;
+            const request_interval_from_date = Date_Helpers.setHHMMToDate(requestDay, request_interval_from_hhmm);
+
+            const request_interval_to_hhmm = this.query_interval_to_time_el.value;
+            let request_interval_to_date = Date_Helpers.setHHMMToDate(requestDay, request_interval_to_hhmm);
+            if (request_interval_to_date < request_interval_from_date) {
+                request_interval_to_date.setDate(request_interval_to_date.getDate() + 1);
+            }
+            
+            this.loadGTFS_RT(gtfs_rt_response, request_interval_from_date, request_interval_to_date);
+
+            this.updateReport();
+        });
     }
 
     private addEventHandlers() {
+        this.gtfs_query_btn.addEventListener('click', () => {
+            this.handle_gtfs_query_btn_click();
+        });
+
         this.wrapperGTFS_StaticReportElement.addEventListener('click', (ev) => {
             const el = ev.target as HTMLElement;
             if (DOM_Helpers.hasClassName(el, 'toggle-all-trips-btn')) {
@@ -103,7 +313,7 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public loadAgency(response_json: Response_GTFS_Lookup) {
+    private loadAgency(response_json: Response_GTFS_Lookup) {
         this.map_gtfs_agency = {};
 
         const response_rows = response_json.rows as AgencyJSON[];
@@ -113,7 +323,7 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public loadRoutes(response_json: Response_GTFS_Lookup) {
+    private loadRoutes(response_json: Response_GTFS_Lookup) {
         this.map_gtfs_routes = {};
 
         const response_rows = response_json.rows as RouteJSON[];
@@ -123,7 +333,7 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public loadStops(response_json: Response_GTFS_Lookup) {
+    private loadStops(response_json: Response_GTFS_Lookup) {
         this.map_gtfs_stops = {};
 
         const response_rows = response_json.rows as StopJSON[];
@@ -133,12 +343,8 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public setRequestDatetime(request_datetime: Date) {
-        this.request_datetime = request_datetime;
-    }
-
     // active == day from/to trips
-    public loadActiveTrips(response_json: GTFS_Static_Trip_Condensed[]) {
+    private loadActiveTrips(response_json: GTFS_Static_Trip_Condensed[]) {
         this.map_gtfs_active_trips = {};
 
         response_json.forEach(trip_condensed => {
@@ -146,7 +352,7 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public loadDayTrips(response_json: TripJSON[]) {
+    private loadDayTrips(response_json: TripJSON[]) {
         this.map_gtfs_day_trips = {};
 
         response_json.forEach(tripJSON => {
@@ -155,7 +361,7 @@ export default class GTFS_RT_Reporter {
         });
     }
 
-    public loadGTFS_RT(response_gtfs_rt: Response_GTFS_RT, request_interval_from_date: Date, request_interval_to_date: Date) {
+    private loadGTFS_RT(response_gtfs_rt: Response_GTFS_RT, request_interval_from_date: Date, request_interval_to_date: Date) {
         this.map_gtfs_rt_trips = {};
         response_gtfs_rt.Entity.forEach(gtfs_rt_row => {
             const trip_id = gtfs_rt_row.TripUpdate?.Trip?.TripId;
@@ -168,14 +374,15 @@ export default class GTFS_RT_Reporter {
         });
 
         this.computeActiveTrips(request_interval_from_date, request_interval_to_date);
+    }
 
+    private updateReport() {
         this.updateGTFS_RTReport();
         this.updateGTFS_StaticReport();
     }
 
     private computeActiveTrips(request_interval_from_date: Date, request_interval_to_date: Date) {
-        const trip_day = new Date(this.request_datetime);
-        const trip_day_midnight = Date_Helpers.setHHMMToDate(trip_day, "00:00");
+        const trip_day_midnight = Date_Helpers.setHHMMToDate(this.report_datetime, "00:00");
 
         let trips_finished_count = 0;
 
@@ -195,7 +402,7 @@ export default class GTFS_RT_Reporter {
             }
 
             // Test the trip to finish after NOW
-            const is_finished = trip.isFinished(this.request_datetime);
+            const is_finished = trip.isFinished(this.report_datetime);
             if (is_finished) {
                 trips_finished_count += 1;
                 continue;
@@ -256,7 +463,7 @@ export default class GTFS_RT_Reporter {
                         route_data.stats.rt_cno += 1;
                         agency_data.stats.rt_cno += 1;
                     } else {
-                        const is_in_future = trip.isInTheFuture(this.request_datetime);
+                        const is_in_future = trip.isInTheFuture(this.report_datetime);
                         if (is_in_future) {
                             route_data.stats.future_missing_rt_cno += 1;
                             agency_data.stats.future_missing_rt_cno += 1;
@@ -575,7 +782,7 @@ export default class GTFS_RT_Reporter {
 
         let trips_html_rows: string[] = [];
         route_trips.forEach(trip => {
-            const is_in_future = trip.isInTheFuture(this.request_datetime);
+            const is_in_future = trip.isInTheFuture(this.report_datetime);
 
             let table_row_tds: string[] = [];
             
@@ -588,7 +795,7 @@ export default class GTFS_RT_Reporter {
             info_parts.push(trip.tripID);
 
             if (!is_in_future) {
-                const map_url_address = trip.computeMapURL(this.request_datetime);
+                const map_url_address = trip.computeMapURL(this.report_datetime);
                 const map_el_s = ' - <a href="' + map_url_address + '" target="_blank">Map</a>';
                 info_parts.push(map_el_s);
             }
@@ -643,7 +850,7 @@ export default class GTFS_RT_Reporter {
                 const stop_display_time_s = stop_time.departureTimeS ? stop_time.departureTimeS : stop_time.arrivalTimeS;
 
                 let stop_time_css_class = "stop-time";
-                if (stop_display_time! < this.request_datetime) {
+                if (stop_display_time! < this.report_datetime) {
                     stop_time_css_class += " stop-time-passed";
                 }
 

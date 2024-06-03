@@ -160,7 +160,7 @@ export class AppComponent {
       hourCells: hourCells,
       reportValueLookups: reportValueLookups,
       selectedReportValueLookup: reportValueLookups[0],
-      appVersion: '2024-05-28-1'
+      appVersion: '2024-06-03-1'
     }
   }
 
@@ -401,5 +401,16 @@ export class AppComponent {
     }
 
     return reportValue;
+  }
+
+  public computeDetailReportURL() {
+    const metadata = this.model.selectedReportCell?.report ?? null;
+    if (metadata === null) {
+      return '';
+    }
+
+    const url = 'https://tools.odpch.ch/gtfs-rt-status/?report=' + metadata.gtfs_rt_filename;
+
+    return url;
   }
 }
