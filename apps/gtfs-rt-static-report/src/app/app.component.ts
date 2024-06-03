@@ -402,4 +402,15 @@ export class AppComponent {
 
     return reportValue;
   }
+
+  public computeDetailReportURL() {
+    const metadata = this.model.selectedReportCell?.report ?? null;
+    if (metadata === null) {
+      return '';
+    }
+
+    const url = 'https://tools.odpch.ch/gtfs-rt-status/?report=' + metadata.gtfs_rt_filename;
+
+    return url;
+  }
 }
