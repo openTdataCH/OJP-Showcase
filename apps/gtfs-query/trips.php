@@ -2,7 +2,7 @@
 define('APP_PATH', dirname(__FILE__));
 include(APP_PATH . '/inc/common.php');
 
-$gtfs_day = @$_GET['gtfs_day'] ?: null;
+$gtfs_day = @$_GET['gtfs_day'] ?: 'LATEST';
 
 $agency_id = @$_GET['agency_id'] ?: null;
 $route_short_name = @$_GET['route_short_name'] ?: null;
