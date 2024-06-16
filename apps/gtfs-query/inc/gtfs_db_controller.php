@@ -13,6 +13,8 @@ class GTFS_DB_Controller {
     var $go_realtime_csv_path;
     var $app_db_cache_path;
 
+    var $gtfs_from_date;
+
     function __construct($config, $gtfs_db_day) {
         $this->is_dev = APP_PROFILE === 'dev';
         $this->request_URI = $_SERVER['REQUEST_URI'];
@@ -34,6 +36,10 @@ class GTFS_DB_Controller {
         $this->use_cache = TRUE;
 
         $this->cache_prefix = 'v1_' . $gtfs_db_day;
+
+        $calendar_sql = "SELECT start_date FROM calendar LIMIT 1";
+        $gtfs_start_dt_s = $this->db->querySingle($calendar_sql);
+        $this->gtfs_from_date = date_create_from_format("Ymd", $gtfs_start_dt_s);
     }
 
     private function compute_gtfs_db_path_from_day($gtfs_dbs_path, $gtfs_day) {
@@ -103,17 +109,13 @@ class GTFS_DB_Controller {
 
     private function query_db_trips($sql_fields, $day, $filter_agency_ids, $from_hhmm = null, $to_hhmm = null, $parse_db_row_type = null) {
         // START compute DAY_IDX
-        $calendar_sql = "SELECT start_date FROM calendar LIMIT 1";
-        $gtfs_start_dt_s = $this->db->querySingle($calendar_sql);
-        $gtfs_from_date = date_create_from_format("Ymd", $gtfs_start_dt_s);
-
         $sql_path = $this->map_sql_queries['query_day_trips'];
         $sql = file_get_contents($sql_path);
 
         $sql = str_replace('[SQL_FIELDS]', $sql_fields, $sql);
 
         $request_day_date = date_create_from_format("Y-m-d", $day);
-        $day_idx = $request_day_date->diff($gtfs_from_date)->days;
+        $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
         $sql = str_replace('[DAY_IDX]', $day_idx, $sql);
         // DONE
         
