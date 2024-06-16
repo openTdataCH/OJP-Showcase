@@ -22,10 +22,9 @@ ini_set('date.timezone', 'Europe/Zurich');
 include(APP_PATH . '/inc/libs/yaml/yaml.php');
 include(APP_PATH . '/inc/gtfs_db_controller.php');
 include(APP_PATH . '/inc/json_view.php');
+include(APP_PATH . '/inc/helpers/config.php');
 
 $app_config_path = APP_PATH . "/inc/config.yml";
-$app_config_s = file_get_contents($app_config_path);
-$app_config_s = str_replace('[APP_PATH]', APP_PATH, $app_config_s);
-$yaml = new Yaml();
-$app_config = $yaml->loadString($app_config_s);
+$app_config = ConfigHelpers::loadConfigAtPath($app_config_path, APP_PATH);
+
 define('APP_CONFIG', $app_config);
