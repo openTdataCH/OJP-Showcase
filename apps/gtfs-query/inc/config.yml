@@ -1,4 +1,7 @@
+app_path: "[APP_PATH]"
+
 ojp_gtfs_dbs_path: "[APP_PATH]/data/gtfs-static-dbs"
+gtfs_dbs_catalog_path: "[APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json"
 
 map_sql_queries:
     # select

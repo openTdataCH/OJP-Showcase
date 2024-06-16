@@ -4,6 +4,7 @@ class GTFS_DB_Controller {
     var $is_dev;
     var $request_URI;
     
+    var $gtfs_db_day;
     var $db;
 
     var $use_cache;
@@ -18,6 +19,12 @@ class GTFS_DB_Controller {
     function __construct($config, $gtfs_db_day) {
         $this->is_dev = APP_PROFILE === 'dev';
         $this->request_URI = $_SERVER['REQUEST_URI'];
+
+        if ($gtfs_db_day === 'LATEST') {
+            $gtfs_db_day = $this->compute_latest_gtfs_day($config);
+        }
+
+        $this->gtfs_db_day = $gtfs_db_day;
 
         $gtfs_dbs_path = $config['ojp_gtfs_dbs_path'];
 
@@ -46,6 +53,19 @@ class GTFS_DB_Controller {
         $gtfs_db_filename = 'gtfs_' . $gtfs_day . '.sqlite';
         $gtfs_db_path = $gtfs_dbs_path . '/' . $gtfs_db_filename;
         return $gtfs_db_path;
+    }
+
+    private function compute_latest_gtfs_day($config) {
+        $gtfs_dbs_catalog_path = $config['gtfs_dbs_catalog_path'];
+        $gtfs_dbs_catalog = json_decode(file_get_contents($gtfs_dbs_catalog_path), true);
+        if (count($gtfs_dbs_catalog['items']) === 0) {
+            die('cant find latest gtfs-day catalog item');
+        }
+
+        $gtfs_db_item = $gtfs_dbs_catalog['items'][0];
+        $gtfs_day = $gtfs_db_item['gtfs_day'];
+        
+        return $gtfs_day;
     }
 
     public function query_day_from_to_trips($day, $filter_agency_ids_s, $from_hhmm, $to_hhmm) {
