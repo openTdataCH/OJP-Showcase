@@ -2,6 +2,7 @@ app_path: "[APP_PATH]"
 
 ojp_gtfs_dbs_path: "[APP_PATH]/data/gtfs-static-dbs"
 gtfs_dbs_catalog_path: "[APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json"
+business_organisation_latest_path: "[APP_PATH]/data/opentransportdata.swiss/business-organisations/actual_date_business_organisation_versions_LATEST.csv"
 
 map_sql_queries:
     # select

@@ -5,6 +5,7 @@ class GTFS_DB_Controller {
     var $request_URI;
     
     var $gtfs_db_day;
+    var $map_business_organisations;
     var $db;
 
     var $use_cache;
@@ -26,6 +27,8 @@ class GTFS_DB_Controller {
         }
 
         $this->gtfs_db_day = $gtfs_db_day;
+
+        $this->map_business_organisations = $this->_load_map_business_organisations($config);
 
         $gtfs_dbs_path = $config['ojp_gtfs_dbs_path'];
 
@@ -57,6 +60,32 @@ class GTFS_DB_Controller {
         $gtfs_db_filename = 'gtfs_' . $gtfs_day . '.sqlite';
         $gtfs_db_path = $gtfs_dbs_path . '/' . $gtfs_db_filename;
         return $gtfs_db_path;
+    }
+
+    private function _load_map_business_organisations($config) {
+        $csv_path = $config['business_organisation_latest_path'];
+        $csv_file = fopen($csv_path, 'r');
+        
+        // Read the first line to check for BOM
+        $bom = fread($csv_file, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            // If no BOM, rewind the file pointer
+            rewind($csv_file);
+        }
+
+        $map_business_organisations = array();
+
+        $csv_headers = fgetcsv($csv_file, null, ';');
+        while (($row = fgetcsv($csv_file, 1000, ';')) !== false) {
+            $csv_row = array_combine($csv_headers, $row);
+
+            $sboid = $csv_row['sboid'];
+            $agency_id = $csv_row['organisationNumber'];
+            
+            $map_business_organisations[$sboid] = $agency_id;
+        }
+
+        return $map_business_organisations;
     }
 
     private function compute_latest_gtfs_day($config) {
