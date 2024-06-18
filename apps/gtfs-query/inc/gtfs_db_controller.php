@@ -444,6 +444,49 @@ class GTFS_DB_Controller {
         return $result;
     }
 
+    public function query_trips_by_journey_ref($journey_ref = null, $service_day = null) {
+        $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
+
+        $error_result = array(
+            'metadata' => array(
+                'error' => 'error: n/a',
+                
+            ),
+            'rows' => array(),
+        );
+
+        $journey_ref_parts = explode(':', $journey_ref);
+        if (count($journey_ref_parts) < 5) {
+            $error_result['metadata']['error'] = 'unexpected journey_ref';
+            return $error_result;
+        }
+
+        $sboid = 'ch:1:sboid:' . $journey_ref_parts[3];
+        if (!array_key_exists($sboid, $this->map_business_organisations)) {
+            $error_result['metadata']['error'] = 'cant find sboid: ' . $sboid;
+            return $error_result;
+        }
+
+        $agency_id = $this->map_business_organisations[$sboid];
+        $agency_id_where = "agency.agency_id = '" . $agency_id . "'";
+        array_push($query_config['where'], $agency_id_where);
+
+        $trip_short_name_parts = explode('-', $journey_ref_parts[4]);
+        $trip_short_name = $trip_short_name_parts[0];
+        $trip_short_name_where = "trips.trip_short_name = '" . $trip_short_name . "'";
+        array_push($query_config['where'], $trip_short_name_where);
+
+        $request_day_date = date_create_from_format("Y-m-d", $service_day);
+        $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
+
+        $service_day_where = "SUBSTR(calendar.day_bits, " . $day_idx . " + 1, 1) = '1'";
+        array_push($query_config['where'], $service_day_where);
+
+        $result = $this->_query_trips($query_config);
+
+        return $result;
+    }
+
     public function _query_trips($query_config) {
         $sql = $this->build_select_query($query_config);
 
