@@ -5,6 +5,7 @@ class GTFS_DB_Controller {
     var $request_URI;
     
     var $gtfs_db_day;
+    var $map_business_organisations;
     var $db;
 
     var $use_cache;
@@ -26,6 +27,8 @@ class GTFS_DB_Controller {
         }
 
         $this->gtfs_db_day = $gtfs_db_day;
+
+        $this->map_business_organisations = $this->_load_map_business_organisations($config);
 
         $gtfs_dbs_path = $config['ojp_gtfs_dbs_path'];
 
@@ -57,6 +60,32 @@ class GTFS_DB_Controller {
         $gtfs_db_filename = 'gtfs_' . $gtfs_day . '.sqlite';
         $gtfs_db_path = $gtfs_dbs_path . '/' . $gtfs_db_filename;
         return $gtfs_db_path;
+    }
+
+    private function _load_map_business_organisations($config) {
+        $csv_path = $config['business_organisation_latest_path'];
+        $csv_file = fopen($csv_path, 'r');
+        
+        // Read the first line to check for BOM
+        $bom = fread($csv_file, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            // If no BOM, rewind the file pointer
+            rewind($csv_file);
+        }
+
+        $map_business_organisations = array();
+
+        $csv_headers = fgetcsv($csv_file, null, ';');
+        while (($row = fgetcsv($csv_file, 1000, ';')) !== false) {
+            $csv_row = array_combine($csv_headers, $row);
+
+            $sboid = $csv_row['sboid'];
+            $agency_id = $csv_row['organisationNumber'];
+            
+            $map_business_organisations[$sboid] = $agency_id;
+        }
+
+        return $map_business_organisations;
     }
 
     private function compute_latest_gtfs_day($config) {
@@ -410,7 +439,56 @@ class GTFS_DB_Controller {
             array_push($query_config['where'], $service_day_where);
         }
         
-        $sql = $this->build_select_query(($query_config));
+        $result = $this->_query_trips($query_config);
+
+        return $result;
+    }
+
+    public function query_trips_by_journey_ref($journey_ref = null, $service_day = null) {
+        $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
+
+        $error_result = array(
+            'metadata' => array(
+                'error' => 'error: n/a',
+                
+            ),
+            'rows' => array(),
+        );
+
+        $journey_ref_parts = explode(':', $journey_ref);
+        if (count($journey_ref_parts) < 5) {
+            $error_result['metadata']['error'] = 'unexpected journey_ref';
+            return $error_result;
+        }
+
+        $sboid = 'ch:1:sboid:' . $journey_ref_parts[3];
+        if (!array_key_exists($sboid, $this->map_business_organisations)) {
+            $error_result['metadata']['error'] = 'cant find sboid: ' . $sboid;
+            return $error_result;
+        }
+
+        $agency_id = $this->map_business_organisations[$sboid];
+        $agency_id_where = "agency.agency_id = '" . $agency_id . "'";
+        array_push($query_config['where'], $agency_id_where);
+
+        $trip_short_name_parts = explode('-', $journey_ref_parts[4]);
+        $trip_short_name = $trip_short_name_parts[0];
+        $trip_short_name_where = "trips.trip_short_name = '" . $trip_short_name . "'";
+        array_push($query_config['where'], $trip_short_name_where);
+
+        $request_day_date = date_create_from_format("Y-m-d", $service_day);
+        $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
+
+        $service_day_where = "SUBSTR(calendar.day_bits, " . $day_idx . " + 1, 1) = '1'";
+        array_push($query_config['where'], $service_day_where);
+
+        $result = $this->_query_trips($query_config);
+
+        return $result;
+    }
+
+    public function _query_trips($query_config) {
+        $sql = $this->build_select_query($query_config);
 
         $result = $this->db->query($sql);
 

@@ -12,6 +12,9 @@ map_packages:
   hrdf:
     <<: *hrdf_5_4
     alias: hrdf_5_4
+  business-organisations:
+    package_id: business-organisations
+    base_path: [APP_PATH]/data/opentransportdata.swiss/business-organisations
 
 package_cache:
   local_path: [APP_PATH]/tmp/ckan_[PACKAGE_KEY].json
