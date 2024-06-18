@@ -439,7 +439,13 @@ class GTFS_DB_Controller {
             array_push($query_config['where'], $service_day_where);
         }
         
-        $sql = $this->build_select_query(($query_config));
+        $result = $this->_query_trips($query_config);
+
+        return $result;
+    }
+
+    public function _query_trips($query_config) {
+        $sql = $this->build_select_query($query_config);
 
         $result = $this->db->query($sql);
 
