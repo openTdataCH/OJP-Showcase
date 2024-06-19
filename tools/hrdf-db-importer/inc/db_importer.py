@@ -2,6 +2,7 @@ import os
 import sys
 
 from pathlib import Path
+import datetime
 
 from .HRDF_Parser.shared.inc.helpers.log_helpers import log_message
 from .HRDF_Parser.shared.inc.helpers.config_helpers import load_yaml_config
@@ -25,9 +26,10 @@ class HRDF_DB_Importer:
         self.app_config = app_config
         self.hrdf_path = hrdf_path
         self.db_path = db_path
+        self.db_lock_path = Path(f'{self.db_path}.lock')
 
         print('-' * 100)
-        log_message('HRDF IMPORT - v.20231125-001')
+        log_message('HRDF IMPORT - v.20240619-001')
         print('-' * 100)
         log_message(f'HRDF folder input path    : {hrdf_path}')
         log_message(f'HRDF DB output path       : {db_path}')
@@ -37,6 +39,13 @@ class HRDF_DB_Importer:
         self.db_schema_config = load_yaml_config(db_schema_path)
 
     def parse_all(self):
+        if os.path.isfile(self.db_lock_path):
+            print('ERROR: lock path present, ABORT')
+            print(f'ls -al {self.db_lock_path.parent}')
+            sys.exit(1)
+            
+        self._write_lock_file()
+        
         print('-' * 100)
         log_message("HRDF IMPORT -- START")
 
@@ -57,5 +66,17 @@ class HRDF_DB_Importer:
         print('-' * 100)
         import_meta_stops(self.app_config, self.hrdf_path, self.db_path, self.db_schema_config)
         print('-' * 100)
+        
+        self._remove_lock_file()
 
         log_message("HRDF IMPORT -- DONE")
+        
+    def _write_lock_file(self):
+        now_f = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        lock_file_text = f'START: {now_f}'
+        lock_file = open(self.db_lock_path, 'w', encoding='utf-8')
+        lock_file.write(lock_file_text)
+        lock_file.close()
+        
+    def _remove_lock_file(self):
+        os.remove(self.db_lock_path)

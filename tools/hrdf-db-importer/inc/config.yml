@@ -9,6 +9,8 @@ hrdf_default_service_id: "000017" # All days
 
 hrdf_dbs_base_path: [APP_PATH]/data/hrdf-dbs
 hrdf_db_schema_path: "[APP_PATH]/inc/hrdf_schema.yml"
+hrdf_ckan_json_path: [APP_PATH]/data/ckan-utils-tmp/ckan_hrdf_5_4.json
+hrdf_dbs_json_path: [APP_PATH]/data/hrdf-dbs/hrdf-dbs.json
 
 # See 7.5.1 in HRDF realisation guide
 # File with line definitions LINIE Line property
