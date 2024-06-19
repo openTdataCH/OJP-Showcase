@@ -84,6 +84,15 @@ def _db_import(app_config, script_path, hrdf_data_path):
 
     return hrdf_db_path
 
+def _dbs_aggregate(script_path):
+    print(f'')
+    print(f'STEP 4 - BUILD HRDF DB catalog')
+    
+    cli_path = f'{script_path.parent}/../hrdf-db-importer/cli_aggregate_dbs.py'
+    cli_sh = f'{PYTHON_PATH} {cli_path}'
+    print(cli_sh, flush=True)
+    os.system(cli_sh)
+
 def _hrdf_check_duplicates(script_path, hrdf_db_path):
     hrdf_day = compute_formatted_date_from_hrdf_db_path(hrdf_db_path)
 
@@ -94,7 +103,7 @@ def _hrdf_check_duplicates(script_path, hrdf_db_path):
     hrdf_duplicates_report_path = hrdf_duplicates_report_path.replace('[HRDF_YMD]', hrdf_day)
 
     print(f'')
-    print(f'STEP 4 - CHECK HRDF duplicates')
+    print(f'STEP 5 - CHECK HRDF duplicates')
     print(f'HRDF DB PATH            : {hrdf_db_path}')
     print(f'DUPLICATES JSON PATH    : {hrdf_duplicates_report_path}')
 
@@ -109,7 +118,7 @@ def _hrdf_check_duplicates(script_path, hrdf_db_path):
 
 def _hrdf_build_aggregated_duplicates(script_path):
     print(f'')
-    print(f'STEP 5 - BUILD HRDF CSV duplicates report')
+    print(f'STEP 6 - BUILD HRDF CSV duplicates report')
 
     hrdf_duplicates_tool_folder_path = f'{script_path.parent}/../hrdf-check-duplicates'
     hrdf_duplicates_config = load_convenience_config(hrdf_duplicates_tool_folder_path)
@@ -139,7 +148,7 @@ def _hrdf_generate_lookups(script_path, hrdf_db_path):
     tool_cli_folder_path = f'{script_path.parent}/../hrdf-db-importer'
 
     print(f'')
-    print(f'STEP 6 - GENERATE HRDF DB lookups')
+    print(f'STEP 7 - GENERATE HRDF DB lookups')
     print(f'HRDF DB PATH            : {hrdf_db_path}')
 
     # No need to do extra checks for the file existance because the generation is fast
@@ -148,6 +157,6 @@ def _hrdf_generate_lookups(script_path, hrdf_db_path):
     tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
     print(tool_cli_sh, flush=True)
     os.system(tool_cli_sh)
-
+    
 if __name__ == "__main__":
     main()
