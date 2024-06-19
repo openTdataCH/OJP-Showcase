@@ -30,21 +30,29 @@ def compute_file_rows_no(file_path: str):
 
     return 0
 
-def compute_formatted_date_from_hrdf_folder_path(folder_path: Path):
-    if isinstance(folder_path, str):
-        folder_path = Path(folder_path)
-
+def compute_hrdf_dt_from_resource_path(resource_path: Path):
+    if isinstance(resource_path, str):
+        resource_path = Path(resource_path)
+        
     # oev_sammlung_ch_hrdf_5_40_41_2021_20201220_033904
-    opentransport_matches = re.match("^.+?_([0-9]{4})_([0-9]{4})([0-9]{2})([0-9]{2})_.*$", f'{folder_path}')
+    dt_matches = re.match("^.+?_([0-9]{4})_([0-9]{4})([0-9]{2})([0-9]{2})_([0-9]{2})([0-9]{2})([0-9]{2}).*$", f'{resource_path}')
 
-    if opentransport_matches:
-        matched_year = opentransport_matches[2]
-        matched_month = opentransport_matches[3]
-        matched_day = opentransport_matches[4]
-        formatted_date = f"{matched_year}-{matched_month}-{matched_day}"
-        return formatted_date
+    if dt_matches is None:
+        return None
+    
+    dt_f = f'{dt_matches[2]}-{dt_matches[3]}-{dt_matches[4]} {dt_matches[5]}:{dt_matches[6]}:{dt_matches[7]}'
+    dt = datetime.strptime(dt_f, '%Y-%m-%d %H:%M:%S')
+    
+    return dt
 
-    return None
+def compute_formatted_date_from_hrdf_folder_path(folder_path: Path):
+    hrdf_dt = compute_hrdf_dt_from_resource_path(folder_path)
+    if hrdf_dt is None:
+        return None
+    
+    hrdf_day = hrdf_dt.strftime('%Y-%m-%d')
+
+    return hrdf_day
 
 def compute_formatted_date_from_hrdf_db_path(db_path: Path):
     if isinstance(db_path, str):
