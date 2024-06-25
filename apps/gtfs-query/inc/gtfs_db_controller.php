@@ -455,24 +455,44 @@ class GTFS_DB_Controller {
             'rows' => array(),
         );
 
-        $journey_ref_parts = explode(':', $journey_ref);
-        if (count($journey_ref_parts) < 5) {
-            $error_result['metadata']['error'] = 'unexpected journey_ref';
-            return $error_result;
+        $agency_id = null;
+        $trip_short_name = null;
+
+        if (strpos($journey_ref, 'sjyid') !== false) {
+            // ch:1:sjyid:100001:730-001
+            $journey_ref_parts = explode(':', $journey_ref);
+            if (count($journey_ref_parts) < 5) {
+                $error_result['metadata']['error'] = 'unexpected journey_ref';
+                return $error_result;
+            }
+
+            $sboid = 'ch:1:sboid:' . $journey_ref_parts[3];
+            if (!array_key_exists($sboid, $this->map_business_organisations)) {
+                $error_result['metadata']['error'] = 'cant find sboid: ' . $sboid;
+                return $error_result;
+            }
+
+            $agency_id = $this->map_business_organisations[$sboid];
+
+            $trip_short_name_parts = explode('-', $journey_ref_parts[4]);
+            $trip_short_name = $trip_short_name_parts[0];
+        } else {
+            $journey_ref_parts = explode(':', $journey_ref);
+            // 85:33:4491:001
+            if (count($journey_ref_parts) === 4) {
+                $agency_id = $journey_ref_parts[1];
+                $trip_short_name = $journey_ref_parts[2];
+            }
         }
 
-        $sboid = 'ch:1:sboid:' . $journey_ref_parts[3];
-        if (!array_key_exists($sboid, $this->map_business_organisations)) {
-            $error_result['metadata']['error'] = 'cant find sboid: ' . $sboid;
+        if (is_null($agency_id)) {
+            $error_result['metadata']['error'] = 'cant determine agency_id from ' . $journey_ref;
             return $error_result;
         }
-
-        $agency_id = $this->map_business_organisations[$sboid];
+        
         $agency_id_where = "agency.agency_id = '" . $agency_id . "'";
         array_push($query_config['where'], $agency_id_where);
 
-        $trip_short_name_parts = explode('-', $journey_ref_parts[4]);
-        $trip_short_name = $trip_short_name_parts[0];
         $trip_short_name_where = "trips.trip_short_name = '" . $trip_short_name . "'";
         array_push($query_config['where'], $trip_short_name_where);
 
