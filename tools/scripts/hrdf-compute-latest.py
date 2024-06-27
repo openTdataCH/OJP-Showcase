@@ -16,6 +16,7 @@ def main():
     _fetch_latest_resource(script_path, 'hrdf_5_4')
     hrdf_data_path = _check_latest_data_folder(app_config)
     hrdf_db_path = _db_import(app_config, script_path, hrdf_data_path)
+    _dbs_aggregate(script_path)
     _hrdf_check_duplicates(script_path, hrdf_db_path)
     _hrdf_build_aggregated_duplicates(script_path)
     _hrdf_generate_lookups(script_path, hrdf_db_path)
