@@ -24,6 +24,9 @@ class GTFS_DB_Controller {
 
         if ($gtfs_db_day === 'LATEST') {
             $gtfs_db_day = $this->compute_latest_gtfs_day($config);
+            if (is_null($gtfs_db_day)) {
+                die('cant find latest gtfs-day catalog item');
+            }
         }
 
         $this->gtfs_db_day = $gtfs_db_day;
@@ -92,11 +95,18 @@ class GTFS_DB_Controller {
         $gtfs_dbs_catalog_path = $config['gtfs_dbs_catalog_path'];
         $gtfs_dbs_catalog = json_decode(file_get_contents($gtfs_dbs_catalog_path), true);
         if (count($gtfs_dbs_catalog['items']) === 0) {
-            die('cant find latest gtfs-day catalog item');
+            return null;
         }
 
-        $gtfs_db_item = $gtfs_dbs_catalog['items'][0];
-        $gtfs_day = $gtfs_db_item['gtfs_day'];
+        $gtfs_day = null;
+        foreach ($gtfs_dbs_catalog['items'] as $db_item) {
+            if (is_null($db_item['db_relative_path'])) {
+                continue;
+            }
+
+            $gtfs_day = $db_item['gtfs_day'];
+            break;
+        }
         
         return $gtfs_day;
     }
