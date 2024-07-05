@@ -417,11 +417,16 @@ class GTFS_DB_Controller {
         return $sql;
     }
 
-    public function query_trips_by_agency_route_short_name($agency_id, $route_short_name, $trip_short_name = null, $service_day = null) {
+    public function query_trips_by_agency_route_short_name($agency_id, $route_short_name, $trip_short_name = null, $service_day = null, $route_id = null) {
         $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
 
         $agency_id_where = "agency.agency_id = '" . $agency_id . "'";
         array_push($query_config['where'], $agency_id_where);
+
+        if (!is_null($route_id)) {
+            $route_id_where = "routes.route_id = '" . $route_id . "'";
+            array_push($query_config['where'], $route_id_where);
+        }
 
         $route_short_name_where = "routes.route_short_name = '" . $route_short_name . "'";
         array_push($query_config['where'], $route_short_name_where);
