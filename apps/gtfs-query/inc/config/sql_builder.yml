@@ -1,4 +1,17 @@
 sql_builder:
+  query_routes:
+    fields:
+      - route_id
+      - agency_id
+      - route_short_name
+      - route_long_name
+      - route_desc
+      - route_type
+    where:
+      - "1=1"
+    tables:
+      - routes
+  
   query_trips:
     fields:
       - trips.trip_id
