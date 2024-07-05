@@ -427,6 +427,58 @@ class GTFS_DB_Controller {
         return $sql;
     }
 
+    public function query_trips_by_route_line_ref($route_short_name, $line_ref, $service_day = null) {
+        $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_routes']));
+
+        $line_ref_parts = explode(':', $line_ref);
+        if (count($line_ref_parts) !== 3) {
+            die('unexpected line_ref: '. $line_ref);
+        }
+
+        $agency_id = $line_ref_parts[1];
+        $agency_id_where = "routes.agency_id = '" . $agency_id . "'";
+        array_push($query_config['where'], $agency_id_where);
+
+        $route_short_name_where = "routes.route_short_name = '" . $route_short_name . "'";
+        array_push($query_config['where'], $route_short_name_where);
+
+        $sql = $this->build_select_query($query_config);
+
+        $result = $this->db->query($sql);
+
+        $user_route_line_ref = $line_ref_parts[2];
+
+        // POST (801) and other operators have more services with same route_short_name
+        // Try to match the first one matching the lineref
+        // i.e. for publishedLineName='525' and lineRef='85:801:2425' 
+        // -> matches route_id='96-242-5-j24-1' in DB routes
+
+        $matched_route_id = null;
+        while ($db_row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $found_route_id_matches = preg_match('/^[0-9]{2}-(.+?)-j[0-9]{2}-[0-9]*$/', $db_row['route_id'], $route_id_matches);
+            if (!$found_route_id_matches) {
+                // TODO: throw an error instead?
+                continue;
+            }
+
+            $route_line_ref = $route_id_matches[1];
+            $route_line_ref = str_replace('-', '', $route_line_ref);
+            if ($route_line_ref === $user_route_line_ref) {
+                $matched_route_id = $db_row['route_id'];
+                break;
+            }
+        }
+
+        if (is_null($matched_route_id)) {
+            // this can happen for train routes like 85:22:S21 
+            // - in this case we have a route_id '91-21-j24-1' - without 'S21'
+        }
+
+        $result = $this->query_trips_by_agency_route_short_name($agency_id, $route_short_name, null, $service_day, $matched_route_id);
+
+        return $result;
+    }
+
     public function query_trips_by_agency_route_short_name($agency_id, $route_short_name, $trip_short_name = null, $service_day = null, $route_id = null) {
         $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
 
