@@ -41,4 +41,4 @@ sql_builder:
       - trips.service_id = calendar.service_id 
       - trips.route_id = routes.route_id
       - routes.agency_id = agency.agency_id
-    limit: 100
+    limit: 500
