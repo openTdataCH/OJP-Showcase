@@ -16,7 +16,12 @@ data_paths:
 
   go_data: [APP_PATH]/data/opentransportdata.swiss/business-organisations
   go_latest: [APP_PATH]/data/opentransportdata.swiss/business-organisations/actual_date_business_organisation_versions_LATEST.csv
+  
+  go-realtime_data: [APP_PATH]/data/opentransportdata.swiss/go-realtime
+  go-realtime_latest: [APP_PATH]/data/opentransportdata.swiss/go-realtime/business_organisation_realtime_LATEST.csv
 
 resource_paths:
   ckan_gtfs_static_json: [APP_PATH]/data/ckan-utils-tmp/ckan_gtfs_static.json
-  ckan_go_json: [APP_PATH]/data/ckan-utils-tmp/ckan_business-organisations.json
+  ckan_hrdf_json: [APP_PATH]/data/ckan-utils-tmp/ckan_hrdf_5_4.json
+  ckan_go_json: [APP_PATH]/data/ckan-utils-tmp/ckan_go.json
+  ckan_go-realtime_json: [APP_PATH]/data/ckan-utils-tmp/ckan_go-realtime.json
