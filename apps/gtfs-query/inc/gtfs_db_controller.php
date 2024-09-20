@@ -67,14 +67,7 @@ class GTFS_DB_Controller {
 
     private function _load_map_business_organisations($config) {
         $csv_path = $config['business_organisation_latest_path'];
-        $csv_file = fopen($csv_path, 'r');
-        
-        // Read the first line to check for BOM
-        $bom = fread($csv_file, 3);
-        if ($bom !== "\xEF\xBB\xBF") {
-            // If no BOM, rewind the file pointer
-            rewind($csv_file);
-        }
+        $csv_file = $this->_load_csv_file($csv_path);
 
         $map_business_organisations = array();
 
@@ -290,6 +283,19 @@ class GTFS_DB_Controller {
         $agency_ids_sql_filter = "AND routes.agency_id IN (" . implode(', ', $agency_ids_escaped) . ")";
         
         return $agency_ids_sql_filter;
+    }
+
+    private function _load_csv_file($csv_path) {
+        $csv_file = fopen($csv_path, 'r');
+        
+        // Read the first line to check for BOM
+        $bom = fread($csv_file, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            // If no BOM, rewind the file pointer
+            rewind($csv_file);
+        }
+
+        return $csv_file;
     }
 
     private function load_agency_ids_from_csv() {
