@@ -42,7 +42,11 @@ def _check_latest_data_folder(app_config):
     ckan_resource = gtfs_ckan.result.resources[0]
     
     resources_base_folder_path = app_config['data_paths']['gtfs-static']
-    resource_folder_name = ckan_resource.title['en'][0:-4]
+    
+    resource_folder_name = ckan_resource.title['en']
+    # zip resources are unzipped in fetch, use the unzipped folder name
+    resource_folder_name = resource_folder_name[0:-4]
+    
     resource_path = Path(f'{resources_base_folder_path}/{resource_folder_name}')
     
     if not os.path.isdir(resource_path):
