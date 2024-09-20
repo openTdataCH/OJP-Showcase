@@ -5,9 +5,12 @@ from pathlib import Path
 import time
 
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
+from inc.shared.inc.helpers.json_helpers import load_json_from_file
 from inc.shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_folder_path, compute_hrdf_db_filename, compute_formatted_date_from_hrdf_db_path
+from inc.shared.inc.models.ckan_data import CKAN_Data
 
 PYTHON_PATH = sys.executable
+row_delimiter_s = '='*70
 
 def main():
     script_path = Path(os.path.realpath(__file__))
@@ -35,33 +38,32 @@ def _check_latest_data_folder(app_config):
     # check latest folder
     print('')
     print('STEP 2 - CHECK LATEST FOLDER')
-    hrdf_data_base_folder_path = app_config['data_paths']['hrdf-opentransportdata.swiss']
-    resource_paths = glob.glob(f'{hrdf_data_base_folder_path}/*')
-    resource_paths = [Path(path_s) for path_s in resource_paths]
-    resource_paths = sorted(resource_paths, key=lambda x: x.name.lower(), reverse=True)
     
-    hrdf_data_path = None
-    hrdf_day = None
-    for resource_path in resource_paths:
-        if not os.path.isdir(resource_path):
-            continue
-
-        resource_path = Path(resource_path)
-        hrdf_day = compute_formatted_date_from_hrdf_folder_path(resource_path.name)
-        if hrdf_day is None:
-            continue
-
-        hrdf_data_path = resource_path
-        break
-
-    if hrdf_data_path is None:
-        print(f'ERROR - cant find a new HRDF folder data in {hrdf_data_base_folder_path}')
-        sys.exit()
-
-    print(f'=> found {hrdf_data_path}')
-    print(f'=> HRDF day {hrdf_day}')
+    ckan_json_path = app_config['resource_paths']['ckan_hrdf_json']
+    ckan_json = load_json_from_file(ckan_json_path)
+    hrdf_ckan = CKAN_Data.from_ckan_json(ckan_json)
     
-    return hrdf_data_path
+    ckan_resource = hrdf_ckan.result.resources[0]
+    
+    resources_base_folder_path = app_config['data_paths']['hrdf-opentransportdata.swiss']
+    
+    resource_folder_name = ckan_resource.title['en']
+    # zip resources are unzipped in fetch, use the unzipped folder name
+    resource_folder_name = resource_folder_name[0:-4]
+    
+    resource_path = Path(f'{resources_base_folder_path}/{resource_folder_name}')
+    
+    if not os.path.isdir(resource_path):
+        print()
+        print(row_delimiter_s)
+        print('ERROR - latest resource not found at path')
+        print(resource_path)
+        print(row_delimiter_s)
+        sys.exit(1)
+        
+    print(f'... use following resource: {resource_path}')
+    
+    return resource_path
 
 def _db_import(app_config, script_path, hrdf_data_path):
     hrdf_day = compute_formatted_date_from_hrdf_folder_path(hrdf_data_path)
