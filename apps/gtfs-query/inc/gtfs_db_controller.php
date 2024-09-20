@@ -81,6 +81,8 @@ class GTFS_DB_Controller {
             $map_business_organisations[$sboid] = $agency_id;
         }
 
+        fclose($csv_file);
+
         return $map_business_organisations;
     }
 
@@ -302,20 +304,24 @@ class GTFS_DB_Controller {
         $agency_ids = array();
 
         $go_realtime_csv_path = $this->go_realtime_csv_path;
-        $csv_handle = fopen($go_realtime_csv_path, 'r');
-        $headers = null;
-        if ($csv_handle) {
-            while (($row = fgetcsv($csv_handle, 1024)) !== FALSE) {
-                if (!$headers) {
-                    $headers = $row;
-                    continue;
-                }
-                $csv_row = array_combine($headers, $row);
-                $agency_id = $csv_row['Company-GO-ID'];
-                array_push($agency_ids, $agency_id);
+        $csv_file = $this->_load_csv_file($go_realtime_csv_path);
+
+        $csv_headers = fgetcsv($csv_file, null, ';');
+        while (($row = fgetcsv($csv_file, 1000, ';')) !== false) {
+            $csv_row = array_combine($csv_headers, $row);
+
+            $sboid = $csv_row['sboid'];
+            if (in_array($sboid, $this->map_business_organisations)) {
+                $agency_id = $this->map_business_organisations[$sboid];
+            } else {
+                $vdv_BetreiberIdParts = explode(':', $csv_row['vdvBetreiberId']);
+                $agency_id = $vdv_BetreiberIdParts[1];
             }
-            fclose($csv_handle);
+            
+            array_push($agency_ids, $agency_id);
         }
+
+        fclose($csv_file);
 
         // filter out null or empty string values
         $agency_ids = array_filter($agency_ids);
