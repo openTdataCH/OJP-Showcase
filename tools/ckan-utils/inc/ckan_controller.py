@@ -22,25 +22,29 @@ class CKAN_Controller:
 
         ds_resource = self._fetch_package_resource(package_key, resource_title)
         ds_filename = ds_resource.title['en']
-        ds_folder = ds_filename[0:-4]
 
         package_data = self.app_config['map_packages'][package_key]
         
-        ds_zip_path = Path(package_data['base_path'] + '/' + ds_filename)
-        ds_folder_path = Path(package_data['base_path'] + '/' + ds_folder)
-
-        if os.path.isfile(ds_zip_path):
+        ds_resource_path = Path(package_data['base_path'] + '/' + ds_filename)
+        if os.path.isfile(ds_resource_path):
             print('')
-            log_message(f'... resource already downloaded at path {ds_zip_path}')
+            log_message(f'... resource already downloaded at path {ds_resource_path}')
         else:
             ds_url = ds_resource.url
-            download_resource(ds_url, ds_zip_path)
-
-        if os.path.isdir(ds_folder_path):
-            print('')
-            log_message(f'... resource already unzipped at path {ds_folder_path}')
-        else:
-            run_unzip(ds_zip_path, ds_folder_path)
+            download_resource(ds_url, ds_resource_path)
+            
+        ds_mimetype: str = ds_resource.mimetype
+        ds_mimetype = ds_mimetype.lower().strip()
+        
+        if 'zip' in ds_mimetype:
+            ds_folder = ds_filename[0:-4]
+            ds_folder_path = Path(package_data['base_path'] + '/' + ds_folder)
+            if os.path.isdir(ds_folder_path):
+                print('')
+                log_message(f'... resource already unzipped at path {ds_folder_path}')
+            else:
+                run_unzip(ds_resource_path, ds_folder_path)
+        # end ds_mimetype == 'zip'
 
         log_message(f'CKAN - DONE')
 

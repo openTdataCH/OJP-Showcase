@@ -84,13 +84,13 @@
 
             <div>
                 <div>
-                    <strong>Monthly report:</strong> <a href="https://tools.odpch.ch/gtfs-rt-static-report/" target="_blank">https://tools.odpch.ch/gtfs-rt-static-report/</a>
+                    <strong>Last update:</strong> 23.September.2024 - <a href="https://github.com/openTdataCH/OJP-Showcase/blob/develop/apps/gtfs-rt-status/CHANGELOG.md" target="_blank">CHANGELOG</a>
                 </div>
                 <div>
                     <strong>Source code:</strong> <a href="https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/gtfs-rt-status" target="_blank">@openTdataCH/OJP-Showcase</a> on Github
                 </div>
-                <div>
-                    <strong>Last Update:</strong> 30.May.2024 - <a href="https://github.com/openTdataCH/OJP-Showcase/blob/develop/apps/gtfs-rt-status/CHANGELOG.md" target="_blank">CHANGELOG</a>
+                <div></div>
+                    <strong>Monthly report:</strong> <a href="https://tools.odpch.ch/gtfs-rt-static-report/" target="_blank">https://tools.odpch.ch/gtfs-rt-static-report/</a>
                 </div>
             </div>
 
@@ -119,10 +119,12 @@
                                         </ul>
                                         <hr/>
                                         <h5>Agencies missing from GO-Realtime <span class="badge bg-secondary">[AGENCY_WITHOUT_GO_REALTIME_NO]</span></h5>
+                                        <p class="section-info">these agencies have <a href="https://opentransportdata.swiss/en/dataset/gtfsrt" target="_blank">GTFS-RT</a> trips but they are not present in <a href="https://opentransportdata.swiss/en/dataset/go-realtime" target="_blank">go-realtime</a> dataset.</p>
                                         <div class="mb-2">[AGENCY_WITHOUT_GO_REALTIME]</div>
                                         <hr/>
                                         <h5>Agencies without GTFS-RT <span class="badge bg-secondary">[AGENCY_WITHOUT_GTFS-RT_LIST_NO]</span></h5>
-                                        <div class="mb-2">[AGENCY_WITHOUT_GTFS-RT_LIST]</div>
+                                        <p class="section-info">these agencies are present in <a href="https://opentransportdata.swiss/en/dataset/go-realtime" target="_blank">go-realtime</a> dataset but none of their active trips are present in the <a href="https://opentransportdata.swiss/en/dataset/gtfsrt" target="_blank">GTFS-RT</a> feed.</p>
+                                        <ul class="mb-2">[AGENCY_WITHOUT_GTFS-RT_LIST]</ul>
                                         <hr/>
                                         <h5>[GTFS_RT_ISSUES_CAPTION]</h5>
                                         <div>[TABLE_HTML]</div>
@@ -146,7 +148,7 @@
                                     <h5>Stats</h5>
                                     <ul class="mb-2">
                                         <li>the GTFS DB has [GTFS_STATIC_TRIPS_NO] trip entries and [GTFS_STATIC_AGENCIES_NO] agencies</li>
-                                        <li>there are [GTFS_STATIC_MISSING_RT_NO] trips missing GTFS-RT</li>
+                                        <li>there are [GTFS_STATIC_MISSING_RT_NO] active trips missing GTFS-RT info</li>
                                     </ul>
                                     <hr/>
                                     <div>[GTFS_STATIC_REPORT_HTML]</div>

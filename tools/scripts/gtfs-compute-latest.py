@@ -25,7 +25,13 @@ def _fetch_latest_resource(script_path, package_key):
     ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
     ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_key {package_key}'
     
+    print('START ./tools/scripts/gtfs-compute-latest.py')
+    print()
+    print('Resources:')
+    print('  - https://opentransportdata.swiss/en/dataset/timetable-54-2024-hrdf')
+    print('  - https://tools.odpch.ch/hrdf-dbs/hrdf-dbs.json')
     print('')
+    
     print('STEP 1 - FETCH LATEST ARCHIVE')
     print(ckan_fetch_sh, flush=True)
     os.system(ckan_fetch_sh)
@@ -42,7 +48,11 @@ def _check_latest_data_folder(app_config):
     ckan_resource = gtfs_ckan.result.resources[0]
     
     resources_base_folder_path = app_config['data_paths']['gtfs-static']
-    resource_folder_name = ckan_resource.title['en'][0:-4]
+    
+    resource_folder_name = ckan_resource.title['en']
+    # zip resources are unzipped in fetch, use the unzipped folder name
+    resource_folder_name = resource_folder_name[0:-4]
+    
     resource_path = Path(f'{resources_base_folder_path}/{resource_folder_name}')
     
     if not os.path.isdir(resource_path):
