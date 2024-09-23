@@ -13,6 +13,13 @@ row_delimiter_s = '='*70
 def main():
     script_path = Path(os.path.realpath(__file__))
     app_config = load_convenience_config(script_path)
+    
+    print('START ./tools/scripts/go-fetch-latest.py')
+    print()
+    print('Resources:')
+    print('  - https://opentransportdata.swiss/en/dataset/business-organisations')
+    print('  - https://opentransportdata.swiss/en/dataset/go-realtime')
+    print()
 
     _run_package(script_path, app_config, 'go', 'actual_date_business_organisation')
     _run_package(script_path, app_config, 'go-realtime', 'business_organisation_realtime')

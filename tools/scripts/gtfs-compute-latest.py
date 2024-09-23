@@ -25,7 +25,13 @@ def _fetch_latest_resource(script_path, package_key):
     ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
     ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_key {package_key}'
     
+    print('START ./tools/scripts/gtfs-compute-latest.py')
+    print()
+    print('Resources:')
+    print('  - https://opentransportdata.swiss/en/dataset/timetable-54-2024-hrdf')
+    print('  - https://tools.odpch.ch/hrdf-dbs/hrdf-dbs.json')
     print('')
+    
     print('STEP 1 - FETCH LATEST ARCHIVE')
     print(ckan_fetch_sh, flush=True)
     os.system(ckan_fetch_sh)
