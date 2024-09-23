@@ -1,0 +1,51 @@
+<div class="container-fluid mt-3">
+  <div>
+    <div class="mb-2">
+      <label for="bitfeldData" class="form-label">BITFELD TEXT</label> - <a href="https://opentransportdata.swiss/en/cookbook/kalender/" target="_blank">cookbook</a> opentransportdata.swiss
+      <input class="form-control" id="bitfeldData" [formControl]="bitfeldData" />
+    </div>
+    <div class="mb-3" style="width: 200px;">
+      <label for="bitfeldDataset" class="form-label">Dataset</label>
+      <select class="form-select" id="bitfeldDataset" [formControl]="bitfeldDataset" (change)="computeCalendarModel()">
+        <option *ngFor="let datasetInfo of appDatasets" value="{{ datasetInfo.id }}">{{ datasetInfo.caption }}</option>
+      </select>
+    </div>
+    <hr/>
+    <div class="mb-2">
+      <ul>
+        <li>Last update: 23.September.2024</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr/>
+
+  <div>
+    <h3>Calendar</h3>
+    <div class="d-flex flex-row flex-wrap">
+      <div *ngFor="let monthModel of this.monthsModel" class="p-3">
+        <div class="text-center calendar-month">{{ monthModel.caption }}</div>
+        <table class="table table-bordered calendar">
+          <thead>
+            <tr>
+              <th>Mo</th>
+              <th>Tu</th>
+              <th>We</th>
+              <th>Th</th>
+              <th>Fr</th>
+              <th>Sa</th>
+              <th>Su</th>
+             </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let weekCells of monthModel.cells">
+              <td *ngFor="let dayCell of weekCells" class="text-center" [ngClass]="dayCell.className">{{ dayCell.caption }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
