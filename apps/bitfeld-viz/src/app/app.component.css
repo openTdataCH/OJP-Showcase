@@ -1,0 +1,27 @@
+.calendar-month {
+    font-size: 16px;
+    font-weight: bold;
+    padding-bottom: 8px;
+}
+
+.calendar {
+    font-size: 12px;
+    padding: 2px;
+}
+
+td.not_available {
+    background-color: #f0f0f0;
+    color: #c9b9b9;
+}
+
+td.disabled {
+    background-color: #D3D3D3;
+    color: #867b7b;
+}
+
+td.enabled {
+    background-color: #228B22;
+    color: white;
+}
+
+
