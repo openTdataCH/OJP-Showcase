@@ -26,7 +26,7 @@ def main():
     gtfs_rt_snapshot_files_path = Path(f'{app_path}/data/gtfs-rt-snapshot')
     
     gtfs_rt_file_paths: List[Path] = []
-    for gtfs_rt_file_path in gtfs_rt_snapshot_files_path.rglob('*.json'):
+    for gtfs_rt_file_path in gtfs_rt_snapshot_files_path.rglob('*.json*'):
         gtfs_rt_file_paths.append(gtfs_rt_file_path)
     gtfs_rt_file_paths.sort()
     

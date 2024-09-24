@@ -8,6 +8,9 @@ from typing import Union
 
 from datetime import datetime
 
+import gzip
+import shutil
+
 from .helpers.config_helpers import load_yaml_config
 from .helpers.gtfs_helpers import compute_gtfs_db_filename
 from .helpers.json_helpers import load_json_from_file, export_json_to_file
@@ -110,6 +113,9 @@ class GTFS_Controller:
         
         print(f'... saved to {report_path}')
         print(header_separator_s)
+        
+        print(f'... cleaning up, gzip resource')
+        self._cleanup_resource(gtfs_rt_snapshot_path)
         
         log_message('... DONE')
         
@@ -227,3 +233,14 @@ class GTFS_Controller:
 
         return report_stats
     # _compare_file_gtfs_rt_static
+    
+    # keep a GZIP version of the snapshot
+    def _cleanup_resource(self, resource_path):
+        gzip_path = f'{resource_path}.gz'
+        
+        with open(resource_path, 'rb') as f_in:
+            with gzip.open(gzip_path, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+        # with
+        
+        os.remove(resource_path)
