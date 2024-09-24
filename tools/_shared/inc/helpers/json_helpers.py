@@ -1,5 +1,6 @@
 import os, sys
 import json
+import gzip
 
 from pathlib import Path
 
@@ -21,9 +22,15 @@ def export_json_to_file(json_obj: any, json_path: Path, pretty_print = False):
 def load_json_from_file(json_path: Path):
     if isinstance(json_path, str):
         json_path = Path(json_path)
-
-    json_file = open(json_path, encoding='utf-8')
+    
+    json_file = None
+    if f'{json_path}'[-3:] == '.gz':
+        json_file = gzip.open(json_path)
+    else:
+        json_file = open(json_path, encoding='utf-8')    
+    
     json_obj = json.loads(json_file.read())
-    json_file.close()
 
+    json_file.close()
+    
     return json_obj
