@@ -3,6 +3,8 @@ import sys
 
 from pathlib import Path
 
+import re
+
 from .shared.inc.helpers.log_helpers import log_message
 from .shared.inc.helpers.hrdf_helpers import compute_file_rows_no
 from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
@@ -102,6 +104,6 @@ def _parse_line_property(line_property_data, hrdf_line_property_keys):
     return None, None
 
 def _parse_color(metadata_text):
-    rgb_parts = [f'{int(x):02x}' for x in metadata_text.split(' ')]
+    rgb_parts = [f'{int(x):02x}' for x in re.split(r'\s+', metadata_text)]
     rgb_text = '#' + ''.join(rgb_parts)
     return rgb_text
