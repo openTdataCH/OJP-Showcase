@@ -1,5 +1,8 @@
 # CHANGELOG hrdf-db-importer
 
+10.Oct.2024
+- use more robust rgb string parsing - [PR #68](https://github.com/openTdataCH/OJP-Showcase/pull/68)
+
 18.Jan 2024
 - adapt to the new changes of BFKOORD_WGS file - [PR #41](https://github.com/openTdataCH/OJP-Showcase/pull/41)
 
