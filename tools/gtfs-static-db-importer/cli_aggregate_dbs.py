@@ -107,8 +107,8 @@ def _process(app_config: any):
         gtfs_dt_age = round((resource_dt.timestamp() - gtfs_day_dt.timestamp()) / (3600 * 24), 2)
         if gtfs_dt_age > 1.0:
             error_message = f'ERROR - {gtfs_day} - GTFS DT age too high: {gtfs_dt_age}'
+            print(error_message)
             print(ckan_resource)
-            raise Exception(error_message)
         
         gtfs_db_relative_path = map_local_dbs.get(gtfs_day_f, None)
         gtfs_dt_f = resource_dt.strftime('%Y-%m-%d %H:%M')
