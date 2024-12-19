@@ -92,7 +92,8 @@ class CKAN_Controller:
             package_data_json_ts = os.path.getmtime(package_data_json_path)
             now_ts = time.time()
             cache_age = now_ts - package_data_json_ts
-            if cache_age < package_data_json_ttl:
+            is_fresh = cache_age < package_data_json_ttl
+            if is_fresh:
                 log_message(f'... load package JSON from {package_data_json_path}')
                 package_data_json = load_json_from_file(package_data_json_path)
                 ckan_data = CKAN_Data.from_ckan_json(package_data_json)
