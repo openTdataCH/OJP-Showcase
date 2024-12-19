@@ -14,12 +14,20 @@ class CKAN_Resource:
     modified_s: str
 
     def __init__(self, **kwargs):
-        self.identifier = kwargs['identifier']
-        self.mimetype = kwargs['mimetype']
-        self.title = kwargs['title']
-        self.url = kwargs['url']
-        self.created_s = kwargs['created']
-        self.modified_s = kwargs['modified']
+        # do this way otherwise we get a linter error
+        dataclass_fields = getattr(self, '__dataclass_fields__', {})
+        
+        for field_name, field_metadata in dataclass_fields.items():
+            value = kwargs.get(field_name, field_metadata.default)
+            self.set_field(field_name, value, kwargs)
+            
+    def set_field(self, field_name, value, kwargs):
+        if field_name == 'created_s':
+            value = kwargs['created']
+        if field_name == 'modified_s':
+            value = kwargs.get('modified', None)
+
+        setattr(self, field_name, value)
         
 @dataclass
 class CKAN_Result:
