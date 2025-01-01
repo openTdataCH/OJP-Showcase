@@ -310,7 +310,6 @@ class GTFS_DB_Importer:
             if row_id % 200000 == 0:
                 log_message(f'... parsed {row_id} rows')
 
-            trip_id = db_row['trip_id']
             stop_times_data = db_row['stop_times_data'].split(',')
 
             stop_times = []
@@ -330,21 +329,17 @@ class GTFS_DB_Importer:
                 }
 
                 stop_times.append(stop_time_row)
-
-            trip_new_row = {
-                'trip_id': trip_id,
-                'route_id': db_row['route_id'],
-                'service_id': db_row['service_id'],
-                'trip_headsign': db_row['trip_headsign'],
-                'trip_short_name': db_row['trip_short_name'],
-                'direction_id': db_row['direction_id'],
-                'shape_id': db_row['shape_id'],
-                'departure_day_minutes': None,
-                'departure_time': None,
-                'arrival_day_minutes': None,
-                'arrival_time': None,
-                'stop_times_s': None,
-            }
+                
+            trip_new_row = {}
+            for column_name in trips_column_names:
+                trip_new_row[column_name] = db_row[column_name]
+            
+            # reset time fields
+            trip_new_row['departure_day_minutes'] = None
+            trip_new_row['departure_time'] = None
+            trip_new_row['arrival_day_minutes'] = None
+            trip_new_row['arrival_time'] = None
+            trip_new_row['stop_times_s'] = None
 
             for stop_type in ['from', 'to']:
                 db_rowid = None
