@@ -10,6 +10,7 @@ $trip_short_name = @$_GET['trip_short_name'] ?: null;
 $service_day = @$_GET['service_day'] ?: null;
 $journey_ref = @$_GET['journey_ref'] ?: null;
 $line_ref = @$_GET['line_ref'] ?: null;
+$original_trip_id = @$_GET['original_trip_id'] ?: null;
 
 $gtfs_controller = new GTFS_DB_Controller(APP_CONFIG, $gtfs_day);
 
@@ -27,6 +28,12 @@ if (!is_null($agency_id) && !is_null($route_short_name)) {
 
 if (!is_null($journey_ref)) {
     $response = $gtfs_controller->query_trips_by_journey_ref($journey_ref, $service_day);
+    JsonView::dump($response);
+    die;
+}
+
+if (!is_null($original_trip_id)) {
+    $response = $gtfs_controller->query_trips_by_original_trip_id($original_trip_id, $service_day);
     JsonView::dump($response);
     die;
 }

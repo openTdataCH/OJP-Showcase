@@ -583,6 +583,17 @@ class GTFS_DB_Controller {
         return $result;
     }
 
+    public function query_trips_by_original_trip_id($original_trip_id, $service_day = null) {
+        $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
+
+        $original_trip_id_where = "trips.original_trip_id = '" . $original_trip_id . "'";
+        array_push($query_config['where'], $original_trip_id_where);
+        
+        $result = $this->_query_trips($query_config, $service_day);
+
+        return $result;
+    }
+
     private function _query_trips($query_config, $service_day = null, $cache_path = null) {
         if ($this->use_cache && $cache_path && file_exists($cache_path)) {
             $cache_path_parts = explode('/', $cache_path);
