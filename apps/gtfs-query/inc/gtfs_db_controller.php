@@ -443,11 +443,22 @@ class GTFS_DB_Controller {
         $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_routes']));
 
         $line_ref_parts = explode(':', $line_ref);
-        if (count($line_ref_parts) !== 3) {
-            die('unexpected line_ref: '. $line_ref);
+        $agency_id = null;
+
+        if (str_contains(strtolower($line_ref), ':line:')) {
+            // ch:1:Line:823:14
+
+            $agency_id = $line_ref_parts[3];
+        } else {
+            // 85:801:2425
+            
+            if (count($line_ref_parts) !== 3) {
+                die('unexpected line_ref: '. $line_ref);
+            }
+
+            $agency_id = $line_ref_parts[1];
         }
 
-        $agency_id = $line_ref_parts[1];
         $agency_id_where = "routes.agency_id = '" . $agency_id . "'";
         array_push($query_config['where'], $agency_id_where);
 
@@ -568,10 +579,6 @@ class GTFS_DB_Controller {
         array_push($query_config['where'], $trip_short_name_where);
 
         $result = $this->_query_trips($query_config, $service_day);
-
-        return $result;
-
-        $result = $this->_query_trips($query_config);
 
         return $result;
     }
