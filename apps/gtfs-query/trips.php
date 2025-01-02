@@ -15,6 +15,8 @@ $original_trip_id = @$_GET['original_trip_id'] ?: null;
 $gtfs_controller = new GTFS_DB_Controller(APP_CONFIG, $gtfs_day);
 
 if (!is_null($route_short_name) && !is_null($line_ref)) {
+    // TODO catch cases where // ch:1:Line:823:14 can give also $route_short_name
+    // ACTUALLY for trains, i.e. route_short_name=RE33 and line_ref=ch:1:Line:11:33 will not work(RE33 != 33)
     $response = $gtfs_controller->query_trips_by_route_line_ref($route_short_name, $line_ref, $service_day);
     JsonView::dump($response);
     die;
