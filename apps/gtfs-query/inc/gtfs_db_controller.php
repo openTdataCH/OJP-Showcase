@@ -430,7 +430,7 @@ class GTFS_DB_Controller {
             array_push($sql_lines, $where_s);
         }
 
-        if (array_key_exists('limit', $query_config)) {
+        if (array_key_exists('limit', $query_config) && ($query_config['limit'] !== null)) {
             $limit_s = 'LIMIT ' . $query_config['limit'];
             array_push($sql_lines, $limit_s);
         }
