@@ -576,7 +576,18 @@ class GTFS_DB_Controller {
         return $result;
     }
 
-    private function _query_trips($query_config, $service_day = null) {
+    private function _query_trips($query_config, $service_day = null, $cache_path = null) {
+        if ($this->use_cache && $cache_path && file_exists($cache_path)) {
+            $cache_path_parts = explode('/', $cache_path);
+            $cache_filename = $cache_path_parts[count($cache_path_parts) - 1];
+
+            $result_s = file_get_contents($cache_path);
+            $result = json_decode($result_s, TRUE);
+            $result['metadata']['cache'] = $cache_filename;
+
+            return $result;
+        }
+
         if ($service_day) {
             $request_day_date = date_create_from_format("Y-m-d", $service_day);
             $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
@@ -608,6 +619,10 @@ class GTFS_DB_Controller {
         }
 
         $result['metadata']['rows_no'] = count($result_rows);
+
+        if ($this->use_cache && $cache_path) {
+            file_put_contents($cache_path, json_encode($result));
+        }
 
         return $result;
     }
