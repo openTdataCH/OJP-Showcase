@@ -510,15 +510,7 @@ class GTFS_DB_Controller {
             array_push($query_config['where'], $trip_short_name_where);
         }
 
-        if (!is_null($service_day)) {
-            $request_day_date = date_create_from_format("Y-m-d", $service_day);
-            $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
-
-            $service_day_where = "SUBSTR(calendar.day_bits, " . $day_idx . " + 1, 1) = '1'";
-            array_push($query_config['where'], $service_day_where);
-        }
-        
-        $result = $this->_query_trips($query_config);
+        $result = $this->_query_trips($query_config, $service_day);
 
         return $result;
     }
@@ -575,18 +567,24 @@ class GTFS_DB_Controller {
         $trip_short_name_where = "trips.trip_short_name = '" . $trip_short_name . "'";
         array_push($query_config['where'], $trip_short_name_where);
 
-        $request_day_date = date_create_from_format("Y-m-d", $service_day);
-        $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
+        $result = $this->_query_trips($query_config, $service_day);
 
-        $service_day_where = "SUBSTR(calendar.day_bits, " . $day_idx . " + 1, 1) = '1'";
-        array_push($query_config['where'], $service_day_where);
+        return $result;
 
         $result = $this->_query_trips($query_config);
 
         return $result;
     }
 
-    public function _query_trips($query_config) {
+    private function _query_trips($query_config, $service_day = null) {
+        if ($service_day) {
+            $request_day_date = date_create_from_format("Y-m-d", $service_day);
+            $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
+    
+            $service_day_where = "SUBSTR(calendar.day_bits, " . $day_idx . " + 1, 1) = '1'";
+            array_push($query_config['where'], $service_day_where);
+        }
+
         $sql = $this->build_select_query($query_config);
 
         $result = $this->db->query($sql);
