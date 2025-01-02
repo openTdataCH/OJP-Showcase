@@ -502,6 +502,28 @@ class GTFS_DB_Controller {
         return $result;
     }
 
+    public function query_trips_by_agency_for_service_day($agency_id, $service_day) {
+        $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
+
+        $query_config['limit'] = null;
+
+        $agency_id_where = "agency.agency_id = '" . $agency_id . "'";
+        array_push($query_config['where'], $agency_id_where);
+
+        $cache_filename_parts = array(
+            'query_agency_trips_' . $this->cache_prefix,
+            'gtfs_day_' . $this->gtfs_db_day,
+            'service_day_' . $service_day,
+            'agency_id_' . $agency_id,
+        );
+        $cache_filename = implode('__', $cache_filename_parts) . '.json';
+        $cache_path = $this->app_db_cache_path . '/' . $cache_filename;
+
+        $result = $this->_query_trips($query_config, $service_day, $cache_path);
+
+        return $result;
+    }
+
     public function query_trips_by_agency_route_short_name($agency_id, $route_short_name, $trip_short_name = null, $service_day = null, $route_id = null) {
         $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
 
