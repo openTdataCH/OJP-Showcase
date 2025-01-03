@@ -445,7 +445,7 @@ class GTFS_DB_Controller {
         $line_ref_parts = explode(':', $line_ref);
         $agency_id = null;
 
-        if (str_contains(strtolower($line_ref), ':line:')) {
+        if (strpos(strtolower($line_ref), ':line:') !== FALSE) {
             // ch:1:Line:823:14
 
             $agency_id = $line_ref_parts[3];
