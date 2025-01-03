@@ -21,6 +21,7 @@ sql_builder:
       - trips.departure_day_minutes
       - trips.arrival_day_minutes
       - trips.trip_headsign
+      - trips.original_trip_id
 
       - routes.route_id
       - routes.route_type

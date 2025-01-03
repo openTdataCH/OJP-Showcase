@@ -430,7 +430,7 @@ class GTFS_DB_Controller {
             array_push($sql_lines, $where_s);
         }
 
-        if (array_key_exists('limit', $query_config)) {
+        if (array_key_exists('limit', $query_config) && ($query_config['limit'] !== null)) {
             $limit_s = 'LIMIT ' . $query_config['limit'];
             array_push($sql_lines, $limit_s);
         }
@@ -443,11 +443,22 @@ class GTFS_DB_Controller {
         $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_routes']));
 
         $line_ref_parts = explode(':', $line_ref);
-        if (count($line_ref_parts) !== 3) {
-            die('unexpected line_ref: '. $line_ref);
+        $agency_id = null;
+
+        if (str_contains(strtolower($line_ref), ':line:')) {
+            // ch:1:Line:823:14
+
+            $agency_id = $line_ref_parts[3];
+        } else {
+            // 85:801:2425
+            
+            if (count($line_ref_parts) !== 3) {
+                die('unexpected line_ref: '. $line_ref);
+            }
+
+            $agency_id = $line_ref_parts[1];
         }
 
-        $agency_id = $line_ref_parts[1];
         $agency_id_where = "routes.agency_id = '" . $agency_id . "'";
         array_push($query_config['where'], $agency_id_where);
 
@@ -491,6 +502,28 @@ class GTFS_DB_Controller {
         return $result;
     }
 
+    public function query_trips_by_agency_for_service_day($agency_id, $service_day) {
+        $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
+
+        $query_config['limit'] = null;
+
+        $agency_id_where = "agency.agency_id = '" . $agency_id . "'";
+        array_push($query_config['where'], $agency_id_where);
+
+        $cache_filename_parts = array(
+            'query_agency_trips_' . $this->cache_prefix,
+            'gtfs_day_' . $this->gtfs_db_day,
+            'service_day_' . $service_day,
+            'agency_id_' . $agency_id,
+        );
+        $cache_filename = implode('__', $cache_filename_parts) . '.json';
+        $cache_path = $this->app_db_cache_path . '/' . $cache_filename;
+
+        $result = $this->_query_trips($query_config, $service_day, $cache_path);
+
+        return $result;
+    }
+
     public function query_trips_by_agency_route_short_name($agency_id, $route_short_name, $trip_short_name = null, $service_day = null, $route_id = null) {
         $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
 
@@ -510,15 +543,7 @@ class GTFS_DB_Controller {
             array_push($query_config['where'], $trip_short_name_where);
         }
 
-        if (!is_null($service_day)) {
-            $request_day_date = date_create_from_format("Y-m-d", $service_day);
-            $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
-
-            $service_day_where = "SUBSTR(calendar.day_bits, " . $day_idx . " + 1, 1) = '1'";
-            array_push($query_config['where'], $service_day_where);
-        }
-        
-        $result = $this->_query_trips($query_config);
+        $result = $this->_query_trips($query_config, $service_day);
 
         return $result;
     }
@@ -575,18 +600,42 @@ class GTFS_DB_Controller {
         $trip_short_name_where = "trips.trip_short_name = '" . $trip_short_name . "'";
         array_push($query_config['where'], $trip_short_name_where);
 
-        $request_day_date = date_create_from_format("Y-m-d", $service_day);
-        $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
-
-        $service_day_where = "SUBSTR(calendar.day_bits, " . $day_idx . " + 1, 1) = '1'";
-        array_push($query_config['where'], $service_day_where);
-
-        $result = $this->_query_trips($query_config);
+        $result = $this->_query_trips($query_config, $service_day);
 
         return $result;
     }
 
-    public function _query_trips($query_config) {
+    public function query_trips_by_original_trip_id($original_trip_id, $service_day = null) {
+        $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
+
+        $original_trip_id_where = "trips.original_trip_id = '" . $original_trip_id . "'";
+        array_push($query_config['where'], $original_trip_id_where);
+        
+        $result = $this->_query_trips($query_config, $service_day);
+
+        return $result;
+    }
+
+    private function _query_trips($query_config, $service_day = null, $cache_path = null) {
+        if ($this->use_cache && $cache_path && file_exists($cache_path)) {
+            $cache_path_parts = explode('/', $cache_path);
+            $cache_filename = $cache_path_parts[count($cache_path_parts) - 1];
+
+            $result_s = file_get_contents($cache_path);
+            $result = json_decode($result_s, TRUE);
+            $result['metadata']['cache'] = $cache_filename;
+
+            return $result;
+        }
+
+        if ($service_day) {
+            $request_day_date = date_create_from_format("Y-m-d", $service_day);
+            $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
+    
+            $service_day_where = "SUBSTR(calendar.day_bits, " . $day_idx . " + 1, 1) = '1'";
+            array_push($query_config['where'], $service_day_where);
+        }
+
         $sql = $this->build_select_query($query_config);
 
         $result = $this->db->query($sql);
@@ -610,6 +659,10 @@ class GTFS_DB_Controller {
         }
 
         $result['metadata']['rows_no'] = count($result_rows);
+
+        if ($this->use_cache && $cache_path) {
+            file_put_contents($cache_path, json_encode($result));
+        }
 
         return $result;
     }
