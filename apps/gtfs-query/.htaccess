@@ -1,3 +1,6 @@
+# Disable magic map between request paths and php files
+Options -MultiViews
+
 RewriteEngine On
 
 RewriteRule db_lookups$ db_lookups.php [L,QSA]
