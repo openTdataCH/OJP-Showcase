@@ -1,0 +1,8 @@
+resource_paths:
+  app_path: [APP_PATH]
+  ist_daten_html_path: [APP_PATH]/tmp/ist-daten-archiv.html
+  ist_daten_archive_basepath: [APP_PATH]/data/ist-daten-archiv
+  output_folder_base_path: [APP_PATH]/tmp/output
+
+opentransportdata:
+  ist_daten_archive_url: https://opentransportdata.swiss/de/ist-daten-archiv/
