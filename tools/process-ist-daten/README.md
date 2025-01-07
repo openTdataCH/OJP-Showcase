@@ -7,9 +7,9 @@
 
 ### cli_process_ist_daten.py
 - fetch lateat archive file from https://opentransportdata.swiss/de/ist-daten-archiv/
-- based on the `--year` parameter downloads each year-month archive, i.e. `ist-daten-2024-11.zip`
+- based on the `--year` parameter downloads each year-month archive, i.e. `ist-daten-2024-01.zip` to `ist-daten-2024-12.zip`
 - unzip archives and loop throught individual CSV files, i.e. `2024-11-01_istdaten.csv` to `2024-11-30_istdaten.csv`
-- for each CSV file keep only the rows that satisfy `--operator_ref` condition
+- for each CSV file, keep only the rows that satisfy `--operator_ref` condition
 - outputs the filtered CSV files in the `YYYY-OPERATOR_REF/ist-daten-YYYY-MM/YYYY-MM-DD_istdaten.csv` folder/file structure
 - saves also a consolidated CSV file with all rows, i.e. `YYYY-OPERATOR_REF.csv`
 
