@@ -150,7 +150,7 @@ def download_resource(resource_url: str, resource_path: Path):
         os.makedirs(resource_path.parent)
 
     print(f'DOWNLOAD RESOURCE')
-    curl_sh = f'curl {resource_url} -o {resource_path}'
+    curl_sh = f'curl {resource_url} --location -o {resource_path}'
     print(curl_sh, flush=True)
     os.system(curl_sh)
     
