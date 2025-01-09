@@ -310,7 +310,7 @@ class GTFS_DB_Importer:
             if row_id % 200000 == 0:
                 log_message(f'... parsed {row_id} rows')
 
-            stop_times_data = db_row['stop_times_data'].split(',')
+            stop_times_data = db_row['stop_times_data'].split(' -- ')
 
             stop_times = []
             for stop_time_data in stop_times_data:
