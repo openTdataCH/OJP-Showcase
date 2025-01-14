@@ -8,6 +8,8 @@ from .shared.inc.helpers.json_helpers import export_json_to_file, load_json_from
 from .shared.inc.helpers.log_helpers import log_message
 
 from .shared.inc.models.ckan_data import CKAN_Data
+
+USER_AGENT = 'OJP-Showcase.tools.ckan-utils/1.0'
 class CKAN_Controller:
     def __init__(self, app_config):
         self.app_config = app_config
@@ -119,6 +121,7 @@ class CKAN_Controller:
 def fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
     request_headers = {
         'Authorization': ckan_api_authorization,
+        'User-Agent': USER_AGENT,
     }
 
     ckan_api_request = urllib.request.Request(ckan_api_url, headers=request_headers)
@@ -150,7 +153,7 @@ def download_resource(resource_url: str, resource_path: Path):
         os.makedirs(resource_path.parent)
 
     print(f'DOWNLOAD RESOURCE')
-    curl_sh = f'curl {resource_url} --location -o {resource_path}'
+    curl_sh = f'curl {resource_url} --location -H "User-Agent: {USER_AGENT}" -o {resource_path}'
     print(curl_sh, flush=True)
     os.system(curl_sh)
     
