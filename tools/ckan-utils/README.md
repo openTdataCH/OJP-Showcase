@@ -1,6 +1,17 @@
 ### CKAN utils for https://opentransportdata.swiss/
 
-## Fetch CKAN resource
+See [./inc/config.yml](./inc/config.yml) for resource defintions
+ 
+
+## Fetch CKAN package metadata
+
+Usage: `fetch_metadata_cli.py [-h] [--package_key PACKAGE_KEY]`
+
+|Param|Description|Example|
+| -- | -- | -- |
+| --package_key| Package key defined in `./inc/config.yml` map_packages | `gtfs_static` |
+
+## Fetch CKAN package resource
 
 Usage: `fetch_package_cli.py [-h] [--package_key PACKAGE_KEY] [--resource_title RESOURCE_TITLE]`
 
