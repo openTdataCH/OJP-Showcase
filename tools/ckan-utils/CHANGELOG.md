@@ -1,5 +1,8 @@
 # CHANGELOG ckan-utils
 
+14.January.2024
+- adds `User-Agent` header to `opentransportdata.swiss` API requests
+
 23.September.2024
 - use https://opentransportdata.swiss/de/dataset/go-realtime dataset instead of static CSV export
 - harmonize parsing of the CKAN datasets (zip, CSV mixed data)
