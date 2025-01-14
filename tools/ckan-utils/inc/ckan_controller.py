@@ -49,6 +49,21 @@ class CKAN_Controller:
         # end ds_mimetype == 'zip'
 
         log_message(f'CKAN - DONE')
+        
+    def fetch_metadata(self, package_key: str):
+        package_data = self.app_config['map_packages'][package_key]
+        package_id = package_data['package_id']
+        
+        log_message(f'CKAN - FETCH METADATA {package_key}')
+        log_message(f'  PACKAGE_ID      : {package_id}')
+        print()
+        
+        ckan_data = self._fetch_ckan_data(package_key)
+        print('- resources:')
+        for ckan_resource in ckan_data.result.resources:
+            print(f'  - {ckan_resource.identifier}')
+            
+        log_message(f'END')
 
     def _fetch_package_resource(self, package_key: str, filter_resource_title):
         ckan_data = self._fetch_ckan_data(package_key)

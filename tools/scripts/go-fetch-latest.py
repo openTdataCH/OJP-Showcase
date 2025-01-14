@@ -28,7 +28,9 @@ def main():
     print('... DONE')
     
 def _run_package(script_path: Path, app_config: any, package_key: str, resource_prefix: str):
-    _fetch_latest_resource(script_path, package_key)
+    _fetch_metadata(script_path, package_key)
+    _fetch_latest_resource(app_config, script_path, package_key, resource_prefix)
+    
     resource_path = _check_latest_dataset(app_config, package_key, resource_prefix)
     latest_resource_path = app_config['data_paths'][f'{package_key}_latest']
     
@@ -39,28 +41,37 @@ def _run_package(script_path: Path, app_config: any, package_key: str, resource_
     print()
     print(f'=> {latest_resource_path}')
     
-def _fetch_latest_resource(script_path, package_key):
-    # fetch latest archive
-    ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
+def _fetch_metadata(script_path, package_key: str):
+    ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_metadata_cli.py'
     ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_key {package_key}'
     
     print('')
-    print(f'STEP {package_key}.1 - FETCH LATEST ARCHIVE')
+    print(f'STEP {package_key}.1 - FETCH METADATA')
     print(ckan_fetch_sh, flush=True)
     os.system(ckan_fetch_sh)
-
-def _check_latest_dataset(app_config, package_key, resource_prefix: str):
-    # check latest folder
-    print('')
-    print(f'STEP {package_key}.2 - CHECK LATEST DATASET')
     
+    print()
+    
+def _fetch_latest_resource(app_config: any, script_path: Path, package_key: str, resource_prefix: str):
+    ckan_resource = _compute_resource(app_config, package_key, resource_prefix)
+    
+    # fetch latest archive
+    ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
+    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_key {package_key} --resource_title {ckan_resource.identifier}'
+    
+    print(f'STEP {package_key}.2 - FETCH LATEST RESOURCE {ckan_resource.identifier}')
+    print(ckan_fetch_sh, flush=True)
+    os.system(ckan_fetch_sh)
+    
+    print()
+    
+def _compute_resource(app_config, package_key: str, resource_prefix: str):
     ckan_json_path = app_config['resource_paths'][f'ckan_{package_key}_json']
     ckan_json = load_json_from_file(ckan_json_path)
     ckan_data = CKAN_Data.from_ckan_json(ckan_json)
     
     ckan_resource = None
     for ckan_resource_item in ckan_data.result.resources:
-        print(ckan_resource_item.title['en'])
         resource_title: str = ckan_resource_item.title['en']
         if not resource_title.startswith(resource_prefix):
             continue
@@ -72,13 +83,22 @@ def _check_latest_dataset(app_config, package_key, resource_prefix: str):
     if ckan_resource is None:
         print()
         print(row_delimiter_s)
-        print('ERROR - latest resource cant be found')
+        print('ERROR - ckan resource cant be found')
         print()
         print(ckan_data.result.resources)
         print()
         print(row_delimiter_s)
         sys.exit(1)
     #
+    
+    return ckan_resource
+
+def _check_latest_dataset(app_config, package_key: str, resource_prefix: str):
+    # check latest folder
+    print('')
+    print(f'STEP {package_key}.3 - CHECK LATEST DATASET')
+    
+    ckan_resource = _compute_resource(app_config, package_key, resource_prefix)
     
     ds_mimetype: str = ckan_resource.mimetype
     ds_mimetype = ds_mimetype.lower().strip()
