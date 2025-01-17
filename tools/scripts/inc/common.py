@@ -1,0 +1,84 @@
+import os
+import sys
+
+from pathlib import Path
+from .shared.inc.helpers.json_helpers import load_json_from_file
+from .shared.inc.models.ckan_data import CKAN_Data
+
+PYTHON_PATH = sys.executable
+ROW_DELIMITER_S = '='*70
+
+def fetch_latest_resource(script_path: Path, package_id: str):
+    # fetch latest archive
+    ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
+    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id}'
+    
+    print('STEP 1 - FETCH LATEST ARCHIVE')
+    print(ckan_fetch_sh, flush=True)
+    os.system(ckan_fetch_sh)
+    
+def compute_ckan_data(app_config, package_id: str):
+    ckan_metadata_path: str = app_config['resource_paths']['ckan_metadata_path']
+    ckan_metadata_path = ckan_metadata_path.replace('[PACKAGE_ID]', package_id)
+    ckan_metadata_json = load_json_from_file(ckan_metadata_path)
+    ckan_data = CKAN_Data.from_ckan_json(ckan_metadata_json)
+    
+    return ckan_data
+
+def check_latest_data_folder(app_config, package_id: str):
+    # check latest folder
+    print('')
+    print(f'STEP 2 - CHECK LATEST DATASET {package_id}')
+    
+    ckan_data = compute_ckan_data(app_config, package_id)
+    
+    # convention: first resource is the latest published
+    ckan_resource = ckan_data.result.resources[0]
+    
+    resources_base_folder_path: str = app_config['data_paths']['opentransportdata']['package_base_path']
+    resources_base_folder_path = resources_base_folder_path.replace('[PACKAGE_ID]', package_id)
+    
+    resource_folder_name = ckan_resource.title['en']
+    # zip resources are unzipped in fetch, use the unzipped folder name
+    resource_folder_name = resource_folder_name[0:-4]
+    
+    resource_path = Path(f'{resources_base_folder_path}/{resource_folder_name}')
+    
+    if not os.path.isdir(resource_path):
+        print()
+        print(ROW_DELIMITER_S)
+        print('ERROR - latest resource not found at path')
+        print(resource_path)
+        print(ROW_DELIMITER_S)
+        sys.exit(1)
+    
+    print(f'... use following resource: {resource_path}')
+    
+    return resource_path
+
+def compute_ckan_resource_by_prefix(app_config, package_id: str, resource_prefix: str):
+    ckan_data = compute_ckan_data(app_config, package_id)
+    
+    ckan_resource = None
+    for ckan_resource_item in ckan_data.result.resources:
+        resource_title: str = ckan_resource_item.title['en']
+        if not resource_title.startswith(resource_prefix):
+            continue
+        
+        ckan_resource = ckan_resource_item
+        break
+    # loop resources
+    
+    if ckan_resource is None:
+        print()
+        print(ROW_DELIMITER_S)
+        print('ERROR - ckan resource cant be found')
+        print()
+        print(ckan_data.result.resources)
+        print()
+        print(ROW_DELIMITER_S)
+        sys.exit(1)
+    #
+        
+    return ckan_resource
+
