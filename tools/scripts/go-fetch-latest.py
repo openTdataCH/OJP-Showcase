@@ -7,127 +7,111 @@ from inc.shared.inc.helpers.json_helpers import load_json_from_file
 from inc.shared.inc.helpers.gtfs_helpers import compute_gtfs_day_from_resource_path, compute_gtfs_db_filename
 from inc.shared.inc.models.ckan_data import CKAN_Data
 
-PYTHON_PATH = sys.executable
-row_delimiter_s = '='*70
+from inc.common import PYTHON_PATH, ROW_DELIMITER_S, compute_ckan_resource_by_prefix, compute_ckan_data
+
+# go-fetch-latest.py - rename to cli_opentransportdata_csv_fetch_latest.py
 
 def main():
     script_path = Path(os.path.realpath(__file__))
     app_config = load_convenience_config(script_path)
     
-    print('START ./tools/scripts/go-fetch-latest.py')
+    print('START ./tools/scripts/cli_opentransportdata_csv_fetch_latest.py')
     print()
     print('Resources:')
-    print('  - https://opentransportdata.swiss/en/dataset/business-organisations')
-    print('  - https://opentransportdata.swiss/en/dataset/go-realtime')
+    print('  - https://data.opentransportdata.swiss/en/dataset/business-organisations')
+    print('  - https://data.opentransportdata.swiss/en/dataset/go-realtime')
+    print('  - https://data.opentransportdata.swiss/en/dataset/slnid-line')
     print()
-
-    _run_package(script_path, app_config, 'go', 'actual_date_business_organisation')
-    _run_package(script_path, app_config, 'go-realtime', 'business_organisation_realtime')
+    
+    for package_id in app_config['csv_latest_data']:
+        _run_package(script_path, app_config, package_id)
+        print()
+    #
     
     print()
     print('... DONE')
     
-def _run_package(script_path: Path, app_config: any, package_key: str, resource_prefix: str):
-    _fetch_metadata(script_path, package_key)
-    _fetch_latest_resource(app_config, script_path, package_key, resource_prefix)
+def _run_package(script_path: Path, app_config: any, package_id: str):
+    _fetch_metadata(script_path, package_id)
+    _fetch_resource(script_path, app_config, package_id)
+    _symlink_latest_resource(app_config, package_id)
     
-    resource_path = _check_latest_dataset(app_config, package_key, resource_prefix)
-    latest_resource_path = app_config['data_paths'][f'{package_key}_latest']
-    
-    if os.path.islink(latest_resource_path):
-        os.remove(latest_resource_path)
-    os.symlink(resource_path, latest_resource_path)
-    
-    print()
-    print(f'=> {latest_resource_path}')
-    
-def _fetch_metadata(script_path, package_key: str):
+def _fetch_metadata(script_path, package_id: str):
     ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_metadata_cli.py'
-    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_key {package_key}'
+    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id}'
     
     print('')
-    print(f'STEP {package_key}.1 - FETCH METADATA')
+    print(f'STEP {package_id}.1 - FETCH METADATA')
     print(ckan_fetch_sh, flush=True)
     os.system(ckan_fetch_sh)
     
     print()
     
-def _fetch_latest_resource(app_config: any, script_path: Path, package_key: str, resource_prefix: str):
-    ckan_resource = _compute_resource(app_config, package_key, resource_prefix)
+def _fetch_resource(script_path: Path, app_config, package_id: str):
+    file_prefix = app_config['csv_latest_data'][package_id].get('file_prefix', None)
+    if file_prefix is None:
+        _fetch_latest_resource(script_path, package_id)
+    else:
+        _fetch_resource_by_prefix(app_config, script_path, package_id, file_prefix)
+    #
+
+def _fetch_latest_resource(script_path: Path, package_id: str):
+    # fetch latest archive
+    ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
+    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id}'
+    
+    print(f'STEP {package_id}.2 - FETCH LATEST RESOURCE')
+    print(ckan_fetch_sh, flush=True)
+    os.system(ckan_fetch_sh)
+    
+def _fetch_resource_by_prefix(app_config: any, script_path: Path, package_id: str, resource_prefix: str):
+    ckan_resource = compute_ckan_resource_by_prefix(app_config, package_id, resource_prefix)
     
     # fetch latest archive
     ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
-    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_key {package_key} --resource_title {ckan_resource.identifier}'
+    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id} --resource_title {ckan_resource.identifier}'
     
-    print(f'STEP {package_key}.2 - FETCH LATEST RESOURCE {ckan_resource.identifier}')
+    print(f'STEP {package_id}.2 - FETCH RESOURCE by PREFIX {ckan_resource.identifier}')
     print(ckan_fetch_sh, flush=True)
     os.system(ckan_fetch_sh)
-    
-    print()
-    
-def _compute_resource(app_config, package_key: str, resource_prefix: str):
-    ckan_json_path = app_config['resource_paths'][f'ckan_{package_key}_json']
-    ckan_json = load_json_from_file(ckan_json_path)
-    ckan_data = CKAN_Data.from_ckan_json(ckan_json)
-    
-    ckan_resource = None
-    for ckan_resource_item in ckan_data.result.resources:
-        resource_title: str = ckan_resource_item.title['en']
-        if not resource_title.startswith(resource_prefix):
-            continue
-        
-        ckan_resource = ckan_resource_item
-        break
-    # loop resources
-    
-    if ckan_resource is None:
-        print()
-        print(row_delimiter_s)
-        print('ERROR - ckan resource cant be found')
-        print()
-        print(ckan_data.result.resources)
-        print()
-        print(row_delimiter_s)
-        sys.exit(1)
-    #
-    
-    return ckan_resource
 
-def _check_latest_dataset(app_config, package_key: str, resource_prefix: str):
-    # check latest folder
-    print('')
-    print(f'STEP {package_key}.3 - CHECK LATEST DATASET')
+    print()
+
+def _symlink_latest_resource(app_config, package_id: str):
+    symlink_latest_path_s: str = app_config['csv_latest_data'][package_id].get('symlink_latest_path', None)
+    if symlink_latest_path_s is None:
+        return
     
-    ckan_resource = _compute_resource(app_config, package_key, resource_prefix)
+    print(f'STEP {package_id}.3 - SYMLINK LATEST DATASET')
     
-    ds_mimetype: str = ckan_resource.mimetype
-    ds_mimetype = ds_mimetype.lower().strip()
+    package_base_path: str = app_config['data_paths']['opentransportdata']['package_base_path']
+    package_base_path = package_base_path.replace('[PACKAGE_ID]', package_id)
     
-    resource_name = ckan_resource.title['en']
-    resources_base_folder_path = app_config['data_paths'][f'{package_key}_data']
+    resource_prefix = app_config['csv_latest_data'][package_id]['file_prefix'] or None
+    ds_resource = compute_ckan_resource_by_prefix(app_config, package_id, resource_prefix)
     
-    if 'zip' in ds_mimetype:
-        # the actual name is without .zip extension
-        resource_name = resource_name[0:-4]
-        # same for the folder that contains the resource
-        resource_folder_name = resource_name
-        
-        resource_path = Path(f'{resources_base_folder_path}/{resource_folder_name}/{resource_name}')
-    else:
-        resource_path = Path(f'{resources_base_folder_path}/{resource_name}')
-    # end ds_mimetype == 'zip'
+    ds_res_filename = ds_resource.url.split('/')[-1]
+    ds_res_extension = Path(ds_res_filename.lower()).suffix
     
-    if not os.path.isfile(resource_path):
-        print()
-        print(row_delimiter_s)
-        print('ERROR - latest resource not found at path')
-        print(resource_path)
-        print(row_delimiter_s)
-        sys.exit(1)
-        
-    print(f'... use following resource: {resource_path}')
-        
-    return resource_path
+    ds_res_path = Path(f'{package_base_path}/{ds_res_filename}')
+    if ds_res_extension == '.zip':
+        ds_res_zip_folder = ds_res_filename[0:-4]
+        ds_res_path = Path(f'{package_base_path}/{ds_res_zip_folder}/{ds_res_zip_folder}')
+    # else:
+    
+    symlink_latest_path_s = symlink_latest_path_s.replace('[PACKAGE_ID]', package_id)
+    file_prefix = app_config['csv_latest_data'][package_id]['file_prefix']
+    symlink_latest_path_s = symlink_latest_path_s.replace('[PREFIX]', file_prefix)
+    
+    symlink_latest_path = Path(symlink_latest_path_s)
+    
+    if os.path.islink(symlink_latest_path):
+        os.remove(symlink_latest_path)
+    os.symlink(ds_res_path, symlink_latest_path)
+
+    print()
+    print(f'=> {symlink_latest_path}')
+    print()
 
 if __name__ == "__main__":
     main()
