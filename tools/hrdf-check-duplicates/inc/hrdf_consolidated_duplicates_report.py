@@ -2,6 +2,8 @@ import os, sys
 import time
 import json
 
+from datetime import datetime
+
 import urllib.request
 
 from .shared.inc.helpers.log_helpers import log_message
@@ -18,11 +20,18 @@ class HRDF_Consolidated_Duplicates_Report:
 
     def compute_consolidated_report(self):
         duplicates_list_json = self.fetch_report_duplicates_list()
+        
+        report_year = datetime.now().year
+        last_year = report_year - 1
 
         map_data = {}
         
         hrdf_days = duplicates_list_json['hrdf_duplicates_available_days']
         for (idx, hrdf_day) in enumerate(hrdf_days):
+            hrdf_day_year = int(hrdf_day[0:4])
+            if hrdf_day_year < last_year:
+                continue
+            
             duplicates_report_path: str = f'{self.duplicates_report_path_template}'
             duplicates_report_path = duplicates_report_path.replace('[HRDF_YMD]', hrdf_day)
 
