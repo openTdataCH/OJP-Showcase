@@ -68,14 +68,13 @@ class CKAN_Controller:
         ckan_data = self._fetch_ckan_metadata(package_id)
         
         if filter_resource_title is None:
+            # return latest resource if filter_resource_title is missing
             return ckan_data.result.resources[0]
         
         filter_resource_title = filter_resource_title.strip().lower()
         
         for ds_resource in ckan_data.result.resources:
-            resource_title = ds_resource.title['en'].strip().lower()
-
-            if resource_title[0:-4] == filter_resource_title[0:-4]:
+            if ds_resource.filename.lower() == filter_resource_title:
                 return ds_resource
             
         row_delimiter_s = '='*70
@@ -88,13 +87,13 @@ class CKAN_Controller:
         print(row_delimiter_s)
 
         for ds_resource in ckan_data.result.resources:
-            resource_title: str = ds_resource.title['en'].strip().lower()
+            resource_filename: str = ds_resource.filename
             
             last_modified_day = ds_resource.modified_s[0:10]
             last_modified_hh_mm = ds_resource.modified_s[11:16]
             last_modified_s = f'{last_modified_day} {last_modified_hh_mm}'
 
-            print(f'-- {resource_title.ljust(40)} - {last_modified_s}')
+            print(f'-- {resource_filename.ljust(40)} - {last_modified_s}')
         # loop resources
         
         sys.exit(1)

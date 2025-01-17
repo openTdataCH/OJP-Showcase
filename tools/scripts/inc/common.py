@@ -38,9 +38,13 @@ def check_latest_data_folder(app_config, package_id: str):
     resources_base_folder_path: str = app_config['data_paths']['opentransportdata']['package_base_path']
     resources_base_folder_path = resources_base_folder_path.replace('[PACKAGE_ID]', package_id)
     
-    resource_folder_name = ckan_resource.title['en']
+    if ckan_resource.extension != '.zip':
+        print(f'ERROR: expected ZIP archive for {package_id}')
+        print(ckan_resource)
+        sys.exit(1)
+    
     # zip resources are unzipped in fetch, use the unzipped folder name
-    resource_folder_name = resource_folder_name[0:-4]
+    resource_folder_name = ckan_resource.filename[0:-4]
     
     resource_path = Path(f'{resources_base_folder_path}/{resource_folder_name}')
     
@@ -61,8 +65,7 @@ def compute_ckan_resource_by_prefix(app_config, package_id: str, resource_prefix
     
     ckan_resource = None
     for ckan_resource_item in ckan_data.result.resources:
-        resource_title: str = ckan_resource_item.title['en']
-        if not resource_title.startswith(resource_prefix):
+        if not ckan_resource_item.filename.startswith(resource_prefix):
             continue
         
         ckan_resource = ckan_resource_item
