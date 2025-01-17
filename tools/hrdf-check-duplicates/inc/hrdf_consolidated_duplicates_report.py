@@ -66,14 +66,12 @@ class HRDF_Consolidated_Duplicates_Report:
                     map_data[agency_id][hrdf_day].append(report_row)
             # agency_data
 
-        # hrdf_day
+        # loop hrdf_day
 
+        # filter_agency_ids = ['11']
         filter_agency_ids = []
-        filter_agency_ids = ['11']
-        self.compute_consolidated_report_for_agency(map_data, filter_agency_ids)
         
-        # all
-        self.compute_consolidated_report_for_agency(map_data, [])
+        self.compute_consolidated_report_for_agency(map_data, filter_agency_ids)
 
     def compute_consolidated_report_for_agency(self, map_data, agency_ids):
         csv_path = f'{self.consolidate_hrdf_duplicates_report_path_template}'
