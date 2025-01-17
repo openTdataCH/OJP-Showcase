@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, List
 from datetime import datetime
 
-from inc.shared.inc.helpers.config_helpers import load_convenience_config
+from inc.shared.inc.helpers.config_helpers import load_convenience_config, load_yaml_config
 from inc.shared.inc.models.gtfs_static_db_catalog import GTFS_Static_Catalog_Report, GTFS_Static_Catalog_Item
 from inc.shared.inc.models.ckan_data import CKAN_Data, CKAN_Resource
 from inc.shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
@@ -46,7 +46,12 @@ def _scan_local_dbs(app_config: any) -> Dict[str, Path]:
     return map_local_dbs
 
 def _load_ckan_data(app_config: any) -> List[CKAN_Resource]:
-    gtfs_ckan_json_path = app_config['gtfs_ckan_json_path']
+    scripts_config_path = app_config['other_config_paths']['scripts_config']
+    scripts_config = load_yaml_config(scripts_config_path)
+    gtfs_package_id = scripts_config['current_package_ids']['gtfs']
+    
+    gtfs_ckan_json_path: str = app_config['gtfs_ckan_json_path']
+    gtfs_ckan_json_path = gtfs_ckan_json_path.replace('[PACKAGE_ID]', gtfs_package_id)
     gtfs_ckan_json = load_json_from_file(gtfs_ckan_json_path)
     gtfs_ckan = CKAN_Data.from_ckan_json(gtfs_ckan_json)
     

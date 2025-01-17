@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, List
 from datetime import datetime
 
-from inc.HRDF_Parser.shared.inc.helpers.config_helpers import load_convenience_config
+from inc.HRDF_Parser.shared.inc.helpers.config_helpers import load_convenience_config, load_yaml_config
 from inc.HRDF_Parser.shared.inc.models.ckan_data import CKAN_Data, CKAN_Resource
 from inc.HRDF_Parser.shared.inc.models.hrdf_db_catalog import HRDF_Catalog_Report, HRDF_Catalog_Item, HRDF_Catalog_Metadata
 from inc.HRDF_Parser.shared.inc.helpers.gtfs_helpers import compute_date_from_gtfs_db_filename
@@ -49,7 +49,12 @@ def _scan_local_dbs(app_config: any) -> Dict[str, Path]:
     return map_local_dbs
 
 def _load_ckan_data(app_config: any) -> List[CKAN_Resource]:
-    ckan_json_path = app_config['hrdf_ckan_json_path']
+    scripts_config_path = app_config['other_configs']['scripts_config_path']
+    scripts_config = load_yaml_config(scripts_config_path)
+    hrdf_package_id = scripts_config['current_package_ids']['hrdf']
+    
+    ckan_json_path: str = app_config['hrdf_ckan_json_path']
+    ckan_json_path = ckan_json_path.replace('[PACKAGE_ID]', hrdf_package_id)
     ckan_json = load_json_from_file(ckan_json_path)
     hrdf_ckan = CKAN_Data.from_ckan_json(ckan_json)
     
