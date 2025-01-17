@@ -9,34 +9,22 @@ def main():
     script_path = Path(os.path.realpath(__file__))
     app_config = load_convenience_config(script_path)
 
-    usage_help_s = 'fetch_metadata_cli.py [--package_key PACKAGE_KEY]'
+    usage_help_s = 'fetch_metadata_cli.py [--package_id package_id]'
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--package_key', '--package_key')
+    parser.add_argument('--package_id', '--package_id')
     args = parser.parse_args()
 
-    package_key = args.package_key
+    package_id = args.package_id
 
-    if not package_key:
-        print(f'Missing --package_key param')
+    if not package_id:
+        print(f'Missing --package_id param')
         print(usage_help_s)
 
-        print('Available package_key items:')
-        for package_key in app_config['map_packages']:
-            package_data = app_config['map_packages'][package_key]
-            alias_s = ''
-            if 'alias' in package_data:
-                alias_s = '(alias ' + package_data['alias'] + ')'
-            print(f'-- {package_key} {alias_s}')
-
-        package_key = input('Type the package_id: ')
-
-    if package_key not in app_config['map_packages']:
-        print(f'package_key {package_key} not found in config.map_packages')
         sys.exit(1)
         
     ckan_controller = CKAN_Controller(app_config)
-    ckan_controller.fetch_metadata(package_key)
+    ckan_controller.fetch_metadata(package_id)
 
 if __name__ == "__main__":
     main()
