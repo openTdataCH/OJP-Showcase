@@ -2,6 +2,8 @@ import os, sys
 import time
 import json
 
+from datetime import datetime
+
 import urllib.request
 
 from .shared.inc.helpers.log_helpers import log_message
@@ -18,11 +20,18 @@ class HRDF_Consolidated_Duplicates_Report:
 
     def compute_consolidated_report(self):
         duplicates_list_json = self.fetch_report_duplicates_list()
+        
+        report_year = datetime.now().year
+        last_year = report_year - 1
 
         map_data = {}
         
         hrdf_days = duplicates_list_json['hrdf_duplicates_available_days']
         for (idx, hrdf_day) in enumerate(hrdf_days):
+            hrdf_day_year = int(hrdf_day[0:4])
+            if hrdf_day_year < last_year:
+                continue
+            
             duplicates_report_path: str = f'{self.duplicates_report_path_template}'
             duplicates_report_path = duplicates_report_path.replace('[HRDF_YMD]', hrdf_day)
 
@@ -57,14 +66,12 @@ class HRDF_Consolidated_Duplicates_Report:
                     map_data[agency_id][hrdf_day].append(report_row)
             # agency_data
 
-        # hrdf_day
+        # loop hrdf_day
 
+        # filter_agency_ids = ['11']
         filter_agency_ids = []
-        filter_agency_ids = ['11']
-        self.compute_consolidated_report_for_agency(map_data, filter_agency_ids)
         
-        # all
-        self.compute_consolidated_report_for_agency(map_data, [])
+        self.compute_consolidated_report_for_agency(map_data, filter_agency_ids)
 
     def compute_consolidated_report_for_agency(self, map_data, agency_ids):
         csv_path = f'{self.consolidate_hrdf_duplicates_report_path_template}'

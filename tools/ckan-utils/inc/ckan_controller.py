@@ -4,6 +4,9 @@ import urllib.request
 import time
 from pathlib import Path
 
+import zipfile
+import requests
+
 from .shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
 from .shared.inc.helpers.log_helpers import log_message
 
@@ -14,69 +17,64 @@ class CKAN_Controller:
     def __init__(self, app_config):
         self.app_config = app_config
 
-    def fetch_latest(self, package_key: str, resource_title):
-        package_data = self.app_config['map_packages'][package_key]
-        package_id = package_data['package_id']
-
-        log_message(f'CKAN - FETCH PACKAGE {package_key}')
+    def fetch_latest(self, package_id: str, resource_title):
+        log_message(f'CKAN - FETCH PACKAGE {package_id}')
         log_message(f'  PACKAGE_ID      : {package_id}')
         log_message(f'  RESOURCE_TITLE  : {resource_title}')
 
-        ds_resource = self._fetch_package_resource(package_key, resource_title)
-        ds_filename = ds_resource.title['en']
+        ds_resource = self._fetch_package_resource(package_id, resource_title)
+        ds_res_filename = ds_resource.url.split('/')[-1]
 
-        package_data = self.app_config['map_packages'][package_key]
+        package_base_path_s: str = self.app_config['resource_paths']['package_base_path']
+        package_base_path_s = package_base_path_s.replace('[PACKAGE_ID]', package_id)
+        package_base_path = Path(package_base_path_s)
         
-        ds_resource_path = Path(package_data['base_path'] + '/' + ds_filename)
-        if os.path.isfile(ds_resource_path):
-            print('')
-            log_message(f'... resource already downloaded at path {ds_resource_path}')
-        else:
+        ds_resource_path = Path(f'{package_base_path}/{ds_res_filename}')
+        if not os.path.isfile(ds_resource_path):
             ds_url = ds_resource.url
             download_resource(ds_url, ds_resource_path)
-            
-        ds_mimetype: str = ds_resource.mimetype
-        ds_mimetype = ds_mimetype.lower().strip()
+        #
         
-        if 'zip' in ds_mimetype:
-            ds_folder = ds_filename[0:-4]
-            ds_folder_path = Path(package_data['base_path'] + '/' + ds_folder)
-            if os.path.isdir(ds_folder_path):
-                print('')
-                log_message(f'... resource already unzipped at path {ds_folder_path}')
-            else:
-                run_unzip(ds_resource_path, ds_folder_path)
+        print()
+        log_message(f'... downloaded to {ds_resource_path}')
+            
+        ds_res_extension = Path(ds_res_filename.lower()).suffix
+        if ds_res_extension == '.zip':
+            ds_zip_folder = ds_res_filename[0:-4]
+            ds_zip_folder_path = Path(f'{package_base_path}/{ds_zip_folder}')
+            if not os.path.isdir(ds_zip_folder_path):
+                run_unzip(ds_resource_path, ds_zip_folder_path)
+                
+            print()
+            log_message(f'... extracted to {ds_zip_folder_path}')
         # end ds_mimetype == 'zip'
-
+        
+        print()
         log_message(f'CKAN - DONE')
         
-    def fetch_metadata(self, package_key: str):
-        package_data = self.app_config['map_packages'][package_key]
-        package_id = package_data['package_id']
-        
-        log_message(f'CKAN - FETCH METADATA {package_key}')
+    def fetch_metadata(self, package_id: str):
+        log_message(f'CKAN - FETCH METADATA')
         log_message(f'  PACKAGE_ID      : {package_id}')
         print()
         
-        ckan_data = self._fetch_ckan_data(package_key)
+        ckan_data = self._fetch_ckan_metadata(package_id)
         print('- resources:')
         for ckan_resource in ckan_data.result.resources:
-            print(f'  - {ckan_resource.identifier}')
+            print(f'  - {ckan_resource.identifier} -> {ckan_resource.url}')
             
         log_message(f'END')
 
-    def _fetch_package_resource(self, package_key: str, filter_resource_title):
-        ckan_data = self._fetch_ckan_data(package_key)
+    def _fetch_package_resource(self, package_id: str, filter_resource_title):
+        ckan_data = self._fetch_ckan_metadata(package_id)
         
         if filter_resource_title is None:
+            # return latest resource if filter_resource_title is missing
             return ckan_data.result.resources[0]
         
         filter_resource_title = filter_resource_title.strip().lower()
         
         for ds_resource in ckan_data.result.resources:
-            resource_title = ds_resource.title['en'].strip().lower()
-
-            if resource_title[0:-4] == filter_resource_title[0:-4]:
+            if ds_resource.filename.lower() == filter_resource_title:
                 return ds_resource
             
         row_delimiter_s = '='*70
@@ -89,36 +87,33 @@ class CKAN_Controller:
         print(row_delimiter_s)
 
         for ds_resource in ckan_data.result.resources:
-            resource_title: str = ds_resource.title['en'].strip().lower()
+            resource_filename: str = ds_resource.filename
             
             last_modified_day = ds_resource.modified_s[0:10]
             last_modified_hh_mm = ds_resource.modified_s[11:16]
             last_modified_s = f'{last_modified_day} {last_modified_hh_mm}'
 
-            print(f'-- {resource_title.ljust(40)} - {last_modified_s}')
+            print(f'-- {resource_filename.ljust(40)} - {last_modified_s}')
         # loop resources
         
         sys.exit(1)
+        
+    def _fetch_ckan_metadata(self, package_id):
+        ckan_json_path: str = f"{self.app_config['resource_paths']['ckan_metadata_path']}"
+        ckan_json_path = ckan_json_path.replace('[PACKAGE_ID]', package_id)
 
-    def _fetch_ckan_data(self, package_key):
-        package_data_json_path = f"{self.app_config['package_cache']['local_path']}"
-        package_data_json_path = package_data_json_path.replace('[PACKAGE_KEY]', package_key)
-
-        if os.path.isfile(package_data_json_path):
+        if os.path.isfile(ckan_json_path):
             package_data_json_ttl = self.app_config['package_cache']['ttl']
-            package_data_json_ts = os.path.getmtime(package_data_json_path)
+            package_data_json_ts = os.path.getmtime(ckan_json_path)
             now_ts = time.time()
             cache_age = now_ts - package_data_json_ts
             is_fresh = cache_age < package_data_json_ttl
             if is_fresh:
-                log_message(f'... load package JSON from {package_data_json_path}')
-                package_data_json = load_json_from_file(package_data_json_path)
+                log_message(f'... load package JSON from {ckan_json_path}')
+                package_data_json = load_json_from_file(ckan_json_path)
                 ckan_data = CKAN_Data.from_ckan_json(package_data_json)
                 return ckan_data
-
-        package_data = self.app_config['map_packages'][package_key]
-        package_id = package_data['package_id']
-
+            
         ckan_api_url = f"{self.app_config['ckan_data']['package_show_url_template']}"
         ckan_api_url = ckan_api_url.replace('[PACKAGE_ID]', package_id)
             
@@ -127,7 +122,7 @@ class CKAN_Controller:
         log_message(f'... fetching package JSON from {ckan_api_url}')
 
         package_data_json = fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization)
-        export_json_to_file(package_data_json, package_data_json_path, pretty_print=True)
+        export_json_to_file(package_data_json, ckan_json_path, pretty_print=True)
         
         ckan_data = CKAN_Data.from_ckan_json(package_data_json)
 
@@ -152,11 +147,10 @@ def fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
 
 def run_unzip(archive_path: Path, folder_path: Path):
     log_message('RUN UNZIP')
-
-    unzip_sh = f'unzip {archive_path} -d {folder_path}'
-    print(unzip_sh, flush=True)
-    os.system(unzip_sh)
-
+    
+    with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+        zip_ref.extractall(folder_path)
+                    
     print(f'... DONE')
     print('')
 
@@ -167,10 +161,14 @@ def download_resource(resource_url: str, resource_path: Path):
     if not os.path.isdir(resource_path.parent):
         os.makedirs(resource_path.parent)
 
+    response = requests.get(resource_url, timeout=30, stream=True)
+    response.raise_for_status()
+    
     print(f'DOWNLOAD RESOURCE')
-    curl_sh = f'curl {resource_url} --location -H "User-Agent: {USER_AGENT}" -o {resource_path}'
-    print(curl_sh, flush=True)
-    os.system(curl_sh)
+    res_file = open(resource_path, 'wb')
+    for file_chunk in response.iter_content(chunk_size=65536):
+        res_file.write(file_chunk)
+    res_file.close()
     
     print(f'... DONE')
     print('')

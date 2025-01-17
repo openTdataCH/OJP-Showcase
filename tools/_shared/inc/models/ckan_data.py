@@ -1,6 +1,8 @@
 import os
 import sys
 
+from pathlib import Path
+
 from dataclasses import dataclass, asdict
 from typing import List, Dict, Optional
 
@@ -12,6 +14,9 @@ class CKAN_Resource:
     url: str
     created_s: str
     modified_s: str
+    
+    filename: str
+    extension: str
 
     def __init__(self, **kwargs):
         # do this way otherwise we get a linter error
@@ -20,6 +25,10 @@ class CKAN_Resource:
         for field_name, field_metadata in dataclass_fields.items():
             value = kwargs.get(field_name, field_metadata.default)
             self.set_field(field_name, value, kwargs)
+        
+        res_filename = CKAN_Resource._compute_filename(kwargs['url'])
+        self.filename = res_filename
+        self.extension = CKAN_Resource._compute_extension(res_filename)
             
     def set_field(self, field_name, value, kwargs):
         if field_name == 'created_s':
@@ -28,6 +37,17 @@ class CKAN_Resource:
             value = kwargs.get('modified', None)
 
         setattr(self, field_name, value)
+    
+    @staticmethod
+    def _compute_filename(res_url: str):
+        res_filename = res_url.split('/')[-1]
+        return res_filename
+    
+    @staticmethod
+    def _compute_extension(res_filename: str):
+        res_extension = Path(res_filename).suffix.lower()
+        return res_extension
+        
         
 @dataclass
 class CKAN_Result:
