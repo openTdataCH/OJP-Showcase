@@ -5,6 +5,8 @@ import time
 from pathlib import Path
 
 import zipfile
+import requests
+
 from .shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
 from .shared.inc.helpers.log_helpers import log_message
 
@@ -167,10 +169,14 @@ def download_resource(resource_url: str, resource_path: Path):
     if not os.path.isdir(resource_path.parent):
         os.makedirs(resource_path.parent)
 
+    response = requests.get(resource_url, timeout=30, stream=True)
+    response.raise_for_status()
+    
     print(f'DOWNLOAD RESOURCE')
-    curl_sh = f'curl {resource_url} --location -H "User-Agent: {USER_AGENT}" -o {resource_path}'
-    print(curl_sh, flush=True)
-    os.system(curl_sh)
+    res_file = open(resource_path, 'wb')
+    for file_chunk in response.iter_content(chunk_size=65536):
+        res_file.write(file_chunk)
+    res_file.close()
     
     print(f'... DONE')
     print('')
