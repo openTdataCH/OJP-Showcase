@@ -88,7 +88,9 @@ def _db_import(app_config, script_path, hrdf_data_path):
     else:
         hrdf_import_cli_path = f'{script_path.parent}/../hrdf-db-importer/hrdf_db_importer_cli.py'
         hrdf_import_sh = f'{PYTHON_PATH} {hrdf_import_cli_path} --hrdf-folder-path {hrdf_data_path}'
-        print(hrdf_import_sh, flush=True)
+        print()
+        print(f'$ {hrdf_import_sh}', flush=True)
+        print()
         os.system(hrdf_import_sh)
 
     return hrdf_db_path
@@ -99,7 +101,9 @@ def _dbs_aggregate(script_path):
     
     cli_path = f'{script_path.parent}/../hrdf-db-importer/cli_aggregate_dbs.py'
     cli_sh = f'{PYTHON_PATH} {cli_path}'
-    print(cli_sh, flush=True)
+    print()
+    print(f'$ {cli_sh}', flush=True)
+    print()
     os.system(cli_sh)
 
 def _hrdf_check_duplicates(script_path, hrdf_db_path):
@@ -122,7 +126,9 @@ def _hrdf_check_duplicates(script_path, hrdf_db_path):
     else:
         tool_cli_path = f'{hrdf_duplicates_tool_folder_path}/hrdf_check_duplicates_cli.py'
         tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
-        print(tool_cli_sh, flush=True)
+        print()
+        print(f'$ {tool_cli_sh}', flush=True)
+        print()
         os.system(tool_cli_sh)
 
 def _hrdf_build_aggregated_duplicates(script_path):
@@ -147,7 +153,9 @@ def _hrdf_build_aggregated_duplicates(script_path):
     if run_cli:
         tool_cli_path = f'{hrdf_duplicates_tool_folder_path}/hrdf_build_consolidated_report_cli.py'
         tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path}"
-        print(tool_cli_sh, flush=True)
+        print()
+        print(f'$ {tool_cli_sh}', flush=True)
+        print()
         os.system(tool_cli_sh)
     else:
         print(f'Report already present at path and not too old')
@@ -164,7 +172,9 @@ def _hrdf_generate_lookups(script_path, hrdf_db_path):
 
     tool_cli_path = f'{tool_cli_folder_path}/hrdf_db_lookups_generator_cli.py'
     tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
-    print(tool_cli_sh, flush=True)
+    print()
+    print(f'$ {tool_cli_sh}', flush=True)
+    print()
     os.system(tool_cli_sh)
     
 if __name__ == "__main__":

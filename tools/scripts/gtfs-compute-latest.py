@@ -84,7 +84,9 @@ def _db_import(app_config, script_path, gtfs_data_path):
     else:
         import_cli_path = f'{script_path.parent}/../gtfs-static-db-importer/gtfs_db_importer_cli.py'
         import_sh = f'{PYTHON_PATH} {import_cli_path} --gtfs-folder-path {gtfs_data_path}'
-        print(import_sh, flush=True)
+        print()
+        print(f'$ {import_sh}', flush=True)
+        print()
         os.system(import_sh)
 
     return gtfs_db_path
@@ -95,7 +97,9 @@ def _dbs_aggregate(script_path):
     
     cli_path = f'{script_path.parent}/../gtfs-static-db-importer/cli_aggregate_dbs.py'
     cli_sh = f'{PYTHON_PATH} {cli_path}'
-    print(cli_sh, flush=True)
+    print()
+    print(f'$ {cli_sh}', flush=True)
+    print()
     os.system(cli_sh)
 
 if __name__ == "__main__":
