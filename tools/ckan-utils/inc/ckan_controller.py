@@ -4,6 +4,7 @@ import urllib.request
 import time
 from pathlib import Path
 
+import zipfile
 from .shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
 from .shared.inc.helpers.log_helpers import log_message
 
@@ -152,11 +153,10 @@ def fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
 
 def run_unzip(archive_path: Path, folder_path: Path):
     log_message('RUN UNZIP')
-
-    unzip_sh = f'unzip {archive_path} -d {folder_path}'
-    print(unzip_sh, flush=True)
-    os.system(unzip_sh)
-
+    
+    with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+        zip_ref.extractall(folder_path)
+                    
     print(f'... DONE')
     print('')
 
