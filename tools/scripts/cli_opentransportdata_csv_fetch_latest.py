@@ -9,8 +9,6 @@ from inc.shared.inc.models.ckan_data import CKAN_Data
 
 from inc.common import PYTHON_PATH, ROW_DELIMITER_S, compute_ckan_resource_by_prefix, compute_ckan_data
 
-# go-fetch-latest.py - rename to cli_opentransportdata_csv_fetch_latest.py
-
 def main():
     script_path = Path(os.path.realpath(__file__))
     app_config = load_convenience_config(script_path)
