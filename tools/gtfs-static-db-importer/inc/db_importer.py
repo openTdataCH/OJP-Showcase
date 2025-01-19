@@ -340,6 +340,7 @@ class GTFS_DB_Importer:
             trip_new_row['arrival_day_minutes'] = None
             trip_new_row['arrival_time'] = None
             trip_new_row['stop_times_s'] = None
+            trip_new_row['stop_times_count'] = None
 
             for stop_type in ['from', 'to']:
                 db_rowid = None
@@ -384,6 +385,7 @@ class GTFS_DB_Importer:
                 trip_stop_times_values.append(stop_time_value)
 
             trip_new_row['stop_times_s'] = ' -- '.join(trip_stop_times_values)
+            trip_new_row['stop_times_count'] = len(stop_times)
 
             new_trips_table_csv.writerow(trip_new_row)
 
