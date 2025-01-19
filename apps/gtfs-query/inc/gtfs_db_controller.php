@@ -615,16 +615,28 @@ class GTFS_DB_Controller {
         return $result;
     }
 
+    private function compute_cache_result($cache_path) {
+        if (!($this->use_cache && file_exists($cache_path))) {
+            return null;
+        }
+            
+        $cache_path_parts = explode('/', $cache_path);
+        $cache_filename = $cache_path_parts[count($cache_path_parts) - 1];
+
+        $result_s = file_get_contents($cache_path);
+        $result = json_decode($result_s, TRUE);
+        $result['metadata']['cache'] = $cache_filename;
+
+        return $result;
+    }
+
+        return $result;
+    }
+
     private function _query_trips($query_config, $service_day = null, $cache_path = null) {
-        if ($this->use_cache && $cache_path && file_exists($cache_path)) {
-            $cache_path_parts = explode('/', $cache_path);
-            $cache_filename = $cache_path_parts[count($cache_path_parts) - 1];
-
-            $result_s = file_get_contents($cache_path);
-            $result = json_decode($result_s, TRUE);
-            $result['metadata']['cache'] = $cache_filename;
-
-            return $result;
+        $cache_result = $this->compute_cache_result($cache_path);
+        if ($cache_result) {
+            return $cache_result;
         }
 
         if ($service_day) {
@@ -645,6 +657,12 @@ class GTFS_DB_Controller {
             array_push($result_rows, $db_row);
         }
 
+        $this->_compute_and_cache_result($sql, $result_rows, $cache_path);
+
+        return $result;
+    }
+
+    private function _compute_and_cache_result($sql, $result_rows, $cache_path) {
         $result = array(
             'metadata' => array(
                 'gtfs_day' => $this->gtfs_db_day,
