@@ -512,7 +512,6 @@ class GTFS_DB_Controller {
 
         $cache_filename_parts = array(
             'query_agency_trips_' . $this->cache_prefix,
-            'gtfs_day_' . $this->gtfs_db_day,
             'service_day_' . $service_day,
             'agency_id_' . $agency_id,
         );
