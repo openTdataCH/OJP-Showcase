@@ -1,5 +1,8 @@
 # CHANGELOG gtfs-static-db-importer
 
+19.Jan 2025
+- adds `trips.stop_times_count` SQLite field + index needed by the [gtfs-query](https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/gtfs-query) app
+
 09.Jan 2025
 - fix `stop_times.stop_id` GROUP_CONCAT queries which might occur in unexpected results
 
