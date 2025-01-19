@@ -681,7 +681,7 @@ class GTFS_DB_Controller {
             array_push($result_rows, $db_row);
         }
 
-        $this->_compute_and_cache_result($sql, $result_rows, $cache_path);
+        $result = $this->_compute_and_cache_result($sql, $result_rows, $cache_path);
 
         return $result;
     }
