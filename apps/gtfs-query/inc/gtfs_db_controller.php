@@ -630,6 +630,30 @@ class GTFS_DB_Controller {
         return $result;
     }
 
+    public function query_routes_representative_trip() {
+        $sql_path = $this->map_sql_queries['query_routes_representative_trip'];
+        $sql = file_get_contents($sql_path);
+
+        $cache_filename_parts = array(
+            'query_routes_representative_trip_' . $this->cache_prefix,
+        );
+        $cache_filename = implode('__', $cache_filename_parts) . '.json';
+        $cache_path = $this->app_db_cache_path . '/' . $cache_filename;
+
+        $cache_result = $this->compute_cache_result($cache_path);
+        if ($cache_result) {
+            return $cache_result;
+        }
+
+        $result = $this->db->query($sql);
+
+        $result_rows = array();
+        while ($db_row = $result->fetchArray(SQLITE3_ASSOC)) {
+            array_push($result_rows, $db_row);
+        }
+
+        $result = $this->_compute_and_cache_result($sql, $result_rows, $cache_path);
+
         return $result;
     }
 
