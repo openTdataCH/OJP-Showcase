@@ -99,6 +99,7 @@ tables:
             - departure_time TEXT
             - arrival_time TEXT
             - stop_times_s TEXT # added to avoid GROUP_BY queries
+            - stop_times_count INTEGER # added to avoid GROUP_BY queries
             - shape_id TEXT
             - original_trip_id TEXT # https://opentransportdata.swiss/en/cookbook/gtfs/#tripstxt
         indexes:
@@ -109,3 +110,4 @@ tables:
             - arrival_day_minutes
             - trip_short_name
             - original_trip_id
+            - stop_times_count

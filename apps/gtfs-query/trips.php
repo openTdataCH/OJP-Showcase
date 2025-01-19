@@ -22,14 +22,14 @@ if (!is_null($route_short_name) && !is_null($line_ref)) {
     die;
 }
 
-if (!is_null($agency_id) && !is_null($service_day)) {
-    $response = $gtfs_controller->query_trips_by_agency_for_service_day($agency_id, $service_day);
+if (!is_null($agency_id) && !is_null($route_short_name)) {
+    $response = $gtfs_controller->query_trips_by_agency_route_short_name($agency_id, $route_short_name, $trip_short_name, $service_day);
     JsonView::dump($response);
     die;
 }
 
-if (!is_null($agency_id) && !is_null($route_short_name)) {
-    $response = $gtfs_controller->query_trips_by_agency_route_short_name($agency_id, $route_short_name, $trip_short_name, $service_day);
+if (!is_null($agency_id) && !is_null($service_day)) {
+    $response = $gtfs_controller->query_trips_by_agency_for_service_day($agency_id, $service_day);
     JsonView::dump($response);
     die;
 }
