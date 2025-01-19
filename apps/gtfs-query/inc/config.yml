@@ -14,6 +14,7 @@ map_sql_queries:
     query_routes_representative_trip: "[APP_PATH]/inc/sql/gtfs/query_routes_representative_trip.sql"
     # where
     where_from_to_trips: "[APP_PATH]/inc/sql/gtfs/where/where_from_to_trips.sql"
+    where_day_bits_day_idx: "[APP_PATH]/inc/sql/gtfs/where/where_day_bits_day_idx.sql"
     # fields
     fields_query_day_full_trips: "[APP_PATH]/inc/sql/gtfs/fields/query_day_full_trips.sql"
     fields_query_day_light_trips: "[APP_PATH]/inc/sql/gtfs/fields/query_day_light_trips.sql"

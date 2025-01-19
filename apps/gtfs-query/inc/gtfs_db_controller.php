@@ -666,8 +666,10 @@ class GTFS_DB_Controller {
         if ($service_day) {
             $request_day_date = date_create_from_format("Y-m-d", $service_day);
             $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
-    
-            $service_day_where = "SUBSTR(calendar.day_bits, " . $day_idx . " + 1, 1) = '1'";
+
+            $service_day_where = file_get_contents($this->map_sql_queries['where_day_bits_day_idx']);
+            $service_day_where = str_replace('[DAY_IDX]', $day_idx, $service_day_where);
+
             array_push($query_config['where'], $service_day_where);
         }
 
