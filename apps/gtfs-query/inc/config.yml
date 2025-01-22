@@ -6,7 +6,7 @@ gtfs_dbs_catalog_path: "[APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json"
 # https://opentransportdata.swiss/en/dataset/business-organisations
 business_organisation_latest_path: "[APP_PATH]/data/opentransportdata.swiss/business-organisations/actual_date_business_organisation_versions_LATEST.csv"
 # https://opentransportdata.swiss/de/dataset/go-realtime
-go_realtime_csv_path: "[APP_PATH]/data/opentransportdata.swiss/go-realtime/business_organisation_realtime_LATEST.csv"
+go_realtime_csv_path: "[APP_PATH]/data/opentransportdata.swiss/go-realtime/go-realtime.csv"
 
 map_sql_queries:
     # select
