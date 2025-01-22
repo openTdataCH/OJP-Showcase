@@ -288,6 +288,11 @@ class GTFS_DB_Controller {
     }
 
     private function _load_csv_file($csv_path) {
+        if (is_file($csv_path) === FALSE) {
+            error_log('_load_csv_file: CANT load file at path ' . $csv_path);
+            die('cant load file, see error logs for path');
+        }
+
         $csv_file = fopen($csv_path, 'r');
         
         // Read the first line to check for BOM
