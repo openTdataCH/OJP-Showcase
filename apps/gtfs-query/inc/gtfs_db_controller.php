@@ -72,7 +72,11 @@ class GTFS_DB_Controller {
         $map_business_organisations = array();
 
         $csv_headers = fgetcsv($csv_file, null, ';');
-        while (($row = fgetcsv($csv_file, 1000, ';')) !== false) {
+        if (!$csv_headers) {
+            die('empty CSV headers found for _load_map_business_organisations()');
+        }
+
+        while (is_array($row = fgetcsv($csv_file, 1000, ';'))) {
             $csv_row = array_combine($csv_headers, $row);
 
             $sboid = $csv_row['sboid'];
@@ -288,6 +292,11 @@ class GTFS_DB_Controller {
     }
 
     private function _load_csv_file($csv_path) {
+        if (is_file($csv_path) === FALSE) {
+            error_log('_load_csv_file: CANT load file at path ' . $csv_path);
+            die('cant load file, see error logs for path');
+        }
+
         $csv_file = fopen($csv_path, 'r');
         
         // Read the first line to check for BOM
@@ -307,7 +316,11 @@ class GTFS_DB_Controller {
         $csv_file = $this->_load_csv_file($go_realtime_csv_path);
 
         $csv_headers = fgetcsv($csv_file, null, ';');
-        while (($row = fgetcsv($csv_file, 1000, ';')) !== false) {
+        if (!$csv_headers) {
+            die('empty CSV headers found for load_agency_ids_from_csv()');
+        }
+
+        while (is_array($row = fgetcsv($csv_file, 1000, ';'))) {
             $csv_row = array_combine($csv_headers, $row);
 
             $sboid = $csv_row['sboid'];
