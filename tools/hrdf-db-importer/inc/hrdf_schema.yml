@@ -109,6 +109,10 @@ tables:
             - sector_no TEXT
             - delimiter TEXT
             - track_full_text TEXT
+            - sloid TEXT
+            - track_longitude REAL
+            - track_latitude REAL
+            - track_altitude INTEGER
         indexes:
             - stop_id
 
