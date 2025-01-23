@@ -25,18 +25,18 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
     gleis_classification_csv_path = f'{csv_write_base_path}-gleis_classification.csv'
     gleis_classification_csv_writer = CSV_Updater.init_with_table_config(gleis_classification_csv_path, gleis_classification_table_config)
 
-    gleis_table_config = db_schema_config['tables']['gleis']
-    gleis_table_csv_path = f'{csv_write_base_path}-gleis.csv'
-    gleis_table_csv_writer = CSV_Updater.init_with_table_config(gleis_table_csv_path, gleis_table_config)
-
     row_line_idx = 0
 
-    hrdf_file_path = f"{hrdf_path}/GLEIS"
+    hrdf_file_path = f"{hrdf_path}/GLEISE_WGS"
     hrdf_file_rows_no = compute_file_rows_no(hrdf_file_path)
     log_message(f"... found {hrdf_file_rows_no} lines")
+    
+    map_gleis_data = {}
 
     hrdf_file = open(hrdf_file_path, encoding='utf-8')
     for row_line in hrdf_file:
+        row_line = row_line.strip()
+        
         if (row_line_idx % 1000000) == 0:
             log_message(f"... GLEIS.loop parse {row_line_idx}/ {hrdf_file_rows_no} lines")
 
@@ -70,51 +70,84 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
         else:
             stop_id = extract_hrdf_content(row_line, 1, 7)
             gleis_info_id = extract_hrdf_content(row_line, 9, 16)
+            
+            # gleis_id can occur on multiple rows, accumulate the info in map_gleis_data
+            gleis_id = f"{stop_id}.{gleis_info_id}"
+            
+            if gleis_id not in map_gleis_data:
+                gleis_stop_info_json = {
+                    "gleis_id": gleis_id,
+                    "stop_id": stop_id,
+                    "gleis_info_id": gleis_info_id,
+                    'row_idx': row_line_idx + 1,
+                }
+                
+                map_gleis_data[gleis_id] = gleis_stop_info_json
+            #
+            
             track_definition_s = extract_hrdf_content(row_line, 18, 1000)
+            
+            # The SLOID is transmitted with the feature g.
+            if track_definition_s.startswith('g A'):
+                sloid_parts = track_definition_s.split('g A ')
+                map_gleis_data[gleis_id]['sloid'] = sloid_parts[1].strip()
+            # g
+            
+            # The coordinates are transmitted with feature k
+            if track_definition_s.startswith('k  '):
+                coords_text_parts = track_definition_s.split('k  ')
+                coords_text = coords_text_parts[1].strip()
+                coords_parts = re.split(r"\s{1,}", coords_text)
+                if len(coords_parts) in [2, 3]:
+                    map_gleis_data[gleis_id]['track_longitude'] = float(coords_parts[0])
+                    map_gleis_data[gleis_id]['track_latitude'] = float(coords_parts[1])
 
-            #           : G '1' A 'A'       => { 'G' => '1', 'A' => 'A' }
+                    if len(coords_parts) == 3:
+                        map_gleis_data[gleis_id]['track_altitude'] = int(coords_parts[2])
+                else:
+                    log_message(f'GLEISE k unexpected format: - line {(row_line_idx + 1)} -> {row_line}')
+                #
+            #  k
+            
+            # others are in format G '1' A 'A'       => { 'G' => '1', 'A' => 'A' }
             track_definition_matches = re.findall(r"([:A-Z])\s'([^']*)'", track_definition_s)
-            if len(track_definition_matches) == 0:
-                print('ERROR - no matches for GLEIS definition found')
-                print(f'line #{row_line_idx}:  {track_definition_s}')
-                sys.exit(1)
+            if len(track_definition_matches) > 0:
+                track_definition_dict = {}
+                for track_definition_match in track_definition_matches:
+                    def_key = track_definition_match[0].strip()
+                    def_val = track_definition_match[1].strip()
+                    track_definition_dict[def_key] = def_val
 
-            track_definition_dict = {}
-            for track_definition_match in track_definition_matches:
-                def_key = track_definition_match[0].strip()
-                def_val = track_definition_match[1].strip()
-                track_definition_dict[def_key] = def_val
+                track_full_text_parts = []
+                if "G" in track_definition_dict:
+                    map_gleis_data[gleis_id]["track_no"] = track_definition_dict["G"]
+                    track_full_text_parts.append(track_definition_dict["G"])
 
-            gleis_stop_info_json = {
-                "gleis_id": f"{stop_id}.{gleis_info_id}",
-                "stop_id": stop_id,
-                "gleis_info_id": gleis_info_id,
-                'row_idx': row_line_idx + 1,
-            }
+                if "T" in track_definition_dict:
+                    map_gleis_data[gleis_id]["delimiter"] = track_definition_dict["T"]
+                    track_full_text_parts.append(track_definition_dict["T"])
 
-            track_full_text_parts = []
-            if "G" in track_definition_dict:
-                gleis_stop_info_json["track_no"] = track_definition_dict["G"]
-                track_full_text_parts.append(track_definition_dict["G"])
-
-            if "T" in track_definition_dict:
-                gleis_stop_info_json["delimiter"] = track_definition_dict["T"]
-                track_full_text_parts.append(track_definition_dict["T"])
-
-            if "A" in track_definition_dict:
-                gleis_stop_info_json["sector_no"] = track_definition_dict["A"]
-                track_full_text_parts.append(track_definition_dict["A"])
-
-            if len(track_full_text_parts) > 0:
-                gleis_stop_info_json["track_full_text"] = "".join(track_full_text_parts)
-
-            gleis_table_csv_writer.prepare_row(gleis_stop_info_json)
+                if "A" in track_definition_dict:
+                    map_gleis_data[gleis_id]["sector_no"] = track_definition_dict["A"]
+                    track_full_text_parts.append(track_definition_dict["A"])
+                
+                if len(track_full_text_parts) > 0:
+                    map_gleis_data[gleis_id]["track_full_text"] = "".join(track_full_text_parts)
+            # G '1' A 'A' format
         # end if/else classification
 
         row_line_idx += 1
     # loop GLEIS
 
     gleis_classification_csv_writer.close()
+    
+    gleis_table_config = db_schema_config['tables']['gleis']
+    gleis_table_csv_path = f'{csv_write_base_path}-gleis.csv'
+    gleis_table_csv_writer = CSV_Updater.init_with_table_config(gleis_table_csv_path, gleis_table_config)
+    
+    for gleis_id, gleis_json in map_gleis_data.items():
+        gleis_table_csv_writer.prepare_row(gleis_json)
+
     gleis_table_csv_writer.close()
 
     log_message('... DONE CREATE GLEIS CSV files')
