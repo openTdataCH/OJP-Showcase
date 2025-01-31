@@ -1,6 +1,6 @@
 import path from 'path';
 
-export const ATLAS_LINIE_URL = 'https://tools.odpch.ch/data/actual_date_line_versions_LATEST.csv';
+export const ATLAS_LINE_URL = 'https://tools.odpch.ch/data/actual_date_line_versions_LATEST.csv';
 export const OJP_LIR_CACHE_PATH = path.resolve('./ojp_lir_cache.json');
 export const ATLAS_STOPS_GEOJSON_PATH = path.resolve('./atlas_stops.geojson');
 
