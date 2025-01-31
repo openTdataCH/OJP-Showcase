@@ -4,6 +4,8 @@ from pathlib import Path
 
 from typing import List
 
+import argparse
+
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
 from inc.shared.inc.helpers.json_helpers import load_json_from_file
 from inc.shared.inc.helpers.gtfs_helpers import compute_gtfs_day_from_resource_path, compute_gtfs_db_filename
@@ -15,18 +17,36 @@ def main():
     script_path = Path(os.path.realpath(__file__))
     app_config = load_convenience_config(script_path)
     
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--package_id', '--package_id')
+    args = parser.parse_args()
+    
+    package_id = args.package_id
+    if package_id is None:
+        print('--package_id is required')
+        
+        package_ids = list(app_config['csv_latest_data'].keys())
+        print(f"possible: values: {', '.join(package_ids)}" )
+        sys.exit(1)
+        
+    if package_id not in app_config['csv_latest_data']:
+        print(f'unknown --package_id value: {package_id}')
+        
+        package_ids = list(app_config['csv_latest_data'].keys())
+        print(f"possible: values: {', '.join(package_ids)}" )
+        sys.exit(1)
+        
+    package_config = app_config['csv_latest_data'][package_id]
+    package_info_url = package_config['info_url']
+    
     print('START ./tools/scripts/cli_opentransportdata_csv_fetch_latest.py')
     print()
+    print(f'Package_id: {package_id}')
     print('Resources:')
-    print('  - https://data.opentransportdata.swiss/en/dataset/business-organisations')
-    print('  - https://data.opentransportdata.swiss/en/dataset/go-realtime')
-    print('  - https://data.opentransportdata.swiss/en/dataset/slnid-line')
+    print(f'  - {package_info_url}')
     print()
     
-    for package_id in app_config['csv_latest_data']:
-        _run_package(script_path, app_config, package_id)
-        print()
-    #
+    _run_package(script_path, app_config, package_id)
     
     print()
     print('... DONE')
