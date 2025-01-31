@@ -8,6 +8,7 @@ import { AtlasLineDataController, AtlasStopGeoJSONFeature, AtlasStopsFeatureColl
 import { MatchHelpers } from './helpers/match-helpers';
 
 import * as OJP from 'ojp-sdk'; 
+import DateHelpers from './shared/helpers/date-helpers';
 console.log('using OJP ' + OJP.SDK_VERSION);
 
 interface AtlasLookupStopName {
@@ -276,7 +277,8 @@ function updateAtlasLookup(atlasLookupStopNames: AtlasLookupStopName[]) {
 
 // Main function
 async function main() {
-  console.log('START');
+  const dateStartF = DateHelpers.formatDateYMDHIS(new Date());
+  console.log('START ' + dateStartF);
   console.log();
 
   if (DEBUG_slnid !== null) {
@@ -294,7 +296,9 @@ async function main() {
   await geocodeStopNames(stopNames);
   updateAtlasLookup(stopNames);
   
-  console.log('END');
+  const dateEndF = DateHelpers.formatDateYMDHIS(new Date());
+  console.log();
+  console.log('END: ' + dateEndF);
 }
 
 main();
