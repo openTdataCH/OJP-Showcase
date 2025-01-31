@@ -1,9 +1,8 @@
-import axios from 'axios';
 import fs from 'fs';
 
 import { Feature, Point } from 'geojson';
 
-import { ATLAS_LINE_URL, ATLAS_STOPS_GEOJSON_PATH, OJP_LIR_CACHE_PATH, DEBUG_slnid, DEBUG_Output_Names, DEBUG_Row } from './constants';
+import { ATLAS_LINE_CSV_PATH, ATLAS_STOPS_GEOJSON_PATH, OJP_LIR_CACHE_PATH, DEBUG_slnid, DEBUG_Output_Names, DEBUG_Row } from './constants';
 import { AtlasLineDataController, AtlasStopGeoJSONFeature, AtlasStopsFeatureCollection } from './shared/controllers/atlas-data';
 
 import { MatchHelpers } from './helpers/match-helpers';
@@ -15,16 +14,6 @@ interface AtlasLookupStopName {
   slnid: string
   name: string
   routeDescription: string
-}
-
-async function fetchCSV(url: string): Promise<string> {
-  try {
-    const response = await axios.get(url);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching the CSV:', (error as Error).message);
-    process.exit(1);
-  }
 }
 
 function debugStopNames(atlasLookupStopNames: AtlasLookupStopName[]) {
@@ -57,10 +46,7 @@ function debugStopNames(atlasLookupStopNames: AtlasLookupStopName[]) {
 async function computeStopNames(): Promise<AtlasLookupStopName[]> {
   const atlasLookupStopNames: AtlasLookupStopName[] = [];
 
-  const csvURL = ATLAS_LINE_URL;
-  console.log('... fetching CSV from ' + csvURL);
-
-  const atlasCSV_s = await fetchCSV(csvURL);
+  const atlasCSV_s = fs.readFileSync(ATLAS_LINE_CSV_PATH, 'utf8');
   const atlasController = new AtlasLineDataController();
   await atlasController.loadFromCSV(atlasCSV_s);
 
