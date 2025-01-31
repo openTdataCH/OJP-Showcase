@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
+    "process_node18": "node --es-module-specifier-resolution=node dist/index.js",
     "process": "node --import=specifier-resolution-node/register dist/index.js",
     "dev_process": "npx tsc && node --import=specifier-resolution-node/register dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
