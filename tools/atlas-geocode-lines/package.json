@@ -1,0 +1,23 @@
+{
+  "name": "atlas-linie-geocode",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "process": "node --import=specifier-resolution-node/register dist/index.js",
+    "dev_process": "npx tsc && node --import=specifier-resolution-node/register dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "bin": {
+    "mycli": "./dist/index.js"
+  }
+}
