@@ -1,7 +1,8 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 LOGS_BASEPATH=$DIR/logs
 
-DATE_NOW=$(date +"%Y-%m-%d-%H%M")
+# DATE_NOW=$(date +"%Y-%m-%d-%H%M")
+DATE_NOW=$(date +"%Y-%m-%d")
 
 BO_LOGFILE=$LOGS_BASEPATH/otd_fetch_csv_business-organisations-$DATE_NOW.log
 GO_LOGFILE=$LOGS_BASEPATH/otd_fetch_csv_go-realtime-$DATE_NOW.log
