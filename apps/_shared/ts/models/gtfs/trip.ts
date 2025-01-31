@@ -1,4 +1,4 @@
-import SphericalMercator from '@mapbox/sphericalmercator'
+// import SphericalMercator from '@mapbox/sphericalmercator'
 
 import Date_Helpers from '../../helpers/date-helpers'
 
@@ -126,9 +126,9 @@ export class Trip {
     }
 
     public computeMapURL(request_time: Date) {
-        var webmercator = new SphericalMercator({
-            size: 256
-        });
+        // var webmercator = new SphericalMercator({
+        //     size: 256
+        // });
 
         let stop_position: [number, number] | null = null;
 
@@ -194,7 +194,9 @@ export class Trip {
             return '';
         }
 
-        const stop_mercator_point = webmercator.forward(stop_position);
+        // const stop_mercator_point = webmercator.forward(stop_position);
+        const stop_mercator_point = [0, 1];
+
         const stop_x = stop_mercator_point[0];
         const stop_y = stop_mercator_point[1];
         const zoom = 15;
