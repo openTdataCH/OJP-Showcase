@@ -2,10 +2,8 @@
     "name": "ojp-gtfs-rt-static-comparison",
     "dependencies": {
         "choices.js": "^9.0.1",
-        "@mapbox/sphericalmercator": "^1.1.0"
     },
     "devDependencies": {
-        "@types/mapbox__sphericalmercator": "^1.1.4",
         "@types/node": "^14.14.25",
         "watchify": "^3.11.1"
     },
