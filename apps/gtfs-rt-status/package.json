@@ -2,9 +2,13 @@
     "name": "ojp-gtfs-rt-static-comparison",
     "dependencies": {
         "choices.js": "^9.0.1",
+        "papaparse": "5.5.1",
+        "sax-ts": "1.2.13"
     },
     "devDependencies": {
+        "@types/geojson": "7946.0.10",
         "@types/node": "^14.14.25",
+        "@types/papaparse": "5.3.15",
         "watchify": "^3.11.1"
     },
     "scripts": {
