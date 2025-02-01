@@ -4,5 +4,9 @@ LOGS_BASEPATH=$DIR/logs
 # DATE_NOW=$(date +"%Y-%m-%d-%H%M")
 DATE_NOW=$(date +"%Y-%m-%d")
 
-LOGFILE=$LOGS_BASEPATH/otd_process-gtfs-$DATE_NOW.log
+BASE_LOGFILE=$LOGS_BASEPATH/otd_process-gtfs
+LOGFILE=$BASE_LOGFILE-$DATE_NOW.log
 ./python3 $DIR/gtfs-compute-latest.py 2>&1 | tee $LOGFILE
+
+LATEST_LOGFILE=$BASE_LOGFILE-LATEST.log
+ln -s $LOGFILE $LATEST_LOGFILE
