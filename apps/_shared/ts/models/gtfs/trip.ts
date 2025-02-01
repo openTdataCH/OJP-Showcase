@@ -125,10 +125,6 @@ export class Trip {
     }
 
     public computeMapURL(request_time: Date) {
-        // var webmercator = new SphericalMercator({
-        //     size: 256
-        // });
-
         let stop_position: [number, number] | null = null;
 
         if (this.isInTheFuture(request_time)) {
