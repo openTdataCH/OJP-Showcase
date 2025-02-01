@@ -6,7 +6,7 @@ DATE_NOW=$(date +"%Y-%m-%d")
 
 ATLAS_FETCH_BASE_LOGFILE=$LOGS_BASEPATH/otd_fetch_csv_atlas-lines
 ATLAS_FETCH_LOGFILE=$ATLAS_FETCH_BASE_LOGFILE-$DATE_NOW.log
-./python3 $DIR/cli_otd_fetch_csv_package.py --package_id slnid-line 2>&1 | tee $ATLAS_FETCH_LOGFILE
+$DIR/python3 $DIR/cli_otd_fetch_csv_package.py --package_id slnid-line 2>&1 | tee $ATLAS_FETCH_LOGFILE
 
 ATLAS_FETCH_LATEST_LOGFILE=$ATLAS_FETCH_BASE_LOGFILE-LATEST.log
 rm -f $ATLAS_FETCH_LATEST_LOGFILE
