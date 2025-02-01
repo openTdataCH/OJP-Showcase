@@ -1,6 +1,5 @@
-// import SphericalMercator from '@mapbox/sphericalmercator'
-
 import Date_Helpers from '../../helpers/date-helpers'
+import { GeoHelpers } from '../../helpers/geo-helpers'
 
 import { Response_GTFS_RT_Entity } from '../../types/gtfs-rt/entity'
 import { GTFS_Static_Trip_Condensed } from '../../types/gtfs/trip-with-stops.interface'
@@ -194,11 +193,10 @@ export class Trip {
             return '';
         }
 
-        // const stop_mercator_point = webmercator.forward(stop_position);
-        const stop_mercator_point = [0, 1];
+        const stop_positionMercator = GeoHelpers.lngLat2toWebMercator(stop_position[0], stop_position[1]);
 
-        const stop_x = stop_mercator_point[0];
-        const stop_y = stop_mercator_point[1];
+        const stop_x = stop_positionMercator.x;
+        const stop_y = stop_positionMercator.y;
         const zoom = 15;
 
         const url_address = 'https://maps2.trafimage.ch/ch.sbb.netzkarte?baselayers=ch.sbb.netzkarte,ch.sbb.netzkarte.dark,ch.sbb.netzkarte.luftbild.group,ch.sbb.netzkarte.landeskarte,ch.sbb.netzkarte.landeskarte.grau&display_srs=EPSG:2056&lang=de&layers=ch.sbb.puenktlichkeit-all,ch.sbb.netzkarte.buslinien&x=' + stop_x + '&y=' + stop_y + '&z=' + zoom;
