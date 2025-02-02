@@ -146,7 +146,7 @@ async function geocodeStopNames(atlasLookupStopNames: AtlasLookupStopName[]) {
 
     console.log('- ' + stopNameIdx + ': ' + stopName + ' OJP...');
 
-    const lirRequest = OJP.LocationInformationRequest.initWithLocationName(OJP.DEFAULT_STAGE, 'de', stopName, []);
+    const lirRequest = OJP.LocationInformationRequest.initWithLocationName(OJP_STAGE_CONFIG, 'de', stopName, []);
     
     const lirResponse = await lirRequest.fetchResponse();
     if (lirResponse.message !== 'LocationInformation.DONE') {
