@@ -1,0 +1,92 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full height of the viewport */
+}
+
+header, footer {
+  position: sticky;
+  z-index: 10;
+}
+
+header {
+  top: 0;
+}
+
+footer {
+  bottom: 0;
+}
+
+.content {
+  flex: 1; /* Fill space between header and footer */
+  display: flex;
+  overflow: hidden; /* Prevent content from affecting the main layout */
+}
+
+.content-column {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden; /* Prevent column content from overflowing its bounds */
+}
+.content-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f8f9fa;
+}
+.content-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: #f8f9fa;
+}
+.content {
+  flex: 1;
+  overflow-y: scroll;
+}
+
+#map-container {
+  background-color: lightgray;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+.wrapper-table-content {
+  max-height: 300px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.table-header th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: #f8f9fa;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.table-striped tbody tr.selected th,
+.table-striped tbody tr.selected td {
+  background-color: lightgreen;
+}
+
+.table-striped tbody tr.selected:hover th,
+.table-striped tbody tr.selected:hover td {
+  background-color: #90ee90;
+}
+
+.agency-row {
+  padding-right: 16px;
+}
+
+.report-stats {
+  font-size: 20px;
+}
