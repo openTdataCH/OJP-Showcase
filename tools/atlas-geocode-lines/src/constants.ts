@@ -1,9 +1,11 @@
 import path from 'path';
 import * as OJP from 'ojp-sdk'; 
 
-export const ATLAS_LINE_CSV_PATH = path.resolve('./data/actual_date_line_versions_LATEST.csv');
-export const OJP_LIR_CACHE_PATH = path.resolve('./ojp_lir_cache.json');
-export const ATLAS_STOPS_GEOJSON_PATH = path.resolve('./atlas_stops.geojson');
+const DATA_PATH = path.resolve('./data');
+
+export const ATLAS_LINE_CSV_PATH = (DATA_PATH + '/actual_date_line_versions_LATEST.csv');
+export const OJP_LIR_CACHE_PATH = (DATA_PATH + '/ojp_lir_cache.json');
+export const ATLAS_STOPS_GEOJSON_PATH = (DATA_PATH + '/atlas_stops.geojson');
 
 export const OJP_STAGE_CONFIG: OJP.StageConfig = {
   key: 'someKey',
