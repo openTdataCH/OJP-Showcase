@@ -4,10 +4,9 @@ LOGS_BASEPATH=$DIR/logs
 # DATE_NOW=$(date +"%Y-%m-%d-%H%M")
 DATE_NOW=$(date +"%Y-%m-%d")
 
-BASE_LOGFILE=$LOGS_BASEPATH/otd_process-gtfs
-LOGFILE=$BASE_LOGFILE-$DATE_NOW.log
-$DIR/python3 $DIR/gtfs-compute-latest.py 2>&1 | tee $LOGFILE
+source $DIR/common.sh
+source $PYTHON_VENV_PATH/bin/activate
 
-LATEST_LOGFILE=$BASE_LOGFILE-LATEST.log
-rm -f $LATEST_LOGFILE
-ln -s $LOGFILE $LATEST_LOGFILE
+LOGFILE=$LOGS_BASEPATH/otd_process-gtfs-$DATE_NOW.log
+python3 $DIR/gtfs-compute-latest.py 2>&1 | tee $LOGFILE
+symlink_latest $LOGFILE
