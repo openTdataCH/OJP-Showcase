@@ -9,7 +9,6 @@ import { MatchHelpers } from './helpers/match-helpers';
 
 import * as OJP from 'ojp-sdk'; 
 import DateHelpers from './shared/helpers/date-helpers';
-console.log('using OJP ' + OJP.SDK_VERSION);
 
 interface AtlasLookupStopName {
   slnid: string
