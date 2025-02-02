@@ -4,16 +4,13 @@ LOGS_BASEPATH=$DIR/logs
 # DATE_NOW=$(date +"%Y-%m-%d-%H%M")
 DATE_NOW=$(date +"%Y-%m-%d")
 
-ATLAS_FETCH_BASE_LOGFILE=$LOGS_BASEPATH/otd_fetch_csv_atlas-lines
-ATLAS_FETCH_LOGFILE=$ATLAS_FETCH_BASE_LOGFILE-$DATE_NOW.log
-./python3 $DIR/cli_otd_fetch_csv_package.py --package_id slnid-line 2>&1 | tee $ATLAS_FETCH_LOGFILE
+source $DIR/common.sh
+source $PYTHON_VENV_PATH/bin/activate
 
-ATLAS_FETCH_LATEST_LOGFILE=$ATLAS_FETCH_BASE_LOGFILE-LATEST.log
-ln -s $ATLAS_FETCH_LOGFILE $ATLAS_FETCH_LATEST_LOGFILE
+ATLAS_FETCH_LOGFILE=$LOGS_BASEPATH/otd_fetch_csv_atlas-lines-$DATE_NOW.log
+python3 $DIR/cli_otd_fetch_csv_package.py --package_id slnid-line 2>&1 | tee $ATLAS_FETCH_LOGFILE
+symlink_latest $ATLAS_FETCH_LOGFILE
 
-ATLAS_GEOCODE_BASE_LOGFILE=$LOGS_BASEPATH/otd_geocode_atlas-lines
-ATLAS_GEOCODE_LOGFILE=$ATLAS_GEOCODE_BASE_LOGFILE-$DATE_NOW.log
-npm --prefix ../atlas-geocode-lines/ run process_node18 2>&1 | tee $ATLAS_GEOCODE_LOGFILE
-
-ATLAS_GEOCODE_LATEST_LOGFILE=$ATLAS_GEOCODE_BASE_LOGFILE-LATEST.log
-ln -s $ATLAS_GEOCODE_LOGFILE $ATLAS_GEOCODE_LATEST_LOGFILE
+ATLAS_GEOCODE_LOGFILE=$LOGS_BASEPATH/otd_geocode_atlas-lines-$DATE_NOW.log
+npm --prefix $DIR/../atlas-geocode-lines/ run process_node18 2>&1 | tee $ATLAS_GEOCODE_LOGFILE
+symlink_latest $ATLAS_GEOCODE_LOGFILE
