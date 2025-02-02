@@ -163,7 +163,7 @@ async function geocodeStopNames(atlasLookupStopNames: AtlasLookupStopName[]) {
     lookupOJP_Cache[stopName] = features;
     fs.writeFileSync(OJP_LIR_CACHE_PATH, JSON.stringify(lookupOJP_Cache, null, 2));
 
-    await wait(1.2 * 1000); // 50 requests / min
+    await wait(OJP_REQUESTS_SLEEP_MS); // default key is limited to 50 requests / min
   }
 
   console.log('... writing to geocoder cache');

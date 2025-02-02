@@ -11,6 +11,10 @@ export const OJP_STAGE_CONFIG: OJP.StageConfig = {
   authBearerKey: OJP.DEFAULT_STAGE.authBearerKey, // override with another key
 };
 
+// sleep interval between 2 OJP requests, the default key is limited to 50requests / minute
+// @see https://opentransportdata.swiss/en/limits-and-costs/
+export const OJP_REQUESTS_SLEEP_MS = 1200;
+
 export let DEBUG_slnid: string | null = null;
 // DEBUG_slnid = 'ch:1:slnid:1025759';
 
