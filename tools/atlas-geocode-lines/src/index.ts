@@ -2,14 +2,13 @@ import fs from 'fs';
 
 import { Feature, Point } from 'geojson';
 
-import { ATLAS_LINE_CSV_PATH, ATLAS_STOPS_GEOJSON_PATH, OJP_LIR_CACHE_PATH, DEBUG_slnid, DEBUG_Output_Names, DEBUG_Row } from './constants';
+import { ATLAS_LINE_CSV_PATH, ATLAS_STOPS_GEOJSON_PATH, OJP_LIR_CACHE_PATH, DEBUG_slnid, DEBUG_Output_Names, DEBUG_Row, OJP_STAGE_CONFIG, OJP_REQUESTS_SLEEP_MS } from './constants';
 import { AtlasLineDataController, AtlasStopGeoJSONFeature, AtlasStopsFeatureCollection } from './shared/controllers/atlas-data';
 
 import { MatchHelpers } from './helpers/match-helpers';
 
 import * as OJP from 'ojp-sdk'; 
 import DateHelpers from './shared/helpers/date-helpers';
-console.log('using OJP ' + OJP.SDK_VERSION);
 
 interface AtlasLookupStopName {
   slnid: string
@@ -146,7 +145,7 @@ async function geocodeStopNames(atlasLookupStopNames: AtlasLookupStopName[]) {
 
     console.log('- ' + stopNameIdx + ': ' + stopName + ' OJP...');
 
-    const lirRequest = OJP.LocationInformationRequest.initWithLocationName(OJP.DEFAULT_STAGE, 'de', stopName, []);
+    const lirRequest = OJP.LocationInformationRequest.initWithLocationName(OJP_STAGE_CONFIG, 'de', stopName, []);
     
     const lirResponse = await lirRequest.fetchResponse();
     if (lirResponse.message !== 'LocationInformation.DONE') {
@@ -163,7 +162,7 @@ async function geocodeStopNames(atlasLookupStopNames: AtlasLookupStopName[]) {
     lookupOJP_Cache[stopName] = features;
     fs.writeFileSync(OJP_LIR_CACHE_PATH, JSON.stringify(lookupOJP_Cache, null, 2));
 
-    await wait(1.2 * 1000); // 50 requests / min
+    await wait(OJP_REQUESTS_SLEEP_MS); // default key is limited to 50 requests / min
   }
 
   console.log('... writing to geocoder cache');

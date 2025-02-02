@@ -1,8 +1,21 @@
 import path from 'path';
+import * as OJP from 'ojp-sdk'; 
 
-export const ATLAS_LINE_CSV_PATH = path.resolve('./data/actual_date_line_versions_LATEST.csv');
-export const OJP_LIR_CACHE_PATH = path.resolve('./ojp_lir_cache.json');
-export const ATLAS_STOPS_GEOJSON_PATH = path.resolve('./atlas_stops.geojson');
+const DATA_PATH = path.resolve('./data');
+
+export const ATLAS_LINE_CSV_PATH = (DATA_PATH + '/actual_date_line_versions_LATEST.csv');
+export const OJP_LIR_CACHE_PATH = (DATA_PATH + '/ojp_lir_cache.json');
+export const ATLAS_STOPS_GEOJSON_PATH = (DATA_PATH + '/atlas_stops.geojson');
+
+export const OJP_STAGE_CONFIG: OJP.StageConfig = {
+  key: 'someKey',
+  apiEndpoint: OJP.DEFAULT_STAGE.apiEndpoint,
+  authBearerKey: OJP.DEFAULT_STAGE.authBearerKey, // override with another key
+};
+
+// sleep interval between 2 OJP requests, the default key is limited to 50requests / minute
+// @see https://opentransportdata.swiss/en/limits-and-costs/
+export const OJP_REQUESTS_SLEEP_MS = 1200;
 
 export let DEBUG_slnid: string | null = null;
 // DEBUG_slnid = 'ch:1:slnid:1025759';
