@@ -59,22 +59,25 @@ export interface ReportData {
 }
 
 export interface ReportCSV_DataRow {
-  slnid: string
-  sboid: string
-  organisation_name: string
+  atlas_slnid: string
+  atlas_sboid: string
+  atlas_organisation_name: string
   
-  atlas_agency_id: string | null
-  atlas_agency_name: string | null
+  atlas_gtfs_agency_id: string | null
+  atlas_gtfs_agency_name: string | null
   
-  number: string
-  description: string
+  atlas_line_number: string
+  atlas_line_description: string
   
   gtfs_agency_id: string | null
   gtfs_agency_name: string | null
   
-  route_id: string | null
-  route_short_name: string | null
-  route_trip_stop_times: string | null
+  gtfs_route_id: string | null
+  gtfs_route_short_name: string | null
+  gtfs_route_trip_stop_times: string | null
+  gtfs_route_trip_sloids: string | null
   
   matched_status: MatchedStatus
+
+  comments: string | null
 }

@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
+import Papa from 'papaparse';
+
 import DateHelpers from '../shared/helpers/date-helpers';
+import { FormatHelpers } from './helpers/format-helpers';
 
 import { Trip } from '../shared/models/gtfs/trip';
 import { MatchController } from './controllers/match-controller';
@@ -180,49 +183,58 @@ export class AppComponent implements OnInit {
   }
 
   private computeReportCSV(): string {
-    const reportCSV_Headers: string[] = [
-      'slnid', 'sboid', 'organisation_name', 
-      'atlas_agency_id', 'atlas_agency_name', 
-      'number', 'description', 
-      'gtfs_agency_id', 'gtfs_agency_name', 
-      'route_id', 'route_short_name', 'route_trip_stop_times', 
-      'matched_status',
-    ];
-
-    const reportCSV_Rows: string[] = [
-      reportCSV_Headers.join(';'),
-    ]
+    const reportCSV_DataRows: ReportCSV_DataRow[] = [];
 
     this.model.reportData.agencyReportRows.forEach(agencyReportRow => {
       agencyReportRow.routeReportRows.forEach(routeReportRow => {
+        const gtfs_route_trip_stop_times: string | null = (() => {
+          if (routeReportRow.matchedGTFS_Trip === null) {
+            return null;
+          }
+
+          return FormatHelpers.computeTripStopsText(routeReportRow.matchedGTFS_Trip);
+        })();
+        const gtfs_route_trip_sloids: string | null = (() => {
+          if (routeReportRow.matchedGTFS_Trip === null) {
+            return null;
+          }
+
+          return FormatHelpers.computeTripSloids(routeReportRow.matchedGTFS_Trip);
+        })();
+
         const reportCSV_DataRow: ReportCSV_DataRow = {
-          slnid: routeReportRow.atlasRoute.slnid,
-          sboid: agencyReportRow.organisation.sboid,
-          organisation_name: agencyReportRow.organisation.descriptionDe,
+          atlas_slnid: routeReportRow.atlasRoute.slnid,
           
-          atlas_agency_id: agencyReportRow.agency?.agency_id ?? null,
-          atlas_agency_name: agencyReportRow.agency?.agency_name ?? null,
+          atlas_sboid: agencyReportRow.organisation.sboid,
+          atlas_organisation_name: agencyReportRow.organisation.descriptionDe,
           
-          number: routeReportRow.atlasRoute.number,
-          description: routeReportRow.atlasRoute.description,
+          atlas_gtfs_agency_id: agencyReportRow.agency?.agency_id ?? null,
+          atlas_gtfs_agency_name: agencyReportRow.agency?.agency_name ?? null,
+          
+          atlas_line_number: routeReportRow.atlasRoute.number,
+          atlas_line_description: routeReportRow.atlasRoute.description,
           
           gtfs_agency_id: routeReportRow.matchedGTFS_Route?.agency.agency_id ?? null,
           gtfs_agency_name: routeReportRow.matchedGTFS_Route?.agency.agency_name ?? null,
           
-          route_id: routeReportRow.matchedGTFS_Route?.route_id ?? null,
-          route_short_name: routeReportRow.matchedGTFS_Route?.route_short_name ?? null,
-          route_trip_stop_times: routeReportRow.matchedGTFS_TripStopsText ?? null,
+          gtfs_route_id: routeReportRow.matchedGTFS_Route?.route_id ?? null,
+          gtfs_route_short_name: routeReportRow.matchedGTFS_Route?.route_short_name ?? null,
+          gtfs_route_trip_stop_times: gtfs_route_trip_stop_times,
+          gtfs_route_trip_sloids: gtfs_route_trip_sloids,
           
           matched_status: routeReportRow.matchedStatus,
+
+          comments: null,
         };
 
-        let reportCSV_DataRowValues: string[] = Object.values(reportCSV_DataRow);
-        reportCSV_DataRowValues = reportCSV_DataRowValues.map(el => el && el.replaceAll(';', ','));
-        reportCSV_Rows.push(reportCSV_DataRowValues.join(';'));
+        reportCSV_DataRows.push(reportCSV_DataRow);
       });
     });
 
-    const reportCSV = reportCSV_Rows.join('\n');
+    const reportCSV = Papa.unparse(reportCSV_DataRows, {
+      quotes: true,
+      delimiter: ';',
+    });
     
     return reportCSV;
   }
