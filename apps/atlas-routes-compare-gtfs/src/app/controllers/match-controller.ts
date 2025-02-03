@@ -4,6 +4,7 @@ import Route from "../../shared/models/gtfs/route";
 import { GTFS_DB_Controller } from "../../shared/controllers/gtfs-db-controller";
 
 import { GeoHelpers } from "../../shared/helpers/geo-helpers";
+import { FormatHelpers } from "../helpers/format-helpers"
 
 import { AtlasLineDataController, AtlasRouteCSVRow, AtlasStopGeoJSONFeature } from "../../shared/controllers/atlas-data";
 import { BusinessOrganisationsController } from "../../shared/controllers/business-organisations";
@@ -264,7 +265,7 @@ export class MatchController {
     if (route !== null) {
       const trip = this.mapRouteTrips[route.route_id];
       routeReportRow.matchedGTFS_Trip = trip;
-      routeReportRow.matchedGTFS_TripStopsText = this.computeTripStopsText(trip);
+      routeReportRow.matchedGTFS_TripStopsText = FormatHelpers.computeTripStopsText(trip);
 
       const selectedReportRouteIdx = routeReportRow.gtfsReportRoutes.findIndex(el => el.route.route_id === route.route_id);
       if (selectedReportRouteIdx > -1) {
@@ -289,7 +290,7 @@ export class MatchController {
 
       const gtfsReportRoute: GTFS_RouteReportRow = {
         route: route,
-        routeText: this.computeTripStopsText(trip),
+        routeText: FormatHelpers.computeTripStopsText(trip),
       };
       gtfsReportRoutes.push(gtfsReportRoute);
     });
@@ -360,17 +361,5 @@ export class MatchController {
       matchedGTFS_Routes.sort((a, b) => (b.stops.length - a.stops.length));
       routeReportRow.matchedGTFS_Route = matchedGTFS_Routes[0].route;
     }
-  }
-
-  private computeTripStopsText(trip: Trip): string {
-    const tripStopTimes: string[] = [];
-    trip.stop_times.forEach(stopTime => {
-      const tripStopTime = stopTime.stop.stop_name;
-      tripStopTimes.push(tripStopTime);
-    });
-
-    const tripStopTimesS = tripStopTimes.join(' - ');
-
-    return tripStopTimesS;
   }
 }
