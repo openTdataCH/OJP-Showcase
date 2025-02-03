@@ -255,6 +255,7 @@ export class MatchController {
       matchedGTFS_Route: null,
       matchedGTFS_Trip: null,
       matchedGTFS_TripStopsText: null,
+      matchNote: '',
     };
 
     this.matchRouteByAgencyAndNumber(routeReportRow, matchIndexes, agencyId, atlasRouteNumber);
