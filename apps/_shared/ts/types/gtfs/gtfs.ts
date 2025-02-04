@@ -1,3 +1,5 @@
+import { GTFS_Static_Trip_Condensed } from "./trip-with-stops.interface"
+
 export interface AgencyJSON {
     agency_id: string
     agency_name: string
@@ -52,4 +54,33 @@ export interface TripJSON {
     service_id: string
     trip_headsign: string | null
     trip_short_name: string | null
+}
+
+export interface GTFS_DB_LookupJSON {
+    agency: {
+        lookup_name: 'agency',
+        data_source: string,
+        rows: AgencyJSON[],
+        rows_no: number,
+    },
+    routes: {
+        lookup_name: 'routes',
+        data_source: string,
+        rows: RouteJSON[],
+        rows_no: number,
+    },
+    stops: {
+        lookup_name: 'stops',
+        data_source: string,
+        rows: StopJSON[],
+        rows_no: number,
+    },
+}
+
+export interface GTFS_DB_Trips_Response {
+    metadata: {
+        gtfs_day: string,
+        rows_no: number
+    },
+    rows: GTFS_Static_Trip_Condensed[],
 }

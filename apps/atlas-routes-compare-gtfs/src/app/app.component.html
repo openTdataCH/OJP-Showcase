@@ -1,0 +1,160 @@
+<div class="wrapper">
+  <header class="bg-primary text-white p-3">
+    <h1>Atlas-Lines compare GTFS-Routes</h1>
+  </header>
+
+  <div class="content">
+    <div class="container-fluid d-flex flex-grow-1">
+      <div class="row flex-grow-1 w-100">
+        <div class="col content-column">
+          <div class="content-header py-2 pt-3">
+            <div class="mb-3 d-flex gap-2">
+              <div class="flex-grow-1"><button type="button" class="btn btn-primary" (click)="fetchData()" [disabled]="this.isBusyProcessing()">Fetch</button></div>
+              <div><a href="https://gist.github.com/vasile/4de3b8ebf9ee195acae55558b3e8c6e2" target="_blank">Documentation</a></div>
+            </div>
+            <hr/>
+
+            <ng-container *ngIf="this.model.processingState === 'DONE_PROCESSING'">
+              <div class="mb-2 d-flex gap-3">
+                <div class="flex-grow-1 d-flex gap-2 align-items-center report-stats">
+                  <div class="d-flex gap-1 align-items-center">
+                    <div>Atlas Rows</div>
+                    <span class="badge text-bg-primary">{{ this.model.reportData.stats.routesNo }}</span>
+                  </div>
+                  <div class="d-flex gap-1 align-items-center">
+                    <div>Matched Rows</div>
+                    <span class="badge text-bg-success">{{ this.model.reportData.stats.matchedOK_No }}</span>
+                  </div>
+                  <div class="d-flex gap-1 align-items-center">
+                    <div>Fuzzy, Not Matched</div>
+                    <span class="badge text-bg-warning">{{ this.model.reportData.stats.matchedFuzzy_No }}</span>
+                  </div>
+                  <div class="d-flex gap-1 align-items-center">
+                    <div>Not Matched</div>
+                    <span class="badge text-bg-danger">{{ this.model.reportData.stats.notMatched_No }}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <button class="btn btn-primary" (click)="downloadReport()">Download Report</button>
+                </div>
+              </div>
+
+              <hr />
+
+              <div class="d-flex gap-2">
+                <div>Filter by Status</div>
+                <div>
+                  <div class="mb-2 d-flex gap-2" *ngFor="let groupStatusItems of this.model.reportData.lookups.matchedStatusItems">
+                    <div class="d-flex gap-1 align-items-center" *ngFor="let statusValue of groupStatusItems">
+                      <input class="form-check-input" type="checkbox" value="" [id]="'filter_status_' + statusValue" [(ngModel)]="this.model.filter.byMatchedStatus[statusValue]" (change)="this.onMatchedStatusChange($event)" />
+                      <label class="form-check-label" [htmlFor]="'filter_status_' + statusValue"><span class="badge" [class]="this.model.reportData.lookups.matchedStatusClassNames[statusValue]">{{ statusValue }}</span></label>
+                    </div>
+                  </div>  
+                </div>
+              </div>
+
+              <hr/>
+
+              <div class="d-flex gap-2 align-items-center">
+                <div>Select Organisation:</div>
+                <div style="width: 600px;">
+                  <select class="form-select" (change)="onAgencyChange($event)">
+                    <option value="" disabled selected>choose</option>
+                    <option *ngFor="let agencySelectRow of this.model.reportData.agencySelectRows; index as idx" [value]="agencySelectRow.organisation.sboid">{{ agencySelectRow.organisation.descriptionDe + ' - ' + agencySelectRow.organisation.abbreviationDe }} ({{ (agencySelectRow.stats.matchedOK_No + agencySelectRow.stats.matchedFuzzy_No) }} / {{ agencySelectRow.stats.routesNo }})</option>
+                  </select>
+                </div>
+                <div>Filter</div>
+                <div style="width: 400px;"><input class="form-control" placeholder="type to filter (name, code, sboid)" [formControl]="filterAgencyInputControl" /></div>
+              </div>
+
+              <hr/>
+            </ng-container>
+          </div>
+
+          <div class="content">
+            <ng-container *ngIf="this.model.processingState === 'DONE_PROCESSING'">
+              <div class="w-100 agency-row">
+                <div id="{{ agencyReportRow.organisation.sboid }}" class="card mb-2" *ngFor="let agencyReportRow of this.model.reportData.agencyFilterReportRows; index as idx">
+
+                  <div class="card-header d-flex">
+                    <div class="flex-grow-1"><strong>{{ agencyReportRow.organisation.descriptionDe + ' - ' + agencyReportRow.organisation.abbreviationDe }}</strong></div>
+                    <div class="d-flex gap-2 align-items-center">
+                      <span class="badge text-bg-primary">{{ agencyReportRow.stats.routesNo }}</span>
+                      <span class="badge text-bg-success">{{ agencyReportRow.stats.matchedOK_No }}</span>
+                      <span class="badge text-bg-warning">{{ agencyReportRow.stats.matchedFuzzy_No }}</span>
+                      <span class="badge text-bg-danger">{{ agencyReportRow.stats.notMatched_No }}</span>
+                    </div>
+                  </div>
+
+                  <div class="card-body">
+                    <div class="mb-3">
+                      <div><strong>sboid:</strong> {{ agencyReportRow.organisation.sboid }}</div>
+                      <div *ngIf="agencyReportRow.agency === null"><strong>GTFS agency:</strong> NO_MATCH</div>
+                      <div *ngIf="agencyReportRow.agency !== null"><strong>GTFS agency:</strong> {{ agencyReportRow.agency.agency_name }} ({{ agencyReportRow.agency.agency_id }})</div>
+                    </div>
+                    
+                    <ng-container *ngFor="let routeReportRow of agencyReportRow.routeReportRows; index as idx2">
+                      <div class="card mb-3" *ngIf="this.model.filter.byMatchedStatus[routeReportRow.matchedStatus]">
+                        <div class="card-header d-flex">
+                          <div class="flex-grow-1"><strong>{{ routeReportRow.atlasRoute.number }} - {{ routeReportRow.atlasRoute.slnid }} - {{ routeReportRow.atlasRoute.swissLineNumber }}</strong></div>
+                          <div><span class="badge" ngClass="{{ routeReportRow.matchedStatusClassNames }}">{{ routeReportRow.matchedStatus }}</span></div>
+                        </div>
+                        <div class="card-body">
+                          <div class="mb-2">
+                            <div><strong>Atlas slnid: </strong><a [href]="'https://atlas.app.sbb.ch/line-directory/lines/' + routeReportRow.atlasRoute.slnid" target="_blank">{{ routeReportRow.atlasRoute.slnid }}</a> -- GTFS: {{ agencyReportRow.agency?.agency_id ?? 'n/a' }}</div>
+                            <div><strong>Atlas stops:</strong> {{ routeReportRow.atlasRoute.description }}</div>
+                            <div *ngIf="routeReportRow.atlasRoute.comment !== ''"><strong>Atlas Comment:</strong> {{ routeReportRow.atlasRoute.comment }}</div>
+                            <ng-container *ngIf="routeReportRow.matchedGTFS_Trip !== null">
+                              <div><strong>GTFS route:</strong> {{ routeReportRow.matchedGTFS_Trip.route.route_id }}, trip: <a [href]="'https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trip/' + routeReportRow.matchedGTFS_Trip.tripID" target="_blank">{{ routeReportRow.matchedGTFS_Trip.tripID }}</a></div>
+                              <div><strong>GTFS stops:</strong> {{ routeReportRow.matchedGTFS_TripStopsText }}</div>
+                            </ng-container>
+                          </div>
+                          <div class="wrapper-table-content" *ngIf="routeReportRow.gtfsReportRoutes.length > 0">
+                            <table class="table table-hover table-striped">
+                              <thead class="table-header">
+                                <tr>
+                                  <th scope="col">#</th>
+                                  <th scope="col">AgencyId</th>
+                                  <th scope="col">RouteId</th>
+                                  <th scope="col">ShortName</th>
+                                  <th scope="col">Stops</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr *ngFor="let routeData of routeReportRow.gtfsReportRoutes; index as idx3" [ngClass]="{'selected': routeReportRow.matchedGTFS_Route?.route_id === routeData.route.route_id }">
+                                  <th scope="row">{{ idx3 + 1 }}</th>
+                                  <td>{{ routeData.route.agency.agency_id }}</td>
+                                  <td>{{ routeData.route.route_id }}</td>
+                                  <td>{{ routeData.route.route_short_name }}</td>
+                                  <td>{{ routeData.routeText }}</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+
+            </ng-container>
+          </div>
+          
+          <div class="content-footer py-2 d-none">
+            <p>Right Column Footer</p>
+          </div>
+        </div>
+
+        <div class="d-none col-4 p-0" id="map-container">
+          <div id="map">map</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-secondary text-white p-2 px-3">
+    <div>opentransportdata.swiss - v.2025-02-03</div>
+  </footer>
+</div>
