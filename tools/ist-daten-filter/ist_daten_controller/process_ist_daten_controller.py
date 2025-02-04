@@ -172,11 +172,11 @@ class ProcessIstDatenController:
         ist_daten_html = html.parse(ist_daten_html_file)
         ist_daten_html_file.close()
         
-        ist_daten_html_rows = ist_daten_html.xpath("//div[@class='entry-content']/table/tr[td]")
-        for ist_daten_html_tr in ist_daten_html_rows:
-            res_link_texts = ist_daten_html_tr.xpath('td/a/text()')
+        ist_daten_html_items = ist_daten_html.xpath("//ul/li")
+        for ist_daten_html_item in ist_daten_html_items:
+            res_link_texts = ist_daten_html_item.xpath('a/text()')
             if len(res_link_texts) == 0:
-                print('error - whoops')
+                print('error - whoops - cant find anchor')
                 sys.exit()
                 
             res_text: str = res_link_texts[0]
@@ -184,9 +184,10 @@ class ProcessIstDatenController:
             if f'-{self.filter_year}-' not in res_text:
                 continue
             
-            res_urls = ist_daten_html_tr.xpath('td/a/@href')
+            res_urls = ist_daten_html_item.xpath('a/@href')
+            
             if len(res_urls) == 0:
-                print('error - whoops')
+                print('error - cant find URL')
                 sys.exit()
             
             res_url: str = res_urls[0]
