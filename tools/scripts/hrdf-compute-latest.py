@@ -9,67 +9,29 @@ from inc.shared.inc.helpers.json_helpers import load_json_from_file
 from inc.shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_folder_path, compute_hrdf_db_filename, compute_formatted_date_from_hrdf_db_path
 from inc.shared.inc.models.ckan_data import CKAN_Data
 
-PYTHON_PATH = sys.executable
-row_delimiter_s = '='*70
+from inc.common import PYTHON_PATH, fetch_latest_resource, check_latest_data_folder
 
 def main():
     script_path = Path(os.path.realpath(__file__))
     app_config = load_convenience_config(script_path)
+    
+    package_id = app_config['current_package_ids']['hrdf']
+    
+    print('START ./tools/scripts/hrdf-compute-latest.py')
+    print()
+    print('Resources:')
+    print(f'    - https://data.opentransportdata.swiss/en/dataset/{package_id}')
+    print('  - https://tools.odpch.ch/hrdf-dbs/hrdf-dbs.json')
+    print('')
 
-    _fetch_latest_resource(script_path, 'hrdf_5_4')
-    hrdf_data_path = _check_latest_data_folder(app_config)
+    fetch_latest_resource(script_path, package_id)
+    hrdf_data_path = check_latest_data_folder(app_config, package_id)
+
     hrdf_db_path = _db_import(app_config, script_path, hrdf_data_path)
     _dbs_aggregate(script_path)
     _hrdf_check_duplicates(script_path, hrdf_db_path)
     _hrdf_build_aggregated_duplicates(script_path)
     _hrdf_generate_lookups(script_path, hrdf_db_path)
-    
-def _fetch_latest_resource(script_path, package_key):
-    # fetch latest archive
-    ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
-    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_key {package_key}'
-    
-    print('START ./tools/scripts/hrdf-compute-latest.py')
-    print()
-    print('Resources:')
-    print('  - https://opentransportdata.swiss/en/dataset/timetable-2024-gtfs2020')
-    print('  - https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json')
-    print('')
-    
-    print('STEP 1 - FETCH LATEST ARCHIVE')
-    print(ckan_fetch_sh, flush=True)
-    os.system(ckan_fetch_sh)
-
-def _check_latest_data_folder(app_config):
-    # check latest folder
-    print('')
-    print('STEP 2 - CHECK LATEST FOLDER')
-    
-    ckan_json_path = app_config['resource_paths']['ckan_hrdf_json']
-    ckan_json = load_json_from_file(ckan_json_path)
-    hrdf_ckan = CKAN_Data.from_ckan_json(ckan_json)
-    
-    ckan_resource = hrdf_ckan.result.resources[0]
-    
-    resources_base_folder_path = app_config['data_paths']['hrdf-opentransportdata.swiss']
-    
-    resource_folder_name = ckan_resource.title['en']
-    # zip resources are unzipped in fetch, use the unzipped folder name
-    resource_folder_name = resource_folder_name[0:-4]
-    
-    resource_path = Path(f'{resources_base_folder_path}/{resource_folder_name}')
-    
-    if not os.path.isdir(resource_path):
-        print()
-        print(row_delimiter_s)
-        print('ERROR - latest resource not found at path')
-        print(resource_path)
-        print(row_delimiter_s)
-        sys.exit(1)
-        
-    print(f'... use following resource: {resource_path}')
-    
-    return resource_path
 
 def _db_import(app_config, script_path, hrdf_data_path):
     hrdf_day = compute_formatted_date_from_hrdf_folder_path(hrdf_data_path)
@@ -88,7 +50,9 @@ def _db_import(app_config, script_path, hrdf_data_path):
     else:
         hrdf_import_cli_path = f'{script_path.parent}/../hrdf-db-importer/hrdf_db_importer_cli.py'
         hrdf_import_sh = f'{PYTHON_PATH} {hrdf_import_cli_path} --hrdf-folder-path {hrdf_data_path}'
-        print(hrdf_import_sh, flush=True)
+        print()
+        print(f'$ {hrdf_import_sh}', flush=True)
+        print()
         os.system(hrdf_import_sh)
 
     return hrdf_db_path
@@ -99,7 +63,9 @@ def _dbs_aggregate(script_path):
     
     cli_path = f'{script_path.parent}/../hrdf-db-importer/cli_aggregate_dbs.py'
     cli_sh = f'{PYTHON_PATH} {cli_path}'
-    print(cli_sh, flush=True)
+    print()
+    print(f'$ {cli_sh}', flush=True)
+    print()
     os.system(cli_sh)
 
 def _hrdf_check_duplicates(script_path, hrdf_db_path):
@@ -122,7 +88,9 @@ def _hrdf_check_duplicates(script_path, hrdf_db_path):
     else:
         tool_cli_path = f'{hrdf_duplicates_tool_folder_path}/hrdf_check_duplicates_cli.py'
         tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
-        print(tool_cli_sh, flush=True)
+        print()
+        print(f'$ {tool_cli_sh}', flush=True)
+        print()
         os.system(tool_cli_sh)
 
 def _hrdf_build_aggregated_duplicates(script_path):
@@ -147,7 +115,9 @@ def _hrdf_build_aggregated_duplicates(script_path):
     if run_cli:
         tool_cli_path = f'{hrdf_duplicates_tool_folder_path}/hrdf_build_consolidated_report_cli.py'
         tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path}"
-        print(tool_cli_sh, flush=True)
+        print()
+        print(f'$ {tool_cli_sh}', flush=True)
+        print()
         os.system(tool_cli_sh)
     else:
         print(f'Report already present at path and not too old')
@@ -164,7 +134,9 @@ def _hrdf_generate_lookups(script_path, hrdf_db_path):
 
     tool_cli_path = f'{tool_cli_folder_path}/hrdf_db_lookups_generator_cli.py'
     tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
-    print(tool_cli_sh, flush=True)
+    print()
+    print(f'$ {tool_cli_sh}', flush=True)
+    print()
     os.system(tool_cli_sh)
     
 if __name__ == "__main__":

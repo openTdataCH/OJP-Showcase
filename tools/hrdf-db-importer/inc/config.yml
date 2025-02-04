@@ -1,5 +1,6 @@
 other_configs:
   schema_config_path: [APP_PATH]/inc/hrdf_schema.yml
+  scripts_config_path: [APP_PATH]/inc/config/scripts-config.yml
 
 map_sql_queries:
   fplan_join_trip_bitfeld: [APP_PATH]/inc/HRDF_Parser/shared/inc/sql/hrdf/fplan_join_trip_bitfeld.sql
@@ -9,7 +10,7 @@ hrdf_default_service_id: "000017" # All days
 
 hrdf_dbs_base_path: [APP_PATH]/data/hrdf-dbs
 hrdf_db_schema_path: "[APP_PATH]/inc/hrdf_schema.yml"
-hrdf_ckan_json_path: [APP_PATH]/data/ckan-utils-tmp/ckan_hrdf_5_4.json
+hrdf_ckan_json_path: [APP_PATH]/data/ckan-utils-tmp/ckan_[PACKAGE_ID].json
 hrdf_dbs_json_path: [APP_PATH]/data/hrdf-dbs/hrdf-dbs.json
 
 # See 7.5.1 in HRDF realisation guide

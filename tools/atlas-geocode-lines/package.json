@@ -1,0 +1,33 @@
+{
+  "name": "atlas-linie-geocode",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "process_node18": "node --es-module-specifier-resolution=node dist/index.js",
+    "process": "node --import=specifier-resolution-node/register dist/index.js",
+    "dev_process": "npx tsc && node --import=specifier-resolution-node/register dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "ojp-sdk": "0.15.2",
+    "papaparse": "5.5.1",
+    "specifier-resolution-node": "1.1.4",
+    "ts-node": "10.9.2",
+    "typescript": "5.7.3",
+    "sax-ts": "1.2.13"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.7",
+    "@types/papaparse": "5.3.15",
+    "@types/geojson": "7946.0.10"
+  },
+  "bin": {
+    "mycli": "./dist/index.js"
+  }
+}

@@ -310,7 +310,7 @@ class GTFS_DB_Importer:
             if row_id % 200000 == 0:
                 log_message(f'... parsed {row_id} rows')
 
-            stop_times_data = db_row['stop_times_data'].split(',')
+            stop_times_data = db_row['stop_times_data'].split(' -- ')
 
             stop_times = []
             for stop_time_data in stop_times_data:
@@ -340,6 +340,7 @@ class GTFS_DB_Importer:
             trip_new_row['arrival_day_minutes'] = None
             trip_new_row['arrival_time'] = None
             trip_new_row['stop_times_s'] = None
+            trip_new_row['stop_times_count'] = None
 
             for stop_type in ['from', 'to']:
                 db_rowid = None
@@ -384,6 +385,7 @@ class GTFS_DB_Importer:
                 trip_stop_times_values.append(stop_time_value)
 
             trip_new_row['stop_times_s'] = ' -- '.join(trip_stop_times_values)
+            trip_new_row['stop_times_count'] = len(stop_times)
 
             new_trips_table_csv.writerow(trip_new_row)
 

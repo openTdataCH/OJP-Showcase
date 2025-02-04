@@ -1,27 +1,45 @@
-data_paths:
-  gtfs-db-lookups: [APP_PATH]/data/gtfs-db-lookups
-  gtfs-rt-snapshot: [APP_PATH]/data/gtfs-rt-snapshot
-  gtfs-rt-static-compare-report: [APP_PATH]/data/gtfs-rt-static-compare-report
-  gtfs-rt-static-compare-tmp: [APP_PATH]/data/gtfs-rt-static-compare-tmp
-  gtfs-static: &GTFS_STATIC_DATA_PATH [APP_PATH]/data/opentransportdata.swiss/gtfs-static
-  gtfs-static-dbs: &GTFS_STATIC_DBS_PATH [APP_PATH]/data/gtfs-static-dbs
-  gtfs-query-db-cache: [APP_PATH]/data/gtfs-query-db-cache
-  
-  hrdf-query-db-cache: [APP_PATH]/data/hrdf-query-db-cache
-  hrdf-opentransportdata.swiss: &HRDF_DATA_PATH [APP_PATH]/data/opentransportdata.swiss/hrdf
-  hrdf-dbs: &HRDF_DBS_PATH [APP_PATH]/data/hrdf-dbs
-  hrdf-db-lookups: [APP_PATH]/data/hrdf-db-lookups
-  hrdf-duplicates-reports: [APP_PATH]/data/hrdf-duplicates-reports
-  hrdf-duplicates-reports-csv: [APP_PATH]/data/hrdf-duplicates-reports/hrdf-duplicates-reports-csv
+current_package_ids:
+  gtfs: timetable-2025-gtfs2020
+  hrdf: timetable-54-2025-hrdf
 
-  go_data: [APP_PATH]/data/opentransportdata.swiss/business-organisations
-  go_latest: [APP_PATH]/data/opentransportdata.swiss/business-organisations/actual_date_business_organisation_versions_LATEST.csv
+csv_latest_data:  
+  # https://data.opentransportdata.swiss/en/dataset/business-organisations
+  business-organisations:
+    info_url: https://data.opentransportdata.swiss/en/dataset/business-organisations
+    example: actual_date_business_organisation_versions_2025-01-17.csv
+    file_prefix: 
+      - actual_date_business_organisation_versions
+      - full_business_organisation_versions
+    symlink_latest_path: "[APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]/[PREFIX]_LATEST.csv"
   
-  go-realtime_data: [APP_PATH]/data/opentransportdata.swiss/go-realtime
-  go-realtime_latest: [APP_PATH]/data/opentransportdata.swiss/go-realtime/business_organisation_realtime_LATEST.csv
+  # https://data.opentransportdata.swiss/en/dataset/go-realtime
+  go-realtime:
+    info_url: https://data.opentransportdata.swiss/en/dataset/go-realtime
+    example: go-realtime.csv
+  
+  # https://data.opentransportdata.swiss/en/dataset/slnid-line
+  slnid-line:
+    info_url: https://data.opentransportdata.swiss/en/dataset/slnid-line
+    example: actual_date_line_versions_2025-01-17.csv
+    file_prefix: actual_date_line_versions
+    symlink_latest_path: "[APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]/[PREFIX]_LATEST.csv"
+
+data_paths:
+  opentransportdata:
+    package_base_path: "[APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]"
+
+  gtfs-db-lookups: "[APP_PATH]/data/gtfs-db-lookups"
+  gtfs-rt-snapshot: "[APP_PATH]/data/gtfs-rt-snapshot"
+  gtfs-rt-static-compare-report: "[APP_PATH]/data/gtfs-rt-static-compare-report"
+  gtfs-rt-static-compare-tmp: "[APP_PATH]/data/gtfs-rt-static-compare-tmp"
+  gtfs-static-dbs: "[APP_PATH]/data/gtfs-static-dbs"
+  gtfs-query-db-cache: "[APP_PATH]/data/gtfs-query-db-cache"
+  
+  hrdf-query-db-cache: "[APP_PATH]/data/hrdf-query-db-cache"
+  hrdf-dbs: "[APP_PATH]/data/hrdf-dbs"
+  hrdf-db-lookups: "[APP_PATH]/data/hrdf-db-lookups"
+  hrdf-duplicates-reports: "[APP_PATH]/data/hrdf-duplicates-reports"
+  hrdf-duplicates-reports-csv: "[APP_PATH]/data/hrdf-duplicates-reports/hrdf-duplicates-reports-csv"
 
 resource_paths:
-  ckan_gtfs_static_json: [APP_PATH]/data/ckan-utils-tmp/ckan_gtfs_static.json
-  ckan_hrdf_json: [APP_PATH]/data/ckan-utils-tmp/ckan_hrdf_5_4.json
-  ckan_go_json: [APP_PATH]/data/ckan-utils-tmp/ckan_go.json
-  ckan_go-realtime_json: [APP_PATH]/data/ckan-utils-tmp/ckan_go-realtime.json
+  ckan_metadata_path: "[APP_PATH]/data/ckan-utils-tmp/ckan_[PACKAGE_ID].json"

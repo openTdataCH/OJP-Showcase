@@ -193,6 +193,13 @@ This API returns all active trips for a given interval or running at a given tim
 }
 ```
 
+## Query routes representative trip
+
+This API returns the most representative trip for each `routes` row. The ranking is done by aggregating number of `calendar.day_bits` `1` values and the number of stops.
+
+`GET /query_routes_representative_trip`
+
+The output is similar with `/trips` API
 
 ## Query Single Trip
 
