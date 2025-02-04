@@ -2,7 +2,7 @@
 
 URL: https://tools.odpch.ch/atlas-route-compare-gtfs/
 
-This is a Angular web application that compares the [Atlas Line](https://data.opentransportdata.swiss/de/dataset/slnid-line) dataset against [GTFS routes](https://opentransportdata.swiss/en/cookbook/gtfs/). [Location Information](https://opentransportdata.swiss/en/cookbook/ojplocationinformationrequest/) OJP Service is used for stop names lookup. 
+This is a Angular web application that compares the [Atlas Line](https://data.opentransportdata.swiss/de/dataset/slnid-line) dataset against [GTFS routes](https://opentransportdata.swiss/en/cookbook/gtfs/). For stop names lookup [Location Information](https://opentransportdata.swiss/en/cookbook/ojplocationinformationrequest/) OJP Service is used. 
 
 ## Development
 
