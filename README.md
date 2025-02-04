@@ -22,7 +22,7 @@
 - [HRDF Check Duplicates](tools/hrdf-check-duplicates)
 - [HRDF DB Importer](tools/hrdf-db-importer)
 - [HRDF Stops Reporter](tools/hrdf-stops-reporter)
-- [Process Ist Daten](tools/process-ist-daten/)
+- [Ist-Daten Filter](tools/ist-daten-filter)
 
 # Tools Installation
 
