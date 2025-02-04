@@ -1,4 +1,4 @@
-import { STOP_NAME_SEPARATOR, PSEUDO_SEPARATORS_DATA, SEPARATOR_WORDS_TO_IGNORE, STOP_NAMES_LOOKUP } from "../constants";
+import { STOP_NAME_SEPARATOR, PSEUDO_SEPARATORS_DATA, SEPARATOR_WORDS_TO_IGNORE, STOP_NAMES_LOOKUP, ADJUST_GEOCODER_REQUESTS } from "../constants";
 
 export class MatchHelpers {
   public static splitValuesStep1(inputNameS: string): string[] {
@@ -12,6 +12,11 @@ export class MatchHelpers {
       const regexp = new RegExp('(' + stopNameLookup + ')-\s?([A-Z][a-zäöü])', 'g');
       inputS = inputS.replaceAll(regexp, '$1' + STOP_NAME_SEPARATOR + '$2');
     });
+
+    for (const targetS in ADJUST_GEOCODER_REQUESTS) {
+      const replaceS = ADJUST_GEOCODER_REQUESTS[targetS];
+      inputS = inputS.replace(targetS, replaceS);
+    }
 
     inputS = inputS.replaceAll(' - ', STOP_NAME_SEPARATOR);
     inputS = inputS.replaceAll(' / ', STOP_NAME_SEPARATOR);

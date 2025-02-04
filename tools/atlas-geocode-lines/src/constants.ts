@@ -75,3 +75,15 @@ export const STOP_NAMES_LOOKUP = [
   'Schinznach Dorf', // Schinznach Dorf-Thalheim -> adds space -
 ];
 
+export const ADJUST_GEOCODER_REQUESTS: Record<string, string> = {
+  // S21: Oberdorf is matched to Oberdorf BL, we need the one in SO
+  'Solothurn - Oberdorf - Moutier': 'Solothurn - Oberdorf SO - Moutier',
+  // S25: Muri is matched to Muri bei Bern, we need Muri AG
+  'Muri - Brugg': 'Muri AG - Brugg',
+  // S30 need an extra station from Italy to be matched correctly
+  'Ranzo-S.Abbondio - Grenze*': 'Ranzo-S.Abbondio - Gallarate',
+  // ICE needs a station from DE
+  'Basel SBB - Deutschland': 'Basel SBB - Basel Bad Bf',
+  'Zürich Seilbahn Rigiblick - Rigiblick': 'Zürich Seilbahn Rigiblick - Zürich, Rigiblick',
+};
+
