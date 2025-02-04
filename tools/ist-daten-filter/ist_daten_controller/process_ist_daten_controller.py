@@ -35,7 +35,9 @@ class ProcessIstDatenController:
         self.ist_daten_archive_url = app_config['opentransportdata']['ist_daten_archive_url']
         self.ist_daten_html_path = Path(app_config['resource_paths']['ist_daten_html_path'])
         
-        output_folder_base_path = app_config['resource_paths']['output_folder_base_path']
+        output_folder_base_path = Path(app_config['resource_paths']['output_folder_base_path'])
+        if not os.path.isdir(output_folder_base_path):
+            os.makedirs(output_folder_base_path)
         
         filter_operator_ref_sanitised = filter_operator_ref.replace(':', '_')
         self.output_folder_base_path = Path(f'{output_folder_base_path}/{filter_year}-{filter_operator_ref_sanitised}')
@@ -71,12 +73,16 @@ class ProcessIstDatenController:
         log_message(f'... found {len(archive_urls)} items')
         print()
         
-        for res_url in archive_urls:
+        ist_daten_archive_basepath_url = '/'.join(self.ist_daten_archive_url.split('/')[0:-1])
+        
+        for relative_res_url in archive_urls:
+            res_url = f'{ist_daten_archive_basepath_url}/{relative_res_url}'
+            
             res_url_parts = res_url.split('/')
             res_text = res_url_parts[-1]
             
             log_message(f'ARCHIVE: {res_text}')
-                
+            
             res_zip_local_path = f'{ist_daten_year_archive_path}/{res_text}'
             if not os.path.isfile(res_zip_local_path):
                 log_message(f'... fetching from : {res_url}')
