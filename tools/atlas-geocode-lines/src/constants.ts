@@ -23,7 +23,7 @@ export let DEBUG_slnid: string | null = null;
 export let DEBUG_Output_Names = false
 // DEBUG_Output_Names = true
 
-export let DEBUG_Row: string | null = 'Zone Seymaz-Voirons (Choulex, Gy, Jussy, Meinier, Presinge, Puplinge Collonge-Bellerive, Thônex, Vandoeuvres. Annemasse, Juvigny, Machilly, Saint-Cergues)'
+export let DEBUG_Row: string | null = 'Solothurn - Oberdorf - Moutier'
 DEBUG_Row = null
 
 export const STOP_NAME_SEPARATOR = ' |SEP| ';
