@@ -68,8 +68,8 @@
                     <option *ngFor="let agencySelectRow of this.model.reportData.agencySelectRows; index as idx" [value]="agencySelectRow.organisation.sboid">{{ agencySelectRow.organisation.descriptionDe + ' - ' + agencySelectRow.organisation.abbreviationDe }} ({{ (agencySelectRow.stats.matchedOK_No + agencySelectRow.stats.matchedFuzzy_No) }} / {{ agencySelectRow.stats.routesNo }})</option>
                   </select>
                 </div>
-                <div>Filter</div>
-                <div style="width: 400px;"><input class="form-control" placeholder="type to filter (name, code, sboid)" [formControl]="filterAgencyInputControl" /></div>
+                <div>Filter by Text</div>
+                <div style="width: 400px;"><input class="form-control" placeholder="type to filter (name, code, sboid, slnid)" [formControl]="filterAgencyInputControl" /></div>
               </div>
 
               <hr/>
@@ -99,7 +99,7 @@
                     </div>
                     
                     <ng-container *ngFor="let routeReportRow of agencyReportRow.routeReportRows; index as idx2">
-                      <div class="card mb-3" *ngIf="this.model.filter.byMatchedStatus[routeReportRow.matchedStatus]">
+                      <div class="card mb-3" *ngIf="routeReportRow.showInGUI">
                         <div class="card-header d-flex">
                           <div class="flex-grow-1"><strong>{{ routeReportRow.atlasRoute.number }} - {{ routeReportRow.atlasRoute.slnid }} - {{ routeReportRow.atlasRoute.swissLineNumber }}</strong></div>
                           <div><span class="badge" ngClass="{{ routeReportRow.matchedStatusClassNames }}">{{ routeReportRow.matchedStatus }}</span></div>

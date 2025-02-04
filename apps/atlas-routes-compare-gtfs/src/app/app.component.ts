@@ -27,7 +27,7 @@ interface PageModel {
 
   filter: {
     byMatchedStatus: Record<MatchedStatus, boolean>,
-    byAgencName: string,
+    byText: string,
   },
 }
 
@@ -59,7 +59,7 @@ export class AppComponent implements OnInit {
           'NO_MATCHES_FUZZY_OTHER_AGENCY': true,
           'NO_MATCHES': true,
         },
-        byAgencName: '',
+        byText: '',
       }    
     };
   }
@@ -71,7 +71,7 @@ export class AppComponent implements OnInit {
       distinctUntilChanged()
     )
     .subscribe((value: string) => {
-      this.model.filter.byAgencName = value.trim();
+      this.model.filter.byText = value.trim();
       this.updateFilteredItems();
     });
   }
@@ -244,19 +244,27 @@ export class AppComponent implements OnInit {
     console.log(this.model.filter);
 
     this.model.reportData.agencyFilterReportRows = this.model.reportData.agencyReportRows.filter(agencyReportRow => {
-      const keepAgencyByMatchStatus: boolean = (() => {
-        for (const routeReportRow of agencyReportRow.routeReportRows) {
-          if (this.model.filter.byMatchedStatus[routeReportRow.matchedStatus]) {
-            return true;
-          }
-        }
+      const isSLNID = this.model.filter.byText.includes(':slnid:');
 
-        return false;
-      })();
-      
+      // update showInGUI flag
+      agencyReportRow.routeReportRows.forEach(routeReportRow => {
+        if (isSLNID) {
+          const isSameSLNID = routeReportRow.atlasRoute.slnid === this.model.filter.byText;
+          routeReportRow.showInGUI = isSameSLNID;
+        } else {
+          routeReportRow.showInGUI = this.model.filter.byMatchedStatus[routeReportRow.matchedStatus];
+        }
+      });
+
+      const routeReportRowsInGUI = agencyReportRow.routeReportRows.find(el => el.showInGUI) ?? null;
+      const hasRoutesinGUI = routeReportRowsInGUI !== null;
 
       const keepAgencyByName: boolean = (() => {
-        const filterName = this.model.filter.byAgencName.toLowerCase().trim();
+        if (isSLNID) {
+          return true;
+        }
+
+        const filterName = this.model.filter.byText.toLowerCase().trim();
         if (filterName === '') {
           return true;
         }
@@ -291,7 +299,7 @@ export class AppComponent implements OnInit {
         return false;
       })();
 
-      return keepAgencyByMatchStatus && keepAgencyByName;
+      return hasRoutesinGUI && keepAgencyByName;
     });
 
     // Routes with most unmatched routes first
