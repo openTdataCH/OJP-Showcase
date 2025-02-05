@@ -5,6 +5,7 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { Response_GTFS_RT } from '../../shared/types/gtfs-rt/gtfs-rt-response'
 import { GTFS_Static_DB_Catalog_JSON } from '../../shared/models/gtfs_catalog';
 import { GTFS_DB_LookupJSON, GTFS_DB_Trips_Response } from '../../shared/types/gtfs/gtfs';
+import { OTDCH_API_AUTHORIZATION } from '../constants';
 
 @Injectable({
   providedIn: 'root',
@@ -20,11 +21,9 @@ export class HTTP_Service {
   fetchSIRI_ET(): Observable<string> {
     const url = 'https://tools.odpch.ch/siri-et-data/siri_et-latest-prod.xml';
 
-    const token = 'my_token';
-
     const headers = new HttpHeaders();
     if (!url.startsWith('localhost')) {
-        headers.append('Authorization', 'Bearer ' + token);
+        headers.append('Authorization', 'Bearer ' + OTDCH_API_AUTHORIZATION);
     }
 
     const response = this.http.get(url, { headers: headers, responseType: 'text' });
@@ -35,11 +34,9 @@ export class HTTP_Service {
   fetchGTFS_RT(): Observable<Response_GTFS_RT> {
     const url = 'https://api.opentransportdata.swiss/gtfsrt2020?format=JSON';
 
-    const token = 'my_token';
-
     const headers = new HttpHeaders();
     if (!url.startsWith('http://localhost')) {
-        headers.append('Authorization', 'Bearer ' + token);
+        headers.append('Authorization', 'Bearer ' + OTDCH_API_AUTHORIZATION);
     }
 
     const response = this.http.get<Response_GTFS_RT>(url, { headers: headers});
