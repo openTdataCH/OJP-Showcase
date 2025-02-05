@@ -6,7 +6,6 @@ import { HTTP_Service } from "../services/http.service";
 
 import { MatchHelpers } from "../helpers/match-helpers";
 
-
 import { AgencyData, GTFS_RT_ReportItem, MapAgencyGTFS_RT_Entity, MapAgencySIRI_ET_Journeys, ReportData, ReportResultItem, SIRI_ET_ReportItem } from "../types/report-controller";
 import { MatchDB_Trip, ResultMatch } from "../types/report-controller";
 
