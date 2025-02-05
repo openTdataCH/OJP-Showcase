@@ -1,13 +1,13 @@
-SELECT trips.* 
-FROM routes
+SELECT trips.* FROM routes
 LEFT JOIN trips ON 
 trips.trip_id IN (
     SELECT 
         trips.trip_id
         FROM trips, calendar
         WHERE 
-            trips.route_id =  routes.route_id
+            trips.route_id = routes.route_id
             AND trips.service_id = calendar.service_id
+            [EXTRA_WHERE]
         GROUP BY trips.trip_id
         ORDER BY (
             -- most calendar days (values: 0..360) * 10 (for normalisation)
@@ -18,3 +18,6 @@ trips.trip_id IN (
         ) DESC
     LIMIT 1
 )
+WHERE 
+    -- service_day filter might introduce routes without trips
+    trips.trip_id IS NOT NULL;

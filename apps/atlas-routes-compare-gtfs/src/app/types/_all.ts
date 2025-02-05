@@ -25,6 +25,7 @@ export interface AgencyRouteReportRow {
   matchedGTFS_Trip: Trip | null
   matchedGTFS_TripStopsText: string | null
   matchNote: string,
+  showInGUI: boolean,
 }
 
 interface ReportStats {

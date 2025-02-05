@@ -199,6 +199,12 @@ This API returns the most representative trip for each `routes` row. The ranking
 
 `GET /query_routes_representative_trip`
 
+### Query Params
+
+| Param | Description | Example |
+|-|-|-|
+| service_day | Optional, if present it will filter only for trips running in the given `service_day` | `2021-10-27` |
+
 The output is similar with `/trips` API
 
 ## Query Single Trip

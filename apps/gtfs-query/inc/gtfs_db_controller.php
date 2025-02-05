@@ -169,18 +169,12 @@ class GTFS_DB_Controller {
         return $result_json;
     }
 
-    private function query_db_trips($sql_fields, $day, $filter_agency_ids, $from_hhmm = null, $to_hhmm = null, $parse_db_row_type = null) {
-        // START compute DAY_IDX
+    private function query_db_trips($sql_fields, $service_day, $filter_agency_ids, $from_hhmm = null, $to_hhmm = null, $parse_db_row_type = null) {
         $sql_path = $this->map_sql_queries['query_day_trips'];
         $sql = file_get_contents($sql_path);
 
         $sql = str_replace('[SQL_FIELDS]', $sql_fields, $sql);
 
-        $request_day_date = date_create_from_format("Y-m-d", $day);
-        $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
-        $sql = str_replace('[DAY_IDX]', $day_idx, $sql);
-        // DONE
-        
         $sql_where_items = array();
         
         $sql_where_agency = $this->compute_agency_ids_sql_filter($filter_agency_ids);
@@ -190,6 +184,9 @@ class GTFS_DB_Controller {
             $sql_where_from_to = file_get_contents($this->map_sql_queries['where_from_to_trips']);
             array_push($sql_where_items, 'AND ' . $sql_where_from_to);
         }
+
+        $service_day_where = 'AND ' . $this->_compute_sql_service_day_where($service_day);
+        array_push($sql_where_items, $service_day_where);
 
         $sql_where_s = implode("\n", $sql_where_items);
         $sql = str_replace('[EXTRA_WHERE]', $sql_where_s, $sql);
@@ -643,12 +640,23 @@ class GTFS_DB_Controller {
         return $result;
     }
 
-    public function query_routes_representative_trip() {
+    public function query_routes_representative_trip($service_day = null) {
         $sql_path = $this->map_sql_queries['query_routes_representative_trip'];
         $sql = file_get_contents($sql_path);
 
+        $sql_where_items = array();
+
+        if ($service_day !== null) {
+            $service_day_where = 'AND ' . $this->_compute_sql_service_day_where($service_day);
+            array_push($sql_where_items, $service_day_where);
+        }
+        
+        $sql_where_s = implode("\n", $sql_where_items);
+        $sql = str_replace('[EXTRA_WHERE]', $sql_where_s, $sql);
+
         $cache_filename_parts = array(
             'query_routes_representative_trip_' . $this->cache_prefix,
+            'service_day_' . ($service_day ?? 'ALL'),
         );
         $cache_filename = implode('__', $cache_filename_parts) . '.json';
         $cache_path = $this->app_db_cache_path . '/' . $cache_filename;
@@ -676,13 +684,8 @@ class GTFS_DB_Controller {
             return $cache_result;
         }
 
-        if ($service_day) {
-            $request_day_date = date_create_from_format("Y-m-d", $service_day);
-            $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
-
-            $service_day_where = file_get_contents($this->map_sql_queries['where_day_bits_day_idx']);
-            $service_day_where = str_replace('[DAY_IDX]', $day_idx, $service_day_where);
-
+        if ($service_day !== null) {
+            $service_day_where = $this->_compute_sql_service_day_where($service_day);
             array_push($query_config['where'], $service_day_where);
         }
 
@@ -699,6 +702,16 @@ class GTFS_DB_Controller {
         $result = $this->_compute_and_cache_result($sql, $result_rows, $cache_path);
 
         return $result;
+    }
+
+    private function _compute_sql_service_day_where($service_day) {
+        $request_day_date = date_create_from_format("Y-m-d", $service_day);
+        $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
+
+        $service_day_where = file_get_contents($this->map_sql_queries['where_day_bits_day_idx']);
+        $service_day_where = str_replace('[DAY_IDX]', $day_idx, $service_day_where);
+
+        return $service_day_where;
     }
 
     private function _compute_and_cache_result($sql, $result_rows, $cache_path) {

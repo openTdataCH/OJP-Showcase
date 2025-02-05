@@ -23,7 +23,7 @@ export let DEBUG_slnid: string | null = null;
 export let DEBUG_Output_Names = false
 // DEBUG_Output_Names = true
 
-export let DEBUG_Row: string | null = 'Zone Seymaz-Voirons (Choulex, Gy, Jussy, Meinier, Presinge, Puplinge Collonge-Bellerive, Thônex, Vandoeuvres. Annemasse, Juvigny, Machilly, Saint-Cergues)'
+export let DEBUG_Row: string | null = 'Solothurn - Oberdorf - Moutier'
 DEBUG_Row = null
 
 export const STOP_NAME_SEPARATOR = ' |SEP| ';
@@ -74,4 +74,16 @@ export const SEPARATOR_WORDS_TO_IGNORE = [
 export const STOP_NAMES_LOOKUP = [
   'Schinznach Dorf', // Schinznach Dorf-Thalheim -> adds space -
 ];
+
+export const ADJUST_GEOCODER_REQUESTS: Record<string, string> = {
+  // S21: Oberdorf is matched to Oberdorf BL, we need the one in SO
+  'Solothurn - Oberdorf - Moutier': 'Solothurn - Oberdorf SO - Moutier',
+  // S25: Muri is matched to Muri bei Bern, we need Muri AG
+  'Muri - Brugg': 'Muri AG - Brugg',
+  // S30 need an extra station from Italy to be matched correctly
+  'Ranzo-S.Abbondio - Grenze*': 'Ranzo-S.Abbondio - Gallarate',
+  // ICE needs a station from DE
+  'Basel SBB - Deutschland': 'Basel SBB - Basel Bad Bf',
+  'Zürich Seilbahn Rigiblick - Rigiblick': 'Zürich Seilbahn Rigiblick - Zürich, Rigiblick',
+};
 

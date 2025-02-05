@@ -1,6 +1,6 @@
 # Process Ist Daten Tool
 
-- CLI tools used to manipulate [Ist-Daten](https://opentransportdata.swiss/de/cookbook/actual-data/) dataset
+- CLI tools used to manipulate [Ist-Daten](https://archive.opentransportdata.swiss/actual_data_archive.htm) dataset
 - see [CHANGELOG](./CHANGELOG.md) for latest changes
 
 ## Scripts

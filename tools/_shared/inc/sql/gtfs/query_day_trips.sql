@@ -8,6 +8,3 @@ WHERE
     AND routes.agency_id = agency.agency_id
 
     [EXTRA_WHERE]
-
-    -- +1 is because the string index start at 1
-    AND SUBSTR(calendar.day_bits, [DAY_IDX] + 1, 1) = '1'
