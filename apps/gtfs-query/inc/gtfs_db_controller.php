@@ -701,6 +701,16 @@ class GTFS_DB_Controller {
         return $result;
     }
 
+    private function _compute_sql_service_day_where($service_day) {
+        $request_day_date = date_create_from_format("Y-m-d", $service_day);
+        $day_idx = $request_day_date->diff($this->gtfs_from_date)->days;
+
+        $service_day_where = file_get_contents($this->map_sql_queries['where_day_bits_day_idx']);
+        $service_day_where = str_replace('[DAY_IDX]', $day_idx, $service_day_where);
+
+        return $service_day_where;
+    }
+
     private function _compute_and_cache_result($sql, $result_rows, $cache_path) {
         $result = array(
             'metadata' => array(
