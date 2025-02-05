@@ -1,0 +1,26 @@
+.wrapper-table-content {
+  max-height: 300px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.wrapper-table-results-content {
+  max-height: 500px;
+}
+
+.table-header th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: #f8f9fa;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.footer {
+  background-color: rgb(200, 200, 200); 
+  height: 40px;
+}
