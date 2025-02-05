@@ -640,12 +640,23 @@ class GTFS_DB_Controller {
         return $result;
     }
 
-    public function query_routes_representative_trip() {
+    public function query_routes_representative_trip($service_day = null) {
         $sql_path = $this->map_sql_queries['query_routes_representative_trip'];
         $sql = file_get_contents($sql_path);
 
+        $sql_where_items = array();
+
+        if ($service_day !== null) {
+            $service_day_where = 'AND ' . $this->_compute_sql_service_day_where($service_day);
+            array_push($sql_where_items, $service_day_where);
+        }
+        
+        $sql_where_s = implode("\n", $sql_where_items);
+        $sql = str_replace('[EXTRA_WHERE]', $sql_where_s, $sql);
+
         $cache_filename_parts = array(
             'query_routes_representative_trip_' . $this->cache_prefix,
+            'service_day_' . ($service_day ?? 'ALL'),
         );
         $cache_filename = implode('__', $cache_filename_parts) . '.json';
         $cache_path = $this->app_db_cache_path . '/' . $cache_filename;
