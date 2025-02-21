@@ -19,7 +19,7 @@ export class HTTP_Service {
   }
 
   fetchSIRI_ET(): Observable<string> {
-    const url = 'https://tools.odpch.ch/siri-et-data/siri_et-latest-prod.xml';
+    const url = 'https://tools.odpch.ch/data/siri-et/siri-et-latest-prod.xml';
 
     const headers = new HttpHeaders();
     if (!url.startsWith('localhost')) {
@@ -32,7 +32,7 @@ export class HTTP_Service {
   }
 
   fetchGTFS_RT(): Observable<Response_GTFS_RT> {
-    const url = 'https://api.opentransportdata.swiss/gtfsrt2020?format=JSON';
+    const url = 'https://tools.odpch.ch/data/gtfs-rt/gtfs-rt-latest.json';
 
     const headers = new HttpHeaders();
     if (!url.startsWith('http://localhost')) {
