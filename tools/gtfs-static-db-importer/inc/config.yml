@@ -3,6 +3,7 @@ map_sql_queries:
   select_stop_times_group_by: [APP_PATH]/inc/sql/select_trips_group_by_stop_times.sql
   update_stop_times_reset: [APP_PATH]/inc/sql/update_stop_times_reset.sql
   select_route_trips_calendar_day_bits: [APP_PATH]/inc/sql/select_route_trips_calendar_day_bits.sql
+  create_fts_routes: [APP_PATH]/inc/sql/create_fts_routes.sql
 
 other_config_paths:
   scripts_config: [APP_PATH]/inc/config/scripts-config.yml
