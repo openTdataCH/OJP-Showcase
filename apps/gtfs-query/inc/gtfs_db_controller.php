@@ -679,9 +679,11 @@ class GTFS_DB_Controller {
     }
 
     private function _query_trips($query_config, $service_day = null, $cache_path = null) {
-        $cache_result = $this->compute_cache_result($cache_path);
-        if ($cache_result) {
-            return $cache_result;
+        if ($cache_path !== null) {
+            $cache_result = $this->compute_cache_result($cache_path);
+            if ($cache_result) {
+                return $cache_result;
+            }
         }
 
         if ($service_day !== null) {
