@@ -43,10 +43,12 @@ tables:
             - route_desc TEXT
             - route_type INTEGER
             - day_bits TEXT # similar with HRDF
+            - representative_trip_id TEXT # the trip that occurs the most
         indexes:
             - agency_id
             - route_short_name
             - route_type
+            - representative_trip_id
 
     shapes:
         columns:
