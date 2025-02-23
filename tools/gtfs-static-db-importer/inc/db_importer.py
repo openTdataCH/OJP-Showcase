@@ -43,6 +43,7 @@ class GTFS_DB_Importer:
         self._update_calendar()
         self._update_trips()
         self._update_routes()
+        self._update_routes_representative_trip()
         self._create_fts_routes()
         
         self._cleanup()
@@ -474,6 +475,18 @@ class GTFS_DB_Importer:
         new_routes_table_writer.close()
 
         log_message(f"... DONE INSERT new routes ...")
+        print('')
+        
+    def _update_routes_representative_trip(self):
+        log_message(f"START UPDATE routes-trip (representative)")
+        
+        db_cursor = self.db_handle.cursor()
+        
+        sql_path = self.map_sql_queries['update_routes_representative_trip']
+        sql = load_sql_from_file(sql_path)
+        db_cursor.executescript(sql)
+        
+        log_message(f"... DONE UPDATE routes-trip (representative)")
         print('')
         
     def _create_fts_routes(self):
