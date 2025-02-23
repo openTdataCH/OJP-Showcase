@@ -12,7 +12,7 @@ from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 from .shared.inc.helpers.db_table_csv_updater import DB_Table_CSV_Updater
 from .shared.inc.helpers.gtfs_helpers import convert_datetime_to_day_minutes, massage_datetime_to_hhmm
 from .shared.inc.helpers.log_helpers import log_message
-from .shared.inc.helpers.db_helpers import fetch_column_names, count_rows_table, load_sql_from_file, connect_db
+from .shared.inc.helpers.db_helpers import fetch_column_names, count_rows_table, load_sql_from_file, connect_db, table_select_rows
 
 class GTFS_DB_Importer:
     def __init__(self, app_config, gtfs_folder_path, db_path: Path):
@@ -42,6 +42,10 @@ class GTFS_DB_Importer:
         self._import_csv_tables()
         self._update_calendar()
         self._update_trips()
+        self._update_routes()
+        self._update_routes_representative_trip()
+        self._create_fts_routes()
+        
         self._cleanup()
 
         self.db_handle.close()
@@ -416,6 +420,86 @@ class GTFS_DB_Importer:
 
             log_message(f'DONE update stop_times RESET for {time_type}')
             print('')
+    # _update_trips
+    
+    def _update_routes(self):
+        log_message('START update routes')
+        
+        sql_path = self.map_sql_queries['select_route_trips_calendar_day_bits']
+        sql = load_sql_from_file(sql_path)
+        
+        log_message(f"... running select_route_trips_calendar_day_bits SQL")
+        
+        map_db_routes = table_select_rows(self.db_handle, 'routes', '', 'route_id')
+
+        db_cursor = self.db_handle.cursor()
+        row_id = 1
+        for db_row in db_cursor.execute(sql):
+            if row_id % 1000 == 0:
+                log_message(f'... parsed {row_id} rows')
+                
+            trips_day_bits_s: str = db_row['trips_day_bits']
+            trips_day_bits = trips_day_bits_s.split(',')
+            
+            route_day_bits = ['0'] * len(trips_day_bits[0])
+            for trip_day_bits in trips_day_bits:
+                for idx, day_bit in enumerate(trip_day_bits):
+                    if day_bit == '1':
+                        route_day_bits[idx] = '1'
+                        
+            route_day_bits_s = ''.join(route_day_bits)
+            
+            route_id = db_row['route_id']
+            map_db_routes[route_id]['day_bits'] = route_day_bits_s
+        # loop SQL
+        
+        routes_column_names = fetch_column_names(self.db_handle, 'routes')
+        new_routes_table_csv_file_path = Path(f'{self.db_tmp_path}/new_routes.csv')
+        new_routes_table_csv_file = open(new_routes_table_csv_file_path, 'w', encoding='utf-8')
+        new_routes_table_csv = csv.DictWriter(new_routes_table_csv_file, routes_column_names)
+        new_routes_table_csv.writeheader()
+        
+        for route_id, db_route in map_db_routes.items():
+            new_routes_table_csv.writerow(db_route)
+        
+        new_routes_table_csv_file.close()
+        
+        print('')
+        log_message(f"... INSERT new routes ...")
+        
+        routes_table_config = self.db_schema_config['tables']['routes']
+        new_routes_table_writer = DB_Table_CSV_Importer(self.db_path, 'routes', routes_table_config)
+        new_routes_table_writer.truncate_table()
+        new_routes_table_writer.load_csv_file(new_routes_table_csv_file_path)
+        new_routes_table_writer.add_table_indexes()
+        new_routes_table_writer.close()
+
+        log_message(f"... DONE INSERT new routes ...")
+        print('')
+        
+    def _update_routes_representative_trip(self):
+        log_message(f"START UPDATE routes-trip (representative)")
+        
+        db_cursor = self.db_handle.cursor()
+        
+        sql_path = self.map_sql_queries['update_routes_representative_trip']
+        sql = load_sql_from_file(sql_path)
+        db_cursor.executescript(sql)
+        
+        log_message(f"... DONE UPDATE routes-trip (representative)")
+        print('')
+        
+    def _create_fts_routes(self):
+        log_message(f"START CREATE FTS routes ...")
+        
+        db_cursor = self.db_handle.cursor()
+        
+        sql_path = self.map_sql_queries['create_fts_routes']
+        sql = load_sql_from_file(sql_path)
+        db_cursor.executescript(sql)
+        
+        log_message(f"... DONE FTS routes ...")
+        print('')
 
     def _fill_calendar_from_calendar_dates(self):
         log_message(f'START filling calendar from calendar_dates')

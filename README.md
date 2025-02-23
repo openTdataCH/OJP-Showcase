@@ -33,7 +33,7 @@ You can run the tools in two ways
 - Python 3.x
 ```
 # Activate virtual env
-$ /usr/local/bin/python3 -m venv python-venv
+$ python3 -m venv python-venv
 $ source python-venv/bin/activate
 
 # install dependencies 
