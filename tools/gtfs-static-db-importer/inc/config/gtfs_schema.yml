@@ -42,6 +42,7 @@ tables:
             - route_long_name TEXT
             - route_desc TEXT
             - route_type INTEGER
+            - day_bits TEXT # similar with HRDF
         indexes:
             - agency_id
             - route_short_name
