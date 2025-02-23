@@ -395,6 +395,8 @@ class GTFS_DB_Controller {
             'result' => array(
                 'trip' => null,
                 'calendar' => null,
+                'route' => null,
+                'agency' => null,
             )
         );
 
@@ -405,21 +407,19 @@ class GTFS_DB_Controller {
         }
 
         $trip_db = $trip_rows[0];
+        $result['result']['trip'] = $trip_db;
 
         $service_id = $trip_db['service_id'] ?: null;
-        if (is_null($service_id)) {
-            $result['message']['error'] = 'no service found in trip ' . $trip_id;
-            return $result;
-        }
-
         $calendar_rows = $this->fetch_table_rows('calendar', "service_id = '" . $service_id . "'");
-        if (count($trip_rows) !== 1) {
-            $result['message']['error'] = 'no calendar found ' . $service_id;
-            return $result;
-        }
-
-        $result['result']['trip'] = $trip_db;
         $result['result']['calendar'] = $calendar_rows[0];
+
+        $route_id = $trip_db['route_id'];
+        $route_rows = $this->fetch_table_rows('routes', "route_id = '" . $route_id . "'");
+        $result['result']['route'] = $route_rows[0];
+
+        $agency_id =$route_rows[0]['agency_id'];
+        $agency_rows = $this->fetch_table_rows('agency', "agency_id = '" . $agency_id . "'");
+        $result['result']['agency'] = $agency_rows[0];
 
         return $result;
     }
