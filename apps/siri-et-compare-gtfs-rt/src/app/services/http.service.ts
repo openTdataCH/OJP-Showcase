@@ -51,14 +51,14 @@ export class HTTP_Service {
   }
 
   fetchDBLookups(gtfsDay: string): Observable<GTFS_DB_LookupJSON> {
-    const url = 'https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/db_lookups?gtfs_day=' + gtfsDay;
+    const url = 'https://tools.odpch.ch/gtfs-query/db_lookups?gtfs_day=' + gtfsDay;
     const response = this.http.get<GTFS_DB_LookupJSON>(url);
 
     return response;
   }
 
   fetchGTFS_AgencyTrips(gtfsDay: string, serviceDay: string, agencyId: string): Observable<GTFS_DB_Trips_Response> {
-    let url = 'https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?gtfs_day=' + gtfsDay + '&service_day=' + serviceDay + '&agency_id=' + agencyId;
+    let url = 'https://tools.odpch.ch/gtfs-query/trips?gtfs_day=' + gtfsDay + '&service_day=' + serviceDay + '&agency_id=' + agencyId;
     
     const response = this.http.get<GTFS_DB_Trips_Response>(url);
     return response;
