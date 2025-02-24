@@ -142,7 +142,10 @@ def fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
     if not api_status:
         print(f'ERROR connecting to CKAN API - {ckan_api_url}')
         sys.exit(1)
-
+        
+    # CKAN might return wrong order of the results, override this
+    response_json['result']['resources'] = sorted(response_json['result']['resources'], key=lambda x: x['created'], reverse=True)
+        
     return response_json
 
 def run_unzip(archive_path: Path, folder_path: Path):
