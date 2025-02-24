@@ -4,6 +4,9 @@ Demo URL: https://tools.odpch.ch/gtfs-rt-status/
 
 ----
 
+24.February.2025
+- endpoints changes
+
 1.February.2025
 - removes `sphericalmercator` dependency, uses custom helper for projection
 
