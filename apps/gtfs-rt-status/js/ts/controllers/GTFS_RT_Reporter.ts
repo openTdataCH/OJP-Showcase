@@ -57,7 +57,7 @@ export default class GTFS_RT_Reporter {
         
         this.gtfs_day = gtfs_day;
 
-        this.gtfs_query_base_address = 'https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query';
+        this.gtfs_query_base_address = 'https://tools.odpch.ch/gtfs-query';
         
         this.report_datetime = new Date();
         this.gtfs_rt_url = 'https://tools.odpch.ch/data/gtfs-rt/gtfs-rt-latest.json';
