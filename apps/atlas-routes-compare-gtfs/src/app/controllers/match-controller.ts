@@ -251,20 +251,31 @@ export class MatchController {
         return;
       }
     }
-    
-    this.fuzzyMatchRoute(routeReportRow, agencyRoutes);
-    if (routeReportRow.matchedGTFS_Route !== null) {
-      routeReportRow.matchedStatus = 'OK_FUZZY_OTHER_ROUTE';
-      routeReportRow.gtfsReportRoutes = this.computeGTFS_ReportRoutes(agencyRoutes);
+
+    if (['f', 'n'].includes(swissLineNumberCat)) {
+      // no fuzzy matches for funi/navigation routes
+      routeReportRow.matchedStatus = 'NO_MATCHES';
       return;
     }
 
-    this.fuzzyMatchRoute(routeReportRow, matchIndexes.gtfsRoutes);
-    if (routeReportRow.matchedGTFS_Route !== null) {
-      routeReportRow.matchedStatus = 'OK_FUZZY_GTFS_ALL';
-      routeReportRow.gtfsReportRoutes = this.computeGTFS_ReportRoutes([routeReportRow.matchedGTFS_Route]);
-      return;
-    }
+    // everthing below is WRONG
+    // check rfn 
+    //   OK_FUZZY_OTHER_ROUTE
+    //   OK_FUZZY_GTFS_ALL
+
+    // this.fuzzyMatchRoute(routeReportRow, agencyRoutes);
+    // if (routeReportRow.matchedGTFS_Route !== null) {
+    //   routeReportRow.matchedStatus = 'OK_FUZZY_OTHER_ROUTE';
+    //   routeReportRow.gtfsReportRoutes = this.computeGTFS_ReportRoutes(agencyRoutes);
+    //   return;
+    // }
+
+    // this.fuzzyMatchRoute(routeReportRow, matchIndexes.gtfsRoutes);
+    // if (routeReportRow.matchedGTFS_Route !== null) {
+    //   routeReportRow.matchedStatus = 'OK_FUZZY_GTFS_ALL';
+    //   routeReportRow.gtfsReportRoutes = this.computeGTFS_ReportRoutes([routeReportRow.matchedGTFS_Route]);
+    //   return;
+    // }
 
     if (agencyRouteNumberRoutes.length === 0) {
       if (otherAgencyRouteNumberRoutes.length === 0) {
