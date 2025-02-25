@@ -84,6 +84,10 @@ export class AppComponent implements OnInit {
       this.model.filter.byText = value.trim();
       this.updateFilteredItems();
     });
+
+    if (!(window.location.host.startsWith('localhost'))) {
+      this.fetchData();
+    }
   }
 
   public async fetchData() {
