@@ -43,3 +43,10 @@ class GTFS_Static_Catalog_Report:
             data_json['items'].append(item_json)
         
         return data_json
+    
+    def compute_latest_item(self):
+        for item in self.items:
+            if item.db_relative_path is not None:
+                return item
+        
+        return None
