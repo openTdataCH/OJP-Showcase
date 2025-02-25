@@ -48,6 +48,8 @@ export class AppComponent implements OnInit {
       filter: {
         byMatchedStatus: {
           'NONE': false,
+          
+          'OK_EXT': false,
           'OK': false,
           
           'OK_FUZZY_SAME_ROUTE': false,
