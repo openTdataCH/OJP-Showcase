@@ -42,7 +42,7 @@ export class HTTP_Service {
   }
 
   async fetchDBLookups(gtfsDay: string): Promise<GTFS_DB_LookupJSON> {
-    const url = 'https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/db_lookups';
+    const url = 'https://tools.odpch.ch/gtfs-query/db_lookups';
 
     const params = new HttpParams()
       .set('rand', Date.now().toString())
@@ -65,7 +65,7 @@ export class HTTP_Service {
   }
 
   async fetchRoutesRepresentativeTrip(gtfsDay: string): Promise<GTFS_DB_Trips_Response> {
-    let baseURL = 'https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query';
+    let baseURL = 'https://tools.odpch.ch/gtfs-query';
     
     const url = baseURL + '/query_routes_representative_trip';
 
