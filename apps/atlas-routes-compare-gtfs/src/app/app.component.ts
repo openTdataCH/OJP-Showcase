@@ -253,6 +253,7 @@ export class AppComponent implements OnInit {
           atlas_gtfs_agency_id: agencyReportRow.agency?.agency_id ?? null,
           atlas_gtfs_agency_name: agencyReportRow.agency?.agency_name ?? null,
           
+          atlas_swiss_line_number: routeReportRow.atlasRoute.swissLineNumber,
           atlas_line_number: routeReportRow.atlasRoute.number,
           atlas_line_description: routeReportRow.atlasRoute.description,
           
