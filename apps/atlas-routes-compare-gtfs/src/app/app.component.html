@@ -9,11 +9,21 @@
         <div class="col content-column">
           <div class="content-header py-2 pt-3">
             <div class="mb-3 d-flex gap-2">
-              <div class="flex-grow-1"><button type="button" class="btn btn-primary" (click)="fetchData()" [disabled]="this.isBusyProcessing()">Fetch</button></div>
+              <div class="flex-grow-1">
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-primary" (click)="fetchData()" [disabled]="this.isBusyProcessing()">Fetch</button>
+                  <div class="w-100" *ngIf="this.isBusyProcessing()">
+                    <div class="progress" role="progressbar">
+                      <div class="progress-bar progress-bar-striped progress-bar-animated" [style.width.%]="this.model.dataLoadProgress.percent"></div>
+                    </div>
+                    <div>{{ this.model.dataLoadProgress.text }}</div>
+                  </div>                  
+                </div>
+              </div>
               <div>
                 <a href="https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/atlas-routes-compare-gtfs" target="_blank">Source Code</a>
                 |
-                <a href="https://gist.github.com/vasile/4de3b8ebf9ee195acae55558b3e8c6e2" target="_blank">Documentation</a>
+                <a href="https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/atlas-routes-compare-gtfs" target="_blank">Documentation</a>
               </div>
             </div>
             <hr/>
@@ -21,6 +31,10 @@
             <ng-container *ngIf="this.model.processingState === 'DONE_PROCESSING'">
               <div class="mb-2 d-flex gap-3">
                 <div class="flex-grow-1 d-flex gap-2 align-items-center report-stats">
+                  <div class="d-flex gap-1 align-items-center">
+                    <div>GTFS DB</div>
+                    <span class="badge text-bg-info">{{ this.model.reportData.gtfsDay }}</span>
+                  </div>
                   <div class="d-flex gap-1 align-items-center">
                     <div>Atlas Rows</div>
                     <span class="badge text-bg-primary">{{ this.model.reportData.stats.routesNo }}</span>
@@ -92,16 +106,16 @@
                   </div>
 
                   <div class="card-body">
-                    <div class="mb-3">
+                    <div>
                       <div><strong>sboid:</strong> {{ agencyReportRow.organisation.sboid }}</div>
                       <div *ngIf="agencyReportRow.agency === null"><strong>GTFS agency:</strong> NO_MATCH</div>
                       <div *ngIf="agencyReportRow.agency !== null"><strong>GTFS agency:</strong> {{ agencyReportRow.agency.agency_name }} ({{ agencyReportRow.agency.agency_id }})</div>
                     </div>
                     
                     <ng-container *ngFor="let routeReportRow of agencyReportRow.routeReportRows; index as idx2">
-                      <div class="card mb-3" *ngIf="routeReportRow.showInGUI">
+                      <div class="card mt-3" *ngIf="routeReportRow.showInGUI">
                         <div class="card-header d-flex">
-                          <div class="flex-grow-1"><strong>{{ routeReportRow.atlasRoute.number }} - {{ routeReportRow.atlasRoute.slnid }} - {{ routeReportRow.atlasRoute.swissLineNumber }}</strong></div>
+                          <div class="flex-grow-1"><strong>{{ routeReportRow.atlasRoute.slnid }} - {{ routeReportRow.atlasRoute.swissLineNumber }} - {{ routeReportRow.atlasRoute.number }}</strong></div>
                           <div><span class="badge" ngClass="{{ routeReportRow.matchedStatusClassNames }}">{{ routeReportRow.matchedStatus }}</span></div>
                         </div>
                         <div class="card-body">
@@ -112,6 +126,12 @@
                             <ng-container *ngIf="routeReportRow.matchedGTFS_Trip !== null">
                               <div><strong>GTFS route:</strong> {{ routeReportRow.matchedGTFS_Trip.route.route_id }}, trip: <a [href]="'https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trip/' + routeReportRow.matchedGTFS_Trip.tripID" target="_blank">{{ routeReportRow.matchedGTFS_Trip.tripID }}</a></div>
                               <div><strong>GTFS stops:</strong> {{ routeReportRow.matchedGTFS_TripStopsText }}</div>
+                            </ng-container>
+                            <ng-container *ngIf="routeReportRow.oevLink !== null">
+                              <div class="d-flex gap-2">
+                                <div><strong>oev-info.ch:</strong></div>
+                                <div><a [href]="routeReportRow.oevLink" target="_blank">{{ routeReportRow.atlasRoute.swissLineNumber }}</a></div>
+                              </div>
                             </ng-container>
                           </div>
                           <div class="wrapper-table-content" *ngIf="routeReportRow.gtfsReportRoutes.length > 0">
@@ -159,6 +179,6 @@
   </div>
 
   <footer class="bg-secondary text-white p-2 px-3">
-    <div>opentransportdata.swiss - v.2025-02-04</div>
+    <div>opentransportdata.swiss - Last Update: 26.Feb 2025</div>
   </footer>
 </div>

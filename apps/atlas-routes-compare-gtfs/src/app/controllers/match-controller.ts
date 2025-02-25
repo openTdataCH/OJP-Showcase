@@ -8,7 +8,7 @@ import { FormatHelpers } from "../helpers/format-helpers"
 
 import { AtlasLineDataController, AtlasRouteCSVRow, AtlasStopGeoJSONFeature } from "../../shared/controllers/atlas-data";
 import { BusinessOrganisationsController } from "../../shared/controllers/business-organisations";
-import { AgencyReportRow, AgencyRouteReportRow, GTFS_RouteReportRow, ReportData } from "../types/_all";
+import { AgencyReportRow, AgencyRouteReportRow, AtlasOEV_RouteReportRow, GTFS_RouteReportRow, ReportData } from "../types/_all";
 
 import { DEBUG_ROUTE_IDs } from "../constants";
 
@@ -30,18 +30,22 @@ export class MatchController {
   private atlasLinieController: AtlasLineDataController; 
   private mapRouteTrips: Record<string, Trip>; 
   private mapAtlasRouteFeatures: Record<string, AtlasStopGeoJSONFeature[]>;
+  private mapAtlasOEV_Routes: Record<string, AtlasOEV_RouteReportRow>;
 
   constructor(
     gtfsDBController: GTFS_DB_Controller, 
     boController: BusinessOrganisationsController, 
     atlasLinieController: AtlasLineDataController, 
     mapRouteTrips: Record<string, Trip>, 
-    mapAtlasRouteFeatures: Record<string, AtlasStopGeoJSONFeature[]>) {
+    mapAtlasRouteFeatures: Record<string, AtlasStopGeoJSONFeature[]>,
+    mapAtlasOEV_Routes: Record<string, AtlasOEV_RouteReportRow>,
+  ) {
       this.gtfsDBController = gtfsDBController;
       this.boController = boController;
       this.atlasLinieController = atlasLinieController;
       this.mapRouteTrips = mapRouteTrips;
       this.mapAtlasRouteFeatures = mapAtlasRouteFeatures;
+      this.mapAtlasOEV_Routes = mapAtlasOEV_Routes;
   }
 
   public process(reportData: ReportData) {
@@ -105,14 +109,32 @@ export class MatchController {
         routeReportRows: [],
       };
 
+      const agencyRoutes: Route[] = (() => {
+        if (agencyId === null) {
+          return [];
+        }
+  
+        const routes = matchIndexes.agencyRoutes[agencyId] ?? [];
+        
+        // sort routes by route_short_name
+        routes.sort((a, b) => {
+          const keyA = a.route_short_name.padStart(5, '0');
+          const keyB = b.route_short_name.padStart(5, '0');
+          return keyA.localeCompare(keyB);
+        });
+        
+        return routes;
+      })();
+
       for (const atlasRoute of atlasRoutes) {
         if (DEBUG_ROUTE_IDs && !DEBUG_ROUTE_IDs.includes(atlasRoute.slnid)) {
           continue;
         }
         
-        const routeReportRow = this.processRoute(reportData, atlasRoute, agencyId, matchIndexes);
+        const routeReportRow = this.processRoute(reportData, atlasRoute, agencyRoutes, matchIndexes);
 
         const isOK = routeReportRow.matchedStatus === 'OK' 
+          || routeReportRow.matchedStatus === 'OK_EXT'
           || routeReportRow.matchedStatus === 'OK_FUZZY_SAME_ROUTE' 
           || routeReportRow.matchedStatus === 'OK_FUZZY_OTHER_AGENCY'
           || routeReportRow.matchedStatus === 'OK_FUZZY_OTHER_ROUTE'
@@ -142,23 +164,41 @@ export class MatchController {
     reportData.agencyFilterReportRows = Array.from(reportData.agencyReportRows);
   }
 
-  private matchRouteByAgencyAndNumber(routeReportRow: AgencyRouteReportRow, matchIndexes: MatchIndexes, agencyId: string | null, routeNumber: string) {
-    const agencyRoutes: Route[] = (() => {
-      if (agencyId === null) {
-        return [];
-      }
+  private matchRouteByAgencyAndNumber(routeReportRow: AgencyRouteReportRow, matchIndexes: MatchIndexes, agencyRoutes: Route[]) {
+    const swissLineNumber = routeReportRow.atlasRoute.swissLineNumber;
+    const swissLineNumberParts = swissLineNumber.split('.');
+    const swissLineNumberCat = swissLineNumberParts[0];
 
-      const routes = matchIndexes.agencyRoutes[agencyId] ?? [];
-      
-      // sort routes by route_short_name
-      routes.sort((a, b) => {
-        const keyA = a.route_short_name.padStart(5, '0');
-        const keyB = b.route_short_name.padStart(5, '0');
-        return keyA.localeCompare(keyB);
-      });
-      
-      return routes;
-    })();
+    if (swissLineNumberCat === 'c') {
+      // AV Autoverlad is not in GTFS
+      routeReportRow.matchedStatus = 'NO_MATCHES';
+      return;
+    }
+
+    if (swissLineNumber.endsWith(':K')) {
+      // meta routes, i.e. multiple routes
+      routeReportRow.matchedStatus = 'NO_MATCHES';
+      return;
+    }
+
+    // TRY to see if PDF has already a GTFS route
+    const slnid = routeReportRow.atlasRoute.slnid;
+    const atlasPDF_Route = this.mapAtlasOEV_Routes[slnid] ?? null;
+    if (atlasPDF_Route && atlasPDF_Route.status === 'OK_TRIP') {
+      const gtfsRouteId = atlasPDF_Route.gtfs_route_id ?? null;
+      if (gtfsRouteId) {
+        const gtfsRouteRoute = this.gtfsDBController.mapRoutes[gtfsRouteId] ?? null;
+        if (gtfsRouteRoute) {
+          routeReportRow.matchedStatus = 'OK_EXT';
+          routeReportRow.matchedGTFS_Route = gtfsRouteRoute;
+
+          const oevId = swissLineNumberParts.slice(1).join('.');
+          const oevYear = '2025'; // TODO - add this in config?
+          routeReportRow.oevLink = 'https://www.oev-info.ch/de/fahrplan-aktuell/fahrplanfelder/' + oevYear + '-' + oevId;
+          return;
+        }
+      }
+    }
 
     // TRY special case - 1 GTFS route - 1 AtlasRoute for same agency
     const atlasRoutesNo = this.atlasLinieController.mapAgencyRows[routeReportRow.atlasRoute.businessOrganisation].length;
@@ -169,6 +209,7 @@ export class MatchController {
     }
 
     // TRY 1-1 match for agency_id, route_short_name
+    const routeNumber = routeReportRow.atlasRoute.number;
     const agencyRouteNumberRoutes = agencyRoutes.filter(el => el.route_short_name === routeNumber);
     if (agencyRouteNumberRoutes.length === 1) {
       routeReportRow.matchedStatus = 'OK';
@@ -210,20 +251,31 @@ export class MatchController {
         return;
       }
     }
-    
-    this.fuzzyMatchRoute(routeReportRow, agencyRoutes);
-    if (routeReportRow.matchedGTFS_Route !== null) {
-      routeReportRow.matchedStatus = 'OK_FUZZY_OTHER_ROUTE';
-      routeReportRow.gtfsReportRoutes = this.computeGTFS_ReportRoutes(agencyRoutes);
+
+    if (['f', 'n'].includes(swissLineNumberCat)) {
+      // no fuzzy matches for funi/navigation routes
+      routeReportRow.matchedStatus = 'NO_MATCHES';
       return;
     }
 
-    this.fuzzyMatchRoute(routeReportRow, matchIndexes.gtfsRoutes);
-    if (routeReportRow.matchedGTFS_Route !== null) {
-      routeReportRow.matchedStatus = 'OK_FUZZY_GTFS_ALL';
-      routeReportRow.gtfsReportRoutes = this.computeGTFS_ReportRoutes([routeReportRow.matchedGTFS_Route]);
-      return;
-    }
+    // everthing below is WRONG
+    // check rfn 
+    //   OK_FUZZY_OTHER_ROUTE
+    //   OK_FUZZY_GTFS_ALL
+
+    // this.fuzzyMatchRoute(routeReportRow, agencyRoutes);
+    // if (routeReportRow.matchedGTFS_Route !== null) {
+    //   routeReportRow.matchedStatus = 'OK_FUZZY_OTHER_ROUTE';
+    //   routeReportRow.gtfsReportRoutes = this.computeGTFS_ReportRoutes(agencyRoutes);
+    //   return;
+    // }
+
+    // this.fuzzyMatchRoute(routeReportRow, matchIndexes.gtfsRoutes);
+    // if (routeReportRow.matchedGTFS_Route !== null) {
+    //   routeReportRow.matchedStatus = 'OK_FUZZY_GTFS_ALL';
+    //   routeReportRow.gtfsReportRoutes = this.computeGTFS_ReportRoutes([routeReportRow.matchedGTFS_Route]);
+    //   return;
+    // }
 
     if (agencyRouteNumberRoutes.length === 0) {
       if (otherAgencyRouteNumberRoutes.length === 0) {
@@ -241,9 +293,7 @@ export class MatchController {
     // DebugHelpers.debugGTFS_RouteTrip();
   }
 
-  private processRoute(reportData: ReportData, atlasRoute: AtlasRouteCSVRow, agencyId: string | null, matchIndexes: MatchIndexes): AgencyRouteReportRow {
-    let atlasRouteNumber = atlasRoute.number;
-
+  private processRoute(reportData: ReportData, atlasRoute: AtlasRouteCSVRow, agencyRoutes: Route[], matchIndexes: MatchIndexes): AgencyRouteReportRow {
     const geocoderStopFeatures = this.mapAtlasRouteFeatures[atlasRoute.slnid] ?? [];
 
     const routeReportRow: AgencyRouteReportRow = {
@@ -255,11 +305,12 @@ export class MatchController {
       matchedGTFS_Route: null,
       matchedGTFS_Trip: null,
       matchedGTFS_TripStopsText: null,
+      oevLink: null,
       matchNote: '',
       showInGUI: true,
     };
 
-    this.matchRouteByAgencyAndNumber(routeReportRow, matchIndexes, agencyId, atlasRouteNumber);
+    this.matchRouteByAgencyAndNumber(routeReportRow, matchIndexes, agencyRoutes);
 
     routeReportRow.matchedStatusClassNames = reportData.lookups.matchedStatusClassNames[routeReportRow.matchedStatus];
 

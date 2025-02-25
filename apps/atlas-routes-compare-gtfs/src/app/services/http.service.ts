@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { GTFS_Static_DB_Catalog_JSON } from '../../shared/models/gtfs_catalog';
 import { GTFS_DB_LookupJSON, GTFS_DB_Trips_Response } from '../../shared/types/gtfs/gtfs';
 import { AtlasStopsFeatureCollection } from '../../shared/controllers/atlas-data';
+import { AtlasOEV_RouteReport } from '../types/_all';
 
 @Injectable({
   providedIn: 'root',
@@ -42,7 +43,7 @@ export class HTTP_Service {
   }
 
   async fetchDBLookups(gtfsDay: string): Promise<GTFS_DB_LookupJSON> {
-    const url = 'https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/db_lookups';
+    const url = 'https://tools.odpch.ch/gtfs-query/db_lookups';
 
     const params = new HttpParams()
       .set('rand', Date.now().toString())
@@ -65,7 +66,7 @@ export class HTTP_Service {
   }
 
   async fetchRoutesRepresentativeTrip(gtfsDay: string): Promise<GTFS_DB_Trips_Response> {
-    let baseURL = 'https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query';
+    let baseURL = 'https://tools.odpch.ch/gtfs-query';
     
     const url = baseURL + '/query_routes_representative_trip';
 
@@ -74,6 +75,17 @@ export class HTTP_Service {
     .set('gtfs_day', gtfsDay);
 
     const response = this.http.get<GTFS_DB_Trips_Response>(url, { params: params });
+
+    return await firstValueFrom(response);
+  }
+
+  async fetchAtlasOEV_Routes(): Promise<AtlasOEV_RouteReport> {
+    const url = 'https://tools.odpch.ch/data/atlas_oev_report.json';
+
+    const params = new HttpParams()
+      .set('rand', Date.now().toString());
+
+    const response = this.http.get<AtlasOEV_RouteReport>(url, { params: params });
 
     return await firstValueFrom(response);
   }

@@ -31,6 +31,8 @@ export interface RouteJSON {
     route_long_name: string
     route_desc: string
     route_type: number
+    day_bits: string
+    representative_trip_id: string
 }
 
 export interface StopJSON {
