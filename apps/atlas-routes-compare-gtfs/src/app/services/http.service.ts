@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { GTFS_Static_DB_Catalog_JSON } from '../../shared/models/gtfs_catalog';
 import { GTFS_DB_LookupJSON, GTFS_DB_Trips_Response } from '../../shared/types/gtfs/gtfs';
 import { AtlasStopsFeatureCollection } from '../../shared/controllers/atlas-data';
+import { AtlasOEV_RouteReport } from '../types/_all';
 
 @Injectable({
   providedIn: 'root',
@@ -74,6 +75,17 @@ export class HTTP_Service {
     .set('gtfs_day', gtfsDay);
 
     const response = this.http.get<GTFS_DB_Trips_Response>(url, { params: params });
+
+    return await firstValueFrom(response);
+  }
+
+  async fetchAtlasOEV_Routes(): Promise<AtlasOEV_RouteReport> {
+    const url = 'https://tools.odpch.ch/data/atlas_oev_report.json';
+
+    const params = new HttpParams()
+      .set('rand', Date.now().toString());
+
+    const response = this.http.get<AtlasOEV_RouteReport>(url, { params: params });
 
     return await firstValueFrom(response);
   }
