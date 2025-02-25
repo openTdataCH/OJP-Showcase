@@ -101,7 +101,7 @@
                     <ng-container *ngFor="let routeReportRow of agencyReportRow.routeReportRows; index as idx2">
                       <div class="card mt-3" *ngIf="routeReportRow.showInGUI">
                         <div class="card-header d-flex">
-                          <div class="flex-grow-1"><strong>{{ routeReportRow.atlasRoute.number }} - {{ routeReportRow.atlasRoute.slnid }} - {{ routeReportRow.atlasRoute.swissLineNumber }}</strong></div>
+                          <div class="flex-grow-1"><strong>{{ routeReportRow.atlasRoute.slnid }} - {{ routeReportRow.atlasRoute.swissLineNumber }} - {{ routeReportRow.atlasRoute.number }}</strong></div>
                           <div><span class="badge" ngClass="{{ routeReportRow.matchedStatusClassNames }}">{{ routeReportRow.matchedStatus }}</span></div>
                         </div>
                         <div class="card-body">
