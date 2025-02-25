@@ -20,7 +20,7 @@ Current JSON report: https://tools.odpch.ch/data/atlas_oev_report.json
 - the `trips`+`stop_times` row that contains most of these stops is kept as candidate and `routes.route_id` is saved
 - a JSON file is generated containing the matching status. 
 
-See also [atlas-compare-gtfs-decision-flow.jpg](./docs/atlas-compare-gtfs-decision-flow.jpg)
+![atlas-compare-gtfs-decision-flow.jpg](./docs/atlas-compare-gtfs-decision-flow.jpg)
 
 ### Matching Figures
 
