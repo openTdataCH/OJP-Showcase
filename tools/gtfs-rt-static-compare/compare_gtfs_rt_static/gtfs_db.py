@@ -29,12 +29,14 @@ class GTFS_DB:
         gtfs_routes_db = self._load_gtfs_table('routes', map_by_field='route_id')
         self.map_routes = {}
         for route_id, route_db_json in gtfs_routes_db.items():
-            self.map_routes[route_id] = RouteDB(**route_db_json)        
+            route_db_json_cleaned = {k: v for k, v in route_db_json.items() if k in RouteDB.__annotations__}
+            self.map_routes[route_id] = RouteDB(**route_db_json_cleaned)        
         
         gtfs_trips_db = self._load_gtfs_table('trips', map_by_field='trip_id')
         self.map_trips: dict[str, TripDB] = {}
         for trip_id, trip_db_json in gtfs_trips_db.items():
-            self.map_trips[trip_id] = TripDB(**trip_db_json)
+            trip_db_json_cleaned = {k: v for k, v in trip_db_json.items() if k in TripDB.__annotations__}
+            self.map_trips[trip_id] = TripDB(**trip_db_json_cleaned)
             # Dont use Trip because is slower init
             # self.map_trips[trip_id] = Trip.init_from_db_row(trip_db_json, gtfs_calendar_db, gtfs_agency_db, gtfs_routes_db, gtfs_stops_db)
         

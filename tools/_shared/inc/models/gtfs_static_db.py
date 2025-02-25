@@ -11,6 +11,8 @@ class Route:
     route_long_name: str
     route_type: int
     route_desc: Optional[str] = None
+    day_bits: Optional[str] = None
+    representative_trip_id: Optional[str] = None
 
 @dataclass
 class Trip:
@@ -26,3 +28,4 @@ class Trip:
     arrival_time: Optional[str] = None
     stop_times_s: Optional[str] = None
     shape_id: Optional[str] = None
+    original_trip_id: Optional[str] = None
