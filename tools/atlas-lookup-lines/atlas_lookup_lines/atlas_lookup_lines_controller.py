@@ -233,7 +233,9 @@ class AtlasLookupLinesController:
         
         sql = self.map_sql['query_trips_filter_stop_names']
         
-        filter_stop_names = list(map(lambda el: f"stop_name = '{el.replace("'", "''")}'", file_stop_names))
+        filter_stop_names = list(
+            map(lambda el: f"stop_name = '{escape_sql_single_quotes(el)}'", file_stop_names)
+        )
         sql_where_stop_names = ' OR '.join(filter_stop_names)
                                         
         sql = sql.replace('[STOP_NAMES_WHERE]', sql_where_stop_names)
@@ -314,3 +316,7 @@ class AtlasLookupLinesController:
         
         log_message(f'... saved report to {json_path}')
     # _save_report_json()
+
+def escape_sql_single_quotes(s: str):
+    s = s.replace("'", "''")
+    return s
