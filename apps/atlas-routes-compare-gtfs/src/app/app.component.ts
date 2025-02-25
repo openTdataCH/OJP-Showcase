@@ -24,6 +24,10 @@ import { DEFAULT_REPORT_DATA } from './constants';
 interface PageModel {
   processingState: 'IDLE' | 'FETCH_DATA' | 'PROCESS_DATA' | 'DONE_PROCESSING'
   reportData: ReportData,
+  dataLoadProgress: {
+    percent: number,
+    text: string
+  }
 
   filter: {
     byMatchedStatus: Record<MatchedStatus, boolean>,
@@ -44,6 +48,10 @@ export class AppComponent implements OnInit {
     this.model = {
       processingState: 'IDLE',
       reportData: DEFAULT_REPORT_DATA,
+      dataLoadProgress: {
+        percent: 0,
+        text: 'idle',
+      },
 
       filter: {
         byMatchedStatus: {

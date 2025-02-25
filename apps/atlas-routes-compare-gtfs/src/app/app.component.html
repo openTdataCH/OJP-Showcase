@@ -9,7 +9,17 @@
         <div class="col content-column">
           <div class="content-header py-2 pt-3">
             <div class="mb-3 d-flex gap-2">
-              <div class="flex-grow-1"><button type="button" class="btn btn-primary" (click)="fetchData()" [disabled]="this.isBusyProcessing()">Fetch</button></div>
+              <div class="flex-grow-1">
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-primary" (click)="fetchData()" [disabled]="this.isBusyProcessing()">Fetch</button>
+                  <div class="w-100" *ngIf="this.isBusyProcessing()">
+                    <div class="progress" role="progressbar">
+                      <div class="progress-bar progress-bar-striped progress-bar-animated" [style.width.%]="this.model.dataLoadProgress.percent"></div>
+                    </div>
+                    <div>{{ this.model.dataLoadProgress.text }}</div>
+                  </div>                  
+                </div>
+              </div>
               <div>
                 <a href="https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/atlas-routes-compare-gtfs" target="_blank">Source Code</a>
                 |
