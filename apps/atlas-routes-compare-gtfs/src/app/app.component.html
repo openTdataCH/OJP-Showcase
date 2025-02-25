@@ -92,14 +92,14 @@
                   </div>
 
                   <div class="card-body">
-                    <div class="mb-3">
+                    <div>
                       <div><strong>sboid:</strong> {{ agencyReportRow.organisation.sboid }}</div>
                       <div *ngIf="agencyReportRow.agency === null"><strong>GTFS agency:</strong> NO_MATCH</div>
                       <div *ngIf="agencyReportRow.agency !== null"><strong>GTFS agency:</strong> {{ agencyReportRow.agency.agency_name }} ({{ agencyReportRow.agency.agency_id }})</div>
                     </div>
                     
                     <ng-container *ngFor="let routeReportRow of agencyReportRow.routeReportRows; index as idx2">
-                      <div class="card mb-3" *ngIf="routeReportRow.showInGUI">
+                      <div class="card mt-3" *ngIf="routeReportRow.showInGUI">
                         <div class="card-header d-flex">
                           <div class="flex-grow-1"><strong>{{ routeReportRow.atlasRoute.number }} - {{ routeReportRow.atlasRoute.slnid }} - {{ routeReportRow.atlasRoute.swissLineNumber }}</strong></div>
                           <div><span class="badge" ngClass="{{ routeReportRow.matchedStatusClassNames }}">{{ routeReportRow.matchedStatus }}</span></div>
