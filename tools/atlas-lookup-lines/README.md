@@ -18,6 +18,8 @@ The results are used in [Atlas-Lines compare GTFS-Routes](https://tools.odpch.ch
 - the `trips`+`stop_times` row that contains most of these stops is kept as candidate and `routes.route_id` is saved
 - a JSON file is generated containing the matching status. 
 
+See also [atlas-compare-gtfs-decision-flow.jpg](./docs/atlas-compare-gtfs-decision-flow.jpg)
+
 ### Matching Figures
 
 At the moment (Feb 2025) there are:
