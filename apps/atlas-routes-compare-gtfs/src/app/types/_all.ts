@@ -82,3 +82,20 @@ export interface ReportCSV_DataRow {
 
   comments: string | null
 }
+
+export interface AtlasOEV_RouteReportRow {
+  slnid: string
+  businessOrganisation: string
+  swissLineNumber: string
+  number: string
+  description: string
+  oev_stop_names: string | null
+  gtfs_route_id: string | null
+  gtfs_trip_stop_names: string | null
+  status: 'OK_TRIP' | 'ERROR_NO_OEV_FILE' | 'ERROR_NO_GTFS_TRIP'
+}
+
+export interface AtlasOEV_RouteReport {
+  metadata: {}
+  rows: AtlasOEV_RouteReportRow[]
+}
