@@ -94,10 +94,16 @@ export class AppComponent implements OnInit {
     this.model.reportData.reportDay = reportDayF;
     console.log('using ReportDay: ' + reportDayF);
 
+    this.model.dataLoadProgress.percent = 0;
+    this.model.dataLoadProgress.text = '... fetching latest BO CSV';
+    
     const boCSVs = await this.httpService.fetchBusinessOrganisationsCSV();
     const boController = new BusinessOrganisationsController();
     await boController.loadFromCSV(boCSVs);
 
+    this.model.dataLoadProgress.percent = 10;
+    this.model.dataLoadProgress.text = '... fetching latest GTFS catalog';
+    
     const gtfsDBCatalogJSON = await this.httpService.fetchLatestGTFSCatalog();
     const gtfsDB_CatalogController = new GTFS_DB_Catalog_Controller(gtfsDBCatalogJSON);
     const gtfsDay = gtfsDB_CatalogController.latestGTFS_Day;
@@ -110,14 +116,23 @@ export class AppComponent implements OnInit {
     console.log('using GTFSday: ' + gtfsDay);
     this.model.reportData.gtfsDay = gtfsDay;
 
+    this.model.dataLoadProgress.percent = 30;
+    this.model.dataLoadProgress.text = '... fetching GTFS DB Lookups';
+
     const dbLookups = await this.httpService.fetchDBLookups(gtfsDay);
     const gtfsDBController = new GTFS_DB_Controller(gtfsDay);
     gtfsDBController.loadDBLookups(dbLookups);
+
+    this.model.dataLoadProgress.percent = 40;
+    this.model.dataLoadProgress.text = '... fetching latest ATLAS Line CSV';
 
     const responseCSVs = await this.httpService.fetchAtlasLinieCSV();
     const atlasLinieController = new AtlasLineDataController();
     await atlasLinieController.loadFromCSV(responseCSVs);
     console.log(atlasLinieController);
+
+    this.model.dataLoadProgress.percent = 60;
+    this.model.dataLoadProgress.text = '... fetching GTFS representative queries';
 
     const mapRouteTrips: Record<string, Trip> = {};
     const routeTrips = await this.httpService.fetchRoutesRepresentativeTrip(gtfsDay);
@@ -127,6 +142,9 @@ export class AppComponent implements OnInit {
     });
     console.log('mapRouteTrips: Record<string, Trip>');
     console.log(mapRouteTrips);
+
+    this.model.dataLoadProgress.percent = 70;
+    this.model.dataLoadProgress.text = '... fetching Atlas stops GeoJSON';
 
     const atlasStopsGeoJSON = await this.httpService.fetchAtlasStopsGeoJSON();
     const mapAtlasRouteFeatures: Record<string, AtlasStopGeoJSONFeature[]> = {};
@@ -143,6 +161,9 @@ export class AppComponent implements OnInit {
     console.log('mapAtlasRouteFeatures: Record<string, AtlasStopGeoJSONFeature[]>');
     console.log(mapAtlasRouteFeatures);
 
+    this.model.dataLoadProgress.percent = 90;
+    this.model.dataLoadProgress.text = '... fetching OEV matching routes';
+  
     const atlasOEV_Routes = await this.httpService.fetchAtlasOEV_Routes();
     const mapAtlasOEV_Routes: Record<string, AtlasOEV_RouteReportRow> = {};
     atlasOEV_Routes.rows.forEach(el => {
@@ -150,6 +171,9 @@ export class AppComponent implements OnInit {
     });
     console.log('mapAtlasOEV_Routes: Record<string, AtlasOEV_RouteReportRow[]>');
     console.log(mapAtlasOEV_Routes);
+
+    this.model.dataLoadProgress.percent = 100;
+    this.model.dataLoadProgress.text = '... done fetching data';
 
     const matchController: MatchController = new MatchController(gtfsDBController, boController, atlasLinieController, mapRouteTrips, mapAtlasRouteFeatures, mapAtlasOEV_Routes);
 
