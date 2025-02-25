@@ -105,12 +105,29 @@ export class MatchController {
         routeReportRows: [],
       };
 
+      const agencyRoutes: Route[] = (() => {
+        if (agencyId === null) {
+          return [];
+        }
+  
+        const routes = matchIndexes.agencyRoutes[agencyId] ?? [];
+        
+        // sort routes by route_short_name
+        routes.sort((a, b) => {
+          const keyA = a.route_short_name.padStart(5, '0');
+          const keyB = b.route_short_name.padStart(5, '0');
+          return keyA.localeCompare(keyB);
+        });
+        
+        return routes;
+      })();
+
       for (const atlasRoute of atlasRoutes) {
         if (DEBUG_ROUTE_IDs && !DEBUG_ROUTE_IDs.includes(atlasRoute.slnid)) {
           continue;
         }
         
-        const routeReportRow = this.processRoute(reportData, atlasRoute, agencyId, matchIndexes);
+        const routeReportRow = this.processRoute(reportData, atlasRoute, agencyRoutes, matchIndexes);
 
         const isOK = routeReportRow.matchedStatus === 'OK' 
           || routeReportRow.matchedStatus === 'OK_EXT'
@@ -143,23 +160,7 @@ export class MatchController {
     reportData.agencyFilterReportRows = Array.from(reportData.agencyReportRows);
   }
 
-  private matchRouteByAgencyAndNumber(routeReportRow: AgencyRouteReportRow, matchIndexes: MatchIndexes, agencyId: string | null, routeNumber: string) {
-    const agencyRoutes: Route[] = (() => {
-      if (agencyId === null) {
-        return [];
-      }
 
-      const routes = matchIndexes.agencyRoutes[agencyId] ?? [];
-      
-      // sort routes by route_short_name
-      routes.sort((a, b) => {
-        const keyA = a.route_short_name.padStart(5, '0');
-        const keyB = b.route_short_name.padStart(5, '0');
-        return keyA.localeCompare(keyB);
-      });
-      
-      return routes;
-    })();
 
     // TRY special case - 1 GTFS route - 1 AtlasRoute for same agency
     const atlasRoutesNo = this.atlasLinieController.mapAgencyRows[routeReportRow.atlasRoute.businessOrganisation].length;
@@ -242,9 +243,7 @@ export class MatchController {
     // DebugHelpers.debugGTFS_RouteTrip();
   }
 
-  private processRoute(reportData: ReportData, atlasRoute: AtlasRouteCSVRow, agencyId: string | null, matchIndexes: MatchIndexes): AgencyRouteReportRow {
-    let atlasRouteNumber = atlasRoute.number;
-
+  private processRoute(reportData: ReportData, atlasRoute: AtlasRouteCSVRow, agencyRoutes: Route[], matchIndexes: MatchIndexes): AgencyRouteReportRow {
     const geocoderStopFeatures = this.mapAtlasRouteFeatures[atlasRoute.slnid] ?? [];
 
     const routeReportRow: AgencyRouteReportRow = {
@@ -260,7 +259,7 @@ export class MatchController {
       showInGUI: true,
     };
 
-    this.matchRouteByAgencyAndNumber(routeReportRow, matchIndexes, agencyId, atlasRouteNumber);
+    this.matchRouteByAgencyAndNumber(routeReportRow, matchIndexes, agencyRoutes);
 
     routeReportRow.matchedStatusClassNames = reportData.lookups.matchedStatusClassNames[routeReportRow.matchedStatus];
 
