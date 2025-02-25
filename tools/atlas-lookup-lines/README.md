@@ -2,7 +2,9 @@
 
 This is a Python app that intersects [Atlas-Lines](https://data.opentransportdata.swiss/de/dataset/slnid-line) dataset rows with [oev-info.ch](https://www.oev-info.ch/de/fahrplan-aktuell/fahrplanfelder-abfragen) results.
 
-The results are used in [Atlas-Lines compare GTFS-Routes](https://tools.odpch.ch/atlas-route-compare-gtfs/) app.
+The result is a JSON file and is used in [Atlas-Lines compare GTFS-Routes](https://tools.odpch.ch/atlas-route-compare-gtfs/) app.
+
+Current JSON report: https://tools.odpch.ch/data/atlas_oev_report.json
 
 ## Process
 
@@ -45,10 +47,6 @@ Result rows grouped by match status
 | `OK_TRIP` | 2'413 | Rows with [oev-info.ch](https://www.oev-info.ch/de) equivalent + GTFS match |
 | `ERROR_NO_GTFS_TRIP` | 12 | Rows with [oev-info.ch](https://www.oev-info.ch/de) equivalent but without GTFS match |
 | `ERROR_NO_OEV_FILE` | 1'076 | Non `f`, `n`, `r` rows or rows that don't have an equivalent in [oev-info.ch](https://www.oev-info.ch/de) |
-
-## GeoJSON
-
-WIP
 
 ## Report Examples
 
