@@ -19,7 +19,7 @@ An [OJP](https://opentransportdata.swiss/en/cookbook/open-journey-planner-ojp/) 
 
 ### Geocoding Figures
 
-At the moment (Jan 2024) there are:
+At the moment (Jan 2025) there are:
 - 3'500 Atlas-line rows
 - the `description` generates ~5'000 unique stop names that can be geocoded 
 - @see [stop names + description](https://gist.github.com/vasile/d03bffc29a0257838e642b23497646f7) example
