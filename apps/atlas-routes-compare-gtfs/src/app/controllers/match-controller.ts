@@ -113,6 +113,7 @@ export class MatchController {
         const routeReportRow = this.processRoute(reportData, atlasRoute, agencyId, matchIndexes);
 
         const isOK = routeReportRow.matchedStatus === 'OK' 
+          || routeReportRow.matchedStatus === 'OK_EXT'
           || routeReportRow.matchedStatus === 'OK_FUZZY_SAME_ROUTE' 
           || routeReportRow.matchedStatus === 'OK_FUZZY_OTHER_AGENCY'
           || routeReportRow.matchedStatus === 'OK_FUZZY_OTHER_ROUTE'
