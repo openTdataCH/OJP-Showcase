@@ -24,6 +24,7 @@ export interface AgencyRouteReportRow {
   matchedGTFS_Route: Route | null
   matchedGTFS_Trip: Trip | null
   matchedGTFS_TripStopsText: string | null
+  oevLink: string | null
   matchNote: string,
   showInGUI: boolean,
 }
@@ -67,6 +68,7 @@ export interface ReportCSV_DataRow {
   atlas_gtfs_agency_id: string | null
   atlas_gtfs_agency_name: string | null
   
+  atlas_swiss_line_number: string
   atlas_line_number: string
   atlas_line_description: string
   

@@ -294,6 +294,7 @@ export class MatchController {
       matchedGTFS_Route: null,
       matchedGTFS_Trip: null,
       matchedGTFS_TripStopsText: null,
+      oevLink: null,
       matchNote: '',
       showInGUI: true,
     };
