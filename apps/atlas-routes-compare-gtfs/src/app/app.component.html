@@ -113,6 +113,12 @@
                               <div><strong>GTFS route:</strong> {{ routeReportRow.matchedGTFS_Trip.route.route_id }}, trip: <a [href]="'https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trip/' + routeReportRow.matchedGTFS_Trip.tripID" target="_blank">{{ routeReportRow.matchedGTFS_Trip.tripID }}</a></div>
                               <div><strong>GTFS stops:</strong> {{ routeReportRow.matchedGTFS_TripStopsText }}</div>
                             </ng-container>
+                            <ng-container *ngIf="routeReportRow.oevLink !== null">
+                              <div class="d-flex gap-2">
+                                <div><strong>oev-info.ch:</strong></div>
+                                <div><a [href]="routeReportRow.oevLink" target="_blank">{{ routeReportRow.atlasRoute.swissLineNumber }}</a></div>
+                              </div>
+                            </ng-container>
                           </div>
                           <div class="wrapper-table-content" *ngIf="routeReportRow.gtfsReportRoutes.length > 0">
                             <table class="table table-hover table-striped">
