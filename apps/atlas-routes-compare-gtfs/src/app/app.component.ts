@@ -12,7 +12,7 @@ import { MatchController } from './controllers/match-controller';
 
 import { HTTP_Service } from './services/http.service';
 
-import { MatchedStatus, ReportCSV_DataRow, ReportData } from './types/_all';
+import { AtlasOEV_RouteReportRow, MatchedStatus, ReportCSV_DataRow, ReportData } from './types/_all';
 
 import { GTFS_DB_Catalog_Controller } from '../shared/controllers/gtfs-db-catalog';
 import { GTFS_DB_Controller } from '../shared/controllers/gtfs-db-controller';
@@ -135,7 +135,15 @@ export class AppComponent implements OnInit {
     console.log('mapAtlasRouteFeatures: Record<string, AtlasStopGeoJSONFeature[]>');
     console.log(mapAtlasRouteFeatures);
 
-    const matchController: MatchController = new MatchController(gtfsDBController, boController, atlasLinieController, mapRouteTrips, mapAtlasRouteFeatures);
+    const atlasOEV_Routes = await this.httpService.fetchAtlasOEV_Routes();
+    const mapAtlasOEV_Routes: Record<string, AtlasOEV_RouteReportRow> = {};
+    atlasOEV_Routes.rows.forEach(el => {
+      mapAtlasOEV_Routes[el.slnid] = el;
+    });
+    console.log('mapAtlasOEV_Routes: Record<string, AtlasOEV_RouteReportRow[]>');
+    console.log(mapAtlasOEV_Routes);
+
+    const matchController: MatchController = new MatchController(gtfsDBController, boController, atlasLinieController, mapRouteTrips, mapAtlasRouteFeatures, mapAtlasOEV_Routes);
 
     matchController.process(this.model.reportData);
     this.updateFilteredItems();
