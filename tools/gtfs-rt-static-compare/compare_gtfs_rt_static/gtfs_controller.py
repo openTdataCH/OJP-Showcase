@@ -221,7 +221,7 @@ class GTFS_Controller:
                 report_stats.metadata.tripNOK_routeNOK_no += 1
             
             # match tripId that DOESNT start with 'ojp:' 'atv:'
-            special_trip_id_matches = re.match('^[a-z]{3}:', trip_id)
+            special_trip_id_matches = trip_id.startswith('ojp') or trip_id.startswith('atv')
             if not trip_OK and not special_trip_id_matches:
                 report_stats.metadata.tripNOK_NOJP_no += 1
         # loop entity
