@@ -5,6 +5,7 @@ from pathlib import Path
 
 import requests
 
+from .helpers.config_helpers import load_env_vars
 from .helpers.json_helpers import load_json_from_file, export_json_to_file
 from .models.gtfs_rt import GTFS_RT_Response
 
@@ -36,7 +37,13 @@ def _fetch_latest_gtfs_rt_resource(app_config: dict, resource_path: Path):
         return gtfs_rt_json
     
     url = app_config['opentransportdata']['gtfs_rt_url']
-    api_key = app_config['opentransportdata']['key']
+    
+    dotenv_path = app_config['resource_paths']['dotenv_path']
+    load_env_vars(dotenv_path)
+
+    api_key = os.environ.get('OTD_KEY') or None
+    if api_key is None:
+        print('ERROR - OTD_KEY env not found')
     
     http_headers = {
         'Authorization': f'Bearer {api_key}'
