@@ -106,18 +106,6 @@ class CKAN_Controller:
         ckan_json_path: str = f"{self.app_config['resource_paths']['ckan_metadata_path']}"
         ckan_json_path = ckan_json_path.replace('[PACKAGE_ID]', package_id)
 
-        if os.path.isfile(ckan_json_path):
-            package_data_json_ttl = self.app_config['package_cache']['ttl']
-            package_data_json_ts = os.path.getmtime(ckan_json_path)
-            now_ts = time.time()
-            cache_age = now_ts - package_data_json_ts
-            is_fresh = cache_age < package_data_json_ttl
-            if is_fresh:
-                log_message(f'... load package JSON from {ckan_json_path}')
-                package_data_json = load_json_from_file(ckan_json_path)
-                ckan_data = CKAN_Data.from_ckan_json(package_data_json)
-                return ckan_data
-            
         ckan_api_url = f"{self.app_config['ckan_data']['package_show_url_template']}"
         ckan_api_url = ckan_api_url.replace('[PACKAGE_ID]', package_id)
         
