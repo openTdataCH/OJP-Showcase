@@ -9,4 +9,4 @@ resource_paths:
 
 opentransportdata:
   key: eyJvcmciOiI2NDA2NTFhNTIyZmEwNTAwMDEyOWJiZTEiLCJpZCI6IjY2ZWIyNGRjMjJlNDQ4OGJhYzUxZDFkY2M4ZjhkMjFlIiwiaCI6Im11cm11cjEyOCJ9
-  gtfs_rt_url: https://api.opentransportdata.swiss/gtfsrt2020?FORMAT=json
+  gtfs_rt_url: https://api.opentransportdata.swiss/la/gtfs-rt?format=JSON
