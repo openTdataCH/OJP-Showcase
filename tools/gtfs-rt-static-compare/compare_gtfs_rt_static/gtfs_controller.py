@@ -44,6 +44,9 @@ class GTFS_Controller:
         
     def compute_gtfs_db_dt(self, dt: datetime):
         return self._compute_gtfs_db_catalog_item(dt)
+    
+    def fetch_latest_gtfs_rt(self):
+        self._fetch_latest_gtfs_rt()
         
     # PRIVATE
     def _compare_compare_latest_gtfs_rt_static(self):
@@ -244,3 +247,28 @@ class GTFS_Controller:
         # with
         
         os.remove(resource_path)
+        
+    def _fetch_latest_gtfs_rt(self):
+        header_separator_s = '-' * 60
+        
+        print(header_separator_s)
+        log_message(f'START FETCH LATEST GTFS-RT')
+        print(header_separator_s)
+        
+        fetch_dt = datetime.now()
+        
+        log_message(f'... START fetch GTFS-RT')
+        log_message(f'... TS REQUEST    : {fetch_dt}')
+        
+        resource_path = self.app_config['resource_paths']['gtfs_rt_snapshot']
+        gtfs_rt_snapshot_path = compute_resource_snapshot_path(resource_path, fetch_dt)
+        
+        fetch_latest(self.app_config, gtfs_rt_snapshot_path)
+        log_message(f'... DONE fetch')
+        
+        app_path = self.app_config['resource_paths']['app_path']
+        rel_path = f'{gtfs_rt_snapshot_path}'.replace(app_path, '.')
+        
+        print()
+        print(f'saved to {rel_path}')
+        print(header_separator_s)
