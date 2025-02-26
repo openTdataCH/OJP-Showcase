@@ -302,9 +302,12 @@ export class MatchController {
       geocoderStopFeatures: geocoderStopFeatures,
       matchedStatus: 'NONE',
       matchedStatusClassNames: reportData.lookups.matchedStatusClassNames.NO_MATCHES,
+      
+      matchedGTFS_AgencyText: null,
       matchedGTFS_Route: null,
       matchedGTFS_Trip: null,
       matchedGTFS_TripStopsText: null,
+      
       oevLink: null,
       matchNote: '',
       showInGUI: true,
@@ -319,6 +322,9 @@ export class MatchController {
       const trip = this.mapRouteTrips[route.route_id];
       routeReportRow.matchedGTFS_Trip = trip;
       routeReportRow.matchedGTFS_TripStopsText = FormatHelpers.computeTripStopsText(trip);
+      
+      const agencyText = route.agency.agency_name + '(' + route.agency.agency_id + ')';
+      routeReportRow.matchedGTFS_AgencyText = agencyText;
 
       const selectedReportRouteIdx = routeReportRow.gtfsReportRoutes.findIndex(el => el.route.route_id === route.route_id);
       if (selectedReportRouteIdx > -1) {
