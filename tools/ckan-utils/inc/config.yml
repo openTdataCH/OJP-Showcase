@@ -1,8 +1,8 @@
 ckan_data:
-  authorization: 57c5dbbbf1fe4d000100001842c323fa9ff44fbba0b9b925f0c052d1
   package_show_url_template: https://api.opentransportdata.swiss/ckan-api/package_show?id=[PACKAGE_ID]
 
 resource_paths:
+  dotenv_path: [APP_PATH]/../../.env
   ckan_metadata_path: [APP_PATH]/tmp/ckan_[PACKAGE_ID].json
   package_base_path: [APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]
 

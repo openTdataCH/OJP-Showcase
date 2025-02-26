@@ -7,6 +7,7 @@ from pathlib import Path
 import zipfile
 import requests
 
+from .shared.inc.helpers.config_helpers import load_env_vars
 from .shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
 from .shared.inc.helpers.log_helpers import log_message
 
@@ -16,6 +17,9 @@ USER_AGENT = 'OJP-Showcase.tools.ckan-utils/1.0'
 class CKAN_Controller:
     def __init__(self, app_config):
         self.app_config = app_config
+        
+        dotenv_path = app_config['resource_paths']['dotenv_path']
+        load_env_vars(dotenv_path)
 
     def fetch_latest(self, package_id: str, resource_title):
         log_message(f'CKAN - FETCH PACKAGE {package_id}')
@@ -116,12 +120,14 @@ class CKAN_Controller:
             
         ckan_api_url = f"{self.app_config['ckan_data']['package_show_url_template']}"
         ckan_api_url = ckan_api_url.replace('[PACKAGE_ID]', package_id)
+        
+        api_key = os.environ.get('OTD_KEY') or None
+        if api_key is None:
+            print('ERROR - OTD_KEY env not found')
             
-        ckan_api_authorization = self.app_config['ckan_data']['authorization']
-
         log_message(f'... fetching package JSON from {ckan_api_url}')
 
-        package_data_json = fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization)
+        package_data_json = fetch_latest_ckan_json(ckan_api_url, api_key)
         export_json_to_file(package_data_json, ckan_json_path, pretty_print=True)
         
         ckan_data = CKAN_Data.from_ckan_json(package_data_json)
