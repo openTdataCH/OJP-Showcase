@@ -21,9 +21,12 @@ export interface AgencyRouteReportRow {
   geocoderStopFeatures: AtlasStopGeoJSONFeature[]
   matchedStatus: MatchedStatus
   matchedStatusClassNames: string
+  
+  matchedGTFS_AgencyText: string | null
   matchedGTFS_Route: Route | null
   matchedGTFS_Trip: Trip | null
   matchedGTFS_TripStopsText: string | null
+  
   oevLink: string | null
   matchNote: string,
   showInGUI: boolean,

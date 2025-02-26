@@ -124,7 +124,8 @@
                             <div><strong>Atlas stops:</strong> {{ routeReportRow.atlasRoute.description }}</div>
                             <div *ngIf="routeReportRow.atlasRoute.comment !== ''"><strong>Atlas Comment:</strong> {{ routeReportRow.atlasRoute.comment }}</div>
                             <ng-container *ngIf="routeReportRow.matchedGTFS_Trip !== null">
-                              <div><strong>GTFS route:</strong> {{ routeReportRow.matchedGTFS_Trip.route.route_id }}, trip: <a [href]="'https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trip/' + routeReportRow.matchedGTFS_Trip.tripID" target="_blank">{{ routeReportRow.matchedGTFS_Trip.tripID }}</a></div>
+                              <div><strong>GTFS agency:</strong> {{ routeReportRow.matchedGTFS_AgencyText }}</div>
+                              <div><strong>GTFS route:</strong> {{ routeReportRow.matchedGTFS_Trip.route.route_id }}, trip: <a [href]="'https://tools.odpch.ch/gtfs-query/trip/' + routeReportRow.matchedGTFS_Trip.tripID" target="_blank">{{ routeReportRow.matchedGTFS_Trip.tripID }}</a></div>
                               <div><strong>GTFS stops:</strong> {{ routeReportRow.matchedGTFS_TripStopsText }}</div>
                             </ng-container>
                             <ng-container *ngIf="routeReportRow.oevLink !== null">
