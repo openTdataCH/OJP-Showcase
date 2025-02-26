@@ -1,4 +1,4 @@
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+COMMON_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 _strip_filename_yyymmdd() {
     local file="$1"
@@ -14,4 +14,4 @@ symlink_latest() {
     ln -s "$file" "$file_latest"
 }
 
-PYTHON_VENV_PATH=$DIR/../../python-venv
+PYTHON_VENV_PATH=$COMMON_DIR/../../python-venv
