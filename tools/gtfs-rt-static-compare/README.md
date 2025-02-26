@@ -1,5 +1,7 @@
 # GTFS RT <-> GTFS static compare tool
 
+An `opentransportdata.swiss` API key is needed to run these tools. The key is stored in `OTD_KEY` [.env](../../.env) project file.
+
 - these CLI tools are used to compare snapshots of [GTFS-RT](https://opentransportdata.swiss/en/cookbook/gtfs-rt/) feed against latest [GTFS-static dataset](https://opentransportdata.swiss/en/dataset/timetable-2024-gtfs2020).
 - see [docs/gtfs-rt-static-compare.md](./docs/gtfs-rt-static-compare.md) for the process documentation
 - see [CHANGELOG](./CHANGELOG.md) for latest changes
