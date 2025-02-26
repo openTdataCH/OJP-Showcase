@@ -2,6 +2,8 @@ import os
 import sys
 
 from pathlib import Path
+
+from dotenv import load_dotenv
 import yaml
 
 def load_yaml_config(config_path: Path, app_path: Path = None):
@@ -32,3 +34,19 @@ def load_convenience_config(context_path: Path):
     app_config = load_yaml_config(app_config_path, context_folder_path)
 
     return app_config
+
+def load_env_vars(dotenv_path: Path) -> None:
+    """
+    load ENV vars from a given dotenv_path 
+    if a file with .local suffix is present, load that instead
+    """
+    if isinstance(dotenv_path, str):
+        dotenv_path = Path(dotenv_path)
+        
+    file_to_load_path = f'{dotenv_path}'
+        
+    local_dotenv_path = f'{dotenv_path}.local'
+    if os.path.exists(local_dotenv_path):
+        file_to_load_path = local_dotenv_path
+    
+    load_dotenv(dotenv_path=file_to_load_path)
