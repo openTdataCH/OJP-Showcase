@@ -1,5 +1,6 @@
 resource_paths:
   app_path: [APP_PATH]
+  dotenv_path: [APP_PATH]/../../.env
   gtfs_rt_snapshot: [APP_PATH]/data/gtfs-rt-snapshot/[YEAR]/[MONTH]/[DAY]/GTFS_RT-[YEAR]-[MONTH]-[DAY]-[HHMM].json
   gtfs_db: [APP_PATH]/data/gtfs-static-dbs/[GTFS_FILENAME]
   gtfs_dbs_json_path: [APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json
@@ -8,5 +9,4 @@ resource_paths:
   gtfs_rt_static_mo_json: [APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/gtfs_rt_static_report-[YEAR]-[MONTH].json
 
 opentransportdata:
-  key: eyJvcmciOiI2NDA2NTFhNTIyZmEwNTAwMDEyOWJiZTEiLCJpZCI6IjY2ZWIyNGRjMjJlNDQ4OGJhYzUxZDFkY2M4ZjhkMjFlIiwiaCI6Im11cm11cjEyOCJ9
   gtfs_rt_url: https://api.opentransportdata.swiss/la/gtfs-rt?format=JSON
