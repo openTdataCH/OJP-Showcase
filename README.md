@@ -9,6 +9,7 @@
 - [GTFS -static Query API](apps/gtfs-query)
 - [HRDF Check Duplicates](apps/hrdf-duplicates-report)
 - [HRDF Query API](apps/hrdf-query)
+- [SIRI-ET compare GTFS-RT](apps/siri-et-compare-gtfs-rt)
 
 ## Tools
 
