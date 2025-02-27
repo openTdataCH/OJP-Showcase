@@ -53,7 +53,9 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    if (!(window.location.host.startsWith('localhost'))) {
+      this.fetchData();
+    }
   }
 
   public async fetchData() {
