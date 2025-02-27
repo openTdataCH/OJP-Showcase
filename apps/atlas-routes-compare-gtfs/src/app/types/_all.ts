@@ -11,7 +11,7 @@ export interface GTFS_RouteReportRow {
 }
 
 export type MatchedStatus = 'NONE' 
-  | 'OK' | 'OK_FUZZY_SAME_ROUTE' | 'OK_FUZZY_OTHER_AGENCY' | 'OK_FUZZY_OTHER_ROUTE' | 'OK_FUZZY_GTFS_ALL'
+  | 'OK_EXT' | 'OK' | 'OK_FUZZY_SAME_ROUTE' | 'OK_FUZZY_OTHER_AGENCY' | 'OK_FUZZY_OTHER_ROUTE' | 'OK_FUZZY_GTFS_ALL'
   | 'NO_MATCHES_FUZZY_SAME_ROUTE' | 'NO_MATCHES_FUZZY_OTHER_AGENCY'
   | 'NO_MATCHES';
 
@@ -21,9 +21,13 @@ export interface AgencyRouteReportRow {
   geocoderStopFeatures: AtlasStopGeoJSONFeature[]
   matchedStatus: MatchedStatus
   matchedStatusClassNames: string
+  
+  matchedGTFS_AgencyText: string | null
   matchedGTFS_Route: Route | null
   matchedGTFS_Trip: Trip | null
   matchedGTFS_TripStopsText: string | null
+  
+  oevLink: string | null
   matchNote: string,
   showInGUI: boolean,
 }
@@ -67,6 +71,7 @@ export interface ReportCSV_DataRow {
   atlas_gtfs_agency_id: string | null
   atlas_gtfs_agency_name: string | null
   
+  atlas_swiss_line_number: string
   atlas_line_number: string
   atlas_line_description: string
   
@@ -81,4 +86,21 @@ export interface ReportCSV_DataRow {
   matched_status: MatchedStatus
 
   comments: string | null
+}
+
+export interface AtlasOEV_RouteReportRow {
+  slnid: string
+  businessOrganisation: string
+  swissLineNumber: string
+  number: string
+  description: string
+  oev_stop_names: string | null
+  gtfs_route_id: string | null
+  gtfs_trip_stop_names: string | null
+  status: 'OK_TRIP' | 'ERROR_NO_OEV_FILE' | 'ERROR_NO_GTFS_TRIP'
+}
+
+export interface AtlasOEV_RouteReport {
+  metadata: {}
+  rows: AtlasOEV_RouteReportRow[]
 }

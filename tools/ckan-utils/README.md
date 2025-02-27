@@ -1,7 +1,9 @@
 ### CKAN utils for https://opentransportdata.swiss/
 
-See [./inc/config.yml](./inc/config.yml) for resource paths
-`PACKAGE_ID` param comes from https://data.opentransportdata.swiss/en/organization/oevch
+An `opentransportdata.swiss` API key is needed to run these tools. The key is stored in `OTD_KEY` [.env](../../.env) project file.
+
+- see [./inc/config.yml](./inc/config.yml) for resource paths. 
+- `PACKAGE_ID` param comes from https://data.opentransportdata.swiss/en/organization/oevch
 
 ## Fetch CKAN package metadata
 

@@ -20,7 +20,7 @@ export const DEFAULT_REPORT_DATA: ReportData = {
 
   lookups: {
     matchedStatusItems: [
-      ['OK', 'OK_FUZZY_SAME_ROUTE', 'OK_FUZZY_OTHER_AGENCY', 'OK_FUZZY_OTHER_ROUTE', 'OK_FUZZY_GTFS_ALL'],
+      ['OK_EXT', 'OK', 'OK_FUZZY_SAME_ROUTE', 'OK_FUZZY_OTHER_AGENCY', 'OK_FUZZY_OTHER_ROUTE', 'OK_FUZZY_GTFS_ALL'],
       ['NO_MATCHES_FUZZY_SAME_ROUTE', 'NO_MATCHES_FUZZY_OTHER_AGENCY'], 
       ['NO_MATCHES'],
     ],
@@ -28,6 +28,7 @@ export const DEFAULT_REPORT_DATA: ReportData = {
       'NONE': 'text-bg-secondary',
       
       'OK': 'text-bg-success',
+      'OK_EXT': 'text-bg-success',
       'OK_FUZZY_SAME_ROUTE': 'text-bg-success',
       'OK_FUZZY_OTHER_AGENCY': 'text-bg-success',
       'OK_FUZZY_OTHER_ROUTE': 'text-bg-success',

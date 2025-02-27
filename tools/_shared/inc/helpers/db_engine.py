@@ -53,6 +53,12 @@ class SQLiteDBEngine:
             column_names.append(column_name)
             
         return column_names
+    
+    def query_table(self, table_name: str, map_by_field: str = None):
+        sql = f'SELECT * FROM {table_name}'
+        query_results = self.query(sql, map_by_field)
+        
+        return query_results
         
     def query(self, sql: str, map_by_field: str = None):
         row_items = []

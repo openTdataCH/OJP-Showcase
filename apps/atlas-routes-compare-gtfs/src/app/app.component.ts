@@ -12,7 +12,7 @@ import { MatchController } from './controllers/match-controller';
 
 import { HTTP_Service } from './services/http.service';
 
-import { MatchedStatus, ReportCSV_DataRow, ReportData } from './types/_all';
+import { AtlasOEV_RouteReportRow, MatchedStatus, ReportCSV_DataRow, ReportData } from './types/_all';
 
 import { GTFS_DB_Catalog_Controller } from '../shared/controllers/gtfs-db-catalog';
 import { GTFS_DB_Controller } from '../shared/controllers/gtfs-db-controller';
@@ -24,6 +24,10 @@ import { DEFAULT_REPORT_DATA } from './constants';
 interface PageModel {
   processingState: 'IDLE' | 'FETCH_DATA' | 'PROCESS_DATA' | 'DONE_PROCESSING'
   reportData: ReportData,
+  dataLoadProgress: {
+    percent: number,
+    text: string
+  }
 
   filter: {
     byMatchedStatus: Record<MatchedStatus, boolean>,
@@ -44,10 +48,16 @@ export class AppComponent implements OnInit {
     this.model = {
       processingState: 'IDLE',
       reportData: DEFAULT_REPORT_DATA,
+      dataLoadProgress: {
+        percent: 0,
+        text: 'idle',
+      },
 
       filter: {
         byMatchedStatus: {
           'NONE': false,
+          
+          'OK_EXT': false,
           'OK': false,
           
           'OK_FUZZY_SAME_ROUTE': false,
@@ -74,6 +84,10 @@ export class AppComponent implements OnInit {
       this.model.filter.byText = value.trim();
       this.updateFilteredItems();
     });
+
+    if (!(window.location.host.startsWith('localhost'))) {
+      this.fetchData();
+    }
   }
 
   public async fetchData() {
@@ -84,10 +98,16 @@ export class AppComponent implements OnInit {
     this.model.reportData.reportDay = reportDayF;
     console.log('using ReportDay: ' + reportDayF);
 
+    this.model.dataLoadProgress.percent = 0;
+    this.model.dataLoadProgress.text = '... fetching latest BO CSV';
+    
     const boCSVs = await this.httpService.fetchBusinessOrganisationsCSV();
     const boController = new BusinessOrganisationsController();
     await boController.loadFromCSV(boCSVs);
 
+    this.model.dataLoadProgress.percent = 10;
+    this.model.dataLoadProgress.text = '... fetching latest GTFS catalog';
+    
     const gtfsDBCatalogJSON = await this.httpService.fetchLatestGTFSCatalog();
     const gtfsDB_CatalogController = new GTFS_DB_Catalog_Controller(gtfsDBCatalogJSON);
     const gtfsDay = gtfsDB_CatalogController.latestGTFS_Day;
@@ -100,14 +120,23 @@ export class AppComponent implements OnInit {
     console.log('using GTFSday: ' + gtfsDay);
     this.model.reportData.gtfsDay = gtfsDay;
 
+    this.model.dataLoadProgress.percent = 30;
+    this.model.dataLoadProgress.text = '... fetching GTFS DB Lookups';
+
     const dbLookups = await this.httpService.fetchDBLookups(gtfsDay);
     const gtfsDBController = new GTFS_DB_Controller(gtfsDay);
     gtfsDBController.loadDBLookups(dbLookups);
+
+    this.model.dataLoadProgress.percent = 40;
+    this.model.dataLoadProgress.text = '... fetching latest ATLAS Line CSV';
 
     const responseCSVs = await this.httpService.fetchAtlasLinieCSV();
     const atlasLinieController = new AtlasLineDataController();
     await atlasLinieController.loadFromCSV(responseCSVs);
     console.log(atlasLinieController);
+
+    this.model.dataLoadProgress.percent = 60;
+    this.model.dataLoadProgress.text = '... fetching GTFS representative queries';
 
     const mapRouteTrips: Record<string, Trip> = {};
     const routeTrips = await this.httpService.fetchRoutesRepresentativeTrip(gtfsDay);
@@ -117,6 +146,9 @@ export class AppComponent implements OnInit {
     });
     console.log('mapRouteTrips: Record<string, Trip>');
     console.log(mapRouteTrips);
+
+    this.model.dataLoadProgress.percent = 70;
+    this.model.dataLoadProgress.text = '... fetching Atlas stops GeoJSON';
 
     const atlasStopsGeoJSON = await this.httpService.fetchAtlasStopsGeoJSON();
     const mapAtlasRouteFeatures: Record<string, AtlasStopGeoJSONFeature[]> = {};
@@ -133,7 +165,21 @@ export class AppComponent implements OnInit {
     console.log('mapAtlasRouteFeatures: Record<string, AtlasStopGeoJSONFeature[]>');
     console.log(mapAtlasRouteFeatures);
 
-    const matchController: MatchController = new MatchController(gtfsDBController, boController, atlasLinieController, mapRouteTrips, mapAtlasRouteFeatures);
+    this.model.dataLoadProgress.percent = 90;
+    this.model.dataLoadProgress.text = '... fetching OEV matching routes';
+  
+    const atlasOEV_Routes = await this.httpService.fetchAtlasOEV_Routes();
+    const mapAtlasOEV_Routes: Record<string, AtlasOEV_RouteReportRow> = {};
+    atlasOEV_Routes.rows.forEach(el => {
+      mapAtlasOEV_Routes[el.slnid] = el;
+    });
+    console.log('mapAtlasOEV_Routes: Record<string, AtlasOEV_RouteReportRow[]>');
+    console.log(mapAtlasOEV_Routes);
+
+    this.model.dataLoadProgress.percent = 100;
+    this.model.dataLoadProgress.text = '... done fetching data';
+
+    const matchController: MatchController = new MatchController(gtfsDBController, boController, atlasLinieController, mapRouteTrips, mapAtlasRouteFeatures, mapAtlasOEV_Routes);
 
     matchController.process(this.model.reportData);
     this.updateFilteredItems();
@@ -211,6 +257,7 @@ export class AppComponent implements OnInit {
           atlas_gtfs_agency_id: agencyReportRow.agency?.agency_id ?? null,
           atlas_gtfs_agency_name: agencyReportRow.agency?.agency_name ?? null,
           
+          atlas_swiss_line_number: routeReportRow.atlasRoute.swissLineNumber,
           atlas_line_number: routeReportRow.atlasRoute.number,
           atlas_line_description: routeReportRow.atlasRoute.description,
           
