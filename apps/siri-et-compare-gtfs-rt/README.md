@@ -43,13 +43,13 @@ For each agency, additional requests are made to obtain full `trips`, `stop_time
   - for each GTFS-RT message, the `RouteId` value is looked up against current GTFS-static dataset and `routes.agency_id` is used to group the messages on agencies 
 - first section of the report contains messages in SIRI-ET and GTFS-RT that a GTFS `agency_id` couldnt be found
 
-![](report1-no-agency.png)
+![image](./docs/report1-no-agency.png)
 
 (these messages can be also be fuzzy-matched using just stop_times (calls in SIRI-ET), see NextSteps below
 
 - 2nd section shows reports agencies that are only in SIRI-ET or only in GTFS-RT feeds
 
-![](./docs/report2.png)
+![image](./docs/report2.png)
 
 - 3rd part of the report intersects the SIRI-ET feed messages based on the GTFS static `trips`, `stop_times`
 - for matching 2 indexes are used
@@ -60,15 +60,15 @@ For each agency, additional requests are made to obtain full `trips`, `stop_time
   - full match, 100%, `stop_times` exact match 
   - partial match, wher at least 2 key-pair values should be matched
 - reports the SIRI-ET, GTFS-RT trips with agency but no GTFS-static trip_id match
-![image](report3a-siri-only.png)
+![image](./docs/report3a-siri-only.png)
 
 (these messages can be also be fuzzy-matched using just stop_times (calls in SIRI-ET), see NextSteps below
 
 - reports SIRI-ET messages with GTFS-static but no GTFS-RT match
-![](./docs/report3b-siri-gtfs-static.png)
+![image](./docs/report3b-siri-gtfs-static.png)
 
 - reports SIRI-ET messages with GTFS-static and also GTFS-RT match (ideal case)
-![](./docs/report3c-siri-gtfs-static-gtfs-rt.png)
+![image](./docs/report3c-siri-gtfs-static-gtfs-rt.png)
 
 - the `Match` column can have following values
   - `MATCH` for a full-key match, the stop_times matches 100%
@@ -84,7 +84,7 @@ For example below
 
 ## Full-report example
 
-![](./docs/full_report_example.png)
+![image](./docs/full_report_example.png)
 
 ## Next Steps
 
