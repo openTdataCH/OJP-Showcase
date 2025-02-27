@@ -58,9 +58,13 @@ export class AppComponent implements OnInit {
   public async fetchData() {
     this.model.processingState = 'FETCH_DATA';
 
+    this.model.dataLoadProgress.percent = 0;
+
     const reportDayF = DateHelpers.formatDateYMDHIS(new Date()).slice(0, 10);
     this.model.reportData.reportDay = reportDayF;
     console.log('using ReportDay: ' + reportDayF);
+
+    this.model.dataLoadProgress.text = '... fetching latest GTFS Catalog';
 
     const gtfsDBCatalogJSON = await this.httpService.fetchLatestGTFSCatalog();
     const gtfsDB_CatalogController = new GTFS_DB_Catalog_Controller(gtfsDBCatalogJSON);
@@ -74,9 +78,16 @@ export class AppComponent implements OnInit {
     console.log('using GTFSday: ' + gtfsDay);
     this.model.reportData.gtfsDay = gtfsDay;
 
+    this.model.dataLoadProgress.percent = 10;
+
+    this.model.dataLoadProgress.text = '... fetching latest BusinessOrganisations dataset';
+
     const boCSV = await this.httpService.fetchBusinessOrganisationsCSV();
     const boController = new BusinessOrganisationsController();
     boController.loadFromCSV(boCSV);
+
+    this.model.dataLoadProgress.percent = 30;
+    this.model.dataLoadProgress.text = '... fetching SIRI-ET / GTFS-RT / GTFS-DB lookups';
     
     forkJoin({
       siriET: this.httpService.fetchSIRI_ET(),
@@ -105,6 +116,9 @@ export class AppComponent implements OnInit {
         
         this.model.reportData = reportController.reportData;
         this.reportController = reportController;
+
+        this.model.dataLoadProgress.percent = 100;
+        this.model.dataLoadProgress.text = '... done fetching data';
 
         this.model.processingState = 'DONE_PROCESSING';
       },
