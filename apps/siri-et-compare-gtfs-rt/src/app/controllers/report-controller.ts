@@ -6,7 +6,7 @@ import { HTTP_Service } from "../services/http.service";
 
 import { MatchHelpers } from "../helpers/match-helpers";
 
-import { AgencyData, GTFS_RT_ReportItem, MapAgencyGTFS_RT_Entity, MapAgencySIRI_ET_Journeys, ReportData, ReportResultItem, SIRI_ET_ReportItem } from "../types/report-controller";
+import { AgencyData, DataLoadProgress, GTFS_RT_ReportItem, MapAgencyGTFS_RT_Entity, MapAgencySIRI_ET_Journeys, ReportData, ReportResultItem, SIRI_ET_ReportItem } from "../types/report-controller";
 import { MatchDB_Trip, ResultMatch } from "../types/report-controller";
 
 import { AGENCY_ID_NO_DATA, DEFAULT_REPORT_DATA, LIST_DELIMITER } from "../constants";
@@ -24,6 +24,8 @@ export class ReportController {
   private mapAgencyMatchDB_Trip: MapAgencyMatchDB_Trip;
 
   public reportData: ReportData;
+
+  public onFetchData: (dataLoadProgress: DataLoadProgress) => void = () => {};
 
   constructor(reportDayF: string, httpService: HTTP_Service, gtfsDBController: GTFS_DB_Controller, mapAgencySIRI_ET_Journeys: MapAgencySIRI_ET_Journeys, mapAgencyGTFS_RT_Entity: MapAgencyGTFS_RT_Entity) {
     this.reportDayF = reportDayF;
@@ -186,9 +188,20 @@ export class ReportController {
   // SEC 4. AGENCY BOTH
   public async fetchAndComputeBothInAgencyItems(agencyId: string) {
     console.log('START fetch GTFS data for ' + agencyId);
-    
+
+    this.onFetchData({
+      percent: 50,
+      text: '... fetching GTFS data for ' + agencyId,
+    });
+
     // ASYNC fetch trips for agency
     await this.updateBothInAgencyItemsModel(agencyId);
+
+    this.onFetchData({
+      percent: 100,
+      text: '... done',
+    });
+
     console.log('.. DONE');
 
     // Match GTFS_RT messages
