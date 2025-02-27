@@ -110,16 +110,15 @@ export class AppComponent implements OnInit {
         console.log(mapAgencySIRI_ET_Journeys);
         console.log();
 
+        this.model.dataLoadProgress.percent = 100;
+        this.model.dataLoadProgress.text = '... done fetching data';
+        this.model.processingState = 'DONE_PROCESSING';
+
         const reportController = new ReportController(reportDayF, this.httpService, gtfsDBController, mapAgencySIRI_ET_Journeys, mapAgencyGTFS_RT_Entity);
         reportController.computeReportData(siri_ET_Journeys.length);
         
         this.model.reportData = reportController.reportData;
         this.reportController = reportController;
-
-        this.model.dataLoadProgress.percent = 100;
-        this.model.dataLoadProgress.text = '... done fetching data';
-
-        this.model.processingState = 'DONE_PROCESSING';
       },
       error: (error) => {
         console.error('Error fetching data:', error);
