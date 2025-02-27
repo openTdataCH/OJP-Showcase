@@ -24,6 +24,7 @@ type ProcessingState = 'IDLE' | 'FETCH_DATA' | 'PROCESS_DATA' | 'DONE_PROCESSING
 
 interface PageModel {
   processingState: ProcessingState,
+  processingGTFS_State: ProcessingState,
   reportData: ReportData,
   dataLoadProgress: DataLoadProgress,
 }
@@ -41,6 +42,7 @@ export class AppComponent implements OnInit {
   constructor(private httpService: HTTP_Service) {
     this.model = {
       processingState: 'IDLE',
+      processingGTFS_State: 'IDLE',
       reportData: DEFAULT_REPORT_DATA,
       dataLoadProgress: {
         percent: 0,
@@ -115,6 +117,14 @@ export class AppComponent implements OnInit {
         this.model.processingState = 'DONE_PROCESSING';
 
         const reportController = new ReportController(reportDayF, this.httpService, gtfsDBController, mapAgencySIRI_ET_Journeys, mapAgencyGTFS_RT_Entity);
+        reportController.onFetchData = (dataLoadProgress) => {
+          this.model.dataLoadProgress = dataLoadProgress;
+          if (dataLoadProgress.percent === 100) {
+            this.model.processingGTFS_State = 'DONE_PROCESSING';
+          } else {
+            this.model.processingGTFS_State = 'FETCH_DATA';
+          }
+        };
         reportController.computeReportData(siri_ET_Journeys.length);
         
         this.model.reportData = reportController.reportData;
@@ -235,6 +245,9 @@ export class AppComponent implements OnInit {
       return true;
     }
     if (this.model.processingState === 'PROCESS_DATA') {
+      return true;
+    }
+    if (this.model.processingGTFS_State === 'FETCH_DATA') {
       return true;
     }
 
