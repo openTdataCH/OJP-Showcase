@@ -23,6 +23,10 @@ import { AGENCY_ID_NO_DATA, DEFAULT_REPORT_DATA } from './constants';
 interface PageModel {
   processingState: 'IDLE' | 'FETCH_DATA' | 'PROCESS_DATA' | 'DONE_PROCESSING'
   reportData: ReportData,
+  dataLoadProgress: {
+    percent: number,
+    text: string
+  }
 }
 
 @Component({
@@ -39,6 +43,10 @@ export class AppComponent implements OnInit {
     this.model = {
       processingState: 'IDLE',
       reportData: DEFAULT_REPORT_DATA,
+      dataLoadProgress: {
+        percent: 0,
+        text: 'idle',
+      },
     };
     this.reportController = null;
   }
