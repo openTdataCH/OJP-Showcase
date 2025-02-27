@@ -4,6 +4,8 @@ This is an Angular webapp that is comparing [SIRI-ET](https://opentransportdata.
 
 Demo URL: https://tools.odpch.ch/siri-et-compare-gtfs/
 
+![](./docs/app-screenshot.png)
+
 ## Install
 
 ```
