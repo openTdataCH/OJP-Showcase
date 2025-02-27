@@ -3,6 +3,11 @@ import Agency from "../../shared/models/gtfs/agency";
 import { Response_GTFS_RT_Entity } from "../../shared/types/gtfs-rt/entity";
 import { Trip } from "../../shared/models/gtfs/trip"
 
+export interface DataLoadProgress {
+  percent: number,
+  text: string
+}
+
 export type MapAgencySIRI_ET_Journeys = Record<string, VehicleJourney[]>;
 export type MapAgencyGTFS_RT_Entity = Record<string, Response_GTFS_RT_Entity[]>;
 

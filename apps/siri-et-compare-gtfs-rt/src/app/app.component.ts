@@ -16,17 +16,14 @@ import { ReportController } from './controllers/report-controller';
 
 import { HTTP_Service } from './services/http.service';
 
-import { GTFS_RT_ReportItem, MapAgencyGTFS_RT_Entity, MapAgencySIRI_ET_Journeys, ReportResultItem, ReportData, SIRI_ET_ReportItem } from './types/report-controller';
+import { GTFS_RT_ReportItem, MapAgencyGTFS_RT_Entity, MapAgencySIRI_ET_Journeys, ReportResultItem, ReportData, SIRI_ET_ReportItem, DataLoadProgress } from './types/report-controller';
 
 import { AGENCY_ID_NO_DATA, DEFAULT_REPORT_DATA } from './constants';
 
 interface PageModel {
   processingState: 'IDLE' | 'FETCH_DATA' | 'PROCESS_DATA' | 'DONE_PROCESSING'
   reportData: ReportData,
-  dataLoadProgress: {
-    percent: number,
-    text: string
-  }
+  dataLoadProgress: DataLoadProgress,
 }
 
 @Component({
