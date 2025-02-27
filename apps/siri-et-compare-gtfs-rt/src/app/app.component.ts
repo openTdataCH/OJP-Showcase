@@ -20,8 +20,10 @@ import { GTFS_RT_ReportItem, MapAgencyGTFS_RT_Entity, MapAgencySIRI_ET_Journeys,
 
 import { AGENCY_ID_NO_DATA, DEFAULT_REPORT_DATA } from './constants';
 
+type ProcessingState = 'IDLE' | 'FETCH_DATA' | 'PROCESS_DATA' | 'DONE_PROCESSING'
+
 interface PageModel {
-  processingState: 'IDLE' | 'FETCH_DATA' | 'PROCESS_DATA' | 'DONE_PROCESSING'
+  processingState: ProcessingState,
   reportData: ReportData,
   dataLoadProgress: DataLoadProgress,
 }
