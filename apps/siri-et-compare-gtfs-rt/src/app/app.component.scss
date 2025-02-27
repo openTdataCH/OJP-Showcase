@@ -1,3 +1,34 @@
+
+header, footer {
+  position: sticky;
+  z-index: 10;
+}
+
+header {
+  top: 0;
+}
+
+footer {
+  bottom: 0;
+}
+
+.content {
+  overflow-y: scroll;
+}
+
+.content-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fafaf8;
+}
+.content-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: #f8f9fa;
+}
+
 .wrapper-table-content {
   max-height: 300px;
   overflow-x: hidden;
@@ -18,9 +49,4 @@
 .section-title {
   font-size: 18px;
   font-weight: bold;
-}
-
-.footer {
-  background-color: rgb(200, 200, 200); 
-  height: 40px;
 }
