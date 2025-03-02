@@ -5,12 +5,12 @@ include(APP_PATH . '/inc/common.php');
 $gtfs_day = @$_GET['gtfs_day'] ?: 'LATEST';
 
 $agency_id = @$_GET['agency_id'] ?: null;
-$route_short_name = @$_GET['route_short_name'] ?: null;
-$trip_short_name = @$_GET['trip_short_name'] ?: null;
-$service_day = @$_GET['service_day'] ?: null;
 $journey_ref = @$_GET['journey_ref'] ?: null;
 $line_ref = @$_GET['line_ref'] ?: null;
 $original_trip_id = @$_GET['original_trip_id'] ?: null;
+$route_short_name = @$_GET['route_short_name'] ?: null;
+$service_day = @$_GET['service_day'] ?: null;
+$trip_short_name = @$_GET['trip_short_name'] ?: null;
 
 $gtfs_controller = new GTFS_DB_Controller(APP_CONFIG, $gtfs_day);
 
