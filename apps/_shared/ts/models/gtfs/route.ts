@@ -9,6 +9,8 @@ export default class Route {
     
     public route_long_name: string | null;
     public route_desc: string | null;
+    public day_bits: string | null;
+    public representative_trip_id: string | null;
 
     constructor(
         route_id: string,
@@ -23,6 +25,8 @@ export default class Route {
 
         this.route_long_name = null;
         this.route_desc = null;
+        this.day_bits = null;
+        this.representative_trip_id = null;
     }
 
     public static initFromJSON(routeJSON: RouteJSON, mapAgency: Record<string, AgencyJSON | Agency>) {
@@ -43,6 +47,9 @@ export default class Route {
 
         route.route_long_name = routeJSON.route_long_name;
         route.route_desc = routeJSON.route_desc;
+        route.day_bits = routeJSON.day_bits;
+        route.representative_trip_id = routeJSON.representative_trip_id;
+
         return route;
     }
 }
