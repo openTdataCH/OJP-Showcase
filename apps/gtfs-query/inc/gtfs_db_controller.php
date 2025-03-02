@@ -340,7 +340,7 @@ class GTFS_DB_Controller {
     }
 
     public function query_table($table_name) {
-        $allowed_tables = array('agency', 'calendar', 'routes', 'stops'); 
+        $allowed_tables = array('agency', 'calendar', 'routes', 'stops', 'fts_routes'); 
         if (!in_array($table_name, $allowed_tables)) {
             $message = array(
                 "error" => "No lookup found for " . $table_name,
@@ -619,6 +619,17 @@ class GTFS_DB_Controller {
 
         $original_trip_id_where = "trips.original_trip_id = '" . $original_trip_id . "'";
         array_push($query_config['where'], $original_trip_id_where);
+        
+        $result = $this->_query_trips($query_config, $service_day);
+
+        return $result;
+    }
+
+    public function query_trips_by_route_id($route_id, $service_day = null) {
+        $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
+
+        $route_id_where = "trips.route_id = '" . $route_id . "'";
+        array_push($query_config['where'], $route_id_where);
         
         $result = $this->_query_trips($query_config, $service_day);
 
