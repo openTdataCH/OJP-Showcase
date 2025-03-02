@@ -79,6 +79,18 @@ export interface GTFS_DB_LookupJSON {
     },
 }
 
+interface FTS_RouteJSON {
+    route_id: string,
+    trip_stop_ids: string,
+}
+
+export interface GTFS_DB_FTS_RoutesLookupJSON {
+    lookup_name: 'fts_routes',
+    data_source: string,
+    rows: FTS_RouteJSON[],
+    rows_no: number,
+}
+
 export interface GTFS_DB_Trips_Response {
     metadata: {
         gtfs_day: string,
