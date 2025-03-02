@@ -340,7 +340,7 @@ class GTFS_DB_Controller {
     }
 
     public function query_table($table_name) {
-        $allowed_tables = array('agency', 'calendar', 'routes', 'stops'); 
+        $allowed_tables = array('agency', 'calendar', 'routes', 'stops', 'fts_routes'); 
         if (!in_array($table_name, $allowed_tables)) {
             $message = array(
                 "error" => "No lookup found for " . $table_name,
