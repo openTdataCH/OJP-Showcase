@@ -23,7 +23,7 @@ export default class DateHelpers {
         return days_no;
     }
 
-    public static formatDateYMDHIS(d: Date) {
+    public static formatDateYMDHIS(d: Date = new Date()) {
         const date_parts = [
             d.getFullYear(),
             '-',
