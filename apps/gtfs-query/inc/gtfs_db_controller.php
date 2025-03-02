@@ -625,6 +625,17 @@ class GTFS_DB_Controller {
         return $result;
     }
 
+    public function query_trips_by_route_id($route_id, $service_day = null) {
+        $query_config = unserialize(serialize($this->sql_builder_config['sql_builder']['query_trips']));
+
+        $route_id_where = "trips.route_id = '" . $route_id . "'";
+        array_push($query_config['where'], $route_id_where);
+        
+        $result = $this->_query_trips($query_config, $service_day);
+
+        return $result;
+    }
+
     private function compute_cache_result($cache_path) {
         if (!($this->use_cache && file_exists($cache_path))) {
             return null;

@@ -8,6 +8,7 @@ $agency_id = @$_GET['agency_id'] ?: null;
 $journey_ref = @$_GET['journey_ref'] ?: null;
 $line_ref = @$_GET['line_ref'] ?: null;
 $original_trip_id = @$_GET['original_trip_id'] ?: null;
+$route_id = @$_GET['route_id'] ?: null;
 $route_short_name = @$_GET['route_short_name'] ?: null;
 $service_day = @$_GET['service_day'] ?: null;
 $trip_short_name = @$_GET['trip_short_name'] ?: null;
@@ -42,6 +43,12 @@ if (!is_null($journey_ref)) {
 
 if (!is_null($original_trip_id)) {
     $response = $gtfs_controller->query_trips_by_original_trip_id($original_trip_id, $service_day);
+    JsonView::dump($response);
+    die;
+}
+
+if (!is_null($route_id)) {
+    $response = $gtfs_controller->query_trips_by_route_id($route_id, $service_day);
     JsonView::dump($response);
     die;
 }
