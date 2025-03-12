@@ -1,27 +1,47 @@
-# SiriEtCheckSloids
+# SIRI-ET check SLOIDs webapp
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.4.
+This is an Angular webapp that is checking [SIRI-ET](https://opentransportdata.swiss/en/cookbook/siri-et-pt-with-request-response/) messages for missing [SLOIDs](https://www.oev-info.ch/de/datenmanagement/sid4pt-swiss-id-public-transport/swiss-location-identification-sloid).
 
-## Development server
+Demo URL: https://tools.odpch.ch/siri-et-check-sloids/
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+![](./docs/app-screenshot.png)
 
-## Code scaffolding
+## Install
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+```
+$ cd /path/siri-et-compare-gtfs-rt
+$ npm install
 
-## Build
+# local development http://localhost:4200/
+$ ng serve
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## DataSources
 
-## Running unit tests
+| Dataset | URL | Description |
+|-|-|-|
+| Business Organisations | [actual_date_business_organisation_versions_LATEST.csv](https://tools.odpch.ch/data/actual_date_business_organisation_versions_LATEST.csv) | This API gives the latest `actual_date_business_organisation_versions*` CSV file from [business-organisations](https://data.opentransportdata.swiss/en/dataset/business-organisations) |
+| SIRI-ET feed | https://api.opentransportdata.swiss/siri-et | SIRI-ET latest response - see [SIRI-ET cookbook](https://opentransportdata.swiss/en/cookbook/siri-et-pt-with-request-response/) | 
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Methodology
 
-## Running end-to-end tests
+- the validation is done for each `<EstimatedVehicleJourney>` message
+- the `<EstimatedCalls>/<EstimatedCall>`, `<RecordedCalls>/<RecordedCall>` nodes are checked for missing SLOIDs
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Steps
+- loop through all SIRI-ET messages
+- for each message check each estimated/recorded call node. 
+- mark the trip as with issue if:
+  - `<StopPointRef>` starts with `85..`
+  - `<StopPointRef>` starts with `ch:1:ScheduledStopPoint:85`
+- group the affected StopPointRef based on the DIDOK number
+- group the affected SIRI-ET messages by business organisation
+- sort the agency groups showing on top the agency with most number of affected messages 
 
-## Further help
+## Figures
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+at 12.March 2025
+
+- there were more than 14'000 SIRI-ET messages
+- 6'880 messages have issues - 47%
+
