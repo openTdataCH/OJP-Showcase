@@ -34,6 +34,16 @@ $ ng serve
 - mark the trip as with issue if:
   - `<StopPointRef>` starts with `85..`
   - `<StopPointRef>` starts with `ch:1:ScheduledStopPoint:85`
+
+```
+<EstimatedCall>
+    <StopPointRef>ch:1:ScheduledStopPoint:858098201</StopPointRef>
+    <VisitNumber>18</VisitNumber>
+    <StopPointName>Gordola, Gnesa</StopPointName>
+    ....
+</EstimatedCall>
+```
+
 - group the affected StopPointRef based on the DIDOK number
 - group the affected SIRI-ET messages by business organisation
 - sort the agency groups showing on top the agency with most number of affected messages 
