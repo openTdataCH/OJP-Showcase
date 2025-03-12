@@ -4,7 +4,7 @@ This is an Angular webapp that is checking [SIRI-ET](https://opentransportdata.s
 
 Demo URL: https://tools.odpch.ch/siri-et-check-sloids/
 
-![](./docs/app-screenshot.png)
+![](./docs/app-screenshot.jpg)
 
 ## Install
 
