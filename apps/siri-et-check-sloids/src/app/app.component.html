@@ -1,3 +1,135 @@
-<div class="container-fluid">
-  <div class="p-3">hello</div>
+<div class="d-flex flex-column vh-100 overflow-hidden">
+  <header class="bg-primary text-white p-3">
+    <h1>SIRI-ET check SLOIDs</h1>
+  </header>
+
+  <div class="flex-grow-1 d-flex flex-column overflow-hidden pt-3 ps-3 pe-3">
+    <div class="d-flex gap-2">
+      <div class="flex-grow-1">
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-primary" (click)="fetchData()" [disabled]="this.isBusyProcessing()">Fetch</button>
+          <ng-container *ngIf="this.isBusyProcessing()">
+            <div class="flex-grow-1" >
+              <div class="progress" role="progressbar">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" [style.width.%]="this.model.dataLoadProgress.percent"></div>
+              </div>
+              <div>{{ this.model.dataLoadProgress.text }}</div>
+            </div>                  
+          </ng-container>
+          
+        </div>
+      </div>
+      <div>
+        <a href="https://github.com/openTdataCH/OJP-Showcase/tree/feature/check-siri-et-sloids/apps/siri-et-check-sloids" target="_blank">Source Code / Documentation</a>
+      </div>
+    </div>
+
+    <hr />
+
+    <ng-container *ngIf="this.model.processingState === 'DONE_PROCESSING'">
+
+      <div class="d-flex gap-2 mb-2 align-items-center section-title">
+        <div>SIRI-ET messages <span class="badge text-bg-primary">{{ this.model.reportData.siriET_totalNo }}</span></div>
+        <div class="d-none">GTFS DB <span class="badge text-bg-warning">{{ this.model.reportData.gtfsDay }}</span></div>
+      </div>
+  
+      <hr />
+  
+      <div class="flex-grow-1 d-flex gap-2 overflow-hidden">
+        
+        <div class="w-100 d-flex flex-column border-end overflow-hidden">
+          <div class="align-items-center">
+            <div class="section-title d-flex gap-2">
+              <span>SIRI-ET mesages with wrong SLOIDs:</span>
+              <span class="badge text-bg-warning">{{ this.model.reportData.siriET_totalIssuesNo }}</span>
+              <span>items</span>
+            </div>
+          </div>        
+
+          <hr />
+          
+          <div class="flex-grow-1 overflow-y-scroll">
+            <ng-container *ngFor="let agencyReportRow of this.model.reportData.agencyReportRows; index as idx1">
+              <div class="card agency-card mb-3">
+                <div class="card-header d-flex">
+                  <div class="flex-grow-1"><strong>{{ agencyReportRow.agencyTitle }}</strong></div>
+                  <div class="d-flex gap-2 align-items-center">
+                    <span class="badge text-bg-warning">{{ agencyReportRow.vehicleJourneyReportRows.length }}</span> / <span class="badge text-bg-primary">{{ agencyReportRow.totalMessagesNo }}</span>
+                  </div>
+                </div>
+            
+                <div class="card-body">
+                  <div>
+                    <ng-container *ngIf="agencyReportRow.organisation !== null">
+                      <ul>
+                        <li><strong>Name</strong>: {{ agencyReportRow.agencyTitle }}</li>
+                        <li><strong>SBOID</strong>: <a href="{{ agencyReportRow.agencyURL }}" target="_blank">{{ agencyReportRow.organisation.sboid }}</a></li>
+                        <li><strong>Number</strong>: {{ agencyReportRow.organisation.organisationNumber }}</li>
+                        <li><strong>Journeys with issues no</strong>: <span class="badge text-bg-warning">{{ agencyReportRow.vehicleJourneyReportRows.length }}</span></li>
+                        <li><strong>Stop with Issues no</strong>: <span class="badge text-bg-warning">{{ agencyReportRow.stopsWithIssues.length }}</span>
+                          <!-- <ng-container *ngFor="let stop of agencyReportRow.stopsWithIssues; index as idx2">
+                            <div class="d-flex gap-2">
+                              <span><a href="{{ stop.url }}" target="_blank">{{ stop.stopPointName }} ({{ stop.stopPointRef }})</a></span>
+                              <ng-container *ngIf="idx2 < (agencyReportRow.stopsWithIssues.length - 1)">, </ng-container>
+                            </div>
+                          </ng-container> -->
+                        </li>
+                      </ul>
+                    </ng-container>
+                    <ng-container *ngIf="agencyReportRow.organisation === null">
+                      <div>NO ORGANISATION found in <a href="https://opentransportdata.swiss/en/cookbook/business-organisations-2/" target="_blank">BO datatset</a>.</div>
+                    </ng-container>
+
+                    <div class="wrapper-table-results-content">
+                      <table class="table table-striped table-hover">
+                        <thead class="position-sticky top-0">
+                          <tr>
+                            <th scope="col" class="text-nowrap">#</th>
+                            <th scope="col" class="text-nowrap">Line</th>
+                            <th scope="col" class="text-nowrap">SIRI-ET JourneyRef</th>
+                            <th scope="col">Stops with Issues</th>
+                            <th scope="col">Service Calls</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <ng-container *ngFor="let row of agencyReportRow.vehicleJourneyReportRows; index as idx2">
+                            <tr [attr.data-index]="idx2">
+                              <th class="text-nowrap" scope="row">{{ idx2 + 1 }}</th>
+                              <td class="text-nowrap">{{ row.vehicleJourney.publishedLineName }}</td>
+                              <td class="text-nowrap">{{ row.vehicleJourney.vehicleJourneyRef }}</td>
+                              <td>
+                                <ul>
+                                  <ng-container *ngFor="let stop of row.stopsWithIssues; index as idx3">
+                                    <li><span>{{ stop.stopPointName }} (<a href="{{ stop.url }}" target="_blank">{{ stop.stopPointRef }}</a>)</span></li>
+                                  </ng-container>
+                                </ul>
+                              </td>
+                              <td class="service-calls">
+                                <ng-container *ngFor="let stop of row.stops; index as idx3">
+                                  <span [class.mark]="stop.hasSloidIssue">{{ stop.stopPointName }} ({{ stop.stopPointRef }})</span>
+                                  <ng-container *ngIf="idx3 < (row.vehicleJourney.serviceCalls.length - 1)"> - </ng-container>
+                                </ng-container>
+                              </td>
+                            </tr>
+                          </ng-container>
+                        </tbody>
+                      </table>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+    
+        </div>
+      </div>
+      
+    </ng-container>
+
+  </div>
+
+  <footer class="bg-secondary text-white p-2 px-3">
+    <div>opentransportdata.swiss - Last Update: 12.March 2025</div>
+  </footer>
 </div>
