@@ -10,8 +10,8 @@ import { GTFS_DB_Controller } from '../shared/controllers/gtfs-db-controller';
 import { Response_GTFS_RT } from '../shared/types/gtfs-rt/gtfs-rt-response';
 
 import { VehicleJourney } from '../shared/models/siri-et/vehicle-journey';
+import { SIRI_ET_Parser } from '../shared/controllers/siri-et/siri-et-parser';
 
-import { SIRI_ET_Parser } from './controllers/siri-et-parser';
 import { ReportController } from './controllers/report-controller';
 
 import { HTTP_Service } from './services/http.service';
