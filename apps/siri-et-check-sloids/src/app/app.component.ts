@@ -9,8 +9,7 @@ import { SIRI_ET_Parser } from '../shared/controllers/siri-et/siri-et-parser';
 import { VehicleJourney } from '../shared/models/siri-et/vehicle-journey';
 
 import { HTTP_Service } from './services/http.service';
-import { DataLoadProgress, MapAgencySIRI_ET_Journeys, ReportData } from './types/_all';
-import { AGENCY_ID_NO_DATA } from './constants';
+import { DataLoadProgress, ReportData } from './types/_all';
 import { ReportController } from './controllers/report-controller';
 import { SIRI_ET_Helpers } from '../shared/helpers/siri-et-helpers';
 
@@ -42,7 +41,7 @@ export class AppComponent implements OnInit {
         gtfsDay: 'n/a',
         siriET_totalNo: 0,
         siriET_totalIssuesNo: 0,
-        agencyReportRows: [],
+        stopReportRows: [],
       },
     };
   }
