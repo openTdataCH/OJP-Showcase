@@ -4,7 +4,7 @@ This is an Angular webapp that is checking [SIRI-ET](https://opentransportdata.s
 
 Demo URL: https://tools.odpch.ch/siri-et-check-sloids/
 
-![](./docs/app-screenshot.jpg)
+![](./docs/app-screenshot.png)
 
 ## Install
 
@@ -44,9 +44,11 @@ $ ng serve
 </EstimatedCall>
 ```
 
-- group the affected StopPointRef based on the DIDOK number
-- group the affected SIRI-ET messages by business organisation
-- sort the agency groups showing on top the agency with most number of affected messages 
+- group the affected StopPointRef based 
+  - on the DIDOK number
+  - agencies affected
+  - agency lines affected
+- sort the stops by showing the most agency affected agencies then number of affected journeys DESC
 
 ## Figures
 
