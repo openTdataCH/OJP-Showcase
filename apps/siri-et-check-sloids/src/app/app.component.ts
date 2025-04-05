@@ -102,8 +102,8 @@ export class AppComponent implements OnInit {
     this.model.dataLoadProgress.percent = 60;
     this.model.dataLoadProgress.text = '... parsing SIRI-ET';
 
-    const siri_ET_Journeys = await this.parseSIRI_ET(siri_ET_JourneysS);
     const mapAgencySIRI_ET_Journeys = this.processSIRI_ET_Items(reportDayF, siri_ET_Journeys, boController, gtfsDBController);
+    const siri_ET_Journeys = await this.parseSIRI_ET_Response(siri_ET_JourneysS);
     console.log('DONE parsing ET');
     console.log(mapAgencySIRI_ET_Journeys);
     console.log();
@@ -130,7 +130,7 @@ export class AppComponent implements OnInit {
     return false;
   }
 
-  private async parseSIRI_ET(responseXML: string): Promise<VehicleJourney[]> {
+  private async parseSIRI_ET_Response(responseXML: string): Promise<VehicleJourney[]> {
     const parser = new SIRI_ET_Parser();
 
     const response = new Promise<VehicleJourney[]>((resolve) => {
