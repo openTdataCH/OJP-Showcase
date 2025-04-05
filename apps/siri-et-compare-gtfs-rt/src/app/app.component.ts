@@ -18,7 +18,8 @@ import { HTTP_Service } from './services/http.service';
 
 import { GTFS_RT_ReportItem, MapAgencyGTFS_RT_Entity, MapAgencySIRI_ET_Journeys, ReportResultItem, ReportData, SIRI_ET_ReportItem, DataLoadProgress } from './types/report-controller';
 
-import { AGENCY_ID_NO_DATA, DEFAULT_REPORT_DATA } from './constants';
+import { DEFAULT_REPORT_DATA } from './constants';
+import { AGENCY_ID_NO_DATA } from "../shared/constants";
 
 type ProcessingState = 'IDLE' | 'FETCH_DATA' | 'PROCESS_DATA' | 'DONE_PROCESSING'
 
