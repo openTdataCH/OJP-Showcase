@@ -1,36 +1,25 @@
-import { ServiceCall } from "../../shared/models/siri-et/service-call";
-import { VehicleJourney } from "../../shared/models/siri-et/vehicle-journey";
-import { BusinessOrganisationRowCSV } from "../../shared/models/business-organisations";
-
 export interface DataLoadProgress {
   percent: number,
   text: string
 }
 
-export type MapAgencySIRI_ET_Journeys = Record<string, VehicleJourney[]>;
+export interface StopReportOrganisationRow {
+  sboid: string
+  url: string
+  agencyTitle: string
+  publishedLineNumbers: string[]
+}
 
-export interface ServiceCallStop {
-  hasSloidIssue: boolean;
-  stopPointRef: string;
+export interface StopReportRow {
   didokRef: string;
   stopPointName: string;
   url: string;
-}
+  sloidIssues: string[];
 
-export interface VehicleJourneyReportRow {
-  vehicleJourney: VehicleJourney
-  stops: ServiceCallStop[],
-  stopsWithIssues: ServiceCallStop[],
-}
+  organisations: StopReportOrganisationRow[];
+  totalAffectedMessagesNo: number;
 
-export interface AgencyReportRow {
-  agencyTitle: string
-  agencyURL: string | null
-  organisation: BusinessOrganisationRowCSV | null
-  totalMessagesNo: number
-
-  stopsWithIssues: ServiceCallStop[]
-  vehicleJourneyReportRows: VehicleJourneyReportRow[]
+  debugMap1: any;
 }
 
 export interface ReportData {
@@ -38,5 +27,5 @@ export interface ReportData {
   gtfsDay: string,
   siriET_totalNo: number,
   siriET_totalIssuesNo: number,
-  agencyReportRows: AgencyReportRow[],
+  stopReportRows: StopReportRow[]
 }
