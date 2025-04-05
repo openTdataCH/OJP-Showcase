@@ -1,0 +1,22 @@
+.section-title {
+  font-size: 20px;
+}
+
+.section-title .badge {
+  font-size: 16px;
+  padding: 0.4rem;
+}
+
+.service-calls {
+  font-size: 12px;
+}
+
+.wrapper-table-results-content {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.table-results.table td:not(:last-child),
+.table-results.table th:not(:last-child) {
+  border-right: 1px solid #dee2e6;
+}

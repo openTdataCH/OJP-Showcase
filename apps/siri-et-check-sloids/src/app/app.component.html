@@ -1,0 +1,127 @@
+<div class="d-flex flex-column vh-100 overflow-hidden">
+  <header class="bg-primary text-white p-3">
+    <h1>SIRI-ET check SLOIDs</h1>
+  </header>
+
+  <div class="flex-grow-1 d-flex flex-column overflow-hidden pt-3 ps-3 pe-3">
+    <div class="d-flex gap-2">
+      <div class="flex-grow-1">
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-primary" (click)="fetchData()" [disabled]="this.isBusyProcessing()">Fetch</button>
+          <ng-container *ngIf="this.isBusyProcessing()">
+            <div class="flex-grow-1" >
+              <div class="progress" role="progressbar">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" [style.width.%]="this.model.dataLoadProgress.percent"></div>
+              </div>
+              <div>{{ this.model.dataLoadProgress.text }}</div>
+            </div>                  
+          </ng-container>
+          
+        </div>
+      </div>
+      <div>
+        <a href="https://github.com/openTdataCH/OJP-Showcase/tree/feature/check-siri-et-sloids/apps/siri-et-check-sloids" target="_blank">Source Code / Documentation</a>
+      </div>
+    </div>
+
+    <hr />
+
+    <ng-container *ngIf="this.model.processingState === 'DONE_PROCESSING'">
+
+      <div class="d-flex gap-2 mb-2 align-items-center section-title">
+        <div>SIRI-ET messages <span class="badge text-bg-primary">{{ this.model.reportData.siriET_totalNo }}</span></div>
+        <div class="d-none">GTFS DB <span class="badge text-bg-warning">{{ this.model.reportData.gtfsDay }}</span></div>
+      </div>
+  
+      <hr />
+
+      <div class="flex-grow-1 d-flex gap-2 overflow-hidden">
+        <div class="w-100 d-flex flex-column border-end overflow-hidden">
+          <div class="section-title d-flex align-items-center">
+            <div class="flex-grow-1 d-flex gap-2">
+              <span>SIRI-ET mesages with wrong SLOIDs:</span>
+              <span class="badge text-bg-warning">{{ this.model.reportData.siriET_totalIssuesNo }}</span>
+              <span>items, </span>
+              <span class="badge text-bg-warning">{{ this.model.reportData.stopReportRows.length }}</span>
+              <span>stops with issues</span>
+            </div>
+
+            <div>
+              <button class="btn btn-primary" (click)="downloadReport()">Download Report</button>
+            </div>
+          </div>      
+
+          <hr />
+
+          <div class="flex-grow-1 wrapper-table-results-content">
+            <table class="table table-striped table-hover table-results h-100">
+              <thead class="position-sticky top-0">
+                <tr>
+                  <th scope="col" class="text-nowrap">#</th>
+                  <th scope="col" class="text-nowrap">Stop</th>
+                  <th scope="col" class="text-nowrap">Sloid Issues</th>
+                  <th scope="col" class="text-nowrap">Messages No</th>
+                  <th scope="col">Agency 1</th>
+                  <th scope="col">Lines</th>
+                  <th scope="col">Agency 2</th>
+                  <th scope="col">Lines</th>
+                  <th scope="col">Agency 3</th>
+                  <th scope="col">Lines</th>
+                  <th scope="col">Agency 4</th>
+                  <th scope="col">Lines</th>
+                </tr>
+              </thead>
+              <tbody class="overflow-y-scroll">
+                <ng-container *ngFor="let stopRow of this.model.reportData.stopReportRows; index as idx1">
+                  <tr>
+                    <th class="text-nowrap" scope="row">{{ idx1 + 1 }}</th>
+                    <td class="text-nowrap">
+                      <div>{{ stopRow.stopPointName }}</div>
+                      <div><a href="{{ stopRow.url }}" target="_blank">{{ stopRow.didokRef }}</a></div>
+                    </td>
+                    <td>
+                      <ul>
+                        <ng-container *ngFor="let sloidIssue of stopRow.sloidIssues; index as idx2">
+                          <li>{{ sloidIssue }}</li>
+                        </ng-container>
+                      </ul>
+                    </td>
+                    <td>{{ stopRow.totalAffectedMessagesNo }}</td>
+                    <td><ng-container *ngTemplateOutlet="stopAgencyTemplate; context: { $implicit: (stopRow.organisations[0] ?? null)}"></ng-container></td>
+                    <td><ng-container *ngTemplateOutlet="stopAgencyLineTemplates; context: { $implicit: (stopRow.organisations[0] ?? null)}"></ng-container></td>
+                    
+                    <td><ng-container *ngTemplateOutlet="stopAgencyTemplate; context: { $implicit: (stopRow.organisations[1] ?? null)}"></ng-container></td>
+                    <td><ng-container *ngTemplateOutlet="stopAgencyLineTemplates; context: { $implicit: (stopRow.organisations[1] ?? null)}"></ng-container></td>
+                    
+                    <td><ng-container *ngTemplateOutlet="stopAgencyTemplate; context: { $implicit: (stopRow.organisations[2] ?? null)}"></ng-container></td>
+                    <td><ng-container *ngTemplateOutlet="stopAgencyLineTemplates; context: { $implicit: (stopRow.organisations[2] ?? null)}"></ng-container></td>
+                    
+                    <td><ng-container *ngTemplateOutlet="stopAgencyTemplate; context: { $implicit: (stopRow.organisations[3] ?? null)}"></ng-container></td>
+                    <td><ng-container *ngTemplateOutlet="stopAgencyLineTemplates; context: { $implicit: (stopRow.organisations[3] ?? null)}"></ng-container></td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+
+  <footer class="bg-secondary text-white p-2 px-3">
+    <div>opentransportdata.swiss - Last Update: 4.April 2025</div>
+  </footer>
+</div>
+
+<ng-template #stopAgencyTemplate let-data>
+  <ng-container *ngIf="data">
+    <div>{{ data.agencyTitle }} - <a [href]="data.url" target="_blank">{{ data.sboid }}</a></div>
+  </ng-container>
+</ng-template>
+
+<ng-template #stopAgencyLineTemplates let-data>
+  <ng-container *ngIf="data">
+    <div>{{ data.publishedLineNumbers.join(', ') }}</div>
+  </ng-container>
+</ng-template>

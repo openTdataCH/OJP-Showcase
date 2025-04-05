@@ -1,5 +1,5 @@
-import { BaseXMLParser } from '../../shared/controllers/xml-parser/base-xml-parser';
-import { VehicleJourney } from '../../shared/models/siri-et/vehicle-journey';
+import { BaseXMLParser } from '../xml-parser/base-xml-parser';
+import { VehicleJourney } from '../../models/siri-et/vehicle-journey';
 
 interface XML_Parser_Response {
   status: 'ERROR' | 'COUNT_ITEMS_NO' | 'PARSE.ITEM' | 'PARSE.DONE',

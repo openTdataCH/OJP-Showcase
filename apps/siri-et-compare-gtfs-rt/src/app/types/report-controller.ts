@@ -8,7 +8,6 @@ export interface DataLoadProgress {
   text: string
 }
 
-export type MapAgencySIRI_ET_Journeys = Record<string, VehicleJourney[]>;
 export type MapAgencyGTFS_RT_Entity = Record<string, Response_GTFS_RT_Entity[]>;
 
 export interface SIRI_ET_ReportItem {
