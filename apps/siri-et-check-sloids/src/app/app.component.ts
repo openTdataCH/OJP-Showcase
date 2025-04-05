@@ -154,46 +154,4 @@ export class AppComponent implements OnInit {
 
     return response;
   }
-
-  // TODO - share with siri-et-compare-gtfs-rt?
-  private processSIRI_ET_Items(reportDayF: string, items: VehicleJourney[], boController: BusinessOrganisationsController, gtfsDBController: GTFS_DB_Controller): MapAgencySIRI_ET_Journeys {
-    const mapAgencySIRI_ET_Journeys: MapAgencySIRI_ET_Journeys = {};
-
-    items.forEach(item => {
-      const day = item.vehicleDayRef;
-      if (day !== reportDayF) {
-        return;
-      }
-
-      const operatorRef = item.operatorRef;
-      const boData = boController.mapSboid[operatorRef] ?? null;
-      
-      let agencyId = AGENCY_ID_NO_DATA;
-      if (boData === null) {
-        // catch ch:1:Organisation:797
-        const operatorRefParts = operatorRef.split(':Organisation:');
-        if (operatorRefParts.length === 2) {
-          const lookupAgencyId = operatorRefParts[1];
-          const agency = gtfsDBController.mapAgency[lookupAgencyId] ?? null;
-
-          if (agency !== null) {
-            agencyId = agency.agency_id;
-          } else {
-            // TODO - handle error
-            // console.log(operatorRef);
-          }
-        }
-      } else {
-        agencyId = boData.organisationNumber;
-      }
-
-      if (!(agencyId in mapAgencySIRI_ET_Journeys)) {
-        mapAgencySIRI_ET_Journeys[agencyId] = [];
-      }
-
-      mapAgencySIRI_ET_Journeys[agencyId].push(item);
-    });
-
-    return mapAgencySIRI_ET_Journeys;
-  }
 }
