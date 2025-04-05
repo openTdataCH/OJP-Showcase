@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
+import Papa from 'papaparse';
 import DateHelpers from '../shared/helpers/date-helpers';
 
 import { BusinessOrganisationsController } from '../shared/controllers/business-organisations';
@@ -9,7 +10,7 @@ import { SIRI_ET_Parser } from '../shared/controllers/siri-et/siri-et-parser';
 import { VehicleJourney } from '../shared/models/siri-et/vehicle-journey';
 
 import { HTTP_Service } from './services/http.service';
-import { DataLoadProgress, ReportData } from './types/_all';
+import { DataLoadProgress, ReportCSV_DataRow, ReportData } from './types/_all';
 import { ReportController } from './controllers/report-controller';
 import { SIRI_ET_Helpers } from '../shared/helpers/siri-et-helpers';
 
@@ -153,5 +154,92 @@ export class AppComponent implements OnInit {
     });
 
     return response;
+  }
+
+  private computeReportCSV(): string {
+    const reportCSV_DataRows: ReportCSV_DataRow[] = [];
+
+    this.model.reportData.stopReportRows.forEach(stopReportRow => {
+      const reportCSV_DataRow: ReportCSV_DataRow = {
+        stop_name: stopReportRow.stopPointName,
+        didok_ref: stopReportRow.didokRef,
+        sloid_issues: stopReportRow.sloidIssues.join(','),
+        
+        affected_messages_no: stopReportRow.totalAffectedMessagesNo,
+        
+        agency1_name: stopReportRow.organisations[0].agencyTitle,
+        agency1_sboid: stopReportRow.organisations[0].sboid,
+        agency1_lines: stopReportRow.organisations[0].publishedLineNumbers.join(','),
+      
+        agency2_name: '',
+        agency2_sboid: '',
+        agency2_lines: '',
+      
+        agency3_name: '',
+        agency3_sboid: '',
+        agency3_lines: '',
+      
+        agency4_name: '',
+        agency4_sboid: '',
+        agency4_lines: '',
+      };
+
+      if (stopReportRow.organisations.length > 0) {
+        const orgData = stopReportRow.organisations[0];
+        
+        reportCSV_DataRow.agency1_name = orgData.agencyTitle,
+        reportCSV_DataRow.agency1_sboid = orgData.sboid;
+        reportCSV_DataRow.agency1_lines = orgData.publishedLineNumbers.join(',');
+      }
+
+      if (stopReportRow.organisations.length > 1) {
+        const orgData = stopReportRow.organisations[1];
+        
+        reportCSV_DataRow.agency2_name = orgData.agencyTitle,
+        reportCSV_DataRow.agency2_sboid = orgData.sboid;
+        reportCSV_DataRow.agency2_lines = orgData.publishedLineNumbers.join(',');
+      }
+
+      if (stopReportRow.organisations.length > 2) {
+        const orgData = stopReportRow.organisations[2];
+        
+        reportCSV_DataRow.agency3_name = orgData.agencyTitle,
+        reportCSV_DataRow.agency3_sboid = orgData.sboid;
+        reportCSV_DataRow.agency3_lines = orgData.publishedLineNumbers.join(',');
+      }
+
+      if (stopReportRow.organisations.length > 3) {
+        const orgData = stopReportRow.organisations[3];
+        
+        reportCSV_DataRow.agency4_name = orgData.agencyTitle,
+        reportCSV_DataRow.agency4_sboid = orgData.sboid;
+        reportCSV_DataRow.agency4_lines = orgData.publishedLineNumbers.join(',');
+      }
+
+      reportCSV_DataRows.push(reportCSV_DataRow);
+    });
+
+    const reportCSV = Papa.unparse(reportCSV_DataRows, {
+      quotes: true,
+      delimiter: ';',
+    });
+    
+    return reportCSV;
+  }
+
+  public downloadReport() {
+    const reportCSV = this.computeReportCSV();
+    const blob = new Blob([reportCSV], { type: 'text/csv;charset=utf-8;' });
+
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+
+    link.setAttribute('download', 'report-siri-et-check-sloids.csv');
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 }

@@ -29,3 +29,27 @@ export interface ReportData {
   siriET_totalIssuesNo: number,
   stopReportRows: StopReportRow[]
 }
+
+export interface ReportCSV_DataRow {
+  stop_name: string
+  didok_ref: string
+  sloid_issues: string
+  
+  affected_messages_no: number
+  
+  agency1_name: string
+  agency1_sboid: string
+  agency1_lines: string
+
+  agency2_name: string
+  agency2_sboid: string
+  agency2_lines: string
+
+  agency3_name: string
+  agency3_sboid: string
+  agency3_lines: string
+
+  agency4_name: string
+  agency4_sboid: string
+  agency4_lines: string
+}
