@@ -11,12 +11,13 @@ import { Response_GTFS_RT } from '../shared/types/gtfs-rt/gtfs-rt-response';
 
 import { VehicleJourney } from '../shared/models/siri-et/vehicle-journey';
 import { SIRI_ET_Parser } from '../shared/controllers/siri-et/siri-et-parser';
+import { SIRI_ET_Helpers } from '../shared/helpers/siri-et-helpers';
 
 import { ReportController } from './controllers/report-controller';
 
 import { HTTP_Service } from './services/http.service';
 
-import { GTFS_RT_ReportItem, MapAgencyGTFS_RT_Entity, MapAgencySIRI_ET_Journeys, ReportResultItem, ReportData, SIRI_ET_ReportItem, DataLoadProgress } from './types/report-controller';
+import { GTFS_RT_ReportItem, MapAgencyGTFS_RT_Entity, ReportResultItem, ReportData, SIRI_ET_ReportItem, DataLoadProgress } from './types/report-controller';
 
 import { DEFAULT_REPORT_DATA } from './constants';
 import { AGENCY_ID_NO_DATA } from "../shared/constants";
@@ -110,7 +111,9 @@ export class AppComponent implements OnInit {
         console.log();
 
         const siri_ET_Journeys = await this.parseSIRI_ET(results.siriET);
-        const mapAgencySIRI_ET_Journeys = this.processSIRI_ET_Items(reportDayF, siri_ET_Journeys, boController, gtfsDBController);
+        const mapDayAgencySIRI_ET_Journeys = SIRI_ET_Helpers.processSIRI_ET_Items(siri_ET_Journeys, boController, gtfsDBController);
+        const mapAgencySIRI_ET_Journeys = mapDayAgencySIRI_ET_Journeys[reportDayF] ?? {};
+
         console.log('DONE parsing ET');
         console.log(mapAgencySIRI_ET_Journeys);
         console.log();
@@ -200,47 +203,6 @@ export class AppComponent implements OnInit {
     });
 
     return mapAgencyGTFS_RT_Entity;
-  }
-
-  private processSIRI_ET_Items(reportDayF: string, items: VehicleJourney[], boController: BusinessOrganisationsController, gtfsDBController: GTFS_DB_Controller): MapAgencySIRI_ET_Journeys {
-    const mapAgencySIRI_ET_Journeys: MapAgencySIRI_ET_Journeys = {};
-    
-    items.forEach(item => {
-      const day = item.vehicleDayRef;
-      if (day !== reportDayF) {
-        return;
-      }
-
-      const operatorRef = item.operatorRef;
-      const boData = boController.mapSboid[operatorRef] ?? null;
-      
-      let agencyId = AGENCY_ID_NO_DATA;
-      if (boData === null) {
-        // catch ch:1:Organisation:797
-        const operatorRefParts = operatorRef.split(':Organisation:');
-        if (operatorRefParts.length === 2) {
-          const lookupAgencyId = operatorRefParts[1];
-          const agency = gtfsDBController.mapAgency[lookupAgencyId] ?? null;
-
-          if (agency !== null) {
-            agencyId = agency.agency_id;
-          } else {
-            // TODO - handle error
-            // console.log(operatorRef);
-          }
-        }
-      } else {
-        agencyId = boData.organisationNumber;
-      }
-
-      if (!(agencyId in mapAgencySIRI_ET_Journeys)) {
-        mapAgencySIRI_ET_Journeys[agencyId] = [];
-      }
-
-      mapAgencySIRI_ET_Journeys[agencyId].push(item);
-    });
-
-    return mapAgencySIRI_ET_Journeys;
   }
 
   public isBusyProcessing(): boolean {
