@@ -1,8 +1,5 @@
 import { ReportData } from "./types/report-controller";
 
-export const AGENCY_ID_NO_DATA = 'AGENCY_ID_NO_DATA';
-export const LIST_DELIMITER = ' -•- ';
-
 export const OTDCH_API_AUTHORIZATION = 'my_token';
 
 export const DEFAULT_REPORT_DATA: ReportData = {
