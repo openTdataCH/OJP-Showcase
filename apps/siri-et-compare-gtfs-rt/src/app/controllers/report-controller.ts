@@ -6,10 +6,13 @@ import { HTTP_Service } from "../services/http.service";
 
 import { MatchHelpers } from "../helpers/match-helpers";
 
-import { AgencyData, DataLoadProgress, GTFS_RT_ReportItem, MapAgencyGTFS_RT_Entity, MapAgencySIRI_ET_Journeys, ReportData, ReportResultItem, SIRI_ET_ReportItem } from "../types/report-controller";
+import { AgencyData, DataLoadProgress, GTFS_RT_ReportItem, MapAgencyGTFS_RT_Entity, ReportData, ReportResultItem, SIRI_ET_ReportItem } from "../types/report-controller";
 import { MatchDB_Trip, ResultMatch } from "../types/report-controller";
 
-import { AGENCY_ID_NO_DATA, DEFAULT_REPORT_DATA, LIST_DELIMITER } from "../constants";
+import { MapAgencySIRI_ET_Journeys } from "../../shared/helpers/siri-et-helpers";
+
+import { AGENCY_ID_NO_DATA, LIST_DELIMITER } from "../../shared/constants";
+import { DEFAULT_REPORT_DATA } from "../constants";
 
 type MapMatchDB_Trip = Record<string, MatchDB_Trip>;
 type MapAgencyMatchDB_Trip = Record<string, MapMatchDB_Trip>;
