@@ -12,6 +12,7 @@ import { HTTP_Service } from './services/http.service';
 import { DataLoadProgress, MapAgencySIRI_ET_Journeys, ReportData } from './types/_all';
 import { AGENCY_ID_NO_DATA } from './constants';
 import { ReportController } from './controllers/report-controller';
+import { SIRI_ET_Helpers } from '../shared/helpers/siri-et-helpers';
 
 type ProcessingState = 'IDLE' | 'FETCH_DATA' | 'PROCESS_DATA' | 'DONE_PROCESSING';
 
@@ -102,8 +103,10 @@ export class AppComponent implements OnInit {
     this.model.dataLoadProgress.percent = 60;
     this.model.dataLoadProgress.text = '... parsing SIRI-ET';
 
-    const mapAgencySIRI_ET_Journeys = this.processSIRI_ET_Items(reportDayF, siri_ET_Journeys, boController, gtfsDBController);
     const siri_ET_Journeys = await this.parseSIRI_ET_Response(siri_ET_JourneysS);
+    const mapDayAgencySIRI_ET_Journeys = SIRI_ET_Helpers.processSIRI_ET_Items(siri_ET_Journeys, boController, gtfsDBController);
+    const mapAgencySIRI_ET_Journeys = mapDayAgencySIRI_ET_Journeys[reportDayF] ?? {};
+
     console.log('DONE parsing ET');
     console.log(mapAgencySIRI_ET_Journeys);
     console.log();
