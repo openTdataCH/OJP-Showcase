@@ -10,6 +10,7 @@
 - [HRDF Check Duplicates](apps/hrdf-duplicates-report)
 - [HRDF Query API](apps/hrdf-query)
 - [SIRI-ET compare GTFS-RT](apps/siri-et-compare-gtfs-rt)
+- [SIRI-ET check SLOIDs](apps/siri-et-check-sloids)
 
 ## Tools
 
