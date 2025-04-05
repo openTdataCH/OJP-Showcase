@@ -12,7 +12,11 @@
 }
 
 .wrapper-table-results-content {
-  max-height: 500px;
   overflow-x: hidden;
   overflow-y: scroll;
+}
+
+.table-results.table td:not(:last-child),
+.table-results.table th:not(:last-child) {
+  border-right: 1px solid #dee2e6;
 }
