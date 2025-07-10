@@ -4,6 +4,9 @@ URL: https://tools.odpch.ch/bitfeld-viz/
 
 ----
 
+10.July.2024
+- adds future timetables from https://www.oev-info.ch/de/fahrplan-aktuell/fahrplanwissen/fahrplanjahr-und-wechsel
+
 23.September.2024
 - first version
     - support two bitfeld formats:
