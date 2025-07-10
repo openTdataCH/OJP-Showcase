@@ -70,6 +70,30 @@ export class AppComponent implements OnInit {
       startDateS: '2024-12-15',
       endDateS: '2025-12-13',
     },
+    {
+      id: 'fahrplan_2026',
+      caption: 'Fahrplan 2026',
+      startDateS: '2025-12-14',
+      endDateS: '2026-12-12',
+    },
+    {
+      id: 'fahrplan_2027',
+      caption: 'Fahrplan 2027',
+      startDateS: '2026-12-13',
+      endDateS: '2027-12-11',
+    },
+    {
+      id: 'fahrplan_2028',
+      caption: 'Fahrplan 2028',
+      startDateS: '2027-12-12',
+      endDateS: '2028-12-09',
+    },
+    {
+      id: 'fahrplan_2029',
+      caption: 'Fahrplan 2029',
+      startDateS: '2028-12-10',
+      endDateS: '2029-12-08',
+    },
   ]
 
   constructor() {
