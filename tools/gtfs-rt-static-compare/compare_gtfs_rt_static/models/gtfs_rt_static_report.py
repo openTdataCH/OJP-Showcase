@@ -97,6 +97,7 @@ class GTFS_RT_Static_Monthly_Report:
     comments: str
     last_update_dt: str
     report_days: dict[str, dict[str, GTFS_RT_Static_Report_Metadata]]
+    compare_days: dict[str, dict[str, GTFS_RT_Static_Report_Compare_Info]]
     
     def as_json(self):
         data_json = asdict(self)
