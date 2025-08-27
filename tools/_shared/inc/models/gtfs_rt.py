@@ -199,8 +199,8 @@ class TripUpdate:
 @dataclass
 class Entity:
     id: str
-    isDeleted: bool
     tripUpdate: TripUpdate
+    isDeleted: Optional[bool] = None
   
     @staticmethod
     def from_gtfs_rt_json(json_data):
