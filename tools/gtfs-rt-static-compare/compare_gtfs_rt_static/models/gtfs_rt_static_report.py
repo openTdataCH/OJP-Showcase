@@ -4,7 +4,6 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import Any
 
-from .gtfs_rt import Entity
 @dataclass
 class GTFS_RT_Static_Report_Compare_Info:
     compare_type: str # h - holiday; w - workday; w_p - workday with problems;
