@@ -76,6 +76,10 @@ class GTFS_Controller:
         log_message(f'... LOAD DB GTFS-DAY: {gtfs_catalog_item.gtfs_day} - {gtfs_catalog_item.db_relative_path}')
             
         gtfs_db = self._load_gtfs_db(gtfs_catalog_item)
+        if gtfs_db is None:
+            print('WHOOPS - no DB')
+            print(gtfs_catalog_item)
+            sys.exit(1)
         
         log_message(f'... DONE LOAD DB')
         print(header_separator_s)
