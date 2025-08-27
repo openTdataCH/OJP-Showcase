@@ -182,6 +182,7 @@ def _fetch_map_reports(app_config: Any, report_filter_ym: str) -> dict[str, GTFS
 def _compute_and_save_monthly_report(app_config: Any, report_filter_ym: str, map_reports: dict[str, GTFS_RT_Static_Report_Metadata], map_compare: dict[str, GTFS_RT_Static_Report_Compare_Info]): 
     #                   YYYY-MM  >    DD    >   HH > GTFS_RT_Static_Report_Metadata
     map_reports_by_hr: dict[str, dict[str, dict[str, GTFS_RT_Static_Report_Metadata]]] = {}
+    map_compare_by_hr: dict[str, dict[str, dict[str, GTFS_RT_Static_Report_Compare_Info]]] = {}
     for report_key, report in map_reports.items():
         # 2025-07-01-00
         report_key_parts = report_key.split('-')
@@ -195,11 +196,15 @@ def _compute_and_save_monthly_report(app_config: Any, report_filter_ym: str, map
         
         if report_ym not in map_reports_by_hr:
             map_reports_by_hr[report_ym] = {}
+            map_compare_by_hr[report_ym] = {}
         
         if report_day_f not in map_reports_by_hr[report_ym]:
             map_reports_by_hr[report_ym][report_day_f] = {}
+            map_compare_by_hr[report_ym][report_day_f] = {}
             
         map_reports_by_hr[report_ym][report_day_f][report_hour_f] = report
+        if report_key in map_compare:
+            map_compare_by_hr[report_ym][report_day_f][report_hour_f] = map_compare[report_key]
     # loop reports
     
     report_now = datetime.now()
@@ -208,11 +213,13 @@ def _compute_and_save_monthly_report(app_config: Any, report_filter_ym: str, map
     
     for report_ym, report_data in map_reports_by_hr.items():
         report_year_f, _, report_month_f = report_ym.partition('-')
+        report_compare_data = map_compare_by_hr[report_ym]
         
         monthly_report = GTFS_RT_Static_Monthly_Report(
             last_update_dt=report_now_f,
             comments=report_comments,
             report_days=report_data,
+            compare_days=report_compare_data,
         )
         monthly_report_json = monthly_report.as_json()
         
@@ -245,6 +252,13 @@ def main():
     log_message(f'... done parsing {len(map_reports.keys())} reports')
     print()
     
+    map_compare: dict[str, GTFS_RT_Static_Report_Compare_Info] = {}
+    for report_key, _ in map_reports.items():
+        report_compare = _compute_compare(app_config, report_key, map_reports, map_compare)
+        map_compare[report_key] = report_compare
+    # loop compare
+    log_message('... finished compare files')
+    print()
     
     _compute_and_save_monthly_report(app_config, report_filter_ym, map_reports, map_compare)
     print()
