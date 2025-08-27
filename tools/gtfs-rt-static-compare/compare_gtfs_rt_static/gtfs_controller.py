@@ -2,8 +2,6 @@ import os, sys
 
 from pathlib import Path
 
-import re
-
 from typing import Union
 
 from datetime import datetime
