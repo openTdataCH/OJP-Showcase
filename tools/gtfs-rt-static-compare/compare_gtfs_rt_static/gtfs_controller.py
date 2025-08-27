@@ -24,7 +24,7 @@ from .fetch import fetch_latest, compute_resource_snapshot_path
 
 class GTFS_Controller:
     def __init__(self, app_path: Path):
-        config_path = f'{app_path}/config/config.yml'
+        config_path = Path(f'{app_path}/config/config.yml')
         self.app_config = load_yaml_config(config_path, app_path=app_path)
         
         gtfs_dbs_report_path = self.app_config['resource_paths']['gtfs_dbs_json_path']
