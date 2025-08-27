@@ -44,8 +44,8 @@ class GTFS_RT_Static_Report_Metadata:
     @staticmethod
     def from_json(data_json):
         metadata = GTFS_RT_Static_Report_Metadata(**data_json)
-        metadata.report_dt = datetime.strptime(metadata.report_dt, '%Y-%m-%d %H:%M:%S')
-        metadata.gtfs_rt_dt = datetime.strptime(metadata.gtfs_rt_dt, '%Y-%m-%d %H:%M:%S')
+        metadata.report_dt = datetime.strptime(data_json['report_dt'], '%Y-%m-%d %H:%M:%S')
+        metadata.gtfs_rt_dt = datetime.strptime(data_json['gtfs_rt_dt'], '%Y-%m-%d %H:%M:%S')
         
         return metadata
     
