@@ -22,6 +22,7 @@ from .gtfs_db import GTFS_DB
 
 from .fetch import fetch_latest, compute_resource_snapshot_path
 
+gtfs_rt_static_report_file_regexp = r"gtfs_rt_static_report-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})([0-9]{2})"
 class GTFS_Controller:
     def __init__(self, app_path: Path):
         config_path = Path(f'{app_path}/config/config.yml')
