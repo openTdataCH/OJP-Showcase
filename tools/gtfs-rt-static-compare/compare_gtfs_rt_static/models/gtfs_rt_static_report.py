@@ -72,6 +72,7 @@ class GTFS_RT_Static_Report:
     @staticmethod
     def from_json(report_json: dict[str, Any]):
         report = GTFS_RT_Static_Report(**report_json)
+        
         report.metadata = GTFS_RT_Static_Report_Metadata.from_json(report_json['metadata'])
         
         entity_group_keys = ['tripOK_routeNOK', 'tripNOK_routeOK', 'tripNOK_routeNOK']
