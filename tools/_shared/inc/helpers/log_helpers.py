@@ -23,3 +23,7 @@ def log_message(message: str):
         message = f'{message} - {memory_message}'
     
     print(message)
+    
+def format_path(path: str, app_path: str):
+    new_path = path.replace(app_path, '.')
+    return new_path
