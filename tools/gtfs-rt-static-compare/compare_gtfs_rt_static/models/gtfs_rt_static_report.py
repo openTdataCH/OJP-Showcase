@@ -101,4 +101,10 @@ class GTFS_RT_Static_Monthly_Report:
     def as_json(self):
         data_json = asdict(self)
         
+        for report_day, day_data in self.report_days.items():
+            for report_hr, hr_data_o in day_data.items():
+                hr_data: GTFS_RT_Static_Report_Metadata = hr_data_o
+                data_json['report_days'][report_day][report_hr] = hr_data.as_json()
+        # for
+        
         return data_json
