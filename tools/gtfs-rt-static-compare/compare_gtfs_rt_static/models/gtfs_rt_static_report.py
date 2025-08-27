@@ -1,8 +1,8 @@
 import os, sys
 
 from dataclasses import dataclass, asdict
-from typing import List, Dict
 from datetime import datetime
+from typing import Any
 
 from .gtfs_rt import Entity
 @dataclass
@@ -61,9 +61,9 @@ class GTFS_RT_Static_Report_Metadata:
 class GTFS_RT_Static_Report:
     metadata: GTFS_RT_Static_Report_Metadata
     
-    tripOK_routeNOK: List[str]
-    tripNOK_routeOK: List[str]
-    tripNOK_routeNOK: List[str]
+    tripOK_routeNOK: list[str]
+    tripNOK_routeOK: list[str]
+    tripNOK_routeNOK: list[str]
     
     @staticmethod
     def init_with_metadata(metdata: GTFS_RT_Static_Report_Metadata):
@@ -71,7 +71,7 @@ class GTFS_RT_Static_Report:
         return report
     
     @staticmethod
-    def from_json(report_json):
+    def from_json(report_json: dict[str, Any]):
         report = GTFS_RT_Static_Report(**report_json)
         report.metadata = GTFS_RT_Static_Report_Metadata.from_json(report_json['metadata'])
         
@@ -96,7 +96,7 @@ class GTFS_RT_Static_Report:
 class GTFS_RT_Static_Monthly_Report:
     comments: str
     last_update_dt: str
-    report_days: Dict[str, Dict[str, GTFS_RT_Static_Report_Metadata]]
+    report_days: dict[str, dict[str, GTFS_RT_Static_Report_Metadata]]
     
     def as_json(self):
         data_json = asdict(self)
