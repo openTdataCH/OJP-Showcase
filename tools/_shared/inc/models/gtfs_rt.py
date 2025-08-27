@@ -3,7 +3,22 @@ import os, sys
 import json
 
 from dataclasses import dataclass, asdict
-from typing import List, Optional
+from typing import List, Optional, Any
+
+def read_safe_json_key(json_data: dict[str, Any], key: str, default_value = None):
+    if not key[:1].isupper():
+        print('ERROR - this method should be use with UpperCase keys')
+        print(key)
+        sys.exit(1)
+    
+    camelCase_indicator = 'n/a - TRY_camelCase'
+    
+    value = json_data.get(key, camelCase_indicator)
+    if value == camelCase_indicator:
+        camelCase_key = key[:1].lower() + key[1:]
+        value = json_data.get(camelCase_key, default_value)
+        
+    return value
 
 @dataclass
 class Header:
