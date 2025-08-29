@@ -8,8 +8,8 @@ from typing import Any
 class GTFS_RT_Static_Report_Compare_Info:
     compare_type: str # h - holiday; w - workday; w_p - workday with problems;
     map_days: dict[str, int]
-    
-    # add drop_line, 
+    mean_value: float
+    drop_line: float
     
     @staticmethod
     def from_json(data_json):
