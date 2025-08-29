@@ -67,7 +67,8 @@ class GTFS_Controller:
         
         gtfs_rt_response = fetch_latest(self.app_config, gtfs_rt_snapshot_path)
         log_message(f'... DONE fetch')
-        print(f'saved to {format_path(f'{gtfs_rt_snapshot_path}', app_path)}')
+        gtfs_rt_snapshot_path_s = format_path(f'{gtfs_rt_snapshot_path}', app_path)
+        print(f'saved to {gtfs_rt_snapshot_path_s}')
         print(header_separator_s)
         
         gtfs_rt_dt = datetime.fromtimestamp(gtfs_rt_response.header.timestamp)
