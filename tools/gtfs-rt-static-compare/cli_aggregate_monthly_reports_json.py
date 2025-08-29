@@ -179,6 +179,11 @@ def _fetch_map_reports(app_config: Any, report_filter_ym: str) -> dict[str, GTFS
         report_month_f = file_matches[2]
         report_day_f = file_matches[3]
         report_hour_f = file_matches[4]
+        report_min_f = file_matches[5]
+        
+        # Discard reports that are not run on cronjob basis (every hour)
+        if report_min_f != '00':
+            continue
         
         report_key = f'{report_year_f}-{report_month_f}-{report_day_f}-{report_hour_f}'
         
