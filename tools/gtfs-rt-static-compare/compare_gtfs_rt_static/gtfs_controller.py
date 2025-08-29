@@ -120,7 +120,8 @@ class GTFS_Controller:
         print(f'Report URL          : {report_url}')
         print(header_separator_s)
         
-        print(f'... saved to {format_path(f'{report_path}', app_path)}')
+        report_path_s = format_path(f'{report_path}', app_path)
+        print(f'... saved to {report_path_s}')
         print(header_separator_s)
         
         print(f'... cleaning up, gzip resource')
