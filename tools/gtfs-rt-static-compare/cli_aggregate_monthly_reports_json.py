@@ -20,7 +20,12 @@ from compare_gtfs_rt_static.gtfs_controller import gtfs_rt_static_report_file_re
 is_verbose_mode = False
 
 def _compute_compare(app_config: Any, report_key: str, map_hr_report: dict[str, GTFS_RT_Static_Report_Metadata], map_compare: dict[str, GTFS_RT_Static_Report_Compare_Info]):
-    compare_info = GTFS_RT_Static_Report_Compare_Info('h', {})
+    compare_info = GTFS_RT_Static_Report_Compare_Info(
+        compare_type='h',
+        mean_value=-1,
+        drop_line=-1,
+        map_days={},
+    )
     
     report_ymd_f = report_key[0:10]
     report_hr_f = report_key[-2:]
@@ -82,6 +87,9 @@ def _compute_compare(app_config: Any, report_key: str, map_hr_report: dict[str, 
         
         report = map_hr_report[report_key]
         report_total_rows_no = report.total_rows_no
+        
+        compare_info.drop_line = drop_line
+        compare_info.mean_value = measure_mean
         
         if report_total_rows_no < drop_line:
             compare_info.compare_type = 'w_p'
