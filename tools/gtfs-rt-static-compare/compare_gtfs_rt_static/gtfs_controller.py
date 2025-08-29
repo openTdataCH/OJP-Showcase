@@ -276,5 +276,6 @@ class GTFS_Controller:
         app_path = self.app_config['resource_paths']['app_path']
         
         print()
-        print(f'... saved to {format_path(f'{gtfs_rt_snapshot_path}', app_path)}')
+        gtfs_rt_snapshot_path_s = format_path(f'{gtfs_rt_snapshot_path}', app_path)
+        print(f'... saved to {gtfs_rt_snapshot_path_s}')
         print(header_separator_s)
