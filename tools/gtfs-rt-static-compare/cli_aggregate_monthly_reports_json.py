@@ -254,18 +254,25 @@ def _analyse_last_report(map_reports: dict[str, GTFS_RT_Static_Report_Metadata],
     if (report_hr < 6) or (report_hr > 18):
         return
     
+    # compare report is not available, dont throw an error
+    if report_now_f not in map_compare:
+        return
+    
+    report_compare = map_compare[report_now_f]
+    
+    # ignore holidays
+    if report_compare.compare_type == 'h':
+        return
+    
     error_message = None
     
     if report_now_f not in map_reports:
         error_message = f'ERROR - cant find {report_now_f} report, is GTFS-RT endpoint working?'
-    if report_now_f not in map_compare:
-        error_message = f'ERROR - cant find {report_now_f} compare report'
         
     if error_message is not None:
         raise Exception(error_message)
     
     report = map_reports[report_now_f]
-    report_compare = map_compare[report_now_f]
     
     if report_compare.compare_type == 'w_p':
         error_message = f'ERROR - DROP deteced in number of GTFS-RT items'
