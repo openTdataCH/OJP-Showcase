@@ -119,14 +119,12 @@ class GTFS_Controller:
         print(f'Report URL          : {report_url}')
         print(header_separator_s)
         
-        report_path_s = format_path(f'{report_path}', app_path)
-        print(f'... saved to {report_path_s}')
-        print(header_separator_s)
-        
-        print(f'... cleaning up, gzip resource')
+        log_message('... cleaning up, archive(gzip) resource')
         self._cleanup_resource(gtfs_rt_snapshot_path)
         
         log_message('... DONE')
+        print(header_separator_s)
+        print()
         
     def _load_gtfs_db(self, gtfs_catalog_item: GTFS_Static_Catalog_Item):
         gtfs_dbs_basepath = Path(self.app_config['resource_paths']['gtfs_db']).parent
