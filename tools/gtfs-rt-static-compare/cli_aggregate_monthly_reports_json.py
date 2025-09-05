@@ -245,6 +245,35 @@ def _compute_and_save_monthly_report(app_config: Any, report_filter_ym: str, map
         log_message(f'... saved {report_ym} to {monthly_report_path.name}')
     # loop months
 
+def _analyse_last_report(map_reports: dict[str, GTFS_RT_Static_Report_Metadata], map_compare: dict[str, GTFS_RT_Static_Report_Compare_Info]):
+    report_now = datetime.now()
+    report_now_f = report_now.strftime('%Y-%m-%d-%H')
+    
+    error_message = None
+    
+    if report_now_f not in map_reports:
+        error_message = f'ERROR - cant find {report_now_f} report, is GTFS-RT endpoint working?'
+    if report_now_f not in map_compare:
+        error_message = f'ERROR - cant find {report_now_f} compare report'
+        
+    if error_message is not None:
+        raise Exception(error_message)
+    
+    report = map_reports[report_now_f]
+    report_compare = map_compare[report_now_f]
+    
+    if report_compare.compare_type == 'w_p':
+        error_message = f'ERROR - DROP deteced in number of GTFS-RT items'
+        
+    if report.tripNOK_NOJP_no > 0:
+        error_message = f'ERROR - GTFS-RT / -static is out of sync, discovered {report.tripNOK_NOJP_no} items not in GTFS-static'
+        
+    if abs(report.gtfs_rt_age) > 60:
+        error_message = f'ERROR - GTFS-RT age is greater than 60seconds: {report.gtfs_rt_age}'
+                
+    if error_message is not None:
+        raise Exception(error_message)
+
 def main():
     app_path = Path(os.path.realpath(__file__)).parent
     config_path = Path(f'{app_path}/config/config.yml')
@@ -280,6 +309,9 @@ def main():
     
     log_message('... DONE')
     print(header_separator_s)
+    
+    if user_report_filter_ym is None:
+        _analyse_last_report(map_reports, map_compare)
 
 if __name__ == "__main__":
     main()
