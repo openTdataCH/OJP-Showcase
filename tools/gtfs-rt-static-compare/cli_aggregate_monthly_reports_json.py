@@ -249,6 +249,11 @@ def _analyse_last_report(map_reports: dict[str, GTFS_RT_Static_Report_Metadata],
     report_now = datetime.now()
     report_now_f = report_now.strftime('%Y-%m-%d-%H')
     
+    # ignore outside of normal hours
+    report_hr = int(report_now_f[-2:])
+    if (report_hr < 6) or (report_hr > 18):
+        return
+    
     error_message = None
     
     if report_now_f not in map_reports:
