@@ -15,7 +15,7 @@ from compare_gtfs_rt_static.helpers.json_helpers import load_json_from_file, exp
 from compare_gtfs_rt_static.helpers.log_helpers import log_message
 
 from compare_gtfs_rt_static.models.gtfs_rt_static_report import GTFS_RT_Static_Report, GTFS_RT_Static_Monthly_Report, GTFS_RT_Static_Report_Compare_Info, GTFS_RT_Static_Report_Metadata
-from compare_gtfs_rt_static.gtfs_controller import gtfs_rt_static_report_file_regexp
+from compare_gtfs_rt_static.gtfs_controller import gtfs_rt_static_report_file_regexp, header_separator_s
 
 is_verbose_mode = False
 
@@ -252,18 +252,22 @@ def main():
     
     report_now = datetime.now()
     
-    default_filter_ym = report_now.strftime('%Y-%m')
     parser = argparse.ArgumentParser()
-    parser.add_argument('--month', '--month', default=default_filter_ym)
+    parser.add_argument('--month', '--month')
     args = parser.parse_args()
-    report_filter_ym = args.month
+    user_report_filter_ym = args.month
     
+    report_filter_ym = user_report_filter_ym
+    if report_filter_ym is None:
+        default_filter_ym = report_now.strftime('%Y-%m')
+        report_filter_ym = default_filter_ym
+    
+    print(header_separator_s)
     log_message(f'START cli_aggregate_monthly_reports_json with --month={report_filter_ym}')
-    print()
+    print(header_separator_s)
     
     map_reports = _fetch_map_reports(app_config, report_filter_ym)
     log_message(f'... done parsing {len(map_reports.keys())} reports')
-    print()
     
     map_compare: dict[str, GTFS_RT_Static_Report_Compare_Info] = {}
     for report_key, _ in map_reports.items():
@@ -271,12 +275,11 @@ def main():
         map_compare[report_key] = report_compare
     # loop compare
     log_message('... finished compare files')
-    print()
     
     _compute_and_save_monthly_report(app_config, report_filter_ym, map_reports, map_compare)
-    print()
     
     log_message('... DONE')
+    print(header_separator_s)
 
 if __name__ == "__main__":
     main()
