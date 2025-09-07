@@ -544,4 +544,9 @@ export class AppComponent {
 
     row.scrollIntoView({ behavior: 'auto', block: 'nearest' });
   }
+
+  public updateSelection(reportCell: ReportCell) {
+    this.model.selectedReportCell = reportCell;
+    this.updatePrevDaysModel();
+  }
 }
