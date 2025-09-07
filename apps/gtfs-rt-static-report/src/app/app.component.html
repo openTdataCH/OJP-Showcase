@@ -23,6 +23,11 @@
 
       <div class="mx-2"></div>
 
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="showAllHours" [(ngModel)]="this.model.showAllHours" (ngModelChange)="onClickShowAllHours()" />
+        <label class="form-check-label" for="showAllHours">Show All Hours</label>
+      </div>
+
       <div class="ms-auto p-2"><a href="https://github.com/openTdataCH/OJP-Showcase/blob/develop/tools/gtfs-rt-static-compare/docs/gtfs-rt-static-compare.md" target="_blank">Documentation</a></div>
     </div>
 
