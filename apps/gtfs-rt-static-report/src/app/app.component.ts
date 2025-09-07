@@ -236,24 +236,13 @@ export class AppComponent {
   }
 
   private updateReportModel() {
-    if (this.model.reportJSON === null) {
+    const latestReport = this.model.mapMonthlyReports[this.model.selectedMonth] ?? null;
+
+    if (latestReport === null) {
       return;
     }
 
-    const reportLastUpdate = new Date(this.model.reportJSON.last_update_dt);
-    const report = this.model.reportJSON;
-
-    const currentDateParts = this.model.selectedMonth.split('-');
-    const currentDateYear = Number(currentDateParts[0]);
-    const currentDateMonth = Number(currentDateParts[1]);
-
-    const nowDate = new Date();
-    const nowHHMM = nowDate.toTimeString().substring(0, 5);
-
-    const monthDay1Date = new Date(this.model.selectedMonth + '-01');
-    const selectedMonthDaysNo = DateHelpers.computeMonthDaysNo(monthDay1Date);
-
-    const isSameMonth = DateHelpers.isSameMonth(monthDay1Date);
+    const reportLastUpdate = new Date(latestReport.last_update_dt);
     this.model.reportLastUpdateF = latestReport.last_update_dt;
 
     const dayReportCells: ReportCell[][] = [];
@@ -262,102 +251,121 @@ export class AppComponent {
     let classDBSource: CellClassDB = 'odd';
     let prevDBName: string | null = null;
 
-    let currentDay = 1;
-    while (currentDay <= selectedMonthDaysNo) {
-      const dayCell: DayCell = (() => {
-        const currentDayDate = new Date(currentDateYear, currentDateMonth - 1, currentDay);
-        let currentDayF = currentDayDate.toLocaleDateString('en-US', {
-          weekday: 'short',
-          day: '2-digit',
-          month: 'short',
-        });
-        currentDayF = currentDayF.replace(',', '');
-        const currentDayFParts = currentDayF.split(' ');
-        currentDayF = currentDayFParts[0] + ' ' + currentDayFParts[2] + '.' + currentDayFParts[1].replace(',', '');
-        const isSunday = currentDayFParts[0] === 'Sun';
+    for (const reportYM in this.model.mapMonthlyReports) {
+      const report = this.model.mapMonthlyReports[reportYM];
 
-        return {
-          date: currentDayDate,
-          dateF: currentDayF,
-          isSunday: isSunday,
-        }
-      })();
+      const monthDay1Date = new Date(reportYM + '-01');
+      const selectedMonthDaysNo = DateHelpers.computeMonthDaysNo(monthDay1Date);
 
-      const dayF = currentDay.toString().padStart(2, '0');
-      const hourReportCells: ReportCell[] = [];
-      const mapDataHourlyReports = report.report_days[dayF] ?? null;
+      const reportYMParts = reportYM.split('-');
+      const reportYearF = Number(reportYMParts[0]);
+      const reportMonthF = Number(reportYMParts[1]);
 
-      hourCells.forEach(hourCell => {
-        const reportCell: ReportCell = {
-          report: null,
-          className: 'ok_empty',
-          cellValue: '',
-          error: null,
-          dayCell: dayCell,
-          hourCell: hourCell,
-        }
+      let currentDay = 1;
+      while (currentDay <= selectedMonthDaysNo) {
+        const dayF = currentDay.toString().padStart(2, '0');
 
-        const hasData: boolean = (() => {
-          const reportCellDateS = this.model.selectedMonth + '-' + dayF + ' ' + hourCell.hourF + ':00:00';
-          const reportCellDate = new Date(reportCellDateS);
+        const dayCell: DayCell = (() => {
+          const currentDayDate = new Date(reportYearF, reportMonthF - 1, currentDay);
+          let currentDayF = currentDayDate.toLocaleDateString('en-US', {
+            weekday: 'short',
+            day: '2-digit',
+            month: 'short',
+          });
+          currentDayF = currentDayF.replace(',', '');
+          const currentDayFParts = currentDayF.split(' ');
+          currentDayF = currentDayFParts[0] + ' ' + currentDayFParts[2] + '.' + currentDayFParts[1].replace(',', '');
+          const isSunday = currentDayFParts[0] === 'Sun';
 
-          const isFuture = reportCellDate > reportLastUpdate;
-          // Discard future event cells
-          if (isFuture) {
-            return false;
+          return {
+            date: currentDayDate,
+            dayF: reportYM + '-' + dayF,
+            dateF: currentDayF,
+            isSunday: isSunday,
           }
-
-          // Otherwise check if we have a report
-          return mapDataHourlyReports !== null;
         })();
 
-        if (hasData) {
-          const hrMinF = hourCell.hourF + '00';
-          const reportHR = mapDataHourlyReports[hrMinF] ?? null;
-          if (reportHR === null) {
-            if (prevDBName !== null) {
-              reportCell.cellValue = 'n/a';
-              reportCell.error = 'DATA';
-            }
-          } else {
-            const reportAny = reportHR as any;
-            const reportValue = reportAny[this.model.selectedReportValueLookup.type] ?? null;
-            if (reportValue === null) {
-              reportCell.cellValue = 'n/a'
-            } else {
-              reportCell.cellValue = reportValue.toLocaleString('de-CH');
-            }
- 
-            if (Math.abs(reportHR.gtfs_rt_age) > 60) {
-              reportCell.error = 'RT age';
-            }
+        const hourReportCells: ReportCell[] = [];
+        const mapDataHourlyReports = report.report_days[dayF] ?? null;
 
-            if (reportHR.tripNOK_NOJP_no > 0) {
-              reportCell.error = 'Match';
-            }
+        this.model.hourCells.forEach(hourCell => {
+          const key = dayCell.dayF + '-' + hourCell.hourF;
 
-            if (prevDBName !== null && (prevDBName !== reportHR.gtfs_db_filename)) {
-              classDBSource = classDBSource === 'odd' ? 'even' : 'odd';
-            }
-            prevDBName = reportHR.gtfs_db_filename;
-
-            reportCell.className = 'ok_' + classDBSource;
+          const reportCell: ReportCell = {
+            key: key,
+            report: null,
+            className: 'ok_empty',
+            cellValue: '',
+            error: null,
+            dayCell: dayCell,
+            hourCell: hourCell,
+            compareMetadata: null,
           }
-          
-          reportCell.report = reportHR;
-        }
 
-        hourReportCells.push(reportCell);
-      });
+          const hasData: boolean = (() => {
+            const reportCellDateS = reportYM + '-' + dayF + ' ' + hourCell.hourF + ':00:00';
+            const reportCellDate = new Date(reportCellDateS);
 
-      dayReportCells.push(hourReportCells);
+            const isFuture = reportCellDate > reportLastUpdate;
+            // Discard future event cells
+            if (isFuture) {
+              return false;
+            }
 
-      dayCells.push(dayCell);
+            // Otherwise check if we have a report
+            return mapDataHourlyReports !== null;
+          })();
 
-      currentDay += 1;
+          if (hasData) {
+            const hrMinF = hourCell.hourF + '00';
+            const reportHR = mapDataHourlyReports[hrMinF] ?? null;
+            if (reportHR === null) {
+              if (prevDBName !== null) {
+                reportCell.cellValue = 'n/a';
+                reportCell.error = 'DATA';
+              }
+            } else {
+              const reportAny = reportHR as any;
+              const reportValue = reportAny[this.model.selectedReportValueLookup.type] ?? null;
+              if (reportValue === null) {
+                reportCell.cellValue = 'n/a'
+              } else {
+                reportCell.cellValue = reportValue.toLocaleString('de-CH');
+              }
+  
+              if (Math.abs(reportHR.gtfs_rt_age) > 60) {
+                reportCell.error = 'RT age';
+              }
+
+              if (reportHR.tripNOK_NOJP_no > 0) {
+                reportCell.error = 'Match';
+              }
+
+              if (prevDBName !== null && (prevDBName !== reportHR.gtfs_db_filename)) {
+                classDBSource = classDBSource === 'odd' ? 'even' : 'odd';
+              }
+              prevDBName = reportHR.gtfs_db_filename;
+
+              reportCell.className = 'ok_' + classDBSource;
+            }
+            
+            reportCell.report = reportHR;
+          }
+
+          if (this.shouldShowHour(hourCell.hour)) {
+            hourReportCells.push(reportCell);
+          }
+        });
+
+        dayReportCells.push(hourReportCells);
+
+        dayCells.push(dayCell);
+
+        currentDay += 1;
+      }
     }
 
-    this.model.monthlyHoursReport = dayReportCells;
+    this.model.hourlyReportCells = dayReportCells;
     this.model.dayCells = dayCells;
 
     this.model.selectedReportCell = (() => {
