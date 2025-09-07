@@ -395,35 +395,40 @@ export class AppComponent {
 
     this.model.hourlyReportCells = dayReportCells;
     this.model.dayCells = dayCells;
+  }
 
-    this.model.selectedReportCell = (() => {
-      const nowDayIdx = (() => {
-        if (isSameMonth) {
-          // use current day for current month
-          const nowDay = new Date().getDate();
-          return nowDay - 1;
+  private updateSelectionByDayHr(reportYMDH: string | null = null) {
+    const allReports = this.model.hourlyReportCells.flat();
+    const latestReportCell = allReports.reverse().find(el => (el.report !== null)) ?? null;
+    if (latestReportCell === null) {
+      // return early
+      return;
+    }
+
+    if (reportYMDH === null) {
+      // use latest available report
+      this.model.selectedReportCell = latestReportCell;
+    } else {
+      const ymd = reportYMDH.substring(0, 10);
+      const dayReportCells = allReports.filter(el => (el.dayCell.dayF === ymd));
+
+      if (dayReportCells.length === 0) {
+        // no reports for given day, defaults to latest available report
+        this.model.selectedReportCell = latestReportCell;
+      } else {
+        const hrF = reportYMDH.substring(11, 13);
+        const hrReport = dayReportCells.find(el => (el.hourCell.hourF === hrF)) ?? null;
+        
+        if (hrReport === null) {
+          // the hr couldnt be found, display first for the given day
+          this.model.selectedReportCell = dayReportCells[0];
         } else {
-          // otherwise use first day of month
-          return 0;
+          this.model.selectedReportCell = hrReport;
         }
-      })();
-
-      const hourReportRows = dayReportCells[nowDayIdx] ?? null;
-      if (hourReportRows === null) {
-        return null;
       }
+    }
 
-      // filter for non-null reports
-      const hourReportNotNullRows = hourReportRows.filter(el => el.report !== null);
-      if (hourReportNotNullRows.length === 0) {
-        return null;
-      }
 
-      const cellIndex = (() => {
-        if (isSameMonth) {
-          // for current month use latest report
-          return hourReportNotNullRows.length - 1;
-        }
 
         return 0;
       })();
