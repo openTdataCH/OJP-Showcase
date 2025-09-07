@@ -4,6 +4,7 @@ import { DateHelpers } from './helpers/date-helpers';
 
 interface DayCell {
   date: Date,
+  dayF: string,
   dateF: string,
   isSunday: boolean
 }
