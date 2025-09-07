@@ -82,7 +82,8 @@ interface PageModel {
   hourCells: HourCell[],
   reportValueLookups: ReportValueLookup[],
   selectedReportValueLookup: ReportValueLookup,
-  appVersion: string
+  appVersion: string,
+  showAllHours: boolean,
 }
 
 const mapReportValueLookups: Record<ReportValueLookupType, string> = {
@@ -141,25 +142,6 @@ const monthItems: string[] = (() => {
   return items.slice().reverse();
 })();
 
-const hourCells: HourCell[] = (() => {
-  const cells: HourCell[] = [];
-
-  let hour = 0;
-  while (hour <= 23) {
-    const hourF = hour.toString().padStart(2, '0');
-
-    const cell: HourCell = {
-      hour: hour,
-      hourF: hourF,
-    };
-    cells.push(cell);
-
-    hour += 1;
-  }
-
-  return cells;
-})();
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -176,11 +158,31 @@ export class AppComponent {
       monthlyHoursReport: [],
       selectedReportCell: null,
       dayCells: [],
-      hourCells: hourCells,
+      hourCells: [],
       reportValueLookups: reportValueLookups,
       selectedReportValueLookup: reportValueLookups[0],
       appVersion: '2024-06-03-1'
+    this.updateHourCells();
+
+  private updateHourCells() {
+    const cells: HourCell[] = [];
+
+    let hour = 0;
+    while (hour <= 23) {
+      const hourF = hour.toString().padStart(2, '0');
+
+      const cell: HourCell = {
+        hour: hour,
+        hourF: hourF,
+      };
+      if (this.shouldShowHour(hour)) {
+        cells.push(cell);
+      }
+
+      hour += 1;
     }
+
+    this.model.hourCells = cells;
   }
 
   ngOnInit() {
@@ -360,8 +362,14 @@ export class AppComponent {
 
       return hourReportNotNullRows[cellIndex];
     })();
+  private shouldShowHour(hour: number) {
+    if (this.model.showAllHours) {
+      return true;
+    }
 
-    console.log(this.model.selectedReportCell);
+    const isNormalHour = (6 <= hour) && (hour <=18);
+    
+    return isNormalHour;
   }
 
   private computeSnapshotURLFromTemplate(templateURL: string, metadata: GTFS_RT_Static_Report_Metadata_JSON) {
