@@ -347,6 +347,34 @@ export class AppComponent {
               prevDBName = reportHR.gtfs_db_filename;
 
               reportCell.className = 'ok_' + classDBSource;
+
+              if (dayF in report.compare_days) {
+                if (hrMinF in report.compare_days[dayF]) {
+                  const compare_info = report.compare_days[dayF][hrMinF];
+
+                  const prevValues: Number[] = [];
+                  const compareReportLines: string[] = [];
+                  for (const dayF in compare_info.map_days) {
+                    const prevValue = compare_info.map_days[dayF];
+                    prevValues.push(prevValue);
+                    const compareReportLine = dayF + ': ' + prevValue;
+                    compareReportLines.push(compareReportLine);
+                  }
+
+                  const compareMetadata: GTFS_RT_StaticReportCompareMetadata = {
+                    info: compare_info,
+                    reportLines: compareReportLines,
+                    valueF: '' + (reportAny['total_rows_no'] ?? 0),
+                    meanValueF: '' + compare_info.mean_value,
+                    dropLineF: '' + compare_info.drop_line,
+                  };
+
+                  reportCell.compareMetadata = compareMetadata;
+                  if (compare_info.compare_type === 'w_p') {
+                    reportCell.error = 'Drop';
+                  }
+                }
+              }
             }
             
             reportCell.report = reportHR;
