@@ -165,6 +165,16 @@ export class AppComponent {
       showAllHours: false,
     this.updateHourCells();
 
+
+  async ngOnInit(): Promise<void> {
+    await this.fetchAndUpdateReport();
+    
+    // HACK setTimeout with 0, otherwise doesnt scroll, the scroll scrollContainer is not ready
+    setTimeout(() => {
+      this.updateSelectionByDayHr();
+    }, 0);
+  }
+
   private updateHourCells() {
     const cells: HourCell[] = [];
 
@@ -186,15 +196,33 @@ export class AppComponent {
     this.model.hourCells = cells;
   }
 
-  ngOnInit() {
-    this.fetchAndUpdateReport();
+  private async fetchAndUpdateReport() {
+    this.model.mapMonthlyReports = {};
+
+    const prevMonthF: string = (() => {
+      const monthParts = this.model.selectedMonth.split('-');
+      let prevYear = Number(monthParts[0]);
+      let prevMonth = Number(monthParts[1]) - 1;
+      if (prevMonth === 0) {
+        prevYear -= 1;
+        prevMonth = 12;
+      }
+
+      const prevYearF = String(prevYear).padStart(2, '0');
+      const prevMonthF = String(prevMonth).padStart(2, '0');
+
+      return prevYearF + '-' + prevMonthF;
+    })();
+
+    const prevMonthReport = await this.dataService.getMonthlyReport(prevMonthF);
+    this.model.mapMonthlyReports[prevMonthF] = prevMonthReport
+
+    const currentMonthReport = await this.dataService.getMonthlyReport(this.model.selectedMonth);
+    this.model.mapMonthlyReports[this.model.selectedMonth] = currentMonthReport;
+
+    this.updateReportModel();
   }
 
-  private fetchAndUpdateReport() {
-    this.dataService.getMonthlyReport(this.model.selectedMonth).subscribe((response) => {
-      this.model.reportJSON = response;
-      this.updateReportModel();
-    });
   }
 
   public onMonthSelectChange() {
