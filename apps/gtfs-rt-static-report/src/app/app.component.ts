@@ -236,6 +236,9 @@ export class AppComponent {
     await this.fetchAndUpdateReport();
   }
 
+  public onClickShowAllHours() {
+    this.updateHourCells();
+    this.updateReportModel();
   }
 
   public onReportValueTypeChange() {
