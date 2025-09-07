@@ -152,16 +152,17 @@ export class AppComponent {
 
   constructor(private dataService: DataService) {
     this.model = {
-      reportJSON: null,
+      mapMonthlyReports: {},
       monthItems: monthItems,
       selectedMonth: monthItems[0],
-      monthlyHoursReport: [],
+      hourlyReportCells: [],
       selectedReportCell: null,
       dayCells: [],
       hourCells: [],
       reportValueLookups: reportValueLookups,
       selectedReportValueLookup: reportValueLookups[0],
       appVersion: '2024-06-03-1'
+      showAllHours: false,
     this.updateHourCells();
 
   private updateHourCells() {
