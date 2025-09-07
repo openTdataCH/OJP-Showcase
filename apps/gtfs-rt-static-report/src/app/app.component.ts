@@ -84,6 +84,7 @@ interface PageModel {
   selectedReportValueLookup: ReportValueLookup,
   appVersion: string,
   showAllHours: boolean,
+  reportLastUpdateF: string,
 }
 
 const mapReportValueLookups: Record<ReportValueLookupType, string> = {
@@ -163,6 +164,7 @@ export class AppComponent {
       selectedReportValueLookup: reportValueLookups[0],
       appVersion: '2024-06-03-1'
       showAllHours: false,
+      reportLastUpdateF: 'n/a',
     this.updateHourCells();
 
 
@@ -252,6 +254,7 @@ export class AppComponent {
     const selectedMonthDaysNo = DateHelpers.computeMonthDaysNo(monthDay1Date);
 
     const isSameMonth = DateHelpers.isSameMonth(monthDay1Date);
+    this.model.reportLastUpdateF = latestReport.last_update_dt;
 
     const dayReportCells: ReportCell[][] = [];
     const dayCells: DayCell[] = [];
