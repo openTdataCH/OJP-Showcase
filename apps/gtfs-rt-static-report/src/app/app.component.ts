@@ -62,6 +62,7 @@ interface GTFS_RT_StaticReportCompareMetadata {
 }
 
 interface ReportCell {
+  key: string
   report: GTFS_RT_Static_Report_Metadata_JSON | null
   className: string
   cellValue: string
