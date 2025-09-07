@@ -2,12 +2,6 @@ import { Component } from '@angular/core';
 import { DataService } from './data.service';
 import { DateHelpers } from './helpers/date-helpers';
 
-interface GTFS_RT_Static_Monthly_Report_JSON {
-  last_update_dt: string
-  comments: string
-  report_days: Record<string, Record<string, GTFS_RT_Static_Report_Metadata_JSON>>
-}
-
 interface DayCell {
   date: Date,
   dateF: string,
@@ -42,7 +36,13 @@ interface GTFS_RT_Static_Report_Metadata_JSON {
   tripNOK_NOJP_no: number
 }
 
-type CellClassDB = 'odd' | 'even'
+export interface GTFS_RT_Static_Monthly_Report_JSON {
+  last_update_dt: string
+  comments: string
+  report_days: Record<string, Record<string, GTFS_RT_Static_Report_Metadata_JSON>>
+}
+
+type CellClassDB = 'odd' | 'even';
 
 interface ReportCell {
   report: GTFS_RT_Static_Report_Metadata_JSON | null
