@@ -223,10 +223,10 @@ export class AppComponent {
     this.updateReportModel();
   }
 
+  public async onMonthSelectChange() {
+    await this.fetchAndUpdateReport();
   }
 
-  public onMonthSelectChange() {
-    this.fetchAndUpdateReport();
   }
 
   public onReportValueTypeChange() {
