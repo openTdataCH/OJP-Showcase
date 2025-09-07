@@ -76,7 +76,7 @@ interface PageModel {
   mapMonthlyReports: Record<string, GTFS_RT_Static_Monthly_Report_JSON>
   monthItems: string[],
   selectedMonth: string,
-  monthlyHoursReport: ReportCell[][],
+  hourlyReportCells: ReportCell[][],
   selectedReportCell: ReportCell | null,
   dayCells: DayCell[],
   hourCells: HourCell[],
