@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { DataService } from './data.service';
 import { DateHelpers } from './helpers/date-helpers';
 
@@ -153,6 +153,8 @@ const monthItems: string[] = (() => {
 })
 export class AppComponent {
   public model: PageModel;
+
+  @ViewChild('scrollContainer') scrollContainer!: ElementRef;
 
   constructor(private dataService: DataService) {
     this.model = {
@@ -435,6 +437,9 @@ export class AppComponent {
 
     this.updatePrevDaysModel();
 
+    const dayF = this.model.selectedReportCell.dayCell.dayF;
+    this.scrollToDay(dayF);
+  }
 
   private updatePrevDaysModel() {
     if (this.model.selectedReportCell === null) {
@@ -526,5 +531,14 @@ export class AppComponent {
     const url = 'https://tools.odpch.ch/gtfs-rt-status/?report=' + metadata.gtfs_rt_filename;
 
     return url;
+  }
+
+  public scrollToDay(ymd: string) {
+    const row = this.scrollContainer.nativeElement.querySelector(`#row-${ymd}`) ?? null;
+    if (row === null) {
+      return;
+    }
+
+    row.scrollIntoView({ behavior: 'auto', block: 'nearest' });
   }
 }
