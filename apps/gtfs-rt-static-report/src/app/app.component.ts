@@ -77,7 +77,10 @@ interface PageModel {
   monthItems: string[],
   selectedMonth: string,
   hourlyReportCells: ReportCell[][],
+  
   selectedReportCell: ReportCell | null,
+  selectedReportMapPrevKeys: Record<string, boolean>,
+  
   dayCells: DayCell[],
   hourCells: HourCell[],
   reportValueLookups: ReportValueLookup[],
@@ -165,6 +168,8 @@ export class AppComponent {
       appVersion: '2024-06-03-1'
       showAllHours: false,
       reportLastUpdateF: 'n/a',
+      selectedReportMapPrevKeys: {},
+    };
     this.updateHourCells();
 
 
@@ -428,13 +433,22 @@ export class AppComponent {
       }
     }
 
+    this.updatePrevDaysModel();
 
 
-        return 0;
-      })();
+  private updatePrevDaysModel() {
+    if (this.model.selectedReportCell === null) {
+      return;
+    }
 
-      return hourReportNotNullRows[cellIndex];
-    })();
+    this.model.selectedReportMapPrevKeys = {};
+    const mapPrevDays = this.model.selectedReportCell.compareMetadata?.info.map_days ?? {};
+    for (const prevDayF in mapPrevDays) {
+      const prevReportKey = prevDayF + '-' + this.model.selectedReportCell.hourCell.hourF;
+      this.model.selectedReportMapPrevKeys[prevReportKey] = true;
+    }
+  }
+
   private shouldShowHour(hour: number) {
     if (this.model.showAllHours) {
       return true;
