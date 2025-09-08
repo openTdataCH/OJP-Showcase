@@ -1,5 +1,9 @@
 # CHANGELOG gtfs-rt-static-compare/
 
+08.Feb 2025
+- adds compare info, check prev 10 measurements
+- send emails in case of errors detected
+
 26.Feb 2025
 - updates authorization flow, API endpoints
 - adds CLI to fetch latest GTFS-RT
