@@ -48,5 +48,6 @@ def load_env_vars(dotenv_path: Path) -> None:
     local_dotenv_path = f'{dotenv_path}.local'
     if os.path.exists(local_dotenv_path):
         file_to_load_path = local_dotenv_path
+        
+    load_dotenv(dotenv_path=file_to_load_path, override=True)
     
-    load_dotenv(dotenv_path=file_to_load_path)

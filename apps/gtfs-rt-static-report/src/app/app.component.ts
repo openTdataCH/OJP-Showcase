@@ -1,15 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { DataService } from './data.service';
 import { DateHelpers } from './helpers/date-helpers';
 
-interface GTFS_RT_Static_Monthly_Report_JSON {
-  last_update_dt: string
-  comments: string
-  report_days: Record<string, Record<string, GTFS_RT_Static_Report_Metadata_JSON>>
-}
-
 interface DayCell {
   date: Date,
+  dayF: string,
   dateF: string,
   isSunday: boolean
 }
@@ -42,34 +37,63 @@ interface GTFS_RT_Static_Report_Metadata_JSON {
   tripNOK_NOJP_no: number
 }
 
-type CellClassDB = 'odd' | 'even'
+interface GTFS_RT_Static_Report_Compare_JSON {
+  compare_type: 'h' | 'w' | 'w_p'
+  map_days: Record<string, number>
+  mean_value: Number
+  drop_line: Number
+}
+
+export interface GTFS_RT_Static_Monthly_Report_JSON {
+  last_update_dt: string
+  comments: string
+  report_days: Record<string, Record<string, GTFS_RT_Static_Report_Metadata_JSON>>
+  compare_days: Record<string, Record<string, GTFS_RT_Static_Report_Compare_JSON>>
+}
+
+type CellClassDB = 'odd' | 'even';
+
+interface GTFS_RT_StaticReportCompareMetadata {
+  info: GTFS_RT_Static_Report_Compare_JSON
+  reportLines: string[]
+  valueF: string
+  meanValueF: string
+  dropLineF: string
+}
 
 interface ReportCell {
+  key: string
   report: GTFS_RT_Static_Report_Metadata_JSON | null
   className: string
   cellValue: string
   error: string | null
   dayCell: DayCell,
   hourCell: HourCell,
+  compareMetadata: GTFS_RT_StaticReportCompareMetadata | null,
 }
 
 interface PageModel {
-  reportJSON: GTFS_RT_Static_Monthly_Report_JSON | null
+  mapMonthlyReports: Record<string, GTFS_RT_Static_Monthly_Report_JSON>
   monthItems: string[],
   selectedMonth: string,
-  monthlyHoursReport: ReportCell[][],
+  hourlyReportCells: ReportCell[][],
+  
   selectedReportCell: ReportCell | null,
+  selectedReportMapPrevKeys: Record<string, boolean>,
+  
   dayCells: DayCell[],
   hourCells: HourCell[],
   reportValueLookups: ReportValueLookup[],
   selectedReportValueLookup: ReportValueLookup,
-  appVersion: string
+  appVersion: string,
+  showAllHours: boolean,
+  reportLastUpdateF: string,
 }
 
 const mapReportValueLookups: Record<ReportValueLookupType, string> = {
   gtfs_db_age: 'GTFS-DB Age',
   gtfs_rt_age: 'GTFS-RT Age',
-  total_rows_no: 'GTFS-RT Trips',
+  total_rows_no: 'GTFS-RT Total Trips No',
   tripOK_routeOK_no: 'Matched Trips',
   tripOK_routeNOK_no: 'Matched Trips / Not-matched Routes',
   tripNOK_routeOK_no: 'Not-matched Trips / Matched Routes',
@@ -122,25 +146,6 @@ const monthItems: string[] = (() => {
   return items.slice().reverse();
 })();
 
-const hourCells: HourCell[] = (() => {
-  const cells: HourCell[] = [];
-
-  let hour = 0;
-  while (hour <= 23) {
-    const hourF = hour.toString().padStart(2, '0');
-
-    const cell: HourCell = {
-      hour: hour,
-      hourF: hourF,
-    };
-    cells.push(cell);
-
-    hour += 1;
-  }
-
-  return cells;
-})();
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -149,34 +154,91 @@ const hourCells: HourCell[] = (() => {
 export class AppComponent {
   public model: PageModel;
 
+  @ViewChild('scrollContainer') scrollContainer!: ElementRef;
+
   constructor(private dataService: DataService) {
     this.model = {
-      reportJSON: null,
+      mapMonthlyReports: {},
       monthItems: monthItems,
       selectedMonth: monthItems[0],
-      monthlyHoursReport: [],
+      hourlyReportCells: [],
       selectedReportCell: null,
       dayCells: [],
-      hourCells: hourCells,
+      hourCells: [],
       reportValueLookups: reportValueLookups,
       selectedReportValueLookup: reportValueLookups[0],
-      appVersion: '2024-06-03-1'
+      appVersion: '20250905.1',
+      showAllHours: false,
+      reportLastUpdateF: 'n/a',
+      selectedReportMapPrevKeys: {},
+    };
+    this.updateHourCells();
+
+
+  async ngOnInit(): Promise<void> {
+    await this.fetchAndUpdateReport();
+    
+    // HACK setTimeout with 0, otherwise doesnt scroll, the scroll scrollContainer is not ready
+    setTimeout(() => {
+      this.updateSelectionByDayHr();
+    }, 0);
+  }
+
+  private updateHourCells() {
+    const cells: HourCell[] = [];
+
+    let hour = 0;
+    while (hour <= 23) {
+      const hourF = hour.toString().padStart(2, '0');
+
+      const cell: HourCell = {
+        hour: hour,
+        hourF: hourF,
+      };
+      if (this.shouldShowHour(hour)) {
+        cells.push(cell);
+      }
+
+      hour += 1;
     }
+
+    this.model.hourCells = cells;
   }
 
-  ngOnInit() {
-    this.fetchAndUpdateReport();
+  private async fetchAndUpdateReport() {
+    this.model.mapMonthlyReports = {};
+
+    const prevMonthF: string = (() => {
+      const monthParts = this.model.selectedMonth.split('-');
+      let prevYear = Number(monthParts[0]);
+      let prevMonth = Number(monthParts[1]) - 1;
+      if (prevMonth === 0) {
+        prevYear -= 1;
+        prevMonth = 12;
+      }
+
+      const prevYearF = String(prevYear).padStart(2, '0');
+      const prevMonthF = String(prevMonth).padStart(2, '0');
+
+      return prevYearF + '-' + prevMonthF;
+    })();
+
+    const prevMonthReport = await this.dataService.getMonthlyReport(prevMonthF);
+    this.model.mapMonthlyReports[prevMonthF] = prevMonthReport
+
+    const currentMonthReport = await this.dataService.getMonthlyReport(this.model.selectedMonth);
+    this.model.mapMonthlyReports[this.model.selectedMonth] = currentMonthReport;
+
+    this.updateReportModel();
   }
 
-  private fetchAndUpdateReport() {
-    this.dataService.getMonthlyReport(this.model.selectedMonth).subscribe((response) => {
-      this.model.reportJSON = response;
-      this.updateReportModel();
-    });
+  public async onMonthSelectChange() {
+    await this.fetchAndUpdateReport();
   }
 
-  public onMonthSelectChange() {
-    this.fetchAndUpdateReport();
+  public onClickShowAllHours() {
+    this.updateHourCells();
+    this.updateReportModel();
   }
 
   public onReportValueTypeChange() {
@@ -184,24 +246,14 @@ export class AppComponent {
   }
 
   private updateReportModel() {
-    if (this.model.reportJSON === null) {
+    const latestReport = this.model.mapMonthlyReports[this.model.selectedMonth] ?? null;
+
+    if (latestReport === null) {
       return;
     }
 
-    const reportLastUpdate = new Date(this.model.reportJSON.last_update_dt);
-    const report = this.model.reportJSON;
-
-    const currentDateParts = this.model.selectedMonth.split('-');
-    const currentDateYear = Number(currentDateParts[0]);
-    const currentDateMonth = Number(currentDateParts[1]);
-
-    const nowDate = new Date();
-    const nowHHMM = nowDate.toTimeString().substring(0, 5);
-
-    const monthDay1Date = new Date(this.model.selectedMonth + '-01');
-    const selectedMonthDaysNo = DateHelpers.computeMonthDaysNo(monthDay1Date);
-
-    const isSameMonth = DateHelpers.isSameMonth(monthDay1Date);
+    const reportLastUpdate = new Date(latestReport.last_update_dt);
+    this.model.reportLastUpdateF = latestReport.last_update_dt;
 
     const dayReportCells: ReportCell[][] = [];
     const dayCells: DayCell[] = [];
@@ -209,140 +261,210 @@ export class AppComponent {
     let classDBSource: CellClassDB = 'odd';
     let prevDBName: string | null = null;
 
-    let currentDay = 1;
-    while (currentDay <= selectedMonthDaysNo) {
-      const dayCell: DayCell = (() => {
-        const currentDayDate = new Date(currentDateYear, currentDateMonth - 1, currentDay);
-        let currentDayF = currentDayDate.toLocaleDateString('en-US', {
-          weekday: 'short',
-          day: '2-digit',
-          month: 'short',
-        });
-        currentDayF = currentDayF.replace(',', '');
-        const currentDayFParts = currentDayF.split(' ');
-        currentDayF = currentDayFParts[0] + ' ' + currentDayFParts[2] + '.' + currentDayFParts[1].replace(',', '');
-        const isSunday = currentDayFParts[0] === 'Sun';
+    for (const reportYM in this.model.mapMonthlyReports) {
+      const report = this.model.mapMonthlyReports[reportYM];
 
-        return {
-          date: currentDayDate,
-          dateF: currentDayF,
-          isSunday: isSunday,
-        }
-      })();
+      const monthDay1Date = new Date(reportYM + '-01');
+      const selectedMonthDaysNo = DateHelpers.computeMonthDaysNo(monthDay1Date);
 
-      const dayF = currentDay.toString().padStart(2, '0');
-      const hourReportCells: ReportCell[] = [];
-      const mapDataHourlyReports = report.report_days[dayF] ?? null;
+      const reportYMParts = reportYM.split('-');
+      const reportYearF = Number(reportYMParts[0]);
+      const reportMonthF = Number(reportYMParts[1]);
 
-      hourCells.forEach(hourCell => {
-        const reportCell: ReportCell = {
-          report: null,
-          className: 'ok_empty',
-          cellValue: '',
-          error: null,
-          dayCell: dayCell,
-          hourCell: hourCell,
-        }
+      let currentDay = 1;
+      while (currentDay <= selectedMonthDaysNo) {
+        const dayF = currentDay.toString().padStart(2, '0');
 
-        const hasData: boolean = (() => {
-          const reportCellDateS = this.model.selectedMonth + '-' + dayF + ' ' + hourCell.hourF + ':00:00';
-          const reportCellDate = new Date(reportCellDateS);
+        const dayCell: DayCell = (() => {
+          const currentDayDate = new Date(reportYearF, reportMonthF - 1, currentDay);
+          let currentDayF = currentDayDate.toLocaleDateString('en-US', {
+            weekday: 'short',
+            day: '2-digit',
+            month: 'short',
+          });
+          currentDayF = currentDayF.replace(',', '');
+          const currentDayFParts = currentDayF.split(' ');
+          currentDayF = currentDayFParts[0] + ' ' + currentDayFParts[2] + '.' + currentDayFParts[1].replace(',', '');
+          const isSunday = currentDayFParts[0] === 'Sun';
 
-          const isFuture = reportCellDate > reportLastUpdate;
-          // Discard future event cells
-          if (isFuture) {
-            return false;
+          return {
+            date: currentDayDate,
+            dayF: reportYM + '-' + dayF,
+            dateF: currentDayF,
+            isSunday: isSunday,
           }
-
-          // Otherwise check if we have a report
-          return mapDataHourlyReports !== null;
         })();
 
-        if (hasData) {
-          const hrMinF = hourCell.hourF + '00';
-          const reportHR = mapDataHourlyReports[hrMinF] ?? null;
-          if (reportHR === null) {
-            if (prevDBName !== null) {
-              reportCell.cellValue = 'n/a';
-              reportCell.error = 'DATA';
-            }
-          } else {
-            const reportAny = reportHR as any;
-            const reportValue = reportAny[this.model.selectedReportValueLookup.type] ?? null;
-            if (reportValue === null) {
-              reportCell.cellValue = 'n/a'
-            } else {
-              reportCell.cellValue = reportValue.toLocaleString('de-CH');
-            }
- 
-            if (Math.abs(reportHR.gtfs_rt_age) > 60) {
-              reportCell.error = 'RT age';
-            }
+        const hourReportCells: ReportCell[] = [];
+        const mapDataHourlyReports = report.report_days[dayF] ?? null;
 
-            if (reportHR.tripNOK_NOJP_no > 0) {
-              reportCell.error = 'Match';
-            }
+        this.model.hourCells.forEach(hourCell => {
+          const key = dayCell.dayF + '-' + hourCell.hourF;
 
-            if (prevDBName !== null && (prevDBName !== reportHR.gtfs_db_filename)) {
-              classDBSource = classDBSource === 'odd' ? 'even' : 'odd';
-            }
-            prevDBName = reportHR.gtfs_db_filename;
-
-            reportCell.className = 'ok_' + classDBSource;
+          const reportCell: ReportCell = {
+            key: key,
+            report: null,
+            className: 'ok_empty',
+            cellValue: '',
+            error: null,
+            dayCell: dayCell,
+            hourCell: hourCell,
+            compareMetadata: null,
           }
-          
-          reportCell.report = reportHR;
-        }
 
-        hourReportCells.push(reportCell);
-      });
+          const hasData: boolean = (() => {
+            const reportCellDateS = reportYM + '-' + dayF + ' ' + hourCell.hourF + ':00:00';
+            const reportCellDate = new Date(reportCellDateS);
 
-      dayReportCells.push(hourReportCells);
+            const isFuture = reportCellDate > reportLastUpdate;
+            // Discard future event cells
+            if (isFuture) {
+              return false;
+            }
 
-      dayCells.push(dayCell);
+            // Otherwise check if we have a report
+            return mapDataHourlyReports !== null;
+          })();
 
-      currentDay += 1;
+          if (hasData) {
+            const hrMinF = hourCell.hourF + '00';
+            const reportHR = mapDataHourlyReports[hrMinF] ?? null;
+            if (reportHR === null) {
+              if (prevDBName !== null) {
+                reportCell.cellValue = 'n/a';
+                reportCell.error = 'DATA';
+              }
+            } else {
+              const reportAny = reportHR as any;
+              const reportValue = reportAny[this.model.selectedReportValueLookup.type] ?? null;
+              if (reportValue === null) {
+                reportCell.cellValue = 'n/a'
+              } else {
+                reportCell.cellValue = reportValue.toLocaleString('de-CH');
+              }
+  
+              if (Math.abs(reportHR.gtfs_rt_age) > 60) {
+                reportCell.error = 'RT age';
+              }
+
+              if (reportHR.tripNOK_NOJP_no > 0) {
+                reportCell.error = 'Match';
+              }
+
+              if (prevDBName !== null && (prevDBName !== reportHR.gtfs_db_filename)) {
+                classDBSource = classDBSource === 'odd' ? 'even' : 'odd';
+              }
+              prevDBName = reportHR.gtfs_db_filename;
+
+              reportCell.className = 'ok_' + classDBSource;
+
+              if (dayF in report.compare_days) {
+                if (hrMinF in report.compare_days[dayF]) {
+                  const compare_info = report.compare_days[dayF][hrMinF];
+
+                  const prevValues: Number[] = [];
+                  const compareReportLines: string[] = [];
+                  for (const dayF in compare_info.map_days) {
+                    const prevValue = compare_info.map_days[dayF];
+                    prevValues.push(prevValue);
+                    const compareReportLine = dayF + ': ' + prevValue;
+                    compareReportLines.push(compareReportLine);
+                  }
+
+                  const compareMetadata: GTFS_RT_StaticReportCompareMetadata = {
+                    info: compare_info,
+                    reportLines: compareReportLines,
+                    valueF: '' + (reportAny['total_rows_no'] ?? 0),
+                    meanValueF: '' + compare_info.mean_value,
+                    dropLineF: '' + compare_info.drop_line,
+                  };
+
+                  reportCell.compareMetadata = compareMetadata;
+                  if (compare_info.compare_type === 'w_p') {
+                    reportCell.error = 'Drop';
+                  }
+                }
+              }
+            }
+            
+            reportCell.report = reportHR;
+          }
+
+          if (this.shouldShowHour(hourCell.hour)) {
+            hourReportCells.push(reportCell);
+          }
+        });
+
+        dayReportCells.push(hourReportCells);
+
+        dayCells.push(dayCell);
+
+        currentDay += 1;
+      }
     }
 
-    this.model.monthlyHoursReport = dayReportCells;
+    this.model.hourlyReportCells = dayReportCells;
     this.model.dayCells = dayCells;
+  }
 
-    this.model.selectedReportCell = (() => {
-      const nowDayIdx = (() => {
-        if (isSameMonth) {
-          // use current day for current month
-          const nowDay = new Date().getDate();
-          return nowDay - 1;
+  private updateSelectionByDayHr(reportYMDH: string | null = null) {
+    const allReports = this.model.hourlyReportCells.flat();
+    const latestReportCell = allReports.reverse().find(el => (el.report !== null)) ?? null;
+    if (latestReportCell === null) {
+      // return early
+      return;
+    }
+
+    if (reportYMDH === null) {
+      // use latest available report
+      this.model.selectedReportCell = latestReportCell;
+    } else {
+      const ymd = reportYMDH.substring(0, 10);
+      const dayReportCells = allReports.filter(el => (el.dayCell.dayF === ymd));
+
+      if (dayReportCells.length === 0) {
+        // no reports for given day, defaults to latest available report
+        this.model.selectedReportCell = latestReportCell;
+      } else {
+        const hrF = reportYMDH.substring(11, 13);
+        const hrReport = dayReportCells.find(el => (el.hourCell.hourF === hrF)) ?? null;
+        
+        if (hrReport === null) {
+          // the hr couldnt be found, display first for the given day
+          this.model.selectedReportCell = dayReportCells[0];
         } else {
-          // otherwise use first day of month
-          return 0;
+          this.model.selectedReportCell = hrReport;
         }
-      })();
-
-      const hourReportRows = dayReportCells[nowDayIdx] ?? null;
-      if (hourReportRows === null) {
-        return null;
       }
+    }
 
-      // filter for non-null reports
-      const hourReportNotNullRows = hourReportRows.filter(el => el.report !== null);
-      if (hourReportNotNullRows.length === 0) {
-        return null;
-      }
+    this.updatePrevDaysModel();
 
-      const cellIndex = (() => {
-        if (isSameMonth) {
-          // for current month use latest report
-          return hourReportNotNullRows.length - 1;
-        }
+    const dayF = this.model.selectedReportCell.dayCell.dayF;
+    this.scrollToDay(dayF);
+  }
 
-        return 0;
-      })();
+  private updatePrevDaysModel() {
+    if (this.model.selectedReportCell === null) {
+      return;
+    }
 
-      return hourReportNotNullRows[cellIndex];
-    })();
+    this.model.selectedReportMapPrevKeys = {};
+    const mapPrevDays = this.model.selectedReportCell.compareMetadata?.info.map_days ?? {};
+    for (const prevDayF in mapPrevDays) {
+      const prevReportKey = prevDayF + '-' + this.model.selectedReportCell.hourCell.hourF;
+      this.model.selectedReportMapPrevKeys[prevReportKey] = true;
+    }
+  }
 
-    console.log(this.model.selectedReportCell);
+  private shouldShowHour(hour: number) {
+    if (this.model.showAllHours) {
+      return true;
+    }
+
+    const isNormalHour = (6 <= hour) && (hour <=18);
+    
+    return isNormalHour;
   }
 
   private computeSnapshotURLFromTemplate(templateURL: string, metadata: GTFS_RT_Static_Report_Metadata_JSON) {
@@ -412,5 +534,19 @@ export class AppComponent {
     const url = 'https://tools.odpch.ch/gtfs-rt-status/?report=' + metadata.gtfs_rt_filename;
 
     return url;
+  }
+
+  public scrollToDay(ymd: string) {
+    const row = this.scrollContainer.nativeElement.querySelector(`#row-${ymd}`) ?? null;
+    if (row === null) {
+      return;
+    }
+
+    row.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+  }
+
+  public updateSelection(reportCell: ReportCell) {
+    this.model.selectedReportCell = reportCell;
+    this.updatePrevDaysModel();
   }
 }

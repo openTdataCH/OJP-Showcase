@@ -2,8 +2,6 @@ import os, sys
 
 from pathlib import Path
 
-import re
-
 from typing import Union
 
 from datetime import datetime
@@ -14,7 +12,7 @@ import shutil
 from .helpers.config_helpers import load_yaml_config
 from .helpers.gtfs_helpers import compute_gtfs_db_filename
 from .helpers.json_helpers import load_json_from_file, export_json_to_file
-from .helpers.log_helpers import log_message
+from .helpers.log_helpers import format_path, log_message
 
 from .models.gtfs_static_db_catalog import GTFS_Static_Catalog_Report, GTFS_Static_Catalog_Item
 from .models.gtfs_rt import GTFS_RT_Response
@@ -24,9 +22,11 @@ from .gtfs_db import GTFS_DB
 
 from .fetch import fetch_latest, compute_resource_snapshot_path
 
+gtfs_rt_static_report_file_regexp = r"gtfs_rt_static_report-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})([0-9]{2})"
+header_separator_s = '-' * 60
 class GTFS_Controller:
     def __init__(self, app_path: Path):
-        config_path = f'{app_path}/config/config.yml'
+        config_path = Path(f'{app_path}/config/config.yml')
         self.app_config = load_yaml_config(config_path, app_path=app_path)
         
         gtfs_dbs_report_path = self.app_config['resource_paths']['gtfs_dbs_json_path']
@@ -50,7 +50,7 @@ class GTFS_Controller:
         
     # PRIVATE
     def _compare_compare_latest_gtfs_rt_static(self):
-        header_separator_s = '-' * 60
+        app_path: str = self.app_config['resource_paths']['app_path']
         
         print(header_separator_s)
         log_message(f'START COMPARE GTFS -RT GTFS STATIC')
@@ -66,7 +66,8 @@ class GTFS_Controller:
         
         gtfs_rt_response = fetch_latest(self.app_config, gtfs_rt_snapshot_path)
         log_message(f'... DONE fetch')
-        print(f'saved to {gtfs_rt_snapshot_path}')
+        gtfs_rt_snapshot_path_s = format_path(f'{gtfs_rt_snapshot_path}', app_path)
+        print(f'saved to {gtfs_rt_snapshot_path_s}')
         print(header_separator_s)
         
         gtfs_rt_dt = datetime.fromtimestamp(gtfs_rt_response.header.timestamp)
@@ -78,6 +79,10 @@ class GTFS_Controller:
         log_message(f'... LOAD DB GTFS-DAY: {gtfs_catalog_item.gtfs_day} - {gtfs_catalog_item.db_relative_path}')
             
         gtfs_db = self._load_gtfs_db(gtfs_catalog_item)
+        if gtfs_db is None:
+            print('WHOOPS - no DB')
+            print(gtfs_catalog_item)
+            sys.exit(1)
         
         log_message(f'... DONE LOAD DB')
         print(header_separator_s)
@@ -114,13 +119,12 @@ class GTFS_Controller:
         print(f'Report URL          : {report_url}')
         print(header_separator_s)
         
-        print(f'... saved to {report_path}')
-        print(header_separator_s)
-        
-        print(f'... cleaning up, gzip resource')
+        log_message('... cleaning up, archive(gzip) resource')
         self._cleanup_resource(gtfs_rt_snapshot_path)
         
         log_message('... DONE')
+        print(header_separator_s)
+        print()
         
     def _load_gtfs_db(self, gtfs_catalog_item: GTFS_Static_Catalog_Item):
         gtfs_dbs_basepath = Path(self.app_config['resource_paths']['gtfs_db']).parent
@@ -267,8 +271,8 @@ class GTFS_Controller:
         log_message(f'... DONE fetch')
         
         app_path = self.app_config['resource_paths']['app_path']
-        rel_path = f'{gtfs_rt_snapshot_path}'.replace(app_path, '.')
         
         print()
-        print(f'saved to {rel_path}')
+        gtfs_rt_snapshot_path_s = format_path(f'{gtfs_rt_snapshot_path}', app_path)
+        print(f'... saved to {gtfs_rt_snapshot_path_s}')
         print(header_separator_s)

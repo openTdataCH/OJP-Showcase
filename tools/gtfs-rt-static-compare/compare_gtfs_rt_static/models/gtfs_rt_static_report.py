@@ -1,10 +1,20 @@
 import os, sys
 
 from dataclasses import dataclass, asdict
-from typing import List, Dict
 from datetime import datetime
+from typing import Any
 
-from .gtfs_rt import Entity
+@dataclass
+class GTFS_RT_Static_Report_Compare_Info:
+    compare_type: str # h - holiday; w - workday; w_p - workday with problems;
+    map_days: dict[str, int]
+    mean_value: float
+    drop_line: float
+    
+    @staticmethod
+    def from_json(data_json):
+        compare_info = GTFS_RT_Static_Report_Compare_Info(**data_json)
+        return compare_info
 
 @dataclass
 class GTFS_RT_Static_Report_Metadata:
@@ -33,8 +43,8 @@ class GTFS_RT_Static_Report_Metadata:
     @staticmethod
     def from_json(data_json):
         metadata = GTFS_RT_Static_Report_Metadata(**data_json)
-        metadata.report_dt = datetime.strptime(metadata.report_dt, '%Y-%m-%d %H:%M:%S')
-        metadata.gtfs_rt_dt = datetime.strptime(metadata.gtfs_rt_dt, '%Y-%m-%d %H:%M:%S')
+        metadata.report_dt = datetime.strptime(data_json['report_dt'], '%Y-%m-%d %H:%M:%S')
+        metadata.gtfs_rt_dt = datetime.strptime(data_json['gtfs_rt_dt'], '%Y-%m-%d %H:%M:%S')
         
         return metadata
     
@@ -50,9 +60,9 @@ class GTFS_RT_Static_Report_Metadata:
 class GTFS_RT_Static_Report:
     metadata: GTFS_RT_Static_Report_Metadata
     
-    tripOK_routeNOK: List[str]
-    tripNOK_routeOK: List[str]
-    tripNOK_routeNOK: List[str]
+    tripOK_routeNOK: list[str]
+    tripNOK_routeOK: list[str]
+    tripNOK_routeNOK: list[str]
     
     @staticmethod
     def init_with_metadata(metdata: GTFS_RT_Static_Report_Metadata):
@@ -60,8 +70,9 @@ class GTFS_RT_Static_Report:
         return report
     
     @staticmethod
-    def from_json(report_json):
+    def from_json(report_json: dict[str, Any]):
         report = GTFS_RT_Static_Report(**report_json)
+        
         report.metadata = GTFS_RT_Static_Report_Metadata.from_json(report_json['metadata'])
         
         entity_group_keys = ['tripOK_routeNOK', 'tripNOK_routeOK', 'tripNOK_routeNOK']
@@ -85,9 +96,16 @@ class GTFS_RT_Static_Report:
 class GTFS_RT_Static_Monthly_Report:
     comments: str
     last_update_dt: str
-    report_days: Dict[str, Dict[str, GTFS_RT_Static_Report_Metadata]]
+    report_days: dict[str, dict[str, GTFS_RT_Static_Report_Metadata]]
+    compare_days: dict[str, dict[str, GTFS_RT_Static_Report_Compare_Info]]
     
     def as_json(self):
         data_json = asdict(self)
+        
+        for report_day, day_data in self.report_days.items():
+            for report_hr, hr_data_o in day_data.items():
+                hr_data: GTFS_RT_Static_Report_Metadata = hr_data_o
+                data_json['report_days'][report_day][report_hr] = hr_data.as_json()
+        # for
         
         return data_json
