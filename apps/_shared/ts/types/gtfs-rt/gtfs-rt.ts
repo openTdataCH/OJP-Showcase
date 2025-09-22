@@ -1,24 +1,24 @@
 export interface Trip {
-    TripId: string
-    RouteId: string
-    StartTime: string
-    StartDate: string
-    ScheduleRelationship: string
+    tripId: string
+    routeId: string
+    startTime: string
+    startDate: string
+    scheduleRelationship: string
 }
 
 export interface TripUpdate {
-    Trip?: Trip
-    StopTimeUpdate?: StopTimeUpdate[]
+    trip?: Trip
+    stopTimeUpdate?: StopTimeUpdate[]
 }
 
 export interface StopTimeUpdate {
-    StopSequence: number
-    StopId: string
-    Arrival?: StopTimeDelay
-    Departure: StopTimeDelay
-    ScheduleRelationship: string
+    stopSequence: number
+    stopId: string
+    arrival?: StopTimeDelay
+    departure: StopTimeDelay
+    scheduleRelationship: string
 }
 
 export interface StopTimeDelay {
-    Delay: number
+    delay: number
 }

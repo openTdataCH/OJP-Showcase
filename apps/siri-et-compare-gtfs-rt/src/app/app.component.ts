@@ -172,8 +172,8 @@ export class AppComponent implements OnInit {
     const mapAgencyGTFS_RT_Entity: MapAgencyGTFS_RT_Entity = {};
     mapAgencyGTFS_RT_Entity[AGENCY_ID_NO_DATA] = [];
 
-    response.Entity.forEach(gtfsRT_Entity => {
-      const tripId = gtfsRT_Entity.TripUpdate?.Trip?.TripId ?? null;
+    response.entity.forEach(gtfsRT_Entity => {
+      const tripId = gtfsRT_Entity.tripUpdate?.trip?.tripId ?? null;
       if (tripId === null) {
         console.error('processGTFS_RT: null TripId');
         console.log(gtfsRT_Entity);
@@ -181,7 +181,7 @@ export class AppComponent implements OnInit {
         return;
       }
 
-      const routeId = gtfsRT_Entity.TripUpdate?.Trip?.RouteId ?? null;
+      const routeId = gtfsRT_Entity.tripUpdate?.trip?.routeId ?? null;
       if (routeId === null) {
         console.error('processGTFS_RT: null RouteId');
         console.log(gtfsRT_Entity);

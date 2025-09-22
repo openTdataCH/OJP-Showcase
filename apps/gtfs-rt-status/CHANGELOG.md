@@ -4,13 +4,16 @@ Demo URL: https://tools.odpch.ch/gtfs-rt-status/
 
 ----
 
-24.February.2025
+10.Sep.2025
+- use new GTFS-RT models
+
+24.Feb.2025
 - endpoints changes
 
-1.February.2025
+1.Feb.2025
 - removes `sphericalmercator` dependency, uses custom helper for projection
 
-23.September.2024
+23.Sep.2024
 - use https://opentransportdata.swiss/de/dataset/go-realtime dataset instead of static CSV export
 - updates `gtfs-rt-status` webapp with details about the datasets
 - adds script to fetch `business-organisations`, `go-realtime` datasets

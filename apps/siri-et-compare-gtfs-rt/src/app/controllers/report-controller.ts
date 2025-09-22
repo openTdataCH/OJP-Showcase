@@ -210,7 +210,7 @@ export class ReportController {
     // Match GTFS_RT messages
     this.reportData.bothInAgency.gtfsRT_NoGTFS_Items = [];
     this.mapAgencyGTFS_RT_Entity[agencyId].forEach(item => {
-      const tripId = item.TripUpdate?.Trip?.TripId ?? null;
+      const tripId = item.tripUpdate?.trip?.tripId ?? null;
       if (tripId === null) {
         debugger;
         return;
@@ -275,7 +275,7 @@ export class ReportController {
           }
 
           const hasGTFS_RT = resultMatchRow.matchTrip.trip.gtfsRT !== null;
-          const gtfsRT_matchText = hasGTFS_RT ? (resultMatchRow.matchTrip.trip.gtfsRT?.TripUpdate?.Trip?.ScheduleRelationship ?? 'GTFS-RT') : 'NO GTFS-RT';
+          const gtfsRT_matchText = hasGTFS_RT ? (resultMatchRow.matchTrip.trip.gtfsRT?.tripUpdate?.trip?.scheduleRelationship ?? 'GTFS-RT') : 'NO GTFS-RT';
 
           const reportResultItem: ReportResultItem = {
             serviceLine: journey.publishedLineName,

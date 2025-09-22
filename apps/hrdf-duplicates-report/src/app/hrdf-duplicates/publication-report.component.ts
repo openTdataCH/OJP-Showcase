@@ -232,8 +232,8 @@ export class PublicationReportComponent implements OnInit {
 
         const renderModelStopTime: RenderModelStopTime = {
           stopF: stopFormatted,
-          arrF: stopTime.arrival_time ?? '',
-          depF: stopTime.departure_time ?? '',
+          arrF: stopTime.arrivalTimeS ?? '',
+          depF: stopTime.departureTimeS ?? '',
         };
         renderModelDuplicateTrip.stopTimes.push(renderModelStopTime);
       });
