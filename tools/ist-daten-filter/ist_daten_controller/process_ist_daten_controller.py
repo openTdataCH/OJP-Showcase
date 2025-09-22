@@ -102,7 +102,7 @@ class ProcessIstDatenController:
             if not os.path.isdir(res_unzipped_local_path):
                 os.makedirs(res_unzipped_local_path)
                 
-                res_unzipped_rel_path = self._format_app_rel_path(res_unzipped_local_path)
+                res_unzipped_rel_path = self._format_app_rel_path(Path(res_unzipped_local_path))
                 
                 log_message(f'... unzipping to {res_unzipped_rel_path}')
                 
