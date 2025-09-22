@@ -172,8 +172,14 @@ class ProcessIstDatenController:
         ist_daten_html = html.parse(ist_daten_html_file)
         ist_daten_html_file.close()
         
-        ist_daten_html_items = ist_daten_html.xpath("//ul/li")
-        for ist_daten_html_item in ist_daten_html_items:
+        ist_daten_html_items = ist_daten_html.xpath("//tr[td]")
+        for ist_daten_row in ist_daten_html_items:
+            ist_daten_row_cells = ist_daten_row.xpath('td[3]')
+            if len(ist_daten_row_cells) != 1:
+                continue
+            
+            ist_daten_html_item = ist_daten_row_cells[0]
+            
             res_link_texts = ist_daten_html_item.xpath('a/text()')
             if len(res_link_texts) == 0:
                 print('error - whoops - cant find anchor')
