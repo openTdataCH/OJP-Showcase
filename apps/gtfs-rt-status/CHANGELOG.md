@@ -4,6 +4,9 @@ Demo URL: https://tools.odpch.ch/gtfs-rt-status/
 
 ----
 
+10.Sep.2025
+- use new GTFS-RT models
+
 24.Feb.2025
 - endpoints changes
 
