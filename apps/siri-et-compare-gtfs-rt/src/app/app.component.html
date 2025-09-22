@@ -202,8 +202,8 @@
       <tbody>
         <tr *ngFor="let item of asGTFS_RT_ReportItems(items); index as idx">
           <th scope="row">{{ idx + 1 }}</th>
-          <td>{{ item.entityGTFS_RT.TripUpdate?.Trip?.TripId ?? 'n/a TripId' }}</td>
-          <td>{{ item.entityGTFS_RT.TripUpdate?.Trip?.RouteId ?? 'n/a RouteId' }}</td>
+          <td>{{ item.entityGTFS_RT.tripUpdate?.trip?.tripId ?? 'n/a TripId' }}</td>
+          <td>{{ item.entityGTFS_RT.tripUpdate?.trip?.routeId ?? 'n/a RouteId' }}</td>
         </tr>
       </tbody>
     </table>

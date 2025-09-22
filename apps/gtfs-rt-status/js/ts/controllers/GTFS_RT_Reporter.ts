@@ -363,8 +363,8 @@ export default class GTFS_RT_Reporter {
 
     private loadGTFS_RT(response_gtfs_rt: Response_GTFS_RT, request_interval_from_date: Date, request_interval_to_date: Date) {
         this.map_gtfs_rt_trips = {};
-        response_gtfs_rt.Entity.forEach(gtfs_rt_row => {
-            const trip_id = gtfs_rt_row.TripUpdate?.Trip?.TripId;
+        response_gtfs_rt.entity.forEach(gtfs_rt_row => {
+            const trip_id = gtfs_rt_row.tripUpdate?.trip?.tripId;
             if (trip_id) {
                 this.map_gtfs_rt_trips[trip_id] = gtfs_rt_row;
             } else {
@@ -555,7 +555,7 @@ export default class GTFS_RT_Reporter {
             }
 
             const gtfsRT = this.map_gtfs_rt_trips[trip_id];
-            const routeID = gtfsRT.TripUpdate?.Trip?.RouteId;
+            const routeID = gtfsRT.tripUpdate?.trip?.routeId;
             if (!routeID) {
                 console.log('ERROR: invalid GTFS_RT response');
                 console.log(gtfsRT);
@@ -570,7 +570,7 @@ export default class GTFS_RT_Reporter {
             const tripInfo = trip_id + '<br/>' + routeID;
             tableRowTDs.push('<td>' + tripInfo + '</td>');
 
-            let scheduleRelationshipS = gtfsRT.TripUpdate?.Trip?.ScheduleRelationship ?? '-';
+            let scheduleRelationshipS = gtfsRT.tripUpdate?.trip?.scheduleRelationship ?? '-';
             tableRowTDs.push('<td><span class="badge bg-success">' + scheduleRelationshipS + '</span></td>');
 
             let agency: Agency | null = null;
@@ -605,7 +605,7 @@ export default class GTFS_RT_Reporter {
             }
 
             let startTimeS = '';
-            let startTime = gtfsRT.TripUpdate?.Trip?.StartTime ?? null;
+            let startTime = gtfsRT.tripUpdate?.trip?.startTime ?? null;
             if (startTime) {
                 startTimeS = startTime.substr(0, 5);
             }
@@ -613,9 +613,9 @@ export default class GTFS_RT_Reporter {
             tableRowTDs.push('<td>' + startTimeS + '</td>');
 
             let stopNames: string[] = [];
-            const gtfsRTStopTimes: StopTimeUpdate[] = gtfsRT.TripUpdate?.StopTimeUpdate ?? [];
+            const gtfsRTStopTimes: StopTimeUpdate[] = gtfsRT.tripUpdate?.stopTimeUpdate ?? [];
             gtfsRTStopTimes.forEach(stopTime => {
-                const stopData = this.map_gtfs_stops[stopTime.StopId] ?? null
+                const stopData = this.map_gtfs_stops[stopTime.stopId] ?? null
 
                 let stopName = 'n/a'
                 if (stopData) {
@@ -811,13 +811,13 @@ export default class GTFS_RT_Reporter {
             let gtfs_rt_parts: string[] = [];
             if (has_rt_info) {
                 const gtfs_rt = trip.gtfsRT as Response_GTFS_RT_Entity
-                const rt_trip = gtfs_rt.TripUpdate?.Trip;
+                const rt_trip = gtfs_rt.tripUpdate?.trip;
 
                 let rt_status_text = '';
                 let rt_color_class = 'bg-success';
 
                 if (rt_trip) {
-                    rt_status_text = rt_trip.ScheduleRelationship;
+                    rt_status_text = rt_trip.scheduleRelationship;
                     if (rt_status_text === 'Canceled') {
                         rt_color_class = 'bg-danger';
                     }
