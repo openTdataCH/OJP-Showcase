@@ -7,7 +7,7 @@ from typing import List
 import csv
 import re
 import shutil
-import zipfile
+import zipfile_inflate64 as zipfile
 
 import requests
 
