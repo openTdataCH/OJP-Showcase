@@ -7,7 +7,7 @@ from typing import List
 import csv
 import re
 import shutil
-import zipfile
+import zipfile_inflate64 as zipfile
 
 import requests
 
@@ -102,7 +102,7 @@ class ProcessIstDatenController:
             if not os.path.isdir(res_unzipped_local_path):
                 os.makedirs(res_unzipped_local_path)
                 
-                res_unzipped_rel_path = self._format_app_rel_path(res_unzipped_local_path)
+                res_unzipped_rel_path = self._format_app_rel_path(Path(res_unzipped_local_path))
                 
                 log_message(f'... unzipping to {res_unzipped_rel_path}')
                 
@@ -172,8 +172,14 @@ class ProcessIstDatenController:
         ist_daten_html = html.parse(ist_daten_html_file)
         ist_daten_html_file.close()
         
-        ist_daten_html_items = ist_daten_html.xpath("//ul/li")
-        for ist_daten_html_item in ist_daten_html_items:
+        ist_daten_html_items = ist_daten_html.xpath("//tr[td]")
+        for ist_daten_row in ist_daten_html_items:
+            ist_daten_row_cells = ist_daten_row.xpath('td[3]')
+            if len(ist_daten_row_cells) != 1:
+                continue
+            
+            ist_daten_html_item = ist_daten_row_cells[0]
+            
             res_link_texts = ist_daten_html_item.xpath('a/text()')
             if len(res_link_texts) == 0:
                 print('error - whoops - cant find anchor')
