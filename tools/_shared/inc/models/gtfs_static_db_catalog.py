@@ -50,3 +50,20 @@ class GTFS_Static_Catalog_Report:
                 return item
         
         return None
+    
+    def compute_item_for_report(self, report_ymdh: str):
+        report_ymd = report_ymdh[0:10]
+        report_h_f = report_ymdh[11:13]
+        
+        report_ymdhm = f'{report_ymd} {report_h_f}:00'
+        
+        for item in self.items:
+            if item.db_relative_path is None:
+                continue
+            
+            if report_ymdhm > item.gtfs_rt_switch_datetime_s:
+                return item
+            #
+        # loop items
+        
+        return None
