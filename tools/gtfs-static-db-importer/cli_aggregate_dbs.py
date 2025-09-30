@@ -112,6 +112,8 @@ def _process(app_config: Any):
         if gtfs_db_relative_path is None:
             continue
         
+        resource_day_f = resource_dt.strftime('%Y-%m-%d')
+        
         gtfs_rt_update_time = gtfs_day.strftime('%H:%M')
         for idx, gtfs_rt_updates_split_dt in enumerate(gtfs_rt_updates_splits_dt):
             if resource_dt.timestamp() < gtfs_rt_updates_split_dt.timestamp():
@@ -119,7 +121,7 @@ def _process(app_config: Any):
                 break
         # loop gtfs_rt_updates_splits_dt
         
-        gtfs_rt_switch_datetime_s = f'{gtfs_day_f} {gtfs_rt_update_time}'
+        gtfs_rt_switch_datetime_s = f'{resource_day_f} {gtfs_rt_update_time}'
         
         gtfs_catalog_item = GTFS_Static_Catalog_Item(
             gtfs_datetime_s=gtfs_dt_f,
