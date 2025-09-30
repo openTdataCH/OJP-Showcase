@@ -2,6 +2,8 @@ import os
 import sys
 
 from pathlib import Path
+import shutil
+
 import datetime
 
 from .HRDF_Parser.shared.inc.helpers.log_helpers import log_message
@@ -71,6 +73,8 @@ class HRDF_DB_Importer:
         import_meta_stops(self.app_config, self.hrdf_path, self.db_path, self.db_schema_config)
         print('-' * 100)
         
+        self._cleanup()
+        
         self._remove_lock_file()
 
         log_message("HRDF IMPORT -- DONE")
@@ -84,3 +88,7 @@ class HRDF_DB_Importer:
         
     def _remove_lock_file(self):
         os.remove(self.db_lock_path)
+        
+    def _cleanup(self):
+        log_message(f'Remove temp folder {self.db_tmp_path}')
+        shutil.rmtree(self.db_tmp_path)
