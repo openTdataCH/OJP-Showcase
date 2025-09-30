@@ -275,7 +275,7 @@ class HRDF_Stops_Reporter:
         select_cursor = self.db_handle.cursor()
         select_cursor.execute(sql)
         for db_row in select_cursor:
-            if db_row_idx % 500000 == 0:
+            if db_row_idx % 2_000_000 == 0:
                 log_message(f"... parsed {db_row_idx} rows ...")
 
             agency_id = db_row[0]
@@ -586,7 +586,7 @@ class HRDF_Stops_Reporter:
         select_cursor = self.db_handle.cursor()
         select_cursor.execute(sql)
         for db_row in select_cursor:
-            if db_row_idx % 50000 == 0:
+            if db_row_idx % 200_000 == 0:
                 log_message(f"... parsed {db_row_idx} rows ...")
 
             stop_ids_s = db_row[5]
