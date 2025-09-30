@@ -108,15 +108,7 @@ def _process(app_config: Any):
             # if no info in the filename then rely on the CKAN .created datetime
             resource_dt = datetime.fromisoformat(ckan_resource.created_s)
         
-        gtfs_day_dt = datetime(gtfs_day.year, gtfs_day.month, gtfs_day.day)
-        gtfs_dt_age = round((resource_dt.timestamp() - gtfs_day_dt.timestamp()) / (3600 * 24), 2)
-        if gtfs_dt_age > 1.0:
-            error_message = f'ERROR - {gtfs_day} - GTFS DT age too high: {gtfs_dt_age}'
-            print(error_message)
-            print(ckan_resource)
-        
         gtfs_db_relative_path = map_local_dbs.get(gtfs_day_f, None)
-        gtfs_dt_f = resource_dt.strftime('%Y-%m-%d %H:%M')
         if gtfs_db_relative_path is None:
             continue
         
