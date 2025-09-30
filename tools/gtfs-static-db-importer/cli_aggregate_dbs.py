@@ -126,7 +126,7 @@ def _process(app_config: Any):
             gtfs_day=gtfs_day_f,
             gtfs_rt_switch_datetime_s=gtfs_rt_switch_datetime_s,
             table_stats={}, # compute them in the next loop
-            db_relative_path=gtfs_db_relative_path,
+            db_relative_path=f'{gtfs_db_relative_path}',
         )
         
         map_gtfs_static_catalog[gtfs_day_f] = gtfs_catalog_item
