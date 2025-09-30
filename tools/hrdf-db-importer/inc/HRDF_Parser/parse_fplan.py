@@ -67,7 +67,7 @@ class HRDF_FPLAN_Parser:
         for row_line in hrdf_file:
             row_line = row_line.strip()
 
-            if (row_line_idx % 5000000) == 0:
+            if (row_line_idx % 5_000_000) == 0:
                 log_message(f"... parse {row_line_idx}/ {hrdf_file_rows_no} lines")
 
             hrdf_content = extract_hrdf_content(row_line, 2, 5) or 'n/a-ROW'

@@ -37,7 +37,7 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
     for row_line in hrdf_file:
         row_line = row_line.strip()
         
-        if (row_line_idx % 1000000) == 0:
+        if (row_line_idx % 1_000_000) == 0:
             log_message(f"... GLEIS.loop parse {row_line_idx}/ {hrdf_file_rows_no} lines")
 
         is_classification_row = extract_hrdf_content(row_line, 23, 23) == '#'

@@ -46,7 +46,7 @@ class DB_Table_CSV_Importer:
         values_s = ('?, ' * len(column_names))[0:-2]
         template_insert_sql = f'INSERT INTO {self.table_name}({column_names_s}) VALUES({values_s})'
 
-        batch_insert_rows_no = 10000
+        batch_insert_rows_no = 10_000
         batch_insert_values = []
 
         insert_cursor = self.db_handle.cursor()

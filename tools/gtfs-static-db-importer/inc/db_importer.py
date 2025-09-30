@@ -311,7 +311,7 @@ class GTFS_DB_Importer:
         db_cursor = self.db_handle.cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
-            if row_id % 200000 == 0:
+            if row_id % 200_000 == 0:
                 log_message(f'... parsed {row_id} rows')
 
             stop_times_data = db_row['stop_times_data'].split(' -- ')
@@ -416,7 +416,7 @@ class GTFS_DB_Importer:
             template_sql_path = self.map_sql_queries['update_stop_times_reset']
             template_sql = load_sql_from_file(template_sql_path)
             template_sql = template_sql.replace('[COLUMN_TO_RESET]', time_type)
-            stop_times_updater.update_table(self.db_handle, template_sql, rows_report_no=200000)
+            stop_times_updater.update_table(self.db_handle, template_sql, rows_report_no=200_000)
 
             log_message(f'DONE update stop_times RESET for {time_type}')
             print('')

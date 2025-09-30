@@ -46,7 +46,7 @@ class HRDF_FPLAN_Stops_Parser:
 
         row_idx = 0
         for db_row in select_cursor:
-            if row_idx % 1000000 == 0:
+            if row_idx % 1_000_000 == 0:
                 log_message(f"... parsed {row_idx} rows ...")
 
             # gleis_data: 34400|8507000.#0000004|1624 -- 34401|8507000.#0000005|1636
@@ -90,7 +90,7 @@ class HRDF_FPLAN_Stops_Parser:
 
         trip_row_idx = 0
         for db_row in select_cursor:
-            if trip_row_idx % 500000 == 0:
+            if trip_row_idx % 500_000 == 0:
                 log_message(f"... parsed {trip_row_idx} rows ...")
 
             fplan_row_idx = db_row['row_idx']
