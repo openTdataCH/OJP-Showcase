@@ -2,7 +2,7 @@ import os
 import sys
 from pathlib import Path
 
-from typing import Dict, List
+from typing import Any, Dict, List
 from datetime import datetime
 
 from inc.shared.inc.helpers.config_helpers import load_convenience_config, load_yaml_config
@@ -20,7 +20,7 @@ def main():
 
     _process(app_config)
 
-def _scan_local_dbs(app_config: any) -> Dict[str, Path]:
+def _scan_local_dbs(app_config: Any) -> Dict[str, Path]:
     map_local_dbs = {}
     
     gtfs_dbs_base_path = Path(app_config['gtfs_dbs_base_path'])
@@ -45,7 +45,7 @@ def _scan_local_dbs(app_config: any) -> Dict[str, Path]:
         
     return map_local_dbs
 
-def _load_ckan_data(app_config: any) -> List[CKAN_Resource]:
+def _load_ckan_data(app_config: Any) -> List[CKAN_Resource]:
     scripts_config_path = app_config['other_config_paths']['scripts_config']
     scripts_config = load_yaml_config(scripts_config_path)
     gtfs_package_id = scripts_config['current_package_ids']['gtfs']
@@ -73,7 +73,7 @@ def _compute_map_gtfs_static_catalog(app_config) -> Dict[str, GTFS_Static_Catalo
     
     return map_gtfs_catalog_items
     
-def _process(app_config: any):
+def _process(app_config: Any):
     map_gtfs_static_catalog = _compute_map_gtfs_static_catalog(app_config)
     map_local_dbs = _scan_local_dbs(app_config)
     ckan_data = _load_ckan_data(app_config)

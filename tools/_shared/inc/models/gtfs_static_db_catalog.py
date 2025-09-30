@@ -10,7 +10,7 @@ class GTFS_Static_Catalog_Item:
     gtfs_day: str # %Y-%m-%d
     gtfs_rt_switch_datetime_s: str # %Y-%m-%d %H:%M
     table_stats: Dict[str, int]
-    db_relative_path: str
+    db_relative_path: Optional[str]
     
     def as_json(self):
         data_json = asdict(self)

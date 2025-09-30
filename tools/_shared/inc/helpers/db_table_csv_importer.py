@@ -2,13 +2,14 @@ import os, sys
 from pathlib import Path
 import sqlite3
 import csv
+from typing import Any, Union
 
 from .log_helpers import log_message
 from .file_helpers import compute_file_rows_no
 from .db_helpers import drop_and_recreate_table, fetch_column_names, add_table_indexes, connect_db
 
 class DB_Table_CSV_Importer:
-    def __init__(self, db_path: Path, table_name: str, table_config: any):
+    def __init__(self, db_path: Path, table_name: str, table_config: Any):
         self.db_path = db_path
         self.db_handle = connect_db(db_path, is_read_only=False)
         
@@ -19,7 +20,7 @@ class DB_Table_CSV_Importer:
         self.table_name = table_name
         self.table_config = table_config
 
-        self.write_csv_handle = None
+        self.write_csv_handle: Union[csv.DictWriter, None] = None
         self.write_csv_file = None
 
     def truncate_table(self):
@@ -88,7 +89,7 @@ class DB_Table_CSV_Importer:
         add_table_indexes(self.db_handle, self.table_name, self.table_config)
         log_message('... DONE adding indexes')
 
-    def create_csv_file(self, csv_path: str):
+    def create_csv_file(self, csv_path: Path):
         column_names = fetch_column_names(self.db_handle, self.table_name)
         if len(column_names) == 0:
             print(f'ERROR - no columns found, forgot to create table for "{self.table_name}"?')
