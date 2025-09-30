@@ -14,4 +14,4 @@
 - harmonize parsing of the CKAN datasets (zip, CSV mixed data)
 
 4.Mar 2024
-- fix for CKAN API JSON parsing - [PR #39](https://github.com/openTdataCH/OJP-Showcase/pull/39)
+- fix for CKAN API JSON parsing - [PR #39](https://github.com/openTdataCH/showcases/pull/39)

@@ -20,17 +20,17 @@ $ ng serve
 
 | Dataset | URL | Description |
 |-|-|-|
-| GTFS-static DBs catalog | https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json | Metadata info about latest GTFS catalog. This file is produced 2x/week by the [gtfs-static-db-importer](https://github.com/openTdataCH/OJP-Showcase/tree/develop/tools/gtfs-static-db-importer) tool |
+| GTFS-static DBs catalog | https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json | Metadata info about latest GTFS catalog. This file is produced 2x/week by the [gtfs-static-db-importer](https://github.com/openTdataCH/showcases/tree/develop/tools/gtfs-static-db-importer) tool |
 | Business Organisations | [actual_date_business_organisation_versions_LATEST.csv](https://tools.odpch.ch/data/actual_date_business_organisation_versions_LATEST.csv) | This API gives the latest `actual_date_business_organisation_versions*` CSV file from [business-organisations](https://data.opentransportdata.swiss/en/dataset/business-organisations) |
 | SIRI-ET feed | https://api.opentransportdata.swiss/siri-et | SIRI-ET latest response - see [SIRI-ET cookbook](https://opentransportdata.swiss/en/cookbook/siri-et-pt-with-request-response/) | 
 | GTFS-RT feed | https://api.opentransportdata.swiss/gtfsrt2020 | GTFS-RT latest response - see [GTFS-RT cookbook](https://opentransportdata.swiss/en/cookbook/gtfs-rt/) | 
-| GTFS-DB lookups | [./gtfs-query/db_lookups?gtfs_day=YYYY-MM-DD](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/db_lookups?gtfs_day=2025-01-13) | GTFS DB lookups for: `agency`, `routes`, `stops` tables via [gtfs-query](https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/gtfs-query) app |
+| GTFS-DB lookups | [./gtfs-query/db_lookups?gtfs_day=YYYY-MM-DD](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/db_lookups?gtfs_day=2025-01-13) | GTFS DB lookups for: `agency`, `routes`, `stops` tables via [gtfs-query](https://github.com/openTdataCH/showcases/tree/develop/apps/gtfs-query) app |
 
 For each agency, additional requests are made to obtain full `trips`, `stop_times` information
 
 | Dataset | URL | Description |
 |-|-|-|
-| GTFS-DB `trips` lookups | [./gtfs-query/db_lookups?gtfs_day=YYYY-MM-DD&service_day=YYYY-MM-DD&agency_id=AGENCY_ID](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?gtfs_day=2025-01-13&service_day=2025-01-16&agency_id=801) | GTFS DB full information for `trips`, `stop_times` of a given `AGENCY_ID` in a given `service_day` operation day. The results are provided by [gtfs-query](https://github.com/openTdataCH/OJP-Showcase/tree/develop/apps/gtfs-query) app |
+| GTFS-DB `trips` lookups | [./gtfs-query/db_lookups?gtfs_day=YYYY-MM-DD&service_day=YYYY-MM-DD&agency_id=AGENCY_ID](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?gtfs_day=2025-01-13&service_day=2025-01-16&agency_id=801) | GTFS DB full information for `trips`, `stop_times` of a given `AGENCY_ID` in a given `service_day` operation day. The results are provided by [gtfs-query](https://github.com/openTdataCH/showcases/tree/develop/apps/gtfs-query) app |
 
 ## Methodology
 

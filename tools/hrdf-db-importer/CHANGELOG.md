@@ -1,10 +1,10 @@
 # CHANGELOG hrdf-db-importer
 
 10.Oct.2024
-- use more robust rgb string parsing - [PR #68](https://github.com/openTdataCH/OJP-Showcase/pull/68)
+- use more robust rgb string parsing - [PR #68](https://github.com/openTdataCH/showcases/pull/68)
 
 18.Jan 2024
-- adapt to the new changes of BFKOORD_WGS file - [PR #41](https://github.com/openTdataCH/OJP-Showcase/pull/41)
+- adapt to the new changes of BFKOORD_WGS file - [PR #41](https://github.com/openTdataCH/showcases/pull/41)
 
 25.Nov 2023
 - import `LINIE` service_lines metadata in DB `service_line` table, adjust FPLAN lookups for service lines
@@ -16,5 +16,5 @@
 - apply pylint suggestions
 
 15.Oct 2023
-- add support for journey information `A JY` from `INFOTEXT` - [PR #34](https://github.com/openTdataCH/OJP-Showcase/pull/34)
-- improve `GLEIS` parsing - [PR #35](https://github.com/openTdataCH/OJP-Showcase/pull/35)
+- add support for journey information `A JY` from `INFOTEXT` - [PR #34](https://github.com/openTdataCH/showcases/pull/34)
+- improve `GLEIS` parsing - [PR #35](https://github.com/openTdataCH/showcases/pull/35)

@@ -5,4 +5,4 @@ This tool used in [Atlas-Lines compare GTFS-Routes](https://tools.odpch.ch/atlas
 ----
 
 1.February.2025
-- added tool to `OJP-Showcase` collection
+- added tool to `showcases` monorepo

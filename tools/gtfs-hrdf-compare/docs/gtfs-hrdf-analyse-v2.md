@@ -2,7 +2,7 @@ For the first version check [this gist](https://gist.github.com/vasile/1e75bd12b
 
 # GTFS compare HRDF Analyse
 
-This document is part of [#7 HRDF / gtfs Vergleich](https://github.com/openTdataCH/OJP-Showcase/issues/7) implementation.
+This document is part of [#7 HRDF / gtfs Vergleich](https://github.com/openTdataCH/showcases/issues/7) implementation.
 
 ## Datasets
 

@@ -2,10 +2,10 @@
 
 ```
 # Clone / Download this repo
-git clone https://github.com/openTdataCH/OJP-Showcase.git /path/to/openTdataCH--OJP-Showcase
+git clone https://github.com/openTdataCH/showcases.git /path/to/openTdataCH--showcases
 
 # CD to the ./tools/docker folder
-cd /path/to/openTdataCH--OJP-Showcase/tools/docker
+cd /path/to/openTdataCH--showcases/tools/docker
 
 # Build the local image
 docker build -t opentdata-ch-tools:v1 .
