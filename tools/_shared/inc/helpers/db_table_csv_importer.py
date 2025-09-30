@@ -112,6 +112,7 @@ class DB_Table_CSV_Importer:
         # use self.write_csv_handle.writerow(rowdict) or .writerows([rowdict]) to populate the table
 
     def close_csv_file(self):
-        self.write_csv_file.close()
-        self.write_csv_file = None
-        self.write_csv_handle = None
+        if self.write_csv_file:
+            self.write_csv_file.close()
+            self.write_csv_file = None
+            self.write_csv_handle = None

@@ -70,7 +70,8 @@ class HRDF_FPLAN_Parser:
             if (row_line_idx % 5000000) == 0:
                 log_message(f"... parse {row_line_idx}/ {hrdf_file_rows_no} lines")
 
-            row_line_type = extract_hrdf_content(row_line, 2, 5).strip()
+            hrdf_content = extract_hrdf_content(row_line, 2, 5) or 'n/a-ROW'
+            row_line_type = hrdf_content.strip()
 
             if row_line.startswith("*"):
                 if row_line.startswith("*Z"):
@@ -82,7 +83,7 @@ class HRDF_FPLAN_Parser:
                     service_id_json = self._parse_a_ve_line(row_line)
                     current_fplan_row_json["service_ids_json"].append(service_id_json)
                 elif row_line.startswith("*L"):
-                    service_line = self._parse_l_line(row_line)
+                    service_line = self._parse_l_line(row_line) or 'n/a-LINE'
 
                     # support for lookups to LINIE
                     if service_line.startswith('#'):
@@ -149,13 +150,15 @@ class HRDF_FPLAN_Parser:
                 "to_stop_id": service_id_json["to_stop_id"],
             }
 
-            self.fplan_bitfeld_table_writer.write_csv_handle.writerow(fplan_trip_bitfeld_row)
+            if self.fplan_bitfeld_table_writer.write_csv_handle:
+                self.fplan_bitfeld_table_writer.write_csv_handle.writerow(fplan_trip_bitfeld_row)
             service_id_idx += 1
 
         fplan_row_json.pop('fplan_content_rows', None)
         fplan_row_json.pop('service_ids_json', None)
 
-        self.fplan_table_writer.write_csv_handle.writerow(fplan_row_json)
+        if self.fplan_table_writer.write_csv_handle:
+            self.fplan_table_writer.write_csv_handle.writerow(fplan_row_json)
 
     def _parse_z_line(self, row_line_idx, row_line):
         fplan_trip_id = normalize_fplan_trip_id(extract_hrdf_content(row_line, 4, 9))

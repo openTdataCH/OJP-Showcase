@@ -469,7 +469,7 @@ class HRDF_Stops_Reporter:
             from_line_id = db_row["from_line_id"]
             
             from_trip_short_name = from_vehicle_type
-            if from_line_id is not "*":
+            if from_line_id != "*":
                 from_trip_short_name += from_line_id
             
             to_agency_id = db_row["to_agency_id"]
@@ -477,7 +477,7 @@ class HRDF_Stops_Reporter:
             to_line_id = db_row["to_line_id"]
 
             to_trip_short_name = to_vehicle_type
-            if to_line_id is not "*":
+            if to_line_id != "*":
                 to_trip_short_name += to_line_id
 
             transfer_time = db_row["transfer_time"]

@@ -52,7 +52,7 @@ def _load_ckan_data(app_config: Any) -> List[CKAN_Resource]:
     
     gtfs_ckan_json_path: str = app_config['gtfs_ckan_json_path']
     gtfs_ckan_json_path = gtfs_ckan_json_path.replace('[PACKAGE_ID]', gtfs_package_id)
-    gtfs_ckan_json = load_json_from_file(gtfs_ckan_json_path)
+    gtfs_ckan_json = load_json_from_file(Path(gtfs_ckan_json_path))
     gtfs_ckan = CKAN_Data.from_ckan_json(gtfs_ckan_json)
     
     return gtfs_ckan.result.resources
@@ -91,7 +91,7 @@ def _process(app_config: Any):
     
     # loop through all CKAN resources and create new GTFS_Static_DB_Item objects if needed
     for ckan_resource in ckan_data:
-        gtfs_day = compute_gtfs_day_from_resource_path(ckan_resource.identifier)
+        gtfs_day = compute_gtfs_day_from_resource_path(Path(ckan_resource.identifier))
         if gtfs_day is None:
             print(f'ERROR - cant extract GTFS day from resource: {ckan_resource.identifier}')
             sys.exit(1)
@@ -103,7 +103,7 @@ def _process(app_config: Any):
         
         # for datasets before may 2024 try to get the datetime from the filename, i.e. GTFS_FP2024_2024-04-15_08-54.zip
         # otherwise CKAN .created and .updated are not reflecting the dataset publishing date
-        resource_dt = compute_gtfs_dt_from_resource_path(ckan_resource.identifier)
+        resource_dt = compute_gtfs_dt_from_resource_path(Path(ckan_resource.identifier))
         if resource_dt is None:
             # if no info in the filename then rely on the CKAN .created datetime
             resource_dt = datetime.fromisoformat(ckan_resource.created_s)
@@ -148,7 +148,7 @@ def _process(app_config: Any):
         
         # compute stats only if necessary
         if gtfs_catalog_item.table_stats == {} and gtfs_db_relative_path is not None:
-            gtfs_db_path = f'{gtfs_dbs_base_path}/{gtfs_db_relative_path}'
+            gtfs_db_path = Path(f'{gtfs_dbs_base_path}/{gtfs_db_relative_path}')
             gtfs_db_engine = SQLiteDBEngine(gtfs_db_path)
             gtfs_catalog_item.table_stats = gtfs_db_engine.compute_table_stats()
     

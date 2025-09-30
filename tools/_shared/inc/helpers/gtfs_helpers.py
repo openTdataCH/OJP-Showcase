@@ -69,7 +69,7 @@ def massage_datetime_to_hhmm(datetime_s: str):
 
 def compute_date_from_gtfs_db_filename(db_filename: str):
     # gtfs_2021-03-10.sqlite
-    date_matches = re.match("^.+?_([0-9]{4}-[0-9]{2}-[0-9]{2})\.sqlite$", db_filename)
+    date_matches = re.match(r"^.+?_([0-9]{4}-[0-9]{2}-[0-9]{2})\.sqlite$", db_filename)
 
     if not date_matches:
         return None

@@ -137,7 +137,8 @@ class HRDF_FPLAN_Stops_Parser:
             service_stop_times_json[-1]["stop_departure"] = None
             service_stop_times_json[-1]["is_getoff_allowed"] = None
 
-            db_table_writer.write_csv_handle.writerows(service_stop_times_json)
+            if db_table_writer.write_csv_handle:
+                db_table_writer.write_csv_handle.writerows(service_stop_times_json)
 
             trip_row_idx += 1
         select_cursor.close()
