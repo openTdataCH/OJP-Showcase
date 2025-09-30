@@ -17,11 +17,18 @@ def extract_hrdf_content(hrdf_line: str, from_idx: int, to_idx: int, default_val
     return hrdf_content
 
 def normalize_agency_id(hrdf_s: Union[str, None]):
+    if hrdf_s is None:
+        return ""
+    
     hrdf_s = hrdf_s.lstrip("0")
     return hrdf_s
 
 def normalize_fplan_trip_id(hrdf_s: Union[str, None]):
+    if hrdf_s is None:
+        return ""
+    
     hrdf_s = hrdf_s.lstrip("0")
+    
     return hrdf_s
 
 def compute_file_rows_no(file_path: str):
