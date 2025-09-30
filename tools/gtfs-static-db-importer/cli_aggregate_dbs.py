@@ -117,6 +117,8 @@ def _process(app_config: Any):
         
         gtfs_db_relative_path = map_local_dbs.get(gtfs_day_f, None)
         gtfs_dt_f = resource_dt.strftime('%Y-%m-%d %H:%M')
+        if gtfs_db_relative_path is None:
+            continue
         
         gtfs_rt_update_time = gtfs_day.strftime('%H:%M')
         for idx, gtfs_rt_updates_split_dt in enumerate(gtfs_rt_updates_splits_dt):
