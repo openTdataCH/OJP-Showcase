@@ -2,7 +2,7 @@
 
 See:
     - [CHANGELOG](./CHANGELOG.md) for latest changes
-    - ticket https://github.com/openTdataCH/OJP-Showcase/issues/13
+    - ticket https://github.com/openTdataCH/showcases/issues/13
 
 ## Installation
 
@@ -24,7 +24,7 @@ The script tries to guess the HRDF date from the path, in the case above will cr
 
 ### HRDF DB reporter
 
-Issue: https://github.com/openTdataCH/OJP-Showcase/issues/13
+Issue: https://github.com/openTdataCH/showcases/issues/13
 
 Small tool that generates a report about tables and total number of rows in a given database.
 

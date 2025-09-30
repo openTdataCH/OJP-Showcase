@@ -1,6 +1,6 @@
 ### Stops Reporter Tool
 
-Issue: https://github.com/openTdataCH/OJP-Showcase/issues/3
+Issue: https://github.com/openTdataCH/showcases/issues/3
 
 Python tool that generates a CSV report for the HRDF stations, the fields are specified in the Github issue.
 

@@ -13,7 +13,7 @@ from .shared.inc.helpers.log_helpers import log_message
 
 from .shared.inc.models.ckan_data import CKAN_Data
 
-USER_AGENT = 'OJP-Showcase.tools.ckan-utils/1.0'
+USER_AGENT = 'swiss.opentransportdata.tools.ckan-utils/1.0'
 class CKAN_Controller:
     def __init__(self, app_config):
         self.app_config = app_config

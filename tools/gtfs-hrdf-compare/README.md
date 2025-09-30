@@ -16,10 +16,10 @@ python3 gtfs_hrdf_compare_cli.py \
 |--|--|--|
 | agency_id | Agency ID | `11` for SBB |
 | day | Day of operation in `YYYY-MM-DD` format | `2022-01-12` for 12.Jan 2022 |
-| hrdf-db-path | Path to the HRDF DB generated with [hrdf-db-importer](https://github.com/openTdataCH/OJP-Showcase/tree/develop/tools/hrdf-db-importer) tool | `tmp/hrdf-dbs/hrdf_2022-01-07.sqlite` |
-| gtfs-db-path | Path to the GTFS DB generated with [gtfs-static-db-importer](https://github.com/openTdataCH/OJP-Showcase/tree/develop/tools/gtfs-static-db-importer) tool | `tmp/gtfs-static-dbs/gtfs_2022-01-12.sqlite` |
+| hrdf-db-path | Path to the HRDF DB generated with [hrdf-db-importer](https://github.com/openTdataCH/showcases/tree/develop/tools/hrdf-db-importer) tool | `tmp/hrdf-dbs/hrdf_2022-01-07.sqlite` |
+| gtfs-db-path | Path to the GTFS DB generated with [gtfs-static-db-importer](https://github.com/openTdataCH/showcases/tree/develop/tools/gtfs-static-db-importer) tool | `tmp/gtfs-static-dbs/gtfs_2022-01-12.sqlite` |
 
-Check [tools/gtfs-hrdf-compare/docs/gtfs-hrdf-analyse-v2.md](https://github.com/openTdataCH/OJP-Showcase/blob/develop/tools/gtfs-hrdf-compare/docs/gtfs-hrdf-analyse-v2.md) for detailed analyse and methodology used.
+Check [tools/gtfs-hrdf-compare/docs/gtfs-hrdf-analyse-v2.md](https://github.com/openTdataCH/showcases/blob/develop/tools/gtfs-hrdf-compare/docs/gtfs-hrdf-analyse-v2.md) for detailed analyse and methodology used.
 
 # Sample Output
 

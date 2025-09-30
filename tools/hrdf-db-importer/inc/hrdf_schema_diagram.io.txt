@@ -1,5 +1,5 @@
 // URL - https://dbdiagram.io/d/5fec775180d742080a349c5a
-// Used in - https://github.com/openTdataCH/OJP-Showcase/
+// Used in - https://github.com/openTdataCH/showcases/
 
 Table agency {
   agency_id text [pk]

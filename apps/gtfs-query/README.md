@@ -16,7 +16,7 @@ This API returns all active trips for a given interval or running at a given tim
 | hhmm | Request time, if missing, the current time will be used | `1400` |
 | from_hhmm | Filter trips after given time | `1330` |
 | to_hhmm | Filter trips before given time | `1700` |
-| filter_agency_ids | Filter trips and routes for the agency_ids, separated by comma `,` | `11,801`, `HAS_GTFS_RT` can be used for the [GO-RT](https://github.com/openTdataCH/OJP-Showcase/blob/develop/tools/_shared/inc/config/go-realtime.csv) companies |
+| filter_agency_ids | Filter trips and routes for the agency_ids, separated by comma `,` | `11,801`, `HAS_GTFS_RT` can be used for the [GO-RT](https://github.com/openTdataCH/showcases/blob/develop/tools/_shared/inc/config/go-realtime.csv) companies |
 | parse_type | Trips format output | `FLAT` for a condensed output (stop_times also included) |
 
 ### Sample output:

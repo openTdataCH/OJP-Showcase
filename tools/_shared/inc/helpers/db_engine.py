@@ -62,7 +62,7 @@ class SQLiteDBEngine:
         
         return query_results
         
-    def query(self, sql: str, map_by_field: Optional[str] = None) -> (dict[str, Any] | list[Any]):
+    def query(self, sql: str, map_by_field: Optional[str] = None) -> Union[dict[str, Any], list[Any]]:
         row_items = []
         map_row_items = {}
 
