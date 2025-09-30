@@ -2,7 +2,7 @@ import os
 import sys
 from pathlib import Path
 
-from typing import Dict, List
+from typing import Any, Dict, List
 from datetime import datetime
 
 from inc.shared.inc.helpers.config_helpers import load_convenience_config, load_yaml_config
@@ -20,7 +20,7 @@ def main():
 
     _process(app_config)
 
-def _scan_local_dbs(app_config: any) -> Dict[str, Path]:
+def _scan_local_dbs(app_config: Any) -> Dict[str, Path]:
     map_local_dbs = {}
     
     gtfs_dbs_base_path = Path(app_config['gtfs_dbs_base_path'])
@@ -45,14 +45,14 @@ def _scan_local_dbs(app_config: any) -> Dict[str, Path]:
         
     return map_local_dbs
 
-def _load_ckan_data(app_config: any) -> List[CKAN_Resource]:
+def _load_ckan_data(app_config: Any) -> List[CKAN_Resource]:
     scripts_config_path = app_config['other_config_paths']['scripts_config']
     scripts_config = load_yaml_config(scripts_config_path)
     gtfs_package_id = scripts_config['current_package_ids']['gtfs']
     
     gtfs_ckan_json_path: str = app_config['gtfs_ckan_json_path']
     gtfs_ckan_json_path = gtfs_ckan_json_path.replace('[PACKAGE_ID]', gtfs_package_id)
-    gtfs_ckan_json = load_json_from_file(gtfs_ckan_json_path)
+    gtfs_ckan_json = load_json_from_file(Path(gtfs_ckan_json_path))
     gtfs_ckan = CKAN_Data.from_ckan_json(gtfs_ckan_json)
     
     return gtfs_ckan.result.resources
@@ -73,7 +73,7 @@ def _compute_map_gtfs_static_catalog(app_config) -> Dict[str, GTFS_Static_Catalo
     
     return map_gtfs_catalog_items
     
-def _process(app_config: any):
+def _process(app_config: Any):
     map_gtfs_static_catalog = _compute_map_gtfs_static_catalog(app_config)
     map_local_dbs = _scan_local_dbs(app_config)
     ckan_data = _load_ckan_data(app_config)
@@ -91,7 +91,7 @@ def _process(app_config: any):
     
     # loop through all CKAN resources and create new GTFS_Static_DB_Item objects if needed
     for ckan_resource in ckan_data:
-        gtfs_day = compute_gtfs_day_from_resource_path(ckan_resource.identifier)
+        gtfs_day = compute_gtfs_day_from_resource_path(Path(ckan_resource.identifier))
         if gtfs_day is None:
             print(f'ERROR - cant extract GTFS day from resource: {ckan_resource.identifier}')
             sys.exit(1)
@@ -103,20 +103,17 @@ def _process(app_config: any):
         
         # for datasets before may 2024 try to get the datetime from the filename, i.e. GTFS_FP2024_2024-04-15_08-54.zip
         # otherwise CKAN .created and .updated are not reflecting the dataset publishing date
-        resource_dt = compute_gtfs_dt_from_resource_path(ckan_resource.identifier)
+        resource_dt = compute_gtfs_dt_from_resource_path(Path(ckan_resource.identifier))
         if resource_dt is None:
             # if no info in the filename then rely on the CKAN .created datetime
             resource_dt = datetime.fromisoformat(ckan_resource.created_s)
         
-        gtfs_day_dt = datetime(gtfs_day.year, gtfs_day.month, gtfs_day.day)
-        gtfs_dt_age = round((resource_dt.timestamp() - gtfs_day_dt.timestamp()) / (3600 * 24), 2)
-        if gtfs_dt_age > 1.0:
-            error_message = f'ERROR - {gtfs_day} - GTFS DT age too high: {gtfs_dt_age}'
-            print(error_message)
-            print(ckan_resource)
-        
         gtfs_db_relative_path = map_local_dbs.get(gtfs_day_f, None)
-        gtfs_dt_f = resource_dt.strftime('%Y-%m-%d %H:%M')
+        if gtfs_db_relative_path is None:
+            continue
+        
+        resource_dt_f = resource_dt.strftime('%Y-%m-%d %H:%M')
+        resource_day_f = resource_dt.strftime('%Y-%m-%d')
         
         gtfs_rt_update_time = gtfs_day.strftime('%H:%M')
         for idx, gtfs_rt_updates_split_dt in enumerate(gtfs_rt_updates_splits_dt):
@@ -125,14 +122,14 @@ def _process(app_config: any):
                 break
         # loop gtfs_rt_updates_splits_dt
         
-        gtfs_rt_switch_datetime_s = f'{gtfs_day_f} {gtfs_rt_update_time}'
+        gtfs_rt_switch_datetime_s = f'{resource_day_f} {gtfs_rt_update_time}'
         
         gtfs_catalog_item = GTFS_Static_Catalog_Item(
-            gtfs_datetime_s=gtfs_dt_f,
+            gtfs_datetime_s=resource_dt_f,
             gtfs_day=gtfs_day_f,
             gtfs_rt_switch_datetime_s=gtfs_rt_switch_datetime_s,
             table_stats={}, # compute them in the next loop
-            db_relative_path=gtfs_db_relative_path,
+            db_relative_path=f'{gtfs_db_relative_path}',
         )
         
         map_gtfs_static_catalog[gtfs_day_f] = gtfs_catalog_item
@@ -148,7 +145,7 @@ def _process(app_config: any):
         
         # compute stats only if necessary
         if gtfs_catalog_item.table_stats == {} and gtfs_db_relative_path is not None:
-            gtfs_db_path = f'{gtfs_dbs_base_path}/{gtfs_db_relative_path}'
+            gtfs_db_path = Path(f'{gtfs_dbs_base_path}/{gtfs_db_relative_path}')
             gtfs_db_engine = SQLiteDBEngine(gtfs_db_path)
             gtfs_catalog_item.table_stats = gtfs_db_engine.compute_table_stats()
     

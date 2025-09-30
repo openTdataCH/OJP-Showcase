@@ -25,6 +25,10 @@ def _compute_gtfs_dt_matches_from_resource_path(resource_path: Path):
     # GTFS_FP2024_2024-05-02
     dt_matches = re.match("^gtfs_fp([0-9]{4})_([0-9]{4})-([0-9]{2})-([0-9]{2})(.*)$", resource_path.name.lower())
     
+    if dt_matches is None:
+        # GTFS_FP2025_20250925.zip
+        dt_matches = re.match("^gtfs_fp([0-9]{4})_([0-9]{4})([0-9]{2})([0-9]{2})(.*)$", resource_path.name.lower())
+    
     return dt_matches
 
 # useful for old file formats which included the created date
@@ -69,7 +73,7 @@ def massage_datetime_to_hhmm(datetime_s: str):
 
 def compute_date_from_gtfs_db_filename(db_filename: str):
     # gtfs_2021-03-10.sqlite
-    date_matches = re.match("^.+?_([0-9]{4}-[0-9]{2}-[0-9]{2})\.sqlite$", db_filename)
+    date_matches = re.match(r"^.+?_([0-9]{4}-[0-9]{2}-[0-9]{2})\.sqlite$", db_filename)
 
     if not date_matches:
         return None

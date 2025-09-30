@@ -2,11 +2,12 @@ import os
 import sys
 
 from pathlib import Path
+from typing import Optional
 
 from dotenv import load_dotenv
 import yaml
 
-def load_yaml_config(config_path: Path, app_path: Path = None):
+def load_yaml_config(config_path: Path, app_path: Optional[Path] = None):
     if not isinstance(config_path, Path):
         config_path = Path(config_path)
 

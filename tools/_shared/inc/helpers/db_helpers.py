@@ -3,11 +3,11 @@ import sys
 
 import sqlite3
 
-from typing import List
+from typing import Any, List
 
 from .log_helpers import log_message
 
-def truncate_and_load_table_records(db_path, table_name, table_config, row_items, log_lines_no = 100000):
+def truncate_and_load_table_records(db_path, table_name, table_config, row_items, log_lines_no = 100_000):
     db_handle = connect_db(db_path, is_read_only=False)
 
     drop_and_recreate_table(db_handle, table_name, table_config)
@@ -105,7 +105,7 @@ def load_sql_from_file(file_path: str):
 
     return sql
 
-def count_rows_table(db_handle: any, table_name: str, where_clause = None):
+def count_rows_table(db_handle: Any, table_name: str, where_clause = None):
     sql = f"SELECT COUNT(*) AS cno FROM {table_name} {where_clause}"
     return db_handle.cursor().execute(sql).fetchone()[0]
 
@@ -127,7 +127,7 @@ def _query_db(db_handle: sqlite3.Connection, sql: str):
     
     return row_items
 
-def table_select_rows(db_handle: any, table_name: str, where_clause = "", group_by_key = None):
+def table_select_rows(db_handle: Any, table_name: str, where_clause = "", group_by_key = None):
     column_names = fetch_column_names(db_handle, table_name)
 
     column_names_s = ", ".join(column_names)
@@ -145,7 +145,7 @@ def table_select_rows(db_handle: any, table_name: str, where_clause = "", group_
     else:
         return row_items
 
-def compute_db_tables_report(db_handle: any = None, db_path: any = None):
+def compute_db_tables_report(db_handle: Any = None, db_path: Any = None):
     if db_handle is None and db_path is None:
         print("ERROR, one of db_handle or db_path should be defined")
         sys.exit(1)
@@ -175,7 +175,7 @@ def compute_db_tables_report(db_handle: any = None, db_path: any = None):
 
     print("\n".join(report_text_lines))
 
-def fetch_db_table_names(db_handle: any = None, db_path: any = None):
+def fetch_db_table_names(db_handle: Any = None, db_path: Any = None):
     if db_handle is None:
         db_handle = connect_db(db_path)
 
@@ -191,7 +191,7 @@ def fetch_db_table_names(db_handle: any = None, db_path: any = None):
 
     return table_names
     
-def execute_sql_queries(db_handle: None, query_items: List[str], log_lines_no = 100000):
+def execute_sql_queries(db_handle: Any, query_items: List[str], log_lines_no = 100_000):
     query_items_groups = split_rows_in_groups(query_items, log_lines_no)
     for query_items_group in query_items_groups:
         queries_no = len(query_items_group)

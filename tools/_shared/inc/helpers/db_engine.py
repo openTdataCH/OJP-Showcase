@@ -4,6 +4,8 @@ import sqlite3
 
 from pathlib import Path
 
+from typing import Any, Optional, Union
+
 class SQLiteDBEngine:
     def __init__(self, db_path: Path, is_read_only = True):
         if isinstance(db_path, str):
@@ -54,13 +56,13 @@ class SQLiteDBEngine:
             
         return column_names
     
-    def query_table(self, table_name: str, map_by_field: str = None):
+    def query_table(self, table_name: str, map_by_field: Optional[str] = None) -> Union[dict[str, Any], list[Any]]:
         sql = f'SELECT * FROM {table_name}'
         query_results = self.query(sql, map_by_field)
         
         return query_results
         
-    def query(self, sql: str, map_by_field: str = None):
+    def query(self, sql: str, map_by_field: Optional[str] = None) -> (dict[str, Any] | list[Any]):
         row_items = []
         map_row_items = {}
 

@@ -4,7 +4,9 @@ import gzip
 
 from pathlib import Path
 
-def export_json_to_file(json_obj: any, json_path: Path, pretty_print = False):
+from typing import Any
+
+def export_json_to_file(json_obj: Any, json_path: Path, pretty_print = False):
     if isinstance(json_path, str):
         json_path = Path(json_path)
 

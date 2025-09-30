@@ -30,7 +30,7 @@ def main():
         print(f': {hrdf_path}')
         sys.exit(1)
 
-    formatted_date = compute_formatted_date_from_hrdf_folder_path(f'{hrdf_path}')  
+    formatted_date = compute_formatted_date_from_hrdf_folder_path(Path(hrdf_path))
     if formatted_date is None:
         print(f"CANT read date from HRDF path: '{hrdf_path}'")
         sys.exit(1)

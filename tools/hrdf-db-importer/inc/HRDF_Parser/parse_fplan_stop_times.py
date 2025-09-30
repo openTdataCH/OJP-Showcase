@@ -1,8 +1,4 @@
-import os
-import sys
-
-import datetime
-import json
+import os, sys
 
 from pathlib import Path
 
@@ -13,10 +9,10 @@ from .shared.inc.helpers.hrdf_helpers import extract_hrdf_content
 from .shared.inc.helpers.bundle_helpers import load_resource_from_bundle
 from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 
-def import_db_stop_times(app_config, db_path):
+def import_db_stop_times(app_config, db_path, db_tmp_path):
     log_message(f"CREATE fplan_stop_times")
 
-    parser = HRDF_FPLAN_Stops_Parser(app_config, db_path)
+    parser = HRDF_FPLAN_Stops_Parser(app_config, db_path, db_tmp_path)
 
     map_gleis = parser.fetch_map_gleis()
     log_message('DONE map_gleis')
@@ -25,12 +21,13 @@ def import_db_stop_times(app_config, db_path):
     parser.parse_fplan_stops(map_gleis)
 
 class HRDF_FPLAN_Stops_Parser:
-    def __init__(self, app_config, db_path):
+    def __init__(self, app_config, db_path, db_tmp_path):
         if isinstance(db_path, str):
             db_path = Path(db_path)
 
         self.app_config = app_config
         self.db_path = db_path
+        self.db_tmp_path = db_tmp_path
         self.db_handle = connect_db(db_path)
 
         schema_config_path = app_config['other_configs']['schema_config_path']
@@ -46,7 +43,7 @@ class HRDF_FPLAN_Stops_Parser:
 
         row_idx = 0
         for db_row in select_cursor:
-            if row_idx % 1000000 == 0:
+            if row_idx % 1_000_000 == 0:
                 log_message(f"... parsed {row_idx} rows ...")
 
             # gleis_data: 34400|8507000.#0000004|1624 -- 34401|8507000.#0000005|1636
@@ -76,9 +73,7 @@ class HRDF_FPLAN_Stops_Parser:
         db_table_writer.truncate_table()
         print('')
 
-        csv_write_base_path = f'/tmp/{self.db_path.name}'
-
-        db_table_writer_csv_path = f'{csv_write_base_path}-fplan_stop_times.csv'
+        db_table_writer_csv_path = Path(f'{self.db_tmp_path}/fplan_stop_times.csv')
         db_table_writer.create_csv_file(db_table_writer_csv_path)
 
         log_message("QUERY FPLAN_TRIP_BETRIEB ...")
@@ -90,7 +85,7 @@ class HRDF_FPLAN_Stops_Parser:
 
         trip_row_idx = 0
         for db_row in select_cursor:
-            if trip_row_idx % 500000 == 0:
+            if trip_row_idx % 500_000 == 0:
                 log_message(f"... parsed {trip_row_idx} rows ...")
 
             fplan_row_idx = db_row['row_idx']
@@ -137,7 +132,8 @@ class HRDF_FPLAN_Stops_Parser:
             service_stop_times_json[-1]["stop_departure"] = None
             service_stop_times_json[-1]["is_getoff_allowed"] = None
 
-            db_table_writer.write_csv_handle.writerows(service_stop_times_json)
+            if db_table_writer.write_csv_handle:
+                db_table_writer.write_csv_handle.writerows(service_stop_times_json)
 
             trip_row_idx += 1
         select_cursor.close()

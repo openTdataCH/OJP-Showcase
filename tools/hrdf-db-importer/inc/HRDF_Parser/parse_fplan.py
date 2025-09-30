@@ -1,6 +1,6 @@
 import os
-import sys
-import datetime
+
+from pathlib import Path
 
 from .parse_infotext import parse_infotext
 from .shared.inc.helpers.log_helpers import log_message
@@ -9,7 +9,7 @@ from .shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_
 from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 from .shared.inc.helpers.db_helpers import connect_db, table_select_rows
 
-def import_db_fplan(app_config, hrdf_path, db_path):
+def import_db_fplan(app_config, hrdf_path, db_path, db_tmp_path):
     log_message("IMPORT FPLAN")
 
     db_schema_config_path = app_config['other_configs']['schema_config_path']
@@ -19,13 +19,14 @@ def import_db_fplan(app_config, hrdf_path, db_path):
 
     default_service_id = app_config['hrdf_default_service_id']
 
-    parser = HRDF_FPLAN_Parser(hrdf_path, db_path, db_schema_config, default_service_id)
+    parser = HRDF_FPLAN_Parser(hrdf_path, db_path, db_tmp_path, db_schema_config, default_service_id)
     parser.parse_fplan()
 
 class HRDF_FPLAN_Parser:
-    def __init__(self, hrdf_path, db_path, db_schema_config, default_service_id):
+    def __init__(self, hrdf_path, db_path, db_tmp_path, db_schema_config, default_service_id):
         self.hrdf_path = hrdf_path
         self.db_path = db_path
+        self.db_tmp_path = db_tmp_path
 
         self.default_service_id = default_service_id
 
@@ -38,14 +39,12 @@ class HRDF_FPLAN_Parser:
         self.fplan_bitfeld_table_writer.truncate_table()
 
     def parse_fplan(self):
-        csv_write_base_path = f'/tmp/{self.db_path.name}'
-
         map_service_line = self._fetch_service_line()
 
-        fplan_table_writer_csv_path = f'{csv_write_base_path}-fplan.csv'
+        fplan_table_writer_csv_path = Path(f'{self.db_tmp_path}/fplan.csv')
         self.fplan_table_writer.create_csv_file(fplan_table_writer_csv_path)
 
-        fplan_bitfeld_table_writer_csv_path = f'{csv_write_base_path}-fplan_trip_bitfeld.csv'
+        fplan_bitfeld_table_writer_csv_path = Path(f'{self.db_tmp_path}/fplan_trip_bitfeld.csv')
         self.fplan_bitfeld_table_writer.create_csv_file(fplan_bitfeld_table_writer_csv_path)
 
         log_message('START PARSE FPLAN...')
@@ -67,10 +66,11 @@ class HRDF_FPLAN_Parser:
         for row_line in hrdf_file:
             row_line = row_line.strip()
 
-            if (row_line_idx % 5000000) == 0:
+            if (row_line_idx % 5_000_000) == 0:
                 log_message(f"... parse {row_line_idx}/ {hrdf_file_rows_no} lines")
 
-            row_line_type = extract_hrdf_content(row_line, 2, 5).strip()
+            hrdf_content = extract_hrdf_content(row_line, 2, 5) or 'n/a-ROW'
+            row_line_type = hrdf_content.strip()
 
             if row_line.startswith("*"):
                 if row_line.startswith("*Z"):
@@ -82,7 +82,7 @@ class HRDF_FPLAN_Parser:
                     service_id_json = self._parse_a_ve_line(row_line)
                     current_fplan_row_json["service_ids_json"].append(service_id_json)
                 elif row_line.startswith("*L"):
-                    service_line = self._parse_l_line(row_line)
+                    service_line = self._parse_l_line(row_line) or 'n/a-LINE'
 
                     # support for lookups to LINIE
                     if service_line.startswith('#'):
@@ -149,13 +149,15 @@ class HRDF_FPLAN_Parser:
                 "to_stop_id": service_id_json["to_stop_id"],
             }
 
-            self.fplan_bitfeld_table_writer.write_csv_handle.writerow(fplan_trip_bitfeld_row)
+            if self.fplan_bitfeld_table_writer.write_csv_handle:
+                self.fplan_bitfeld_table_writer.write_csv_handle.writerow(fplan_trip_bitfeld_row)
             service_id_idx += 1
 
         fplan_row_json.pop('fplan_content_rows', None)
         fplan_row_json.pop('service_ids_json', None)
 
-        self.fplan_table_writer.write_csv_handle.writerow(fplan_row_json)
+        if self.fplan_table_writer.write_csv_handle:
+            self.fplan_table_writer.write_csv_handle.writerow(fplan_row_json)
 
     def _parse_z_line(self, row_line_idx, row_line):
         fplan_trip_id = normalize_fplan_trip_id(extract_hrdf_content(row_line, 4, 9))
@@ -211,6 +213,6 @@ class HRDF_FPLAN_Parser:
         log_message("... FETCH SERVICE_LINE FROM DB")
 
         db_handle = connect_db(self.db_path)
-        map_db_rows = table_select_rows(db_handle, 'service_line', None, 'service_line_id')
+        map_db_rows = table_select_rows(db_handle, 'service_line', '', 'service_line_id')
 
         return map_db_rows

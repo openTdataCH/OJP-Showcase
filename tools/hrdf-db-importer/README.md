@@ -1,11 +1,16 @@
+# HRDF CLI tools
+
+See:
+    - [CHANGELOG](./CHANGELOG.md) for latest changes
+    - ticket https://github.com/openTdataCH/OJP-Showcase/issues/13
+
+## Installation
+
+See main [README tools](../README.md)
+
+## Scripts
+
 ### HRDF DB importer
-
-See [CHANGELOG](./CHANGELOG.md) for latest changes
-
-Issue: https://github.com/openTdataCH/OJP-Showcase/issues/13
-
-Python tool that imports a HRDF v5.40 dataset into SQLite DB.
-The DB schema is specified in [hrdf-tools/inc/HRDF/hrdf_schema.yml](inc/HRDF/hrdf_schema.yml).
 
 Usage: `hrdf_db_importer_cli.py [-h] [--hrdf-folder-path HRDF_FOLDER_PATH] [--output-db-path OUTPUT_DB_PATH]`
 

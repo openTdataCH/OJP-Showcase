@@ -26,13 +26,14 @@ def main():
     if args.output_db_path:
         db_path = Path(args.output_db_path)
     else:
-        formatted_date = compute_gtfs_day_from_resource_path(gtfs_folder_path)  
-        if formatted_date is None:
+        gtfs_date = compute_gtfs_day_from_resource_path(gtfs_folder_path)  
+        if gtfs_date is None:
             print(f"CANT read date from GTFS path: '{gtfs_folder_path}'")
             print(f"Use --output-db-path to override")
             sys.exit(1)
 
-        db_filename = compute_gtfs_db_filename(formatted_date)
+        gtfs_day_f = f'{gtfs_date}'
+        db_filename = compute_gtfs_db_filename(gtfs_day_f)
 
         db_base_path = app_config['gtfs_dbs_base_path']
         db_path = f'{db_base_path}/{db_filename}'

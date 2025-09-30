@@ -10,14 +10,14 @@ from .shared.inc.helpers.hrdf_helpers import compute_file_rows_no
 from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 from .shared.inc.helpers.csv_updater import CSV_Updater
 
-def import_db_line(app_config, db_schema_config, hrdf_path, db_path: Path):
+def import_db_line(app_config, db_schema_config, hrdf_path, db_path: Path, db_tmp_path):
     log_message("IMPORT LINIE")
 
     map_hrdf_line_properties = app_config['map_hrdf_line_properties']
     hrdf_line_property_keys = list(map_hrdf_line_properties.keys())
 
     map_line_data = _parse_hrdf_line(hrdf_line_property_keys, hrdf_path)
-    _parse_map_line_data(map_line_data, db_schema_config, db_path)
+    _parse_map_line_data(map_line_data, db_schema_config, db_path, db_tmp_path)
 
 def _parse_hrdf_line(hrdf_line_property_keys, hrdf_path):
     log_message('START PARSE HRDF.LINIE...')
@@ -31,7 +31,7 @@ def _parse_hrdf_line(hrdf_line_property_keys, hrdf_path):
 
     hrdf_file = open(hrdf_file_path, encoding='utf-8')
     for row_line in hrdf_file:
-        if (row_line_idx % 1000000) == 0:
+        if (row_line_idx % 1_000_000) == 0:
             log_message(f"... LINIE.loop parse {row_line_idx}/ {hrdf_file_rows_no} lines")
 
         row_line = row_line.strip()
@@ -53,10 +53,9 @@ def _parse_hrdf_line(hrdf_line_property_keys, hrdf_path):
 
     return map_line_data
 
-def _parse_map_line_data(map_line_data, db_schema_config, db_path):
-    csv_write_base_path = f'/tmp/{db_path.name}'
+def _parse_map_line_data(map_line_data, db_schema_config, db_path, db_tmp_path):
     service_line_table_config = db_schema_config['tables']['service_line']
-    service_line_csv_path = f'{csv_write_base_path}-service_line.csv'
+    service_line_csv_path = Path(f'{db_tmp_path}/service_line.csv')
     service_line_csv_writer = CSV_Updater.init_with_table_config(service_line_csv_path, service_line_table_config)
 
     for line_id, line_metadata in map_line_data.items():

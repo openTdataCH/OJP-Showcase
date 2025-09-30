@@ -275,7 +275,7 @@ class HRDF_Stops_Reporter:
         select_cursor = self.db_handle.cursor()
         select_cursor.execute(sql)
         for db_row in select_cursor:
-            if db_row_idx % 500000 == 0:
+            if db_row_idx % 2_000_000 == 0:
                 log_message(f"... parsed {db_row_idx} rows ...")
 
             agency_id = db_row[0]
@@ -469,7 +469,7 @@ class HRDF_Stops_Reporter:
             from_line_id = db_row["from_line_id"]
             
             from_trip_short_name = from_vehicle_type
-            if from_line_id is not "*":
+            if from_line_id != "*":
                 from_trip_short_name += from_line_id
             
             to_agency_id = db_row["to_agency_id"]
@@ -477,7 +477,7 @@ class HRDF_Stops_Reporter:
             to_line_id = db_row["to_line_id"]
 
             to_trip_short_name = to_vehicle_type
-            if to_line_id is not "*":
+            if to_line_id != "*":
                 to_trip_short_name += to_line_id
 
             transfer_time = db_row["transfer_time"]
@@ -586,7 +586,7 @@ class HRDF_Stops_Reporter:
         select_cursor = self.db_handle.cursor()
         select_cursor.execute(sql)
         for db_row in select_cursor:
-            if db_row_idx % 50000 == 0:
+            if db_row_idx % 200_000 == 0:
                 log_message(f"... parsed {db_row_idx} rows ...")
 
             stop_ids_s = db_row[5]

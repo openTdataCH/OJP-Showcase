@@ -36,7 +36,7 @@ class DB_Table_CSV_Updater:
         lines_no = compute_file_rows_no(csv_path) - 1
         log_message(f'... found {lines_no} rows')
 
-        batch_update_rows_no = 10000
+        batch_update_rows_no = 10_000
         batch_update_values = []
 
         csv_file = open(self.csv_file.name, encoding='utf-8')

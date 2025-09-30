@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 import re
 from datetime import datetime
+from typing import Union
 
 # from_idx is for 1 start-based index columns to match the HRDF PDF doc.
 def extract_hrdf_content(hrdf_line: str, from_idx: int, to_idx: int, default_value = None):
@@ -12,14 +13,22 @@ def extract_hrdf_content(hrdf_line: str, from_idx: int, to_idx: int, default_val
     hrdf_content = hrdf_content.strip()
     if hrdf_content == "":
         hrdf_content = default_value
+    
     return hrdf_content
 
-def normalize_agency_id(hrdf_s: str):
+def normalize_agency_id(hrdf_s: Union[str, None]):
+    if hrdf_s is None:
+        return ""
+    
     hrdf_s = hrdf_s.lstrip("0")
     return hrdf_s
 
-def normalize_fplan_trip_id(hrdf_s: str):
+def normalize_fplan_trip_id(hrdf_s: Union[str, None]):
+    if hrdf_s is None:
+        return ""
+    
     hrdf_s = hrdf_s.lstrip("0")
+    
     return hrdf_s
 
 def compute_file_rows_no(file_path: str):

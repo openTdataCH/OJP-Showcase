@@ -10,7 +10,7 @@ class GTFS_Static_Catalog_Item:
     gtfs_day: str # %Y-%m-%d
     gtfs_rt_switch_datetime_s: str # %Y-%m-%d %H:%M
     table_stats: Dict[str, int]
-    db_relative_path: str
+    db_relative_path: Optional[str]
     
     def as_json(self):
         data_json = asdict(self)
@@ -48,5 +48,22 @@ class GTFS_Static_Catalog_Report:
         for item in self.items:
             if item.db_relative_path is not None:
                 return item
+        
+        return None
+    
+    def compute_item_for_report(self, report_ymdh: str):
+        report_ymd = report_ymdh[0:10]
+        report_h_f = report_ymdh[11:13]
+        
+        report_ymdhm = f'{report_ymd} {report_h_f}:00'
+        
+        for item in self.items:
+            if item.db_relative_path is None:
+                continue
+            
+            if report_ymdhm > item.gtfs_rt_switch_datetime_s:
+                return item
+            #
+        # loop items
         
         return None

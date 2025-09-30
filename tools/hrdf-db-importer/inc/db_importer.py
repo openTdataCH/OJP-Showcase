@@ -2,6 +2,8 @@ import os
 import sys
 
 from pathlib import Path
+import shutil
+
 import datetime
 
 from .HRDF_Parser.shared.inc.helpers.log_helpers import log_message
@@ -27,9 +29,13 @@ class HRDF_DB_Importer:
         self.hrdf_path = hrdf_path
         self.db_path = db_path
         self.db_lock_path = Path(f'{self.db_path}.lock')
+        
+        self.db_tmp_path = f'{db_path.parent}/{db_path.name}-tmp'
+        if not os.path.isdir(self.db_tmp_path):
+            os.makedirs(self.db_tmp_path, exist_ok=True)
 
         print('-' * 100)
-        log_message('HRDF IMPORT - v.20240619-001')
+        log_message('HRDF IMPORT - v.20250930-001')
         print('-' * 100)
         log_message(f'HRDF folder input path    : {hrdf_path}')
         log_message(f'HRDF DB output path       : {db_path}')
@@ -52,13 +58,13 @@ class HRDF_DB_Importer:
         print('-' * 100)
         import_db_bitfeld(self.hrdf_path, self.db_path, self.db_schema_config)
         print('-' * 100)
-        import_db_gleis(self.app_config, self.hrdf_path, self.db_path, self.db_schema_config)
+        import_db_gleis(self.app_config, self.hrdf_path, self.db_path, self.db_tmp_path, self.db_schema_config)
         print('-' * 100)
-        import_db_line(self.app_config, self.db_schema_config, self.hrdf_path, self.db_path)
+        import_db_line(self.app_config, self.db_schema_config, self.hrdf_path, self.db_path, self.db_tmp_path)
         print('-' * 100)
-        import_db_fplan(self.app_config, self.hrdf_path, self.db_path)
+        import_db_fplan(self.app_config, self.hrdf_path, self.db_path, self.db_tmp_path)
         print('-' * 100)
-        import_db_stop_times(self.app_config, self.db_path)
+        import_db_stop_times(self.app_config, self.db_path, self.db_tmp_path)
         print('-' * 100)
         import_db_betrieb(self.hrdf_path, self.db_path, self.db_schema_config)
         print('-' * 100)
@@ -66,6 +72,8 @@ class HRDF_DB_Importer:
         print('-' * 100)
         import_meta_stops(self.app_config, self.hrdf_path, self.db_path, self.db_schema_config)
         print('-' * 100)
+        
+        self._cleanup()
         
         self._remove_lock_file()
 
@@ -80,3 +88,7 @@ class HRDF_DB_Importer:
         
     def _remove_lock_file(self):
         os.remove(self.db_lock_path)
+        
+    def _cleanup(self):
+        log_message(f'Remove temp folder {self.db_tmp_path}')
+        shutil.rmtree(self.db_tmp_path)
