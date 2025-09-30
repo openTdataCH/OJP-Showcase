@@ -9,10 +9,10 @@ from .shared.inc.helpers.hrdf_helpers import extract_hrdf_content
 from .shared.inc.helpers.bundle_helpers import load_resource_from_bundle
 from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 
-def import_db_stop_times(app_config, db_path):
+def import_db_stop_times(app_config, db_path, db_tmp_path):
     log_message(f"CREATE fplan_stop_times")
 
-    parser = HRDF_FPLAN_Stops_Parser(app_config, db_path)
+    parser = HRDF_FPLAN_Stops_Parser(app_config, db_path, db_tmp_path)
 
     map_gleis = parser.fetch_map_gleis()
     log_message('DONE map_gleis')
@@ -21,12 +21,13 @@ def import_db_stop_times(app_config, db_path):
     parser.parse_fplan_stops(map_gleis)
 
 class HRDF_FPLAN_Stops_Parser:
-    def __init__(self, app_config, db_path):
+    def __init__(self, app_config, db_path, db_tmp_path):
         if isinstance(db_path, str):
             db_path = Path(db_path)
 
         self.app_config = app_config
         self.db_path = db_path
+        self.db_tmp_path = db_tmp_path
         self.db_handle = connect_db(db_path)
 
         schema_config_path = app_config['other_configs']['schema_config_path']
@@ -72,9 +73,7 @@ class HRDF_FPLAN_Stops_Parser:
         db_table_writer.truncate_table()
         print('')
 
-        csv_write_base_path = f'/tmp/{self.db_path.name}'
-
-        db_table_writer_csv_path = f'{csv_write_base_path}-fplan_stop_times.csv'
+        db_table_writer_csv_path = Path(f'{self.db_tmp_path}/fplan_stop_times.csv')
         db_table_writer.create_csv_file(db_table_writer_csv_path)
 
         log_message("QUERY FPLAN_TRIP_BETRIEB ...")

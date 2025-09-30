@@ -9,20 +9,18 @@ from .shared.inc.helpers.hrdf_helpers import compute_file_rows_no, extract_hrdf_
 from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 from .shared.inc.helpers.csv_updater import CSV_Updater
 
-def import_db_gleis(app_config, hrdf_path, db_path, db_schema_config):
+def import_db_gleis(app_config, hrdf_path, db_path, db_tmp_path, db_schema_config):
     log_message("IMPORT GLEIS")
 
     default_service_id = app_config['hrdf_default_service_id']
 
-    _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config)
+    _parse_hrdf_gleis(hrdf_path, db_path, db_tmp_path, default_service_id, db_schema_config)
 
-def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
+def _parse_hrdf_gleis(hrdf_path, db_path, db_tmp_path, default_service_id, db_schema_config):
     log_message('START CREATE GLEIS CSV files...')
 
-    csv_write_base_path = f'/tmp/{db_path.name}'
-
     gleis_classification_table_config = db_schema_config['tables']['gleis_classification']
-    gleis_classification_csv_path = f'{csv_write_base_path}-gleis_classification.csv'
+    gleis_classification_csv_path = Path(f'{db_tmp_path}/gleis_classification.csv')
     gleis_classification_csv_writer = CSV_Updater.init_with_table_config(gleis_classification_csv_path, gleis_classification_table_config)
 
     row_line_idx = 0
@@ -142,7 +140,7 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
     gleis_classification_csv_writer.close()
     
     gleis_table_config = db_schema_config['tables']['gleis']
-    gleis_table_csv_path = f'{csv_write_base_path}-gleis.csv'
+    gleis_table_csv_path = Path(f'{db_tmp_path}/gleis.csv')
     gleis_table_csv_writer = CSV_Updater.init_with_table_config(gleis_table_csv_path, gleis_table_config)
     
     for gleis_id, gleis_json in map_gleis_data.items():
