@@ -112,6 +112,7 @@ def _process(app_config: Any):
         if gtfs_db_relative_path is None:
             continue
         
+        resource_dt_f = resource_dt.strftime('%Y-%m-%d %H:%M')
         resource_day_f = resource_dt.strftime('%Y-%m-%d')
         
         gtfs_rt_update_time = gtfs_day.strftime('%H:%M')
@@ -124,7 +125,7 @@ def _process(app_config: Any):
         gtfs_rt_switch_datetime_s = f'{resource_day_f} {gtfs_rt_update_time}'
         
         gtfs_catalog_item = GTFS_Static_Catalog_Item(
-            gtfs_datetime_s=gtfs_dt_f,
+            gtfs_datetime_s=resource_dt_f,
             gtfs_day=gtfs_day_f,
             gtfs_rt_switch_datetime_s=gtfs_rt_switch_datetime_s,
             table_stats={}, # compute them in the next loop
