@@ -33,7 +33,7 @@ class HRDF_DB_Importer:
             os.makedirs(self.db_tmp_path, exist_ok=True)
 
         print('-' * 100)
-        log_message('HRDF IMPORT - v.20240619-001')
+        log_message('HRDF IMPORT - v.20250930-001')
         print('-' * 100)
         log_message(f'HRDF folder input path    : {hrdf_path}')
         log_message(f'HRDF DB output path       : {db_path}')
