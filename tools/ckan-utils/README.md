@@ -19,7 +19,7 @@ Usage: `fetch_metadata_cli.py [-h] [--package_id PACKAGE_ID]`
 
 ## Fetch CKAN package resource
 
-Usage: `fetch_package_cli.py [-h] [--package_key PACKAGE_ID] [--resource_title RESOURCE_TITLE]`
+Usage: `fetch_package_cli.py [-h] [--package_id PACKAGE_ID] [--resource_title RESOURCE_TITLE]`
 
 |Param|Description|Example|
 | -- | -- | -- |
