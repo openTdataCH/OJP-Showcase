@@ -214,6 +214,6 @@ class HRDF_FPLAN_Parser:
         log_message("... FETCH SERVICE_LINE FROM DB")
 
         db_handle = connect_db(self.db_path)
-        map_db_rows = table_select_rows(db_handle, 'service_line', None, 'service_line_id')
+        map_db_rows = table_select_rows(db_handle, 'service_line', '', 'service_line_id')
 
         return map_db_rows

@@ -85,7 +85,7 @@ def _parse_hrdf_gleis(hrdf_path, db_path, default_service_id, db_schema_config):
                 map_gleis_data[gleis_id] = gleis_stop_info_json
             #
             
-            track_definition_s = extract_hrdf_content(row_line, 18, 1000)
+            track_definition_s = extract_hrdf_content(row_line, 18, 1000) or 'n/a TRACKDEF'
             
             # The SLOID is transmitted with the feature g.
             if track_definition_s.startswith('g A'):
