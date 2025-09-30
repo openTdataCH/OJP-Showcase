@@ -77,10 +77,19 @@ class DB_Table_CSV_Importer:
         log_message(f'... DONE LOAD CSV')
 
     def _compute_rows_report_no(self, rows_no):
-        if rows_no < 1000000:
-            return 500000
+        if rows_no > 10_000_000:
+            return 5_000_000
         
-        return 1000000
+        if rows_no > 5_000_000:
+            return 2_000_000
+        
+        if rows_no > 1_000_000:
+            return 500_000
+        
+        if rows_no > 500_000:
+            return 200_000
+        
+        return 100_000
 
     def close(self):
         self.db_handle.close()
