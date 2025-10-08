@@ -107,8 +107,8 @@ def _symlink_latest_resource(app_config, package_id: str):
     
     print(f'STEP {package_id}.3 - SYMLINK LATEST DATASET')
     
-    package_base_path: str = app_config['data_paths']['opentransportdata']['package_base_path']
-    package_base_path = package_base_path.replace('[PACKAGE_ID]', package_id)
+    package_base_path_s: str = app_config['data_paths']['opentransportdata']
+    package_base_path = f'{package_base_path_s}/{package_id}'
     
     file_prefix_config = app_config['csv_latest_data'][package_id]['file_prefix'] or None
     if file_prefix_config is None:

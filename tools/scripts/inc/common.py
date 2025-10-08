@@ -35,8 +35,8 @@ def check_latest_data_folder(app_config, package_id: str):
     # convention: first resource is the latest published
     ckan_resource = ckan_data.result.resources[0]
     
-    resources_base_folder_path: str = app_config['data_paths']['opentransportdata']['package_base_path']
-    resources_base_folder_path = resources_base_folder_path.replace('[PACKAGE_ID]', package_id)
+    resources_base_folder_path_s: str = app_config['data_paths']['opentransportdata']
+    resources_base_folder_path = f'{resources_base_folder_path_s}/{package_id}'
     
     if ckan_resource.extension != '.zip':
         print(f'ERROR: expected ZIP archive for {package_id}')
