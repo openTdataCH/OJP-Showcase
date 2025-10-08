@@ -25,8 +25,8 @@ csv_latest_data:
     symlink_latest_path: "[APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]/[PREFIX]_LATEST.csv"
 
 data_paths:
-  opentransportdata:
-    package_base_path: "[APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]"
+  # search for package_base_path: "[APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]"
+  opentransportdata: "[APP_PATH]/data/opentransportdata.swiss"
 
   gtfs-db-lookups: "[APP_PATH]/data/gtfs-db-lookups"
   gtfs-rt-snapshot: "[APP_PATH]/data/gtfs-rt-snapshot"
