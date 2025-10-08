@@ -29,8 +29,8 @@ class CKAN_Controller:
         ds_resource = self._fetch_package_resource(package_id, resource_title)
         ds_res_filename = ds_resource.url.split('/')[-1]
 
-        package_base_path_s: str = self.app_config['resource_paths']['opentransportdata']
-        package_base_path_s = f'{package_base_path_s}/{package_id}'
+        package_base_path_s: str = self.app_config['resource_paths']['package_base_path']
+        package_base_path_s = package_base_path_s.replace('[PACKAGE_ID]', package_id)
         package_base_path = Path(package_base_path_s)
         
         ds_resource_path = Path(f'{package_base_path}/{ds_res_filename}')
