@@ -116,7 +116,7 @@ class CKAN_Controller:
         log_message(f'... fetching package JSON from {ckan_api_url}')
 
         package_data_json = fetch_latest_ckan_json(ckan_api_url, api_key)
-        export_json_to_file(package_data_json, ckan_json_path, pretty_print=True)
+        export_json_to_file(package_data_json, Path(ckan_json_path), pretty_print=True)
         
         ckan_data = CKAN_Data.from_ckan_json(package_data_json)
 
