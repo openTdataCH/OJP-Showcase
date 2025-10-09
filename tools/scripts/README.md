@@ -1,10 +1,13 @@
 # Server Scripts
 
 ## Setup
-
-Review the paths in `tools/scripts/inc/config.yml`
-Run `$ python3 setup.py` to
-- generate project tmp folders in `data/*`
+- setup Python
+    see [install setup](../README.md)
+- review tools `data_paths` in [./inc/config.yml](./inc/config.yml)
+- generate ./data tmp folders
+```
+$ python3 setup.py
+```
 
 ## Scripts
 
