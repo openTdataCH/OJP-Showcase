@@ -36,7 +36,7 @@ def main():
     package_config = app_config['csv_latest_data'][package_id]
     package_info_url = package_config['info_url']
     
-    print('START ./tools/scripts/cli_opentransportdata_csv_fetch_latest.py')
+    print('START ./tools/scripts/cli_otd_fetch_csv_package.py')
     print()
     print(f'Package_id: {package_id}')
     print('Resources:')
