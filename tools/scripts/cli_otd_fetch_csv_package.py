@@ -7,11 +7,8 @@ from typing import Any, List
 import argparse
 
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
-from inc.shared.inc.helpers.json_helpers import load_json_from_file
-from inc.shared.inc.helpers.gtfs_helpers import compute_gtfs_day_from_resource_path, compute_gtfs_db_filename
-from inc.shared.inc.models.ckan_data import CKAN_Data
 
-from inc.common import PYTHON_PATH, ROW_DELIMITER_S, compute_ckan_resource_by_prefix, compute_ckan_data
+from inc.common import PYTHON_PATH, compute_ckan_resource_by_prefix
 
 def main():
     script_path = Path(os.path.realpath(__file__))
