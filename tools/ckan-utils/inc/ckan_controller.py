@@ -110,8 +110,6 @@ class CKAN_Controller:
         ckan_api_url = ckan_api_url.replace('[PACKAGE_ID]', package_id)
         
         api_key = os.environ.get('OTD_KEY') or None
-        if api_key is None:
-            print('ERROR - OTD_KEY env not found')
             
         log_message(f'... fetching package JSON from {ckan_api_url}')
 
@@ -123,6 +121,11 @@ class CKAN_Controller:
         return ckan_data
 
 def fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
+    if ckan_api_authorization is None:
+        raise ValueError('ERROR - OTD_KEY env not defined')
+    if ckan_api_authorization == 'PLACEHOLDER':
+        raise ValueError('ERROR - OTD_KEY is still a placeholder, please update ./.env file with a proper value')
+    
     request_headers = {
         'Authorization': ckan_api_authorization,
         'User-Agent': USER_AGENT,
