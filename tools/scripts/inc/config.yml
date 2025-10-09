@@ -25,6 +25,8 @@ csv_latest_data:
     symlink_latest_path: "[APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]/[PREFIX]_LATEST.csv"
 
 data_paths:
+  ckan-utils-tmp: "[APP_PATH]/data/ckan-utils-tmp"
+
   opentransportdata: "[APP_PATH]/data/opentransportdata.swiss"
 
   gtfs-db-lookups: "[APP_PATH]/data/gtfs-db-lookups"
