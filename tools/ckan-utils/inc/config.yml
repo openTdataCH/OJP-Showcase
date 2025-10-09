@@ -2,6 +2,6 @@ ckan_data:
   package_show_url_template: https://api.opentransportdata.swiss/ckan-api/package_show?id=[PACKAGE_ID]
 
 resource_paths:
-  dotenv_path: [APP_PATH]/../../.env
-  package_base_path: [APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]
+  dotenv_path: "[APP_PATH]/../../.env"
   ckan_metadata_path: "[APP_PATH]/data/ckan-utils-tmp/ckan_[PACKAGE_ID].json"
+  package_base_path: "[APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]"
