@@ -3,5 +3,5 @@ ckan_data:
 
 resource_paths:
   dotenv_path: [APP_PATH]/../../.env
-  ckan_metadata_path: [APP_PATH]/tmp/ckan_[PACKAGE_ID].json
   package_base_path: [APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]
+  ckan_metadata_path: "[APP_PATH]/data/ckan-utils-tmp/ckan_[PACKAGE_ID].json"
