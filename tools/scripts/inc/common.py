@@ -20,7 +20,7 @@ def fetch_latest_resource(script_path: Path, package_id: str):
 def compute_ckan_data(app_config, package_id: str):
     ckan_metadata_path: str = app_config['resource_paths']['ckan_metadata_path']
     ckan_metadata_path = ckan_metadata_path.replace('[PACKAGE_ID]', package_id)
-    ckan_metadata_json = load_json_from_file(ckan_metadata_path)
+    ckan_metadata_json = load_json_from_file(Path(ckan_metadata_path))
     ckan_data = CKAN_Data.from_ckan_json(ckan_metadata_json)
     
     return ckan_data

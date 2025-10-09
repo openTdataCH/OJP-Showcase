@@ -2,7 +2,7 @@ import os, sys
 
 from pathlib import Path
 
-from typing import List
+from typing import Any, List
 
 import argparse
 
@@ -51,7 +51,7 @@ def main():
     print()
     print('... DONE')
     
-def _run_package(script_path: Path, app_config: any, package_id: str):
+def _run_package(script_path: Path, app_config: Any, package_id: str):
     _fetch_metadata(script_path, package_id)
     _fetch_resource(script_path, app_config, package_id)
     _symlink_latest_resource(app_config, package_id)
@@ -85,7 +85,7 @@ def _fetch_latest_resource(script_path: Path, package_id: str):
     print(ckan_fetch_sh, flush=True)
     os.system(ckan_fetch_sh)
     
-def _fetch_resource_by_prefix(app_config: any, script_path: Path, package_id: str, resource_prefixes: List[str]):
+def _fetch_resource_by_prefix(app_config: Any, script_path: Path, package_id: str, resource_prefixes: List[str]):
     for resource_prefix in resource_prefixes:
         ckan_resource = compute_ckan_resource_by_prefix(app_config, package_id, resource_prefix)
     
