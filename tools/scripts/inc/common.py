@@ -84,4 +84,3 @@ def compute_ckan_resource_by_prefix(app_config, package_id: str, resource_prefix
     #
         
     return ckan_resource
-
