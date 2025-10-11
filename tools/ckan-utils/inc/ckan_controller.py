@@ -10,6 +10,8 @@ import requests
 from .shared.inc.helpers.config_helpers import load_env_vars
 from .shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
 from .shared.inc.helpers.log_helpers import log_message
+from .shared.inc.helpers.http_helpers import download_file
+from .shared.inc.helpers.zip_helpers import unzip_file
 
 from .shared.inc.models.ckan_data import CKAN_Data
 
@@ -36,7 +38,10 @@ class CKAN_Controller:
         ds_resource_path = Path(f'{package_base_path}/{ds_res_filename}')
         if overwrite or (not os.path.isfile(ds_resource_path)):
             ds_url = ds_resource.url
-            download_resource(ds_url, ds_resource_path)
+            
+            download_ok = download_file(ds_url, ds_resource_path)
+            if not download_ok:
+                raise ValueError(f'ERROR while downloading {ds_url}')
         #
         
         print()
@@ -46,8 +51,8 @@ class CKAN_Controller:
         if ds_res_extension == '.zip':
             ds_zip_folder = ds_res_filename[0:-4]
             ds_zip_folder_path = Path(f'{package_base_path}/{ds_zip_folder}')
-                run_unzip(ds_resource_path, ds_zip_folder_path)
             if overwrite or (not os.path.isdir(ds_zip_folder_path)):
+                unzip_file(ds_resource_path, ds_zip_folder_path)
                 
             print()
             log_message(f'... extracted to {ds_zip_folder_path}')
