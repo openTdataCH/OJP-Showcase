@@ -1,14 +1,13 @@
 import os, sys
+
+from pathlib import Path
+from typing import Optional
+
 import json
 import urllib.request
-import time
-from pathlib import Path
-
-import zipfile
-import requests
 
 from .shared.inc.helpers.config_helpers import load_env_vars
-from .shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
+from .shared.inc.helpers.json_helpers import export_json_to_file
 from .shared.inc.helpers.log_helpers import log_message
 from .shared.inc.helpers.http_helpers import download_file
 from .shared.inc.helpers.zip_helpers import unzip_file
@@ -149,31 +148,3 @@ def fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
     response_json['result']['resources'] = sorted(response_json['result']['resources'], key=lambda x: x['created'], reverse=True)
         
     return response_json
-
-def run_unzip(archive_path: Path, folder_path: Path):
-    log_message('RUN UNZIP')
-    
-    with zipfile.ZipFile(archive_path, 'r') as zip_ref:
-        zip_ref.extractall(folder_path)
-                    
-    print(f'... DONE')
-    print('')
-
-def download_resource(resource_url: str, resource_path: Path):
-    if isinstance(resource_path, str):
-        resource_path = Path(resource_path)
-
-    if not os.path.isdir(resource_path.parent):
-        os.makedirs(resource_path.parent)
-
-    response = requests.get(resource_url, timeout=30, stream=True)
-    response.raise_for_status()
-    
-    print(f'DOWNLOAD RESOURCE')
-    res_file = open(resource_path, 'wb')
-    for file_chunk in response.iter_content(chunk_size=65536):
-        res_file.write(file_chunk)
-    res_file.close()
-    
-    print(f'... DONE')
-    print('')
