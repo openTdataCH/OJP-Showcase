@@ -21,7 +21,7 @@ class CKAN_Controller:
         dotenv_path = app_config['resource_paths']['dotenv_path']
         load_env_vars(dotenv_path)
 
-    def fetch_latest(self, package_id: str, resource_title):
+    def fetch_latest(self, package_id: str, resource_title: Optional[str], overwrite: bool = False):
         log_message(f'CKAN - FETCH PACKAGE {package_id}')
         log_message(f'  PACKAGE_ID      : {package_id}')
         log_message(f'  RESOURCE_TITLE  : {resource_title}')
@@ -34,7 +34,7 @@ class CKAN_Controller:
         package_base_path = Path(package_base_path_s)
         
         ds_resource_path = Path(f'{package_base_path}/{ds_res_filename}')
-        if not os.path.isfile(ds_resource_path):
+        if overwrite or (not os.path.isfile(ds_resource_path)):
             ds_url = ds_resource.url
             download_resource(ds_url, ds_resource_path)
         #
@@ -46,8 +46,8 @@ class CKAN_Controller:
         if ds_res_extension == '.zip':
             ds_zip_folder = ds_res_filename[0:-4]
             ds_zip_folder_path = Path(f'{package_base_path}/{ds_zip_folder}')
-            if not os.path.isdir(ds_zip_folder_path):
                 run_unzip(ds_resource_path, ds_zip_folder_path)
+            if overwrite or (not os.path.isdir(ds_zip_folder_path)):
                 
             print()
             log_message(f'... extracted to {ds_zip_folder_path}')
