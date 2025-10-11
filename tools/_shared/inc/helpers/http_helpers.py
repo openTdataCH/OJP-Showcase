@@ -5,9 +5,9 @@ from pathlib import Path
 
 import requests
 
-def download_file(url: str, local_filename: Path, check_if_exists: bool = False):
-    if isinstance(local_filename, str):
-        local_filename = Path(local_filename)
+def download_file(url: str, local_path: Path, check_if_exists: bool = False):
+    if isinstance(local_path, str):
+        local_path = Path(local_path)
     
     try:
         if check_if_exists:
@@ -22,10 +22,10 @@ def download_file(url: str, local_filename: Path, check_if_exists: bool = False)
         with requests.get(url, stream=True, timeout=10) as r:
             r.raise_for_status()
             
-            if not os.path.isdir(local_filename.parent):
-                os.makedirs(local_filename.parent)
+            if not os.path.isdir(local_path.parent):
+                os.makedirs(local_path.parent)
             
-            with open(local_filename, "wb") as f:
+            with open(local_path, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
         # requests.get
