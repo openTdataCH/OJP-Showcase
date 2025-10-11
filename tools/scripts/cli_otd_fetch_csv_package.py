@@ -16,7 +16,7 @@ def main():
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--package_id', '--package_id')
-    parser.add_argument('--overwrite', '--overwrite')
+    parser.add_argument('--overwrite', '--overwrite', action='store_true')
     args = parser.parse_args()
     
     package_id = args.package_id
@@ -34,7 +34,7 @@ def main():
         print(f"possible: values: {', '.join(package_ids)}" )
         sys.exit(1)
         
-    overwrite = args.overwrite in ['true', 'yes', '1']
+    overwrite = args.overwrite
         
     package_config = app_config['csv_latest_data'][package_id]
     package_info_url = package_config['info_url']
@@ -76,25 +76,25 @@ def _fetch_resource(script_path: Path, app_config, package_id: str, overwrite: b
     #
 
 def _fetch_latest_resource(script_path: Path, package_id: str, overwrite: bool):
-    overwrite_s = 'yes' if overwrite else 'no'
+    overwrite_s = '--overwrite' if overwrite else ''
     
     # fetch latest archive
     ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
-    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id} --overwrite {overwrite_s}'
+    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id} {overwrite_s}'
     
     print(f'STEP {package_id}.2 - FETCH LATEST RESOURCE')
     print(ckan_fetch_sh, flush=True)
     os.system(ckan_fetch_sh)
     
 def _fetch_resource_by_prefix(app_config: Any, script_path: Path, package_id: str, resource_prefixes: List[str], overwrite: bool):
-    overwrite_s = 'yes' if overwrite else 'no'
+    overwrite_s = '--overwrite' if overwrite else ''
     
     for resource_prefix in resource_prefixes:
         ckan_resource = compute_ckan_resource_by_prefix(app_config, package_id, resource_prefix)
     
         # fetch latest archive
         ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
-        ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id} --resource_title {ckan_resource.identifier} --overwrite {overwrite_s}'
+        ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id} --resource_title {ckan_resource.identifier} {overwrite_s}'
     
         print(f'STEP {package_id}.2 - FETCH RESOURCE by PREFIX {ckan_resource.identifier}')
         print(ckan_fetch_sh, flush=True)
