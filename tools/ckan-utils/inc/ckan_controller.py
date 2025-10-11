@@ -92,9 +92,11 @@ class CKAN_Controller:
             
         row_delimiter_s = '='*70
         
+        error_message = f'ERROR - cant find resource with title {filter_resource_title} with partial match={has_partial_match}'
+        
         print()
         print(row_delimiter_s)
-        print(f'ERROR - cant find resource with title {filter_resource_title}')
+        print(error_message)
         print(row_delimiter_s)
         print(f'Available resources:                        - Last modified')
         print(row_delimiter_s)
@@ -109,7 +111,7 @@ class CKAN_Controller:
             print(f'-- {resource_filename.ljust(40)} - {last_modified_s}')
         # loop resources
         
-        sys.exit(1)
+        raise ValueError(error_message)
         
     def _fetch_ckan_metadata(self, package_id):
         ckan_json_path: str = f"{self.app_config['resource_paths']['ckan_metadata_path']}"
