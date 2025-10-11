@@ -117,14 +117,14 @@ class CKAN_Controller:
             
         log_message(f'... fetching package JSON from {ckan_api_url}')
 
-        package_data_json = fetch_latest_ckan_json(ckan_api_url, api_key)
+        package_data_json = _fetch_latest_ckan_json(ckan_api_url, api_key)
         export_json_to_file(package_data_json, Path(ckan_json_path), pretty_print=True)
         
         ckan_data = CKAN_Data.from_ckan_json(package_data_json)
 
         return ckan_data
 
-def fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
+def _fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
     if ckan_api_authorization is None:
         raise ValueError('ERROR - OTD_KEY env not defined')
     if ckan_api_authorization == 'PLACEHOLDER':
