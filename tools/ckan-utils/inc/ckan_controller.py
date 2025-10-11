@@ -22,12 +22,12 @@ class CKAN_Controller:
         dotenv_path = app_config['resource_paths']['dotenv_path']
         load_env_vars(dotenv_path)
 
-    def fetch_latest(self, package_id: str, resource_title: Optional[str], overwrite: bool = False):
+    def fetch_latest(self, package_id: str, resource_title: Optional[str], has_partial_match: bool = False, overwrite: bool = False):
         log_message(f'CKAN - FETCH PACKAGE {package_id}')
         log_message(f'  PACKAGE_ID      : {package_id}')
         log_message(f'  RESOURCE_TITLE  : {resource_title}')
 
-        ds_resource = self._fetch_package_resource(package_id, resource_title)
+        ds_resource = self._fetch_package_resource(package_id, resource_title, has_partial_match)
         ds_res_filename = ds_resource.url.split('/')[-1]
 
         package_base_path_s: str = self.app_config['resource_paths']['package_base_path']
@@ -72,7 +72,7 @@ class CKAN_Controller:
             
         log_message(f'END')
 
-    def _fetch_package_resource(self, package_id: str, filter_resource_title):
+    def _fetch_package_resource(self, package_id: str, filter_resource_title: Optional[str], has_partial_match: bool = False):
         ckan_data = self._fetch_ckan_metadata(package_id)
         
         if filter_resource_title is None:
@@ -82,7 +82,12 @@ class CKAN_Controller:
         filter_resource_title = filter_resource_title.strip().lower()
         
         for ds_resource in ckan_data.result.resources:
-            if ds_resource.filename.lower() == filter_resource_title:
+            ds_res_f = ds_resource.filename.lower()
+            
+            if ds_res_f == filter_resource_title:
+                return ds_resource
+            
+            if has_partial_match and ds_res_f.startswith(filter_resource_title):
                 return ds_resource
             
         row_delimiter_s = '='*70
