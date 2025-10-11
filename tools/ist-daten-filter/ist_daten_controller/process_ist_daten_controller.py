@@ -2,18 +2,19 @@ import os
 import sys
 from pathlib import Path
 
-from typing import List
+from typing import Any, List
 
 import csv
 import re
 import shutil
-import zipfile_inflate64 as zipfile
 
 import requests
 
 from lxml import html
 
+from .helpers.http_helpers import download_file
 from .helpers.log_helpers import log_message
+from .helpers.zip_helpers import unzip_file
 
 class ProcessIstDatenController:
     def __init__(self, app_config: Any, filter_year: str, filter_operator_ref: str):
@@ -84,34 +85,10 @@ class ProcessIstDatenController:
             log_message(f'ARCHIVE: {res_text}')
             
             res_zip_local_path = f'{ist_daten_year_archive_path}/{res_text}'
-            if not os.path.isfile(res_zip_local_path):
-                log_message(f'... fetching from : {res_url}')
-                response = requests.get(res_url, timeout=30, stream=True)
-                response.raise_for_status()
-                
-                res_zip_local_file = open(res_zip_local_path, 'wb')
-                for file_chunk in response.iter_content(chunk_size=65536):
-                    res_zip_local_file.write(file_chunk)
-                res_zip_local_file.close()
-                
-                log_message(f'... saved to disk')
-                print()
-            # fetch
+            download_file(res_url, Path(res_zip_local_path))
             
             res_unzipped_local_path = res_zip_local_path.replace('.zip', '')
-            if not os.path.isdir(res_unzipped_local_path):
-                os.makedirs(res_unzipped_local_path)
-                
-                res_unzipped_rel_path = self._format_app_rel_path(Path(res_unzipped_local_path))
-                
-                log_message(f'... unzipping to {res_unzipped_rel_path}')
-                
-                with zipfile.ZipFile(res_zip_local_path, 'r') as zip_ref:
-                    zip_ref.extractall(res_unzipped_local_path)
-                    
-                log_message(f'... DONE')
-                print()
-            # unzip
+            unzip_file(Path(res_zip_local_path), Path(res_unzipped_local_path))
         
             res_file_paths = Path(res_unzipped_local_path).glob("*.csv")
             res_file_paths = sorted(res_file_paths)
