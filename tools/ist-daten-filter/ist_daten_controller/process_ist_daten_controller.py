@@ -16,7 +16,7 @@ from lxml import html
 from .helpers.log_helpers import log_message
 
 class ProcessIstDatenController:
-    def __init__(self, app_config: any, filter_year: str, filter_operator_ref: str):
+    def __init__(self, app_config: Any, filter_year: str, filter_operator_ref: str):
         log_message(f'=======================================')
         log_message(f'START extracting ist-daten')
         log_message(f'=======================================')
