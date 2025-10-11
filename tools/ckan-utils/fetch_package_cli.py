@@ -14,6 +14,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--package_id', '--package_id')
     parser.add_argument('--resource_title', '--resource_title')
+    parser.add_argument('--overwrite', '--overwrite')
     args = parser.parse_args()
 
     package_id = args.package_id
@@ -25,9 +26,10 @@ def main():
         sys.exit(1)
 
     resource_title = args.resource_title or None
+    overwrite = args.overwrite in ['true', 'yes', '1']
 
     ckan_controller = CKAN_Controller(app_config)
-    ckan_controller.fetch_latest(package_id, resource_title)
+    ckan_controller.fetch_latest(package_id, resource_title, overwrite)
 
 if __name__ == "__main__":
     main()
