@@ -1,16 +1,5 @@
 # Showcases Tools
 
-- [Atlas Geocode Lines](./atlas-geocode-lines)
-- [Atlas Lookup Lines](./atlas-lookup-lines/)
-- [CKAN Utils](./ckan-utils)
-- [GTFS-HRDF Compare](./gtfs-hrdf-compare)
-- [GTFS-Static compare](./gtfs-prev-compare)
-- [GTFS-RT <-> GTFS static - compare tool](./gtfs-rt-static-compare)
-- [GTFS-Static DB Importer](./gtfs-static-db-importer)
-- [HRDF Check Duplicates](./hrdf-check-duplicates)
-- [HRDF DB Importer](./hrdf-db-importer)
-- [Ist-Daten Filter](./ist-daten-filter)
-
 ## Installation
 
 You can run the tools in two ways
