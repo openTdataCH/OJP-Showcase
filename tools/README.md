@@ -15,6 +15,10 @@ $ source python-venv/bin/activate
 # install dependencies 
 $ python3 -m pip install --upgrade pip
 $ python3 -m pip install --requirement requirements.txt
+
+# create temp folders
+$ cd ./tools/scripts
+$ python3 setup.py
 ```
 
 - check Python SQLite3 version
