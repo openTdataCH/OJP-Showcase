@@ -35,6 +35,8 @@ data_paths:
   gtfs-rt-static-compare-tmp: "[APP_PATH]/data/gtfs-rt-static-compare-tmp"
   gtfs-static-dbs: "[APP_PATH]/data/gtfs-static-dbs"
   gtfs-query-db-cache: "[APP_PATH]/data/gtfs-query-db-cache"
+
+  ist-daten-archiv: "[APP_PATH]/data/ist-daten-archiv"
   
   hrdf-query-db-cache: "[APP_PATH]/data/hrdf-query-db-cache"
   hrdf-dbs: "[APP_PATH]/data/hrdf-dbs"
