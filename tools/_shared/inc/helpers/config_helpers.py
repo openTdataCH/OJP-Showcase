@@ -39,8 +39,12 @@ def load_convenience_config(context_path: Path):
 def load_env_vars(dotenv_path: Path) -> None:
     """
     load ENV vars from a given dotenv_path 
-    if a file with .local suffix is present, load that instead
+        - if a file with .local suffix is present, load that instead
+        - if on GithubActions dont do anything
     """
+    if os.getenv('GITHUB_ACTIONS') == 'true':
+        return
+    
     if isinstance(dotenv_path, str):
         dotenv_path = Path(dotenv_path)
         

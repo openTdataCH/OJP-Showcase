@@ -1,15 +1,16 @@
 import os, sys
+
+from pathlib import Path
+from typing import Optional
+
 import json
 import urllib.request
-import time
-from pathlib import Path
-
-import zipfile
-import requests
 
 from .shared.inc.helpers.config_helpers import load_env_vars
-from .shared.inc.helpers.json_helpers import export_json_to_file, load_json_from_file
+from .shared.inc.helpers.json_helpers import export_json_to_file
 from .shared.inc.helpers.log_helpers import log_message
+from .shared.inc.helpers.http_helpers import download_file
+from .shared.inc.helpers.zip_helpers import unzip_file
 
 from .shared.inc.models.ckan_data import CKAN_Data
 
@@ -21,12 +22,12 @@ class CKAN_Controller:
         dotenv_path = app_config['resource_paths']['dotenv_path']
         load_env_vars(dotenv_path)
 
-    def fetch_latest(self, package_id: str, resource_title):
+    def fetch_latest(self, package_id: str, resource_title: Optional[str], has_partial_match: bool = False, overwrite: bool = False):
         log_message(f'CKAN - FETCH PACKAGE {package_id}')
         log_message(f'  PACKAGE_ID      : {package_id}')
         log_message(f'  RESOURCE_TITLE  : {resource_title}')
 
-        ds_resource = self._fetch_package_resource(package_id, resource_title)
+        ds_resource = self._fetch_package_resource(package_id, resource_title, has_partial_match)
         ds_res_filename = ds_resource.url.split('/')[-1]
 
         package_base_path_s: str = self.app_config['resource_paths']['package_base_path']
@@ -34,9 +35,12 @@ class CKAN_Controller:
         package_base_path = Path(package_base_path_s)
         
         ds_resource_path = Path(f'{package_base_path}/{ds_res_filename}')
-        if not os.path.isfile(ds_resource_path):
+        if overwrite or (not os.path.isfile(ds_resource_path)):
             ds_url = ds_resource.url
-            download_resource(ds_url, ds_resource_path)
+            
+            download_ok = download_file(ds_url, ds_resource_path)
+            if not download_ok:
+                raise ValueError(f'ERROR while downloading {ds_url}')
         #
         
         print()
@@ -46,8 +50,8 @@ class CKAN_Controller:
         if ds_res_extension == '.zip':
             ds_zip_folder = ds_res_filename[0:-4]
             ds_zip_folder_path = Path(f'{package_base_path}/{ds_zip_folder}')
-            if not os.path.isdir(ds_zip_folder_path):
-                run_unzip(ds_resource_path, ds_zip_folder_path)
+            if overwrite or (not os.path.isdir(ds_zip_folder_path)):
+                unzip_file(ds_resource_path, ds_zip_folder_path)
                 
             print()
             log_message(f'... extracted to {ds_zip_folder_path}')
@@ -68,7 +72,7 @@ class CKAN_Controller:
             
         log_message(f'END')
 
-    def _fetch_package_resource(self, package_id: str, filter_resource_title):
+    def _fetch_package_resource(self, package_id: str, filter_resource_title: Optional[str], has_partial_match: bool = False):
         ckan_data = self._fetch_ckan_metadata(package_id)
         
         if filter_resource_title is None:
@@ -78,14 +82,21 @@ class CKAN_Controller:
         filter_resource_title = filter_resource_title.strip().lower()
         
         for ds_resource in ckan_data.result.resources:
-            if ds_resource.filename.lower() == filter_resource_title:
+            ds_res_f = ds_resource.filename.lower()
+            
+            if ds_res_f == filter_resource_title:
+                return ds_resource
+            
+            if has_partial_match and ds_res_f.startswith(filter_resource_title):
                 return ds_resource
             
         row_delimiter_s = '='*70
         
+        error_message = f'ERROR - cant find resource with title {filter_resource_title} with partial match={has_partial_match}'
+        
         print()
         print(row_delimiter_s)
-        print(f'ERROR - cant find resource with title {filter_resource_title}')
+        print(error_message)
         print(row_delimiter_s)
         print(f'Available resources:                        - Last modified')
         print(row_delimiter_s)
@@ -100,7 +111,7 @@ class CKAN_Controller:
             print(f'-- {resource_filename.ljust(40)} - {last_modified_s}')
         # loop resources
         
-        sys.exit(1)
+        raise ValueError(error_message)
         
     def _fetch_ckan_metadata(self, package_id):
         ckan_json_path: str = f"{self.app_config['resource_paths']['ckan_metadata_path']}"
@@ -110,19 +121,22 @@ class CKAN_Controller:
         ckan_api_url = ckan_api_url.replace('[PACKAGE_ID]', package_id)
         
         api_key = os.environ.get('OTD_KEY') or None
-        if api_key is None:
-            print('ERROR - OTD_KEY env not found')
             
         log_message(f'... fetching package JSON from {ckan_api_url}')
 
-        package_data_json = fetch_latest_ckan_json(ckan_api_url, api_key)
-        export_json_to_file(package_data_json, ckan_json_path, pretty_print=True)
+        package_data_json = _fetch_latest_ckan_json(ckan_api_url, api_key)
+        export_json_to_file(package_data_json, Path(ckan_json_path), pretty_print=True)
         
         ckan_data = CKAN_Data.from_ckan_json(package_data_json)
 
         return ckan_data
 
-def fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
+def _fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
+    if ckan_api_authorization is None:
+        raise ValueError('ERROR - OTD_KEY env not defined')
+    if ckan_api_authorization == 'PLACEHOLDER':
+        raise ValueError('ERROR - OTD_KEY is still a placeholder, please update ./.env file with a proper value')
+    
     request_headers = {
         'Authorization': ckan_api_authorization,
         'User-Agent': USER_AGENT,
@@ -141,31 +155,3 @@ def fetch_latest_ckan_json(ckan_api_url, ckan_api_authorization):
     response_json['result']['resources'] = sorted(response_json['result']['resources'], key=lambda x: x['created'], reverse=True)
         
     return response_json
-
-def run_unzip(archive_path: Path, folder_path: Path):
-    log_message('RUN UNZIP')
-    
-    with zipfile.ZipFile(archive_path, 'r') as zip_ref:
-        zip_ref.extractall(folder_path)
-                    
-    print(f'... DONE')
-    print('')
-
-def download_resource(resource_url: str, resource_path: Path):
-    if isinstance(resource_path, str):
-        resource_path = Path(resource_path)
-
-    if not os.path.isdir(resource_path.parent):
-        os.makedirs(resource_path.parent)
-
-    response = requests.get(resource_url, timeout=30, stream=True)
-    response.raise_for_status()
-    
-    print(f'DOWNLOAD RESOURCE')
-    res_file = open(resource_path, 'wb')
-    for file_chunk in response.iter_content(chunk_size=65536):
-        res_file.write(file_chunk)
-    res_file.close()
-    
-    print(f'... DONE')
-    print('')
