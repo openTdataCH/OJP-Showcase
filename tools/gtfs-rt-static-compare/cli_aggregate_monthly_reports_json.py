@@ -275,7 +275,7 @@ def _analyse_last_report(map_reports: dict[str, GTFS_RT_Static_Report_Metadata],
     report = map_reports[report_now_f]
     
     if report_compare.compare_type == 'w_p':
-        error_message = f'ERROR - DROP deteced in number of GTFS-RT items'
+        error_message = f'ERROR - DROP detected in number of GTFS-RT items'
         
     if report.tripNOK_NOJP_no > 0:
         error_message = f'ERROR - GTFS-RT / -static is out of sync, discovered {report.tripNOK_NOJP_no} items not in GTFS-static'
