@@ -15,7 +15,8 @@ def main():
     app_path = Path(os.path.realpath(__file__)).parent
     
     report_now = datetime.now()
-    report_date_filter = report_now.strftime('%Y-%m')
+    # default is current day
+    report_date_filter = report_now.strftime('%Y-%m-%d')
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--filter', '--filter', default=report_date_filter)
