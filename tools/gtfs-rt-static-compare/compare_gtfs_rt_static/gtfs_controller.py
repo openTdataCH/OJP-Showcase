@@ -194,6 +194,8 @@ class GTFS_Controller:
             gtfs_rt_age=gtfs_rt_age,
     
             total_rows_no=0,
+            total_active_rows_no=0,
+            
             tripOK_routeOK_no=0,
             tripOK_routeNOK_no=0,
             tripNOK_routeOK_no=0,
@@ -211,6 +213,12 @@ class GTFS_Controller:
             
             trip_OK = trip_id in gtfs_db.map_trips
             route_OK = route_id in gtfs_db.map_routes
+            
+            from_date_f = entity.tripUpdate.trip.startDate + ' ' +  entity.tripUpdate.trip.startTime
+            from_date = datetime.strptime(from_date_f, '%Y%m%d %H:%M:%S')
+
+            if from_date > report_dt:
+                report_stats.metadata.total_active_rows_no += 1
             
             if trip_OK and route_OK:
                 report_stats.metadata.tripOK_routeOK_no += 1
