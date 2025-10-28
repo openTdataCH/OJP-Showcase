@@ -56,17 +56,22 @@ def _compute_compare(app_config: Any, report_key: str, map_hr_report: dict[str, 
     while days_back_idx < days_back_max:
         prev_report_day -= timedelta(days=1)
         
-        prev_report_key = f'{prev_report_day}-{report_hr_f}'
+        prev_report_day_f = f'{prev_report_day}'
+        ignore_dropline_error = prev_report_day_f in app_config['map_days_ignore_dropline_error']
+        
+        prev_report_key = f'{prev_report_day_f}-{report_hr_f}'
         if prev_report_key in map_hr_report:
             prev_compare = map_compare.get(prev_report_key, None)
         
-            is_prev_working_day = False
+            include_dropline_computation = False
             if prev_compare is not None:
                 if prev_compare.compare_type == 'w':
-                    is_prev_working_day = True
+                    include_dropline_computation = True
+                if (prev_compare.compare_type == 'w_p') and ignore_dropline_error:
+                    include_dropline_computation = True
             # check if prev compare is working day
             
-            if is_prev_working_day:
+            if include_dropline_computation:
                 prev_total_rows_no = map_hr_report[prev_report_key].total_rows_no
                 compare_info.map_days[f'{prev_report_day}'] = prev_total_rows_no
             # if
