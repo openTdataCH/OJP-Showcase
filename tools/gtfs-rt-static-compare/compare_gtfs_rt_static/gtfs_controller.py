@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typing import Union
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import gzip
 import shutil
@@ -24,6 +24,23 @@ from .fetch import fetch_latest, compute_resource_snapshot_path
 
 gtfs_rt_static_report_file_regexp = r"gtfs_rt_static_report-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})([0-9]{2})"
 header_separator_s = '-' * 60
+
+def normalize_if_overflow(t: str) -> tuple[str, bool]:
+    """
+    Detect if a time string (HH:MM:SS) exceeds 23:59:59.
+    If overflow, return normalized time (wrapped to next day) and True.
+    Otherwise, return original time and False.
+    """
+    h, m, s = map(int, t.split(':'))
+    total_seconds = h * 3600 + m * 60 + s
+
+    if total_seconds >= 24 * 3600:
+        total_seconds %= 24 * 3600
+        h, rem = divmod(total_seconds, 3600)
+        m, s = divmod(rem, 60)
+        return f'{h:02d}:{m:02d}:{s:02d}', True
+    else:
+        return t, False
 class GTFS_Controller:
     def __init__(self, app_path: Path):
         config_path = Path(f'{app_path}/config/config.yml')
@@ -214,8 +231,12 @@ class GTFS_Controller:
             trip_OK = trip_id in gtfs_db.map_trips
             route_OK = route_id in gtfs_db.map_routes
             
-            from_date_f = entity.tripUpdate.trip.startDate + ' ' +  entity.tripUpdate.trip.startTime
+            from_date_start_time, overflow = normalize_if_overflow(entity.tripUpdate.trip.startTime)
+            from_date_f = entity.tripUpdate.trip.startDate + ' ' +  from_date_start_time
             from_date = datetime.strptime(from_date_f, '%Y%m%d %H:%M:%S')
+            if overflow:
+                # catch '20250930 24:01:00' ->
+                from_date = from_date + timedelta(days=1)
 
             if from_date > report_dt:
                 report_stats.metadata.total_active_rows_no += 1
