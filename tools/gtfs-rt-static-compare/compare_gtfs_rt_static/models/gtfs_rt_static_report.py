@@ -27,6 +27,7 @@ class GTFS_RT_Static_Report_Metadata:
     gtfs_rt_age: int
     
     total_rows_no: int
+    total_active_rows_no: int
     # Trip/Route matched with GTFS
     tripOK_routeOK_no: int
     
@@ -41,7 +42,10 @@ class GTFS_RT_Static_Report_Metadata:
     tripNOK_NOJP_no: int
     
     @staticmethod
-    def from_json(data_json):
+    def from_json(data_json: dict[str, Any]):
+        if data_json.get('total_active_rows_no') is None:
+            data_json['total_active_rows_no'] = 0
+        
         metadata = GTFS_RT_Static_Report_Metadata(**data_json)
         metadata.report_dt = datetime.strptime(data_json['report_dt'], '%Y-%m-%d %H:%M:%S')
         metadata.gtfs_rt_dt = datetime.strptime(data_json['gtfs_rt_dt'], '%Y-%m-%d %H:%M:%S')
