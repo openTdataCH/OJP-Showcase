@@ -128,7 +128,7 @@
                       </div>
                       <hr/>
                       <ul>
-                        <ng-container *ngFor="let prevDayReportLine of this.model.selectedReportCell.compareMetadata?.reportLines">
+                        <ng-container *ngFor="let prevDayReportLine of this.model.selectedReportCell.compareMetadata?.reportLines?.reverse()">
                           <li>{{ prevDayReportLine }}</li>
                         </ng-container>
                       </ul>
