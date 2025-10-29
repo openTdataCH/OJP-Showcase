@@ -14,7 +14,7 @@ interface HourCell {
   hourF: string
 }
 
-type ReportValueLookupType = 'gtfs_db_age' | 'gtfs_rt_age' | 'total_rows_no' | 'tripOK_routeOK_no' | 'tripOK_routeNOK_no' | 'tripNOK_routeOK_no' | 'tripNOK_routeNOK_no' | 'tripNOK_NOJP_no'
+type ReportValueLookupType = 'gtfs_db_age' | 'gtfs_rt_age' | 'total_rows_no' | 'total_active_rows_no' | 'tripOK_routeOK_no' | 'tripOK_routeNOK_no' | 'tripNOK_routeOK_no' | 'tripNOK_routeNOK_no' | 'tripNOK_NOJP_no'
 
 interface ReportValueLookup {
   type: ReportValueLookupType,
@@ -94,6 +94,7 @@ const mapReportValueLookups: Record<ReportValueLookupType, string> = {
   gtfs_db_age: 'GTFS-DB Age',
   gtfs_rt_age: 'GTFS-RT Age',
   total_rows_no: 'GTFS-RT Total Trips No',
+  total_active_rows_no: 'GTFS-RT Total Active Trips No',
   tripOK_routeOK_no: 'Matched Trips',
   tripOK_routeNOK_no: 'Matched Trips / Not-matched Routes',
   tripNOK_routeOK_no: 'Not-matched Trips / Matched Routes',
@@ -104,7 +105,7 @@ const mapReportValueLookups: Record<ReportValueLookupType, string> = {
 const reportValueLookups = (() => {
   const lookups: ReportValueLookup[] = [];
 
-  const reportValueLookupTypes: ReportValueLookupType[] = ['total_rows_no', 'gtfs_db_age', 'gtfs_rt_age', 'tripOK_routeOK_no', 'tripOK_routeNOK_no', 'tripNOK_routeOK_no', 'tripNOK_routeNOK_no', 'tripNOK_NOJP_no'];
+  const reportValueLookupTypes: ReportValueLookupType[] = ['total_active_rows_no', 'total_rows_no', 'gtfs_db_age', 'gtfs_rt_age', 'tripOK_routeOK_no', 'tripOK_routeNOK_no', 'tripNOK_routeOK_no', 'tripNOK_routeNOK_no', 'tripNOK_NOJP_no'];
 
   reportValueLookupTypes.forEach(reportValueLookupType => {
     const lookup: ReportValueLookup = {
@@ -374,7 +375,7 @@ export class AppComponent {
                   const compareMetadata: GTFS_RT_StaticReportCompareMetadata = {
                     info: compare_info,
                     reportLines: compareReportLines,
-                    valueF: '' + (reportAny['total_rows_no'] ?? 0),
+                    valueF: '' + (reportAny['total_active_rows_no'] ?? 0),
                     meanValueF: '' + compare_info.mean_value,
                     dropLineF: '' + compare_info.drop_line,
                   };

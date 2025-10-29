@@ -105,8 +105,8 @@
                   <td>{{ computeDetailLookupValue('gtfs_rt_age') }}"</td>
                 </tr>
                 <tr>
-                  <th scope="row">{{ computeDetailLookupCaption('total_rows_no') }}</th>
-                  <td>{{ computeDetailLookupValue('total_rows_no') }}</td>
+                  <th scope="row">{{ computeDetailLookupCaption('total_active_rows_no') }}</th>
+                  <td>{{ computeDetailLookupValue('total_active_rows_no') }}</td>
                 </tr>
                 <!-- TODO - fix the -1 hack -->
                 <ng-container *ngIf="this.model.selectedReportCell.compareMetadata?.meanValueF !== '-1'">
