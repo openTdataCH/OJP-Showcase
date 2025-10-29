@@ -72,8 +72,8 @@ def _compute_compare(app_config: Any, report_key: str, map_hr_report: dict[str, 
             # check if prev compare is working day
             
             if include_dropline_computation:
-                prev_total_rows_no = map_hr_report[prev_report_key].total_rows_no
-                compare_info.map_days[f'{prev_report_day}'] = prev_total_rows_no
+                prev_day_value = map_hr_report[prev_report_key].total_active_rows_no
+                compare_info.map_days[f'{prev_report_day}'] = prev_day_value
             # if
         # check if we have report
         
@@ -91,18 +91,18 @@ def _compute_compare(app_config: Any, report_key: str, map_hr_report: dict[str, 
         drop_line = measure_mean * (1 - 0.1)
         
         report = map_hr_report[report_key]
-        report_total_rows_no = report.total_rows_no
+        report_value = report.total_active_rows_no
         
         compare_info.drop_line = drop_line
         compare_info.mean_value = measure_mean
         
-        if report_total_rows_no < drop_line:
+        if report_value < drop_line:
             compare_info.compare_type = 'w_p'
             
             if is_verbose_mode:
                 print(f'possible issue:')
                 print(f'  {report_ymd_f} {report_hr_f}:00')
-                print(f'  rows      : {report_total_rows_no}')
+                print(f'  rows      : {report_value}')
                 print(f'  drop_line : {drop_line}')
                 print()
                 
