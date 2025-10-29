@@ -60,23 +60,24 @@ Example for 25.May 2024 10:00
 https://tools.odpch.ch/gtfs-rt-snapshot/2024/05/25/GTFS_RT-2024-05-25-1000.json
 ```
 - the GTFS-RT items are compared against latest GTFS-static DB file
-- a matching report is generated, example for `25.May 2024 10:00`:  [gtfs_rt_static_report-2024-05-25-1000.json](view-source:https://tools.odpch.ch/gtfs-rt-static-compare-report/2024/05/25/gtfs_rt_static_report-2024-05-25-1000.json)
+- a matching report is generated, example for `10.October 2025 10:00`:  [gtfs_rt_static_report-2025-10-10-1000.json](view-source:https://tools.odpch.ch/gtfs-rt-static-compare-report/2025/10/10/gtfs_rt_static_report-2025-10-10-1000.json)
 
 ```
 {
   "metadata": {
-    "report_dt": "2024-05-25 10:00:00",
-    "gtfs_db_filename": "gtfs_2024-05-23.sqlite",
-    "gtfs_db_age": 1.98,
-    "gtfs_rt_filename": "GTFS_RT-2024-05-25-1000.json",
-    "gtfs_rt_ts": 1716623989,
-    "gtfs_rt_dt": "2024-05-25 09:59:49",
-    "gtfs_rt_age": -11,
-    "total_rows_no": 10669,
-    "tripOK_routeOK_no": 9543,
+    "report_dt": "2025-10-10 10:00:00",
+    "gtfs_db_filename": "gtfs_2025-10-09.sqlite",
+    "gtfs_db_age": 0.74,
+    "gtfs_rt_filename": "GTFS_RT-2025-10-10-1000.json.gz",
+    "gtfs_rt_ts": 1760083197,
+    "gtfs_rt_dt": "2025-10-10 09:59:57",
+    "gtfs_rt_age": -3,
+    "total_rows_no": 14619,
+    "total_active_rows_no": 4468,
+    "tripOK_routeOK_no": 13536,
     "tripOK_routeNOK_no": 0,
-    "tripNOK_routeOK_no": 891,
-    "tripNOK_routeNOK_no": 235,
+    "tripNOK_routeOK_no": 543,
+    "tripNOK_routeNOK_no": 540,
     "tripNOK_NOJP_no": 0
   },
   "tripOK_routeNOK": [],
@@ -110,6 +111,7 @@ Schema
 | gtfs_rt_dt | GTFS-RT datetime |  |
 | gtfs_rt_age | Difference in seconds between GTFS-RT `Header.TimestampUpdated` and report datetime | Abs values bigger than 60(seconds) may refer to data-freshness of the feed, i.e. cache-issues |
 | total_rows_no | Total number of GTFS-RT `Entity` items | This number varies between 2k to 15k entries during normal hours (day) |
+| total_active_rows_no | Total number of active GTFS-RT `Entity` items | Active Item = item that has the `tripUpdate.trip.startDate` + `startTime` before report time |
 | tripOK_routeOK_no | Total number of matched trips against GTFS-static | This number should be close to `total_rows_no` |
 | tripOK_routeNOK_no | Total number of matched trips against GTFS-static but without a valid route match. | This should be 0, otherwise there are issues in the datatset |
 | tripNOK_routeOK_no | Total number of not-matched trips against GTFS-static but with a valid route match | This should be a small number and the `tripNOK_routeOK` list should contain only `ojp:` prefixed entries |
@@ -118,11 +120,11 @@ Schema
 
 ## GTFS-RT - GTFS-static monthly comparison reports
 - the hourly reports are consolidated in a monthly report
-- i.e. for May 2024 - https://tools.odpch.ch/gtfs-rt-static-compare-report/2024/gtfs_rt_static_report-2024-05.json
+- i.e. for October 2025 - https://tools.odpch.ch/gtfs-rt-static-compare-report/2025/gtfs_rt_static_report-2025-10.json
 - the report is visualised via https://tools.odpch.ch/gtfs-rt-static-report/
 - each day/hr can be inspected and the individual reports to be checked
 - previous months can be loaded
-- by default `total_rows_no` (total number of GTFS-RT feed items) is shown in the report cells but other metadata keys can be chosen
+- by default `total_active_rows_no` (total number of GTFS-RT **active** feed items) is shown in the report cells but other metadata keys can be chosen
 - for each cell following error types can be shown
 
 | Error | Description | Possible cause of error |
@@ -130,4 +132,4 @@ Schema
 | `Match` | GTFS-RT snapshot is not in sync with the GTFS-static DB | The GTFS-static dataset wasnt published, however GTFS-RT feed is using the new dataset. |
 | `DATA` | GTFS-RT snapshot is missing | The GTFS-RT server returns an invalid response |
 | `RT age` | GTFS-RT `Header.TimestampUpdated` is considerably older than the report date | The GTFS-RT server returns a cached / outdated response |
-
+| `Drop` | `total_active_rows_no` dropped below mean value of the prev 10 days measurements done at the same hour. Only workdays are checked. | Agencies are publishing a smaller number of GTFS-RT messages |
