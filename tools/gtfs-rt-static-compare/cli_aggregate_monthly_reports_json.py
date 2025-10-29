@@ -88,7 +88,7 @@ def _compute_compare(app_config: Any, report_key: str, map_hr_report: dict[str, 
     if has_prev_data and is_relevant:
         prev_values = compare_info.map_days.values()
         measure_mean = median(prev_values)
-        drop_line = measure_mean * (1 - 0.1)
+        drop_line = measure_mean * (1 - 0.05)
         
         report = map_hr_report[report_key]
         report_value = report.total_active_rows_no
