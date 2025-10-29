@@ -173,7 +173,7 @@ export class AppComponent {
       selectedReportMapPrevKeys: {},
     };
     this.updateHourCells();
-
+  }
 
   async ngOnInit(): Promise<void> {
     await this.fetchAndUpdateReport();
