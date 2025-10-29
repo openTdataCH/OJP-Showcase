@@ -377,7 +377,7 @@ export class AppComponent {
                     reportLines: compareReportLines,
                     valueF: '' + (reportAny['total_active_rows_no'] ?? 0),
                     meanValueF: '' + compare_info.mean_value,
-                    dropLineF: '' + compare_info.drop_line,
+                    dropLineF: '' + Math.round(Number(compare_info.drop_line)),
                   };
 
                   reportCell.compareMetadata = compareMetadata;
