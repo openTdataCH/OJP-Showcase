@@ -56,19 +56,24 @@ def _compute_compare(app_config: Any, report_key: str, map_hr_report: dict[str, 
     while days_back_idx < days_back_max:
         prev_report_day -= timedelta(days=1)
         
-        prev_report_key = f'{prev_report_day}-{report_hr_f}'
+        prev_report_day_f = f'{prev_report_day}'
+        ignore_dropline_error = prev_report_day_f in app_config['map_days_ignore_dropline_error']
+        
+        prev_report_key = f'{prev_report_day_f}-{report_hr_f}'
         if prev_report_key in map_hr_report:
             prev_compare = map_compare.get(prev_report_key, None)
         
-            is_prev_working_day = False
+            include_dropline_computation = False
             if prev_compare is not None:
                 if prev_compare.compare_type == 'w':
-                    is_prev_working_day = True
+                    include_dropline_computation = True
+                if (prev_compare.compare_type == 'w_p') and ignore_dropline_error:
+                    include_dropline_computation = True
             # check if prev compare is working day
             
-            if is_prev_working_day:
-                prev_total_rows_no = map_hr_report[prev_report_key].total_rows_no
-                compare_info.map_days[f'{prev_report_day}'] = prev_total_rows_no
+            if include_dropline_computation:
+                prev_day_value = map_hr_report[prev_report_key].total_active_rows_no
+                compare_info.map_days[f'{prev_report_day}'] = prev_day_value
             # if
         # check if we have report
         
@@ -83,21 +88,21 @@ def _compute_compare(app_config: Any, report_key: str, map_hr_report: dict[str, 
     if has_prev_data and is_relevant:
         prev_values = compare_info.map_days.values()
         measure_mean = median(prev_values)
-        drop_line = measure_mean * (1 - 0.1)
+        drop_line = measure_mean * (1 - 0.05)
         
         report = map_hr_report[report_key]
-        report_total_rows_no = report.total_rows_no
+        report_value = report.total_active_rows_no
         
         compare_info.drop_line = drop_line
         compare_info.mean_value = measure_mean
         
-        if report_total_rows_no < drop_line:
+        if report_value < drop_line:
             compare_info.compare_type = 'w_p'
             
             if is_verbose_mode:
                 print(f'possible issue:')
                 print(f'  {report_ymd_f} {report_hr_f}:00')
-                print(f'  rows      : {report_total_rows_no}')
+                print(f'  rows      : {report_value}')
                 print(f'  drop_line : {drop_line}')
                 print()
                 

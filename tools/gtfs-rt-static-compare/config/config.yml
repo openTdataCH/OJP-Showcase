@@ -11,6 +11,11 @@ resource_paths:
 opentransportdata:
   gtfs_rt_url: https://api.opentransportdata.swiss/la/gtfs-rt?format=JSON
 
+# following days are still included in drop line computation even though they had errors
+map_days_ignore_dropline_error:
+  # "2025-10-23": yes
+  "foo": "yes"
+
 # TODO - needs to be generated
 map_holidays:
   # 2024
