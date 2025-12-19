@@ -118,6 +118,7 @@ class GTFS_Controller:
         print(f'GTFS-static DB age  : {report.metadata.gtfs_db_age} days')
         print()
         print(f'rows no             : {report.metadata.total_rows_no}')
+        print(f'rows active no      : {report.metadata.total_active_rows_no}')
         print(f'trips OK            : {report.metadata.tripOK_routeOK_no}')
         print()
         print(f'tripOK_routeNOK_no  : {report.metadata.tripOK_routeNOK_no}')
