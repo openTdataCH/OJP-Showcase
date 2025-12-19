@@ -184,7 +184,6 @@ class GTFS_DB_Importer:
             service_id = db_row['service_id']
             day_bits = self._compute_calendar_day_bits(db_row, calendar_days, calendar_start_date, calendar_end_date)
 
-
             row_dict = {
                 'service_id': service_id,
                 'day_bits': day_bits,
