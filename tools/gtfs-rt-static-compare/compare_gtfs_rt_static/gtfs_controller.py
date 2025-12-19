@@ -231,8 +231,13 @@ class GTFS_Controller:
             trip_OK = trip_id in gtfs_db.map_trips
             route_OK = route_id in gtfs_db.map_routes
             
+            entity_start_date_s = entity.tripUpdate.trip.startDate
+            if int(entity_start_date_s) == -1:
+                yesterday_date = datetime.now() - timedelta(days=1)
+                entity_start_date_s = yesterday_date.strftime('%Y%m%d')
+            
             from_date_start_time, overflow = normalize_if_overflow(entity.tripUpdate.trip.startTime)
-            from_date_f = entity.tripUpdate.trip.startDate + ' ' +  from_date_start_time
+            from_date_f = entity_start_date_s + ' ' +  from_date_start_time
             from_date = datetime.strptime(from_date_f, '%Y%m%d %H:%M:%S')
             if overflow:
                 # catch '20250930 24:01:00' ->
