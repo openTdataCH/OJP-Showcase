@@ -44,7 +44,7 @@ class GTFS_RT_Static_Report_Metadata:
     @staticmethod
     def from_json(data_json: dict[str, Any]):
         if data_json.get('total_active_rows_no') is None:
-            data_json['total_active_rows_no'] = 0
+            data_json['total_active_rows_no'] = -1
         
         metadata = GTFS_RT_Static_Report_Metadata(**data_json)
         metadata.report_dt = datetime.strptime(data_json['report_dt'], '%Y-%m-%d %H:%M:%S')
