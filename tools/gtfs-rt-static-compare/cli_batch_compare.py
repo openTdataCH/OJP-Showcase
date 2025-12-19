@@ -76,6 +76,9 @@ def main():
         log_message(f'... DONE')
         print()
         
+        if gtfs_db is None:
+            continue
+        
         gtfs_rt_files_no = len(map_gtfs_rt_file_paths.keys())
         log_message(f'... {gtfs_rt_files_no} GTFS RT files')        
 

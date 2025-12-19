@@ -85,3 +85,19 @@ def compute_date_from_gtfs_db_filename(db_filename: str):
 def compute_gtfs_db_filename(gtfs_day: str):
     db_filename = f'gtfs_{gtfs_day}.sqlite'
     return db_filename
+
+def gtfs_time_to_seconds(t: Union[str, None]) -> Union[int, None]:
+    """
+    Convert a GTFS HH:MM:SS time string (may exceed 24h) to seconds from start of day.
+    Example: '25:10:30' -> 25h * 3600 + 10 * 60 + 30 = 90630
+    """
+    if not t or t.strip() == '':
+        return None
+
+    parts = t.split(':')
+    if len(parts) != 3:
+        raise ValueError(f'Invalid time format: {t}')
+
+    h, m, s = map(int, parts)
+    
+    return h * 3600 + m * 60 + s

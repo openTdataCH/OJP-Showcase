@@ -1,5 +1,5 @@
 import sys
-from typing import List
+from typing import Any, List
 from pathlib import Path
 import sqlite3
 import csv
@@ -24,7 +24,7 @@ class DB_Table_CSV_Updater:
         row_csv_s = ','.join(row_values) + "\n"
         self.csv_file.write(row_csv_s)
 
-    def update_table(self, db_handle: any, sql_template: str, rows_report_no: int):
+    def update_table(self, db_handle: Any, sql_template: str, rows_report_no: int):
         self.csv_file.close()
 
         db_handle.execute('PRAGMA synchronous = OFF')

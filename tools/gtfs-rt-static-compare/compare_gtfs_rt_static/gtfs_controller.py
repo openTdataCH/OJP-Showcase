@@ -118,6 +118,7 @@ class GTFS_Controller:
         print(f'GTFS-static DB age  : {report.metadata.gtfs_db_age} days')
         print()
         print(f'rows no             : {report.metadata.total_rows_no}')
+        print(f'rows active no      : {report.metadata.total_active_rows_no}')
         print(f'trips OK            : {report.metadata.tripOK_routeOK_no}')
         print()
         print(f'tripOK_routeNOK_no  : {report.metadata.tripOK_routeNOK_no}')
@@ -231,13 +232,17 @@ class GTFS_Controller:
             trip_OK = trip_id in gtfs_db.map_trips
             route_OK = route_id in gtfs_db.map_routes
             
+            entity_start_date_s = entity.tripUpdate.trip.startDate
+            if int(entity_start_date_s) == -1:
+                yesterday_date = datetime.now() - timedelta(days=1)
+                entity_start_date_s = yesterday_date.strftime('%Y%m%d')
+            
             from_date_start_time, overflow = normalize_if_overflow(entity.tripUpdate.trip.startTime)
-            from_date_f = entity.tripUpdate.trip.startDate + ' ' +  from_date_start_time
+            from_date_f = entity_start_date_s + ' ' +  from_date_start_time
             from_date = datetime.strptime(from_date_f, '%Y%m%d %H:%M:%S')
             if overflow:
                 # catch '20250930 24:01:00' ->
                 from_date = from_date + timedelta(days=1)
-
             if from_date < report_dt:
                 report_stats.metadata.total_active_rows_no += 1
             
@@ -282,8 +287,6 @@ class GTFS_Controller:
         os.remove(resource_path)
         
     def _fetch_latest_gtfs_rt(self):
-        header_separator_s = '-' * 60
-        
         print(header_separator_s)
         log_message(f'START FETCH LATEST GTFS-RT')
         print(header_separator_s)
