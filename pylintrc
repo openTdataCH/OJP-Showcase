@@ -442,6 +442,7 @@ disable=raw-checker-failed,
         missing-module-docstring,
         line-too-long,
         broad-exception-raised,
+        consider-using-with,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

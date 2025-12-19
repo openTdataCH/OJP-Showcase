@@ -13,5 +13,5 @@ python3 $DIR/cli_otd_symlink_package.py --package_id business-organisations 2>&1
 symlink_latest $BO_LOGFILE
 
 GO_LOGFILE=$LOGS_BASEPATH/otd_fetch_csv_go-realtime-$DATE_NOW.log
-python3 $DIR/cli_otd_fetch_csv_package.py --package_id go-realtime --overwrite yes 2>&1 | tee $GO_LOGFILE
+python3 $DIR/cli_otd_fetch_csv_package.py --package_id go-realtime --overwrite 2>&1 | tee $GO_LOGFILE
 symlink_latest $GO_LOGFILE
