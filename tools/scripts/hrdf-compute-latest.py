@@ -1,13 +1,11 @@
 import os, sys
-import glob
+
 from pathlib import Path
 
 import time
 
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
-from inc.shared.inc.helpers.json_helpers import load_json_from_file
 from inc.shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_folder_path, compute_hrdf_db_filename, compute_formatted_date_from_hrdf_db_path
-from inc.shared.inc.models.ckan_data import CKAN_Data
 
 from inc.common import PYTHON_PATH, fetch_latest_resource, check_latest_data_folder
 
