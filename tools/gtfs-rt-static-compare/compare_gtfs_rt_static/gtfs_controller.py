@@ -242,7 +242,6 @@ class GTFS_Controller:
             if overflow:
                 # catch '20250930 24:01:00' ->
                 from_date = from_date + timedelta(days=1)
-
             if from_date < report_dt:
                 report_stats.metadata.total_active_rows_no += 1
             
