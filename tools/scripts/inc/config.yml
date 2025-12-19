@@ -1,6 +1,6 @@
 current_package_ids:
-  gtfs: timetable-2025-gtfs2020
-  hrdf: timetable-54-2025-hrdf
+  gtfs: timetable-2026-gtfs2020
+  hrdf: timetable-54-2026-hrdf
 
 csv_latest_data:  
   # https://data.opentransportdata.swiss/en/dataset/business-organisations
