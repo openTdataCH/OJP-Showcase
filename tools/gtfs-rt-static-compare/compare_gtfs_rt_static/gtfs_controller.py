@@ -286,8 +286,6 @@ class GTFS_Controller:
         os.remove(resource_path)
         
     def _fetch_latest_gtfs_rt(self):
-        header_separator_s = '-' * 60
-        
         print(header_separator_s)
         log_message(f'START FETCH LATEST GTFS-RT')
         print(header_separator_s)
