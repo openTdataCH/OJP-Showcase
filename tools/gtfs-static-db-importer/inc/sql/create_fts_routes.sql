@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS fts_routes;
+
 -- fts5 is not supported by PHP 7.x
 -- CREATE VIRTUAL TABLE fts_routes USING fts5(route_id, trip_stop_ids);
 CREATE VIRTUAL TABLE fts_routes USING fts3(route_id, trip_stop_ids);
