@@ -7,6 +7,9 @@ from pathlib import Path
 from typing import Any, Optional, Union
 
 class SQLiteDBEngine:
+    db_path: Path
+    _db_handle: sqlite3.Connection
+
     def __init__(self, db_path: Path, is_read_only = True):
         if isinstance(db_path, str):
             db_path = Path(db_path)
