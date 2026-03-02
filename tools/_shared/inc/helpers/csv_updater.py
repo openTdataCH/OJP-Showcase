@@ -1,10 +1,6 @@
 import os, sys
-from typing import List
 from pathlib import Path
-import sqlite3
 
-from .log_helpers import log_message
-from .file_helpers import compute_file_rows_no
 from typing import Any, List, Optional
 
 import csv
