@@ -62,7 +62,7 @@ tables:
             - route_short_name TEXT
             - route_long_name TEXT
             - route_desc TEXT
-            - route_type INTEGER
+            - route_type INTEGER # extended codes, check https://opentransportdata.swiss/de/cookbook/timetable-cookbook/gtfs/
             - day_bits TEXT # similar with HRDF
             - representative_trip_id TEXT # the trip that occurs the most
         indexes:
