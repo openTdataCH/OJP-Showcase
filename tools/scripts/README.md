@@ -1,5 +1,12 @@
 # Server Scripts
 
+Python / NodeJS scripts that run for fetching latest data
+
+## Installation
+
+```
+$ bash bootstrap.sh 
+```
 ## Setup
 - setup Python
     see [install setup](../README.md)
