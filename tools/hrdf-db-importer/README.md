@@ -6,7 +6,9 @@ See:
 
 ## Installation
 
-See main [README tools](../README.md)
+```
+$ bash bootstrap.sh 
+```
 
 ## Scripts
 
