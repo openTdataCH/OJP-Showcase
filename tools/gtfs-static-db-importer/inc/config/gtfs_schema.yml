@@ -141,6 +141,7 @@ tables:
             - trip_headsign TEXT
             - trip_short_name TEXT
             - direction_id TEXT
+            - block_id INTEGER
             - departure_day_minutes INTEGER
             - arrival_day_minutes INTEGER
             - departure_time TEXT
@@ -149,10 +150,12 @@ tables:
             - stop_times_count INTEGER # added to avoid GROUP_BY queries
             - shape_id TEXT
             - original_trip_id TEXT # https://opentransportdata.swiss/en/cookbook/gtfs/#tripstxt
+            - hints TEXT
         indexes:
             - route_id
             - service_id
             - direction_id
+            - block_id
             - departure_day_minutes
             - arrival_day_minutes
             - trip_short_name
