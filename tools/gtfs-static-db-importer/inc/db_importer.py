@@ -74,7 +74,7 @@ class GTFS_DB_Importer:
         os.remove(self.db_lock_path)
 
     def _import_csv_tables(self):
-        table_names = ['agency', 'calendar', 'calendar_dates', 'routes', 'shapes', 'stop_times', 'stops', 'trips']
+        table_names = ['agency', 'calendar', 'calendar_dates', 'feed_info', 'frequencies', 'routes', 'shapes', 'stop_times', 'stops', 'transfers', 'trips']
 
         print('')
         log_message(f'START BATCH IMPORT')
