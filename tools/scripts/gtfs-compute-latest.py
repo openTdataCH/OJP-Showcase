@@ -20,16 +20,20 @@ def main():
     print('     - https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json')
     print('')
     
-    fetch_latest_resource(script_path, package_id)
+    fetch_latest_resource(script_path, package_id) 
     gtfs_data_path = check_latest_data_folder(app_config, package_id)
     _db_import(app_config, script_path, gtfs_data_path)
     
     _dbs_aggregate(script_path)
 
-def _db_import(app_config, script_path, gtfs_data_path):
+def _db_import(app_config, script_path: Path, gtfs_data_path):
     gtfs_day = compute_gtfs_day_from_resource_path(gtfs_data_path)
+    if gtfs_day is None:
+        print(f'ERROR - cant compute GTFS day from {gtfs_data_path}')
+        sys.exit(1)
+
     gtfs_dbs_path = app_config['data_paths']['gtfs-static-dbs']
-    gtfs_db_filename = compute_gtfs_db_filename(gtfs_day)
+    gtfs_db_filename = compute_gtfs_db_filename(f'{gtfs_day}')
     gtfs_db_path = f'{gtfs_dbs_path}/{gtfs_db_filename}'
 
     print(f'')
