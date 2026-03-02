@@ -3,11 +3,9 @@ import os, sys
 from pathlib import Path
 
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
-from inc.shared.inc.helpers.json_helpers import load_json_from_file
 from inc.shared.inc.helpers.gtfs_helpers import compute_gtfs_day_from_resource_path, compute_gtfs_db_filename
-from inc.shared.inc.models.ckan_data import CKAN_Data
 
-from inc.common import PYTHON_PATH, fetch_latest_resource, check_latest_data_folder
+from inc.common import fetch_latest_resource, check_latest_data_folder
 
 def main():
     script_path = Path(os.path.realpath(__file__))
