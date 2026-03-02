@@ -22,3 +22,4 @@ symlink_latest() {
 }
 
 PYTHON_VENV_PATH=$COMMON_DIR/../../python-venv
+LOGS_BASEPATH=$COMMON_DIR/logs

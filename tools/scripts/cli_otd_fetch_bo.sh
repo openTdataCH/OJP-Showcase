@@ -1,5 +1,4 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-LOGS_BASEPATH=$DIR/logs
 
 # DATE_NOW=$(date +"%Y-%m-%d-%H%M")
 DATE_NOW=$(date +"%Y-%m-%d")
