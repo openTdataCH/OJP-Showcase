@@ -93,3 +93,26 @@ class SQLiteDBEngine:
     def count_rows_table(self, table_name: str, where_clause = None):
         sql = f"SELECT COUNT(1) AS cno FROM {table_name} {where_clause}"
         return self._db_handle.cursor().execute(sql).fetchone()[0]
+    
+    def run_sql(self, sql: str):
+        self._db_handle.execute(sql)
+        self._db_handle.commit()
+    
+    def drop_table(self, table_name: str):
+        sql = f'DROP TABLE IF EXISTS {table_name}'
+        self.run_sql(sql)
+
+    def drop_and_recreate_table(self, table_name: str, table_config: Any):
+        self.drop_table(table_name)
+
+        column_defs = []
+        for column_def in table_config['columns']:
+            column_defs.append(column_def)
+
+        column_defs_s = ",".join(column_defs)
+        sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({column_defs_s});"
+        self.run_sql(sql)
+
+    def get_cursor(self) -> sqlite3.Cursor: 
+        cursor = self._db_handle.cursor()
+        return cursor
