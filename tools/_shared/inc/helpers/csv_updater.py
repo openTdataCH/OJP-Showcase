@@ -2,12 +2,16 @@ import os, sys
 from typing import List
 from pathlib import Path
 import sqlite3
-import csv
 
 from .log_helpers import log_message
 from .file_helpers import compute_file_rows_no
+from typing import Any, List, Optional
+
+import csv
 
 class CSV_Updater:
+    csv_writer: Optional[csv.DictWriter]
+
     def __init__(self, csv_path: Path, column_names: List[str]):
         self.csv_file = open(csv_path, 'w', encoding='utf-8')
         self.column_names = column_names
@@ -16,7 +20,7 @@ class CSV_Updater:
         self.csv_writer.writeheader()
 
     @classmethod
-    def init_with_table_config(cls, csv_path: Path, table_config: any):
+    def init_with_table_config(cls, csv_path: Path, table_config: Any):
         column_names = []
         for column_def in table_config['columns']:
             column_name = column_def.strip().split(' ')[0]
