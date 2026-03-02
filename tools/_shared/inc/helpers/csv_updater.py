@@ -12,7 +12,7 @@ class CSV_Updater:
         self.csv_file = open(csv_path, 'w', encoding='utf-8')
         self.column_names = column_names
 
-        self.csv_writer = csv.DictWriter(self.csv_file, column_names)
+        self.csv_writer = csv.DictWriter(self.csv_file, column_names, quoting=csv.QUOTE_NONNUMERIC)
         self.csv_writer.writeheader()
 
     @classmethod
