@@ -6,8 +6,6 @@ __pycache__
 node_modules
 python-venv
 
-data/*
-
 apps/gtfs-rt-status/js/dist
 apps/hrdf-check-duplicates/js/dist
 apps/ojp-demo/js/dist
