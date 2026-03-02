@@ -20,6 +20,10 @@ gtfs_rt_updates:
     to: "2024-04-10"
     switch: "13:05"
   -
-    # up to LATE-LATE the GTFS-RT switch was done at 15:05
-    to: "2099-12-31"
+    # up to 2025/2026 GTFS-RT switch was done at 15:05
+    to: "2026-01-01"
     switch: "15:05"
+  -
+    # up to LATE-LATE the GTFS-RT switch is done at 15:00
+    to: "2099-12-31"
+    switch: "15:00"
