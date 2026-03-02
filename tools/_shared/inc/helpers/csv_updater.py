@@ -31,7 +31,8 @@ class CSV_Updater:
             attr_value = row_dict.get(column_name, None)
             map_row_values[column_name] = attr_value
         
-        self.csv_writer.writerow(map_row_values)
+        if self.csv_writer is not None:
+            self.csv_writer.writerow(map_row_values)
 
     def close(self):
         self.csv_file.close()
