@@ -28,8 +28,8 @@ def main():
     else:
         gtfs_date = compute_gtfs_day_from_resource_path(gtfs_folder_path)  
         if gtfs_date is None:
-            print(f"CANT read date from GTFS path: '{gtfs_folder_path}'")
-            print(f"Use --output-db-path to override")
+            print(f"CANT read date from GTFS path: '{gtfs_folder_path}' to build the output_db_path param")
+            print(f"Use --output-db-path to use a custom name")
             sys.exit(1)
 
         gtfs_day_f = f'{gtfs_date}'
@@ -38,6 +38,12 @@ def main():
         db_base_path = app_config['gtfs_dbs_base_path']
         db_path = f'{db_base_path}/{db_filename}'
         db_path = Path(db_path)
+
+    if os.path.exists(db_path):
+        print(f'ERROR - db already exists at path. Remove it or use --output-db-path for a custom name')
+        print(f' {db_path}')
+        sys.exit(1)
+    #
 
     os.makedirs(db_path.parent, exist_ok=True)
 
