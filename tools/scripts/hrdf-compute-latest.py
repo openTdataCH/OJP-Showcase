@@ -7,7 +7,7 @@ import time
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
 from inc.shared.inc.helpers.hrdf_helpers import compute_formatted_date_from_hrdf_folder_path, compute_hrdf_db_filename, compute_formatted_date_from_hrdf_db_path
 
-from inc.common import PYTHON_PATH, fetch_latest_resource, check_latest_data_folder
+from inc.common import fetch_latest_resource, check_latest_data_folder
 
 def main():
     script_path = Path(os.path.realpath(__file__))
@@ -33,6 +33,10 @@ def main():
 
 def _db_import(app_config, script_path, hrdf_data_path):
     hrdf_day = compute_formatted_date_from_hrdf_folder_path(hrdf_data_path)
+    if hrdf_day is None:
+        print(f'ERROR - cant compute HRDF day from {hrdf_data_path}')
+        sys.exit(1)
+
     hrdf_dbs_path = app_config['data_paths']['hrdf-dbs']
     hrdf_db_filename = compute_hrdf_db_filename(hrdf_day)
     hrdf_db_path = f'{hrdf_dbs_path}/{hrdf_db_filename}'
@@ -70,8 +74,11 @@ def _dbs_aggregate(script_path):
 
 def _hrdf_check_duplicates(script_path, hrdf_db_path):
     hrdf_day = compute_formatted_date_from_hrdf_db_path(hrdf_db_path)
-
-    hrdf_duplicates_tool_folder_path = f'{script_path.parent}/../hrdf-check-duplicates'
+    if hrdf_day is None:
+        print(f'ERROR - cant compute HRDF day from {hrdf_db_path}')
+        sys.exit(1)
+    
+    hrdf_duplicates_tool_folder_path = Path(f'{script_path.parent}/../hrdf-check-duplicates')
     hrdf_duplicates_config = load_convenience_config(hrdf_duplicates_tool_folder_path)
 
     hrdf_duplicates_report_path: str = hrdf_duplicates_config['report_paths']['hrdf_duplicates_report_path']
