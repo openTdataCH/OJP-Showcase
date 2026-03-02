@@ -106,9 +106,13 @@ tables:
             - stop_lat REAL
             - location_type TEXT
             - parent_station TEXT
+            - platform_code TEXT
+            - original_stop_id TEXT
         indexes:
             - location_type
             - parent_station
+            - platform_code
+            - original_stop_id
 
     transfers:
         columns:
