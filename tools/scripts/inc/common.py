@@ -5,13 +5,13 @@ from pathlib import Path
 from .shared.inc.helpers.json_helpers import load_json_from_file
 from .shared.inc.models.ckan_data import CKAN_Data
 
-PYTHON_PATH = sys.executable
 ROW_DELIMITER_S = '='*70
 
 def fetch_latest_resource(script_path: Path, package_id: str):
     # fetch latest archive
+    python_path = f'{script_path.parent}/../ckan-utils/.venv/bin/python3'
     ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
-    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id}'
+    ckan_fetch_sh = f'{python_path} {ckan_fetch_cli_path} --package_id {package_id}'
     
     print('STEP 1 - FETCH LATEST ARCHIVE')
     print(ckan_fetch_sh, flush=True)

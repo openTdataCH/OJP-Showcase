@@ -46,8 +46,9 @@ def _db_import(app_config, script_path, hrdf_data_path):
         print(f'DB already present at path')
         print(f'=> {hrdf_db_path}')
     else:
+        python_path = f'{script_path.parent}/../hrdf-db-importer/.venv/bin/python3'
         hrdf_import_cli_path = f'{script_path.parent}/../hrdf-db-importer/hrdf_db_importer_cli.py'
-        hrdf_import_sh = f'{PYTHON_PATH} {hrdf_import_cli_path} --hrdf-folder-path {hrdf_data_path}'
+        hrdf_import_sh = f'{python_path} {hrdf_import_cli_path} --hrdf-folder-path {hrdf_data_path}'
         print()
         print(f'$ {hrdf_import_sh}', flush=True)
         print()
@@ -59,8 +60,9 @@ def _dbs_aggregate(script_path):
     print(f'')
     print(f'STEP 4 - BUILD HRDF DB catalog')
     
+    python_path = f'{script_path.parent}/../hrdf-db-importer/.venv/bin/python3'
     cli_path = f'{script_path.parent}/../hrdf-db-importer/cli_aggregate_dbs.py'
-    cli_sh = f'{PYTHON_PATH} {cli_path}'
+    cli_sh = f'{python_path} {cli_path}'
     print()
     print(f'$ {cli_sh}', flush=True)
     print()
@@ -84,8 +86,9 @@ def _hrdf_check_duplicates(script_path, hrdf_db_path):
         print(f'Report already present at path')
         print(f'=> {hrdf_duplicates_report_path}')
     else:
+        python_path = f'{script_path.parent}/../hrdf-check-duplicates/.venv/bin/python3'
         tool_cli_path = f'{hrdf_duplicates_tool_folder_path}/hrdf_check_duplicates_cli.py'
-        tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
+        tool_cli_sh = f"{python_path} {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
         print()
         print(f'$ {tool_cli_sh}', flush=True)
         print()
@@ -95,7 +98,7 @@ def _hrdf_build_aggregated_duplicates(script_path):
     print(f'')
     print(f'STEP 6 - BUILD HRDF CSV duplicates report')
 
-    hrdf_duplicates_tool_folder_path = f'{script_path.parent}/../hrdf-check-duplicates'
+    hrdf_duplicates_tool_folder_path = Path(f'{script_path.parent}/../hrdf-check-duplicates')
     hrdf_duplicates_config = load_convenience_config(hrdf_duplicates_tool_folder_path)
 
     report_csv_all_path = hrdf_duplicates_config['report_paths']['consolidate_hrdf_duplicates_report_path']
@@ -111,8 +114,9 @@ def _hrdf_build_aggregated_duplicates(script_path):
             run_cli = False
 
     if run_cli:
+        python_path = f'{script_path.parent}/../hrdf-check-duplicates/.venv/bin/python3'
         tool_cli_path = f'{hrdf_duplicates_tool_folder_path}/hrdf_build_consolidated_report_cli.py'
-        tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path}"
+        tool_cli_sh = f"{python_path} {tool_cli_path}"
         print()
         print(f'$ {tool_cli_sh}', flush=True)
         print()
@@ -130,8 +134,9 @@ def _hrdf_generate_lookups(script_path, hrdf_db_path):
 
     # No need to do extra checks for the file existance because the generation is fast
 
+    python_path = f'{script_path.parent}/../hrdf-db-importer/.venv/bin/python3'
     tool_cli_path = f'{tool_cli_folder_path}/hrdf_db_lookups_generator_cli.py'
-    tool_cli_sh = f"{PYTHON_PATH} {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
+    tool_cli_sh = f"{python_path} {tool_cli_path} \\\n  --hrdf-db-path {hrdf_db_path}"
     print()
     print(f'$ {tool_cli_sh}', flush=True)
     print()

@@ -43,8 +43,9 @@ def _db_import(app_config, script_path, gtfs_data_path):
         print(f'DB already present at path')
         print(f'=> {gtfs_db_path}')
     else:
+        python_path = f'{script_path.parent}/../gtfs-static-db-importer/.venv/bin/python3'
         import_cli_path = f'{script_path.parent}/../gtfs-static-db-importer/gtfs_db_importer_cli.py'
-        import_sh = f'{PYTHON_PATH} {import_cli_path} --gtfs-folder-path {gtfs_data_path}'
+        import_sh = f'{python_path} {import_cli_path} --gtfs-folder-path {gtfs_data_path}'
         print()
         print(f'$ {import_sh}', flush=True)
         print()
@@ -56,8 +57,9 @@ def _dbs_aggregate(script_path):
     print(f'')
     print(f'STEP 4 - BUILD GTFS DB catalog')
     
+    python_path = f'{script_path.parent}/../gtfs-static-db-importer/.venv/bin/python3'
     cli_path = f'{script_path.parent}/../gtfs-static-db-importer/cli_aggregate_dbs.py'
-    cli_sh = f'{PYTHON_PATH} {cli_path}'
+    cli_sh = f'{python_path} {cli_path}'
     print()
     print(f'$ {cli_sh}', flush=True)
     print()
