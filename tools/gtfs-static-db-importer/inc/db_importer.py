@@ -153,7 +153,6 @@ class GTFS_DB_Importer:
         MAX_DAYS_NO = 366
 
         today_date = datetime.datetime.combine(datetime.datetime.today(), datetime.datetime.min.time())
-        datetime.datetime.today()
 
         today_start_date_diff = (today_date - calendar_start_date).days
         if today_start_date_diff > MAX_DAYS_NO:
