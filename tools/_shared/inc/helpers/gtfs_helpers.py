@@ -4,7 +4,15 @@ import datetime
 
 from pathlib import Path
 
-from typing import Union
+from typing import List, Optional, TypedDict, Union
+
+class StopTimeWithSeconds(TypedDict):
+    sql_row_id: int
+    stop_id: str
+    arrival_time: Optional[str]
+    departure_time: Optional[str]
+    arrival_seconds: Optional[int]
+    departure_seconds: Optional[int]
 
 def compute_gtfs_day_from_resource_path(resource_path: Path):
     dt_matches = _compute_gtfs_dt_matches_from_resource_path(resource_path)
