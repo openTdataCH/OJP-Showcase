@@ -22,7 +22,7 @@ from .models.gtfs_static_db_catalog import GTFS_Static_Catalog_Report
 
 class AtlasLookupLinesController:
     def __init__(self, app_path: Path):
-        config_path = f'{app_path}/config/config.yml'
+        config_path = Path(f'{app_path}/config/config.yml')
         self.app_config = load_yaml_config(config_path, app_path=app_path)
         
         self.map_sql: dict[str, str] = {}
@@ -34,13 +34,14 @@ class AtlasLookupLinesController:
         gtfs_dbs_catalog = GTFS_Static_Catalog_Report.from_json(gtfs_dbs_catalog_json)
         
         gtfs_db_item = gtfs_dbs_catalog.compute_latest_item()
-        if gtfs_db_item is None:
+        if (gtfs_db_item is None) or (gtfs_db_item.db_relative_path is None):
             print('ERROR - cant read latest item from GTFS catalog')
             print(gtfs_dbs_catalog_path)
             sys.exit(1)
         
-        gtfs_db_path: str = self.app_config['resource_paths']['gtfs_db_path']
-        gtfs_db_path = gtfs_db_path.replace('[GTFS_DB_FILENAME]', gtfs_db_item.db_relative_path)
+        gtfs_db_path_s: str = self.app_config['resource_paths']['gtfs_db_path']
+        gtfs_db_path_s = gtfs_db_path_s.replace('[GTFS_DB_FILENAME]', gtfs_db_item.db_relative_path)
+        gtfs_db_path = Path(gtfs_db_path_s)
         
         self.db_engine = SQLiteDBEngine(gtfs_db_path)
         self.map_stops: dict[str, str] = self.db_engine.query_table('stops', map_by_field='stop_id')
@@ -75,7 +76,7 @@ class AtlasLookupLinesController:
             match_status = 'ERROR_NO_OEV_FILE'
             
             if oev_id_file is not None:
-                file_stop_names = self._extract_stop_names(oev_id_file)
+                file_stop_names = self._extract_stop_names(f'{oev_id_file}')
                 oev_stop_names = ' - '.join(file_stop_names)
                 
                 db_trip = self._match_gtfs_trip(file_stop_names)
@@ -117,7 +118,7 @@ class AtlasLookupLinesController:
     def _load_atlas_oev_report(self):
         map_atlas_oev_report_json = {}
         
-        report_path: str = self.app_config['oev_ch']['atlas_oev_report_json_path']
+        report_path = Path(self.app_config['oev_ch']['atlas_oev_report_json_path'])
         if not os.path.isfile(report_path):
             return map_atlas_oev_report_json
         
@@ -180,7 +181,7 @@ class AtlasLookupLinesController:
         if os.path.isfile(oev_id_file_path):
             return oev_id_file_path
         
-        file_error_path = f'{oev_id_file_path}.error.json'
+        file_error_path = Path(f'{oev_id_file_path}.error.json')
         
         has_file = False
         if not os.path.isfile(file_error_path):
