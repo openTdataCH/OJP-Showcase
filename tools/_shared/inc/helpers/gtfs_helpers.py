@@ -110,3 +110,48 @@ def gtfs_time_to_seconds(t: Union[str, None]) -> Union[int, None]:
     h, m, s = map(int, parts)
     
     return h * 3600 + m * 60 + s
+
+def extract_stop_times_data_from_s(value_s: str) -> List[StopTimeWithSeconds]:
+    stop_time_rows: List[StopTimeWithSeconds] = []
+
+    value_rows = value_s.split(' -- ')
+    for value_row in value_rows:
+        stop_time_parts = value_row.split('|')
+
+        db_rowid = int(stop_time_parts[0])
+        stop_id = stop_time_parts[1]
+        
+        arrival_time = stop_time_parts[2]
+        if arrival_time == '':
+            arrival_time = None
+        departure_time = stop_time_parts[3]
+        if departure_time == '':
+            departure_time = None
+
+        stop_time_row = StopTimeWithSeconds(
+            sql_row_id=db_rowid,
+            stop_id=stop_id,
+            arrival_time=arrival_time,
+            departure_time=departure_time,
+            
+            arrival_seconds=None,
+            departure_seconds=None,
+        )
+
+        if arrival_time is not None:
+            stop_time_row['arrival_seconds'] = convert_datetime_to_day_minutes(arrival_time) * 60
+        if departure_time is not None:
+            stop_time_row['departure_seconds'] = convert_datetime_to_day_minutes(departure_time) * 60
+
+        stop_time_rows.append(stop_time_row)
+
+    return stop_time_rows
+
+def seconds_to_hhmmss(seconds_no: int) -> str:
+    hours = seconds_no // 3600
+    minutes = (seconds_no % 3600) // 60
+    secs = seconds_no % 60
+
+    hhmmss = f'{hours:02d}:{minutes:02d}:{secs:02d}'
+    
+    return hhmmss
