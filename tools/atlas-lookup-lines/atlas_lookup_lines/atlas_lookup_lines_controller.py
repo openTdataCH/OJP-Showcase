@@ -44,7 +44,7 @@ class AtlasLookupLinesController:
         gtfs_db_path = Path(gtfs_db_path_s)
         
         self.db_engine = SQLiteDBEngine(gtfs_db_path)
-        self.map_stops: dict[str, str] = self.db_engine.query_table('stops', map_by_field='stop_id')
+        self.map_stops = self.db_engine.query_table_map_by_field('stops', map_by_field='stop_id')
         
     def process(self):
         map_atlas_oev_report_json = self._load_atlas_oev_report()
