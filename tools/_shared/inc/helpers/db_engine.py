@@ -4,7 +4,7 @@ import sqlite3
 
 from pathlib import Path
 
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 class SQLiteDBEngine:
     db_path: Path
@@ -59,13 +59,7 @@ class SQLiteDBEngine:
             
         return column_names
     
-    def query_table(self, table_name: str, map_by_field: Optional[str] = None) -> Union[dict[str, Any], list[Any]]:
-        sql = f'SELECT * FROM {table_name}'
-        query_results = self.query(sql, map_by_field)
-        
-        return query_results
-        
-    def query(self, sql: str, map_by_field: Optional[str] = None) -> Union[dict[str, Any], list[Any]]:
+    def _query(self, sql: str, map_by_field: Optional[str] = None) -> Union[dict[str, Any], list[Any]]:
         row_items = []
         map_row_items = {}
 
@@ -89,7 +83,25 @@ class SQLiteDBEngine:
             return map_row_items
         else:
             return row_items
-        
+
+    def query(self, sql: str) -> list[Any]:
+        row_items = cast(list[Any], self._query(sql))
+        return row_items
+    
+    def query_map_by_field(self, sql: str, map_by_field: str) -> dict[str, Any]:
+        map_row_items = cast(dict[str, Any], self._query(sql, map_by_field))
+        return map_row_items
+    
+    def query_table(self, table_name: str) -> list[Any]:
+        sql = f'SELECT * FROM {table_name}'
+        query_results = cast(list[Any], self._query(sql))
+        return query_results
+    
+    def query_table_map_by_field(self, table_name: str, map_by_field: str) -> dict[str, Any]:
+        sql = f'SELECT * FROM {table_name}'
+        query_results = cast(dict[str, Any], self._query(sql, map_by_field))
+        return query_results
+    
     def count_rows_table(self, table_name: str, where_clause = None):
         sql = f"SELECT COUNT(1) AS cno FROM {table_name} {where_clause}"
         return self._db_handle.cursor().execute(sql).fetchone()[0]
