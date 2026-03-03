@@ -303,9 +303,7 @@ class GTFS_DB_Importer:
         
         trips_column_names = fetch_column_names(self.db_handle, 'trips')
         new_trips_table_csv_file_path = Path(f'{self.db_tmp_path}/new_trips.csv')
-        new_trips_table_csv_file = open(new_trips_table_csv_file_path, 'w', encoding='utf-8')
-        new_trips_table_csv = csv.DictWriter(new_trips_table_csv_file, trips_column_names)
-        new_trips_table_csv.writeheader()
+        new_trips_table_csv_updater = CSV_Updater(new_trips_table_csv_file_path, trips_column_names)
 
         rows_no = count_rows_table(self.db_handle, 'trips')
         log_message(f'... found {rows_no} rows')
@@ -406,13 +404,13 @@ class GTFS_DB_Importer:
             trip_new_row['stop_times_s'] = ' -- '.join(trip_stop_times_values)
             trip_new_row['stop_times_count'] = len(stop_times)
 
-            new_trips_table_csv.writerow(trip_new_row)
+            new_trips_table_csv_updater.prepare_row(trip_new_row)
 
             row_id += 1
         # loop trips SQL
         db_cursor.close()
 
-        new_trips_table_csv_file.close()
+        new_trips_table_csv_updater.close()
 
         print('')
         log_message(f"... INSERT new trips ...")
@@ -474,14 +472,12 @@ class GTFS_DB_Importer:
         
         routes_column_names = fetch_column_names(self.db_handle, 'routes')
         new_routes_table_csv_file_path = Path(f'{self.db_tmp_path}/new_routes.csv')
-        new_routes_table_csv_file = open(new_routes_table_csv_file_path, 'w', encoding='utf-8')
-        new_routes_table_csv = csv.DictWriter(new_routes_table_csv_file, routes_column_names)
-        new_routes_table_csv.writeheader()
+        new_routes_table_csv_updater = CSV_Updater(new_routes_table_csv_file_path, routes_column_names)
         
         for route_id, db_route in map_db_routes.items():
-            new_routes_table_csv.writerow(db_route)
+            new_routes_table_csv_updater.prepare_row(db_route)
         
-        new_routes_table_csv_file.close()
+        new_routes_table_csv_updater.close()
         
         print('')
         log_message(f"... INSERT new routes ...")
@@ -548,11 +544,8 @@ class GTFS_DB_Importer:
         db_cursor = self.db_handle.cursor()
 
         calendar_column_names = fetch_column_names(self.db_handle, 'calendar')
-
         calendar_table_csv_file_path = Path(f'{self.db_tmp_path}/calendar_update_from_calendar_dates.csv')
-        calendar_table_csv_file = open(calendar_table_csv_file_path, 'w', encoding='utf-8')
-        calendar_table_csv = csv.DictWriter(calendar_table_csv_file, calendar_column_names)
-        calendar_table_csv.writeheader()
+        calendar_table_csv_updater = CSV_Updater(calendar_table_csv_file_path, calendar_column_names)
 
         row_idx = 0
         for db_row in db_cursor.execute(sql):
@@ -575,7 +568,7 @@ class GTFS_DB_Importer:
         #end loop SQL
         db_cursor.close()
 
-        calendar_table_csv_file.close()
+        calendar_table_csv_updater.close()
 
         log_message(f'... found {row_idx} calendar entries')
 
