@@ -75,7 +75,11 @@ class GTFS_DB_Importer:
     def _remove_lock_file(self):
         os.remove(self.db_lock_path)
 
+    
     def _import_csv_tables(self):
+        '''
+        Batch TRUNCATE / INSERT csv rows from GTFS in db.
+        '''
         table_names = ['agency', 'calendar', 'calendar_dates', 'feed_info', 'frequencies', 'routes', 'shapes', 'stop_times', 'stops', 'transfers', 'trips']
 
         print('')
@@ -120,6 +124,11 @@ class GTFS_DB_Importer:
         print('')
 
     def _update_calendar(self):
+        '''
+        - if calendar.txt is missing
+            INSERT into calendar.txt DISTINCT rows from calendar_dates
+        - UPDATE calendar SET day_bits, start_date, end_date
+        '''
         log_message('START update calendar')
         
         rows_no = count_rows_table(self.db_handle, 'calendar')
@@ -286,6 +295,10 @@ class GTFS_DB_Importer:
                 day_bits_list[day_idx] = day_bit
 
     def _update_trips(self):
+        '''
+        - DROP trips
+        - batch INSERT trips with new columns (departure_ / arrival_ , stop_times_s)
+        '''
         log_message('START update trips/stop_times')
         
         trips_column_names = fetch_column_names(self.db_handle, 'trips')
@@ -425,6 +438,10 @@ class GTFS_DB_Importer:
     # _update_trips
     
     def _update_routes(self):
+        '''
+        - DROP routes
+        - batch INSERT routes with new columns (day_bits)
+        '''
         log_message('START update routes')
         
         sql_path = self.map_sql_queries['select_route_trips_calendar_day_bits']
@@ -480,6 +497,9 @@ class GTFS_DB_Importer:
         print('')
         
     def _update_routes_representative_trip(self):
+        '''
+        - UPDATE routes SET representative_trip_id
+        '''
         log_message(f"START UPDATE routes-trip (representative)")
         
         db_cursor = self.db_handle.cursor()
@@ -492,6 +512,9 @@ class GTFS_DB_Importer:
         print('')
         
     def _create_fts_routes(self):
+        '''
+        - CREATE fts_routes from SQL
+        '''
         log_message(f"START CREATE FTS routes ...")
         
         db_cursor = self.db_handle.cursor()
@@ -504,6 +527,9 @@ class GTFS_DB_Importer:
         print('')
 
     def _fill_calendar_from_calendar_dates(self):
+        '''
+        INSERT into calendar.txt DISTINCT rows from calendar_dates
+        '''
         log_message(f'START filling calendar from calendar_dates')
 
         calendar_dates_rows_no = count_rows_table(self.db_handle, 'calendar_dates')
