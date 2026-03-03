@@ -2,7 +2,7 @@ resource_paths:
   app_path: [APP_PATH]
   gtfs_dbs_catalog_path: "[APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json"
   gtfs_db_path: "[APP_PATH]/data/gtfs-static-dbs/[GTFS_DB_FILENAME]"
-  atlas_csv_path: "[APP_PATH]/data/actual_date_line_versions_LATEST.csv"
+  atlas_csv_path: "[APP_PATH]/data/opentransportdata.swiss/slnid-line-actual-date/actual-date-line_LATEST.csv"
 
 map_sql_paths:
   query_trip_stop_names: "[APP_PATH]/config/sql/query_trip_stop_names.sql"
