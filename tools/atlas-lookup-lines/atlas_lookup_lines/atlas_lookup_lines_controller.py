@@ -167,7 +167,8 @@ class AtlasLookupLinesController:
             # meta routes, ending in :K, ignore
             return None
         
-        oev_request_year = self.app_config['oev_ch']['request_year']
+        oev_request_year: str = self.app_config['oev_ch']['request_year']
+        oev_request_year = oev_request_year.replace('[YEAR]', datetime.now().strftime('%Y'))
 
         slnid_filename = slnid.replace(':', '__')
         oev_id_file_path_s: str = self.app_config['oev_ch']['oev_fahrplan_detail_page_path']
