@@ -69,7 +69,7 @@ def convert_datetime_to_day_minutes(datetime_s: str):
     day_minutes = datetime_hours * 60 + datetime_minutes
     return day_minutes
 
-def massage_datetime_to_hhmm(datetime_s: str):
+def massage_datetime_to_hhmm(datetime_s: Optional[str]) -> str:
     if not datetime_s:
         return ''
 
@@ -77,6 +77,7 @@ def massage_datetime_to_hhmm(datetime_s: str):
     datetime_minutes = datetime_s[3:5]
 
     datetime_hhmm = f'{datetime_hours}:{datetime_minutes}'
+    
     return datetime_hhmm
 
 def compute_date_from_gtfs_db_filename(db_filename: str):
