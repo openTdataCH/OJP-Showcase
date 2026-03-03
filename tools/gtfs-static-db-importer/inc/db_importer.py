@@ -326,25 +326,8 @@ class GTFS_DB_Importer:
             if row_id % 200_000 == 0:
                 log_message(f'... parsed {row_id} rows')
 
-            stop_times_data = db_row['stop_times_data'].split(' -- ')
-
-            stop_times = []
-            for stop_time_data in stop_times_data:
-                stop_time_parts = stop_time_data.split('|')
-
-                db_rowid = int(stop_time_parts[0])
-                stop_id = stop_time_parts[1]
-                arrival_time = stop_time_parts[2]
-                departure_time = stop_time_parts[3]
-
-                stop_time_row = {
-                    'db_rowid': db_rowid,
-                    'stop_id': stop_id,
-                    'arrival_time': arrival_time,
-                    'departure_time': departure_time,
-                }
-
-                stop_times.append(stop_time_row)
+            stop_times_s = db_row['stop_times_data']
+            stop_times = extract_stop_times_data_from_s(stop_times_s)
                 
             trip_new_row = {}
             for column_name in trips_column_names:
@@ -376,7 +359,7 @@ class GTFS_DB_Importer:
                     stop_day_minutes_datetime_field = 'arrival_time'
                     trip_day_minutes_field = 'arrival_day_minutes'
 
-                db_rowid = stop_time['db_rowid']
+                db_rowid = stop_time['sql_row_id']
 
                 stop_times_row_dict = {
                     'table_rowid': db_rowid, 
@@ -385,6 +368,9 @@ class GTFS_DB_Importer:
 
                 stop_time[reset_time_field] = None
                 stop_day_minutes_datetime = stop_time[stop_day_minutes_datetime_field]
+                if stop_day_minutes_datetime is None:
+                    continue
+
                 stop_day_minutes = convert_datetime_to_day_minutes(stop_day_minutes_datetime)
 
                 trip_new_row[trip_day_minutes_field] = stop_day_minutes
