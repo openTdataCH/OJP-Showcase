@@ -1,6 +1,7 @@
 map_sql_queries:
   select_calendar_dates_group_by: "[APP_PATH]/inc/sql/select_calendar_dates_group_by.sql"
   select_stop_times_group_by: "[APP_PATH]/inc/sql/select_trips_group_by_stop_times.sql"
+  select_trips_group_by_stop_times_frequencies: "[APP_PATH]/inc/sql/select_trips_group_by_stop_times_frequencies.sql"
   update_stop_times_reset: "[APP_PATH]/inc/sql/update_stop_times_reset.sql"
   select_route_trips_calendar_day_bits: "[APP_PATH]/inc/sql/select_route_trips_calendar_day_bits.sql"
   create_fts_routes: "[APP_PATH]/inc/sql/create_fts_routes.sql"
