@@ -3,7 +3,7 @@ import * as OJP from 'ojp-sdk';
 
 const DATA_PATH = path.resolve('./data');
 
-export const ATLAS_LINE_CSV_PATH = (DATA_PATH + '/actual_date_line_versions_LATEST.csv');
+export const ATLAS_LINE_CSV_PATH = (DATA_PATH + '/opentransportdata.swiss/slnid-line-actual-date/actual-date-line_LATEST.csv');
 export const OJP_LIR_CACHE_PATH = (DATA_PATH + '/ojp_lir_cache.json');
 export const ATLAS_STOPS_GEOJSON_PATH = (DATA_PATH + '/atlas_stops.geojson');
 
