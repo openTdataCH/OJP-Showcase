@@ -290,7 +290,7 @@ class GTFS_HRDF_Compare_Controller:
                 if fplan_trip_id in map_agency_trips['now_fplan_trip_id']:
                     trip.pretty_print()
                     print("\n - vs PREV \n")
-                    prev_trip: HRDF_Trip_Variant = map_agency_trips['now_fplan_trip_id']
+                    prev_trip: HRDF_Trip_Variant = map_agency_trips['now_fplan_trip_id'][fplan_trip_id]
                     prev_trip.pretty_print()
                     print(f'ERROR - same FPLAN trip_id {fplan_trip_id} found')
                     sys.exit(1)
