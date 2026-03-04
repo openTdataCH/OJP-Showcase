@@ -7,7 +7,8 @@ Python tool that compares GTFS and HRDF datasets for a given day of operations
 ```
 $ bash bootstrap.sh 
 ```
-Usage:
+
+## Usage
 
 ```
 python3 gtfs_hrdf_compare_cli.py \
@@ -26,7 +27,7 @@ python3 gtfs_hrdf_compare_cli.py \
 
 Check [tools/gtfs-hrdf-compare/docs/gtfs-hrdf-analyse-v2.md](https://github.com/openTdataCH/showcases/blob/develop/tools/gtfs-hrdf-compare/docs/gtfs-hrdf-analyse-v2.md) for detailed analyse and methodology used.
 
-# Sample Output
+### Sample Output
 
 ```
 python3 gtfs_hrdf_compare_cli.py \
