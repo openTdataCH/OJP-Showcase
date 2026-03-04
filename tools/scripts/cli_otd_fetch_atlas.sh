@@ -14,6 +14,6 @@ ATLAS_LOOKUP_OEV_LOGFILE=$LOGS_BASEPATH/otd_lookup_oev_atlas-lines-$DATE_NOW.log
 $DIR/../atlas-lookup-lines/.venv/bin/python3 $DIR/../atlas-lookup-lines/cli_run_lookup_lines.py 2>&1 | tee $ATLAS_LOOKUP_OEV_LOGFILE
 symlink_latest $ATLAS_LOOKUP_OEV_LOGFILE
 
-# ATLAS_GEOCODE_LOGFILE=$LOGS_BASEPATH/otd_geocode_atlas-lines-$DATE_NOW.log
-# npm --prefix $DIR/../atlas-geocode-lines/ run process_node18 2>&1 | tee $ATLAS_GEOCODE_LOGFILE
-# symlink_latest $ATLAS_GEOCODE_LOGFILE
+ATLAS_GEOCODE_LOGFILE=$LOGS_BASEPATH/otd_geocode_atlas-lines-$DATE_NOW.log
+npm --prefix $DIR/../atlas-geocode-lines/ run process_node18 2>&1 | tee $ATLAS_GEOCODE_LOGFILE
+symlink_latest $ATLAS_GEOCODE_LOGFILE
