@@ -2,6 +2,11 @@
 
 Python tool that compares GTFS and HRDF datasets for a given day of operations
 
+## Install
+
+```
+$ bash bootstrap.sh 
+```
 Usage:
 
 ```
