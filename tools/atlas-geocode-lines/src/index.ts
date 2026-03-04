@@ -127,6 +127,39 @@ function wait(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function placeResultAsGeoJSON_Feature(placeResult: OJP_Types.PlaceResultSchema): Feature<Point> {
+  const coordinates = [placeResult.place.geoPosition.longitude, placeResult.place.geoPosition.latitude];
+
+  const feature: Feature<Point> = {
+    type: 'Feature',
+    properties: {
+
+    },
+    geometry: {
+      type: 'Point',
+      coordinates: coordinates,
+    }
+  };
+
+  if (feature.properties) {
+    feature.properties['stopPlace.locationName'] = placeResult.place.name.text;
+
+    const stopPlaceRef = placeResult.place.stopPlace?.stopPlaceRef ?? null;
+    if (stopPlaceRef === null) {
+      const stopPointRef = placeResult.place.stopPoint?.stopPointRef ?? null;
+      if (stopPointRef !== null) {
+        feature.properties['stopPlace.stopPlaceRef'] = stopPointRef;
+        feature.properties['stopPlace.stopPlaceName'] = placeResult.place.stopPoint?.stopPointName ?? '';  
+      }
+    } else {
+      feature.properties['stopPlace.stopPlaceRef'] = stopPlaceRef;
+      feature.properties['stopPlace.stopPlaceName'] = placeResult.place.stopPlace?.stopPlaceName?.text ?? '';
+    }
+  }
+
+  return feature;
+}
+
 async function geocodeStopNames(atlasLookupStopNames: AtlasLookupStopName[]) {
   const lookupOJP_Cache = readOrCreateJSONFile(OJP_LIR_CACHE_PATH);
 
@@ -134,6 +167,8 @@ async function geocodeStopNames(atlasLookupStopNames: AtlasLookupStopName[]) {
   atlasLookupStopNames.forEach(atlasLookupStopName => {
     stopNamesSet.add(atlasLookupStopName.name);
   });
+
+  const ojpSDK = OJP.SDK.create('atlas-geocode-lines', OJP_STAGE_CONFIG, 'en');
 
   let stopNameIdx = 0;
   for (const stopName of stopNamesSet) {
@@ -146,17 +181,15 @@ async function geocodeStopNames(atlasLookupStopNames: AtlasLookupStopName[]) {
 
     console.log('- ' + stopNameIdx + ': ' + stopName + ' OJP...');
 
-    const lirRequest = OJP.LocationInformationRequest.initWithLocationName(OJP_STAGE_CONFIG, 'de', stopName, []);
-    
-    const lirResponse = await lirRequest.fetchResponse();
-    if (lirResponse.message !== 'LocationInformation.DONE') {
+    const lirRequest = OJP.LocationInformationRequest.initWithLocationName(stopName, ['stop'], 10);
+    const lirResponse = await lirRequest.fetchResponse(ojpSDK);
+    if (!lirResponse.ok) {
       console.log('whoops ERROR: 429?');
       console.log();
-      process.exit(1);
+      process.exit(1);      
     }
 
-    let features = lirResponse.locations.map(el => el.asGeoJSONFeature());
-    features = features.filter(el => el !== null);
+    const features = lirResponse.value.placeResult.map(el => placeResultAsGeoJSON_Feature(el));
 
     console.log('  - found ' + features.length);
 

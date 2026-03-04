@@ -7,10 +7,9 @@ export const ATLAS_LINE_CSV_PATH = (DATA_PATH + '/actual_date_line_versions_LATE
 export const OJP_LIR_CACHE_PATH = (DATA_PATH + '/ojp_lir_cache.json');
 export const ATLAS_STOPS_GEOJSON_PATH = (DATA_PATH + '/atlas_stops.geojson');
 
-export const OJP_STAGE_CONFIG: OJP.StageConfig = {
-  key: 'someKey',
-  apiEndpoint: OJP.DEFAULT_STAGE.apiEndpoint,
-  authBearerKey: OJP.DEFAULT_STAGE.authBearerKey, // override with another key
+export const OJP_STAGE_CONFIG: OJP.HTTPConfig = {
+  url: 'https://api.opentransportdata.swiss/ojp20',
+  authToken: '', // override with another key
 };
 
 // sleep interval between 2 OJP requests, the default key is limited to 50requests / minute
