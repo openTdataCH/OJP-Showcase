@@ -58,7 +58,7 @@ class GTFS_DB:
         if sql is None:
             sql = f'SELECT * FROM {table_name}'
             
-        res_json = self._db.query(sql, map_by_field=map_by_field)
+        res_json = self._db.query_map_by_field(sql, map_by_field=map_by_field)
         
         if res_cache_path is not None:
             export_json_to_file(res_json, res_cache_path, pretty_print=True)
