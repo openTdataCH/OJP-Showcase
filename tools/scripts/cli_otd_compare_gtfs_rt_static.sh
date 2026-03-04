@@ -5,19 +5,21 @@ set -Eeuo pipefail
 DATE_NOW=$(date +"%Y-%m-%d-%H%M")
 
 source $DIR/common.sh
-source $PYTHON_VENV_PATH/bin/activate
+
+TOOL_FOLDER_PATH=$DIR/../gtfs-rt-static-compare
+PYTHON_PATH=$TOOL_FOLDER_PATH/.venv/bin/python3
 
 LOGFILE=$LOGS_BASEPATH/otd_compare_gtfs_rt_static-$DATE_NOW.log
 touch "$LOGFILE"
 
 # '|| :' at end is to ignore failures
 echo "Step 1/2: running cli_compare_latest.py ..."
-python3 $DIR/../gtfs-rt-static-compare/cli_compare_latest.py >>"$LOGFILE" 2>>"$LOGFILE" || :
+$PYTHON_PATH $TOOL_FOLDER_PATH/cli_compare_latest.py >>"$LOGFILE" 2>>"$LOGFILE" || :
 echo ""
 
 status=0
 echo "Step 2/2: running cli_aggregate_monthly_reports_json.py ..."
-python3 $DIR/../gtfs-rt-static-compare/cli_aggregate_monthly_reports_json.py >>"$LOGFILE" 2>>"$LOGFILE" || status=$?
+$PYTHON_PATH $TOOL_FOLDER_PATH/cli_aggregate_monthly_reports_json.py >>"$LOGFILE" 2>>"$LOGFILE" || status=$?
 echo ""
 symlink_latest $LOGFILE
 
