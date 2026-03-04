@@ -8,7 +8,9 @@ Python tool that compares GTFS and HRDF datasets for a given day of operations
 $ bash bootstrap.sh 
 ```
 
-## Usage
+## Scripts
+
+Usage:
 
 ```
 python3 gtfs_hrdf_compare_cli.py \
