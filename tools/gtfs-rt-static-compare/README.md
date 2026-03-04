@@ -6,6 +6,12 @@ An `opentransportdata.swiss` API key is needed to run these tools. The key is st
 - see [docs/gtfs-rt-static-compare.md](./docs/gtfs-rt-static-compare.md) for the process documentation
 - see [CHANGELOG](./CHANGELOG.md) for latest changes
 
+## Install
+
+```
+$ bash bootstrap.sh 
+```
+
 ## Scripts
 
 ### cli_compare_latest.py
