@@ -3,6 +3,12 @@
 - CLI tools used to manipulate [Ist-Daten](https://archive.opentransportdata.swiss/actual_data_archive.htm) dataset
 - see [CHANGELOG](./CHANGELOG.md) for latest changes
 
+## Installation
+
+```
+$ bash bootstrap.sh 
+```
+
 ## Scripts
 
 ### cli_process_ist_daten.py
