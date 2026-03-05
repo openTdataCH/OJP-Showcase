@@ -25,24 +25,9 @@ csv_latest_data:
     symlink_latest_path: "[APP_PATH]/data/opentransportdata.swiss/[PACKAGE_ID]/[PREFIX]_LATEST.csv"
 
 data_paths:
-  ckan-utils-tmp: "[APP_PATH]/data/ckan-utils-tmp"
-
   opentransportdata: "[APP_PATH]/data/opentransportdata.swiss"
-
-  gtfs-db-lookups: "[APP_PATH]/data/gtfs-db-lookups"
-  gtfs-rt-snapshot: "[APP_PATH]/data/gtfs-rt-snapshot"
-  gtfs-rt-static-compare-report: "[APP_PATH]/data/gtfs-rt-static-compare-report"
-  gtfs-rt-static-compare-tmp: "[APP_PATH]/data/gtfs-rt-static-compare-tmp"
   gtfs-static-dbs: "[APP_PATH]/data/gtfs-static-dbs"
-  gtfs-query-db-cache: "[APP_PATH]/data/gtfs-query-db-cache"
-
-  ist-daten-archiv: "[APP_PATH]/data/ist-daten-archiv"
-  
-  hrdf-query-db-cache: "[APP_PATH]/data/hrdf-query-db-cache"
   hrdf-dbs: "[APP_PATH]/data/hrdf-dbs"
-  hrdf-db-lookups: "[APP_PATH]/data/hrdf-db-lookups"
-  hrdf-duplicates-reports: "[APP_PATH]/data/hrdf-duplicates-reports"
-  hrdf-duplicates-reports-csv: "[APP_PATH]/data/hrdf-duplicates-reports/hrdf-duplicates-reports-csv"
 
 resource_paths:
   ckan_metadata_path: "[APP_PATH]/data/ckan-utils-tmp/ckan_[PACKAGE_ID].json"
