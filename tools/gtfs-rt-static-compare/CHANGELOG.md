@@ -1,7 +1,7 @@
 # CHANGELOG gtfs-rt-static-compare/
 
 10.Mar 2026
-- use and adapt code to use latest OJP SDK
+- use individual Python dependencies per tool
 
 08.Feb 2025
 - adds compare info, check prev 10 measurements
