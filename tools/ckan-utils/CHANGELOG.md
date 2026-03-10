@@ -1,5 +1,8 @@
 # CHANGELOG ckan-utils
 
+10.March.2026
+- use individual Python dependencies per tool
+
 17.January.2024
 - make import more robust, rely on `package_id` of the datasets
 - use Python standard libs for fetching data and unzipping resources

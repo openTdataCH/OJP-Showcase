@@ -1,5 +1,10 @@
 # CHANGELOG gtfs-static-db-importer
 
+10.Mar 2026
+- use and adapt code to use latest OJP SDK
+- import also `feed_info`, `transfers`
+- parse `frequencies` and create stop_times, trips
+
 19.Jan 2025
 - adds `trips.stop_times_count` SQLite field + index needed by the [gtfs-query](https://github.com/openTdataCH/showcases/tree/develop/apps/gtfs-query) app
 
