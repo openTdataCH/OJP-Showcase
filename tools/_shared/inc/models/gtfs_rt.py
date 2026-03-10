@@ -25,6 +25,7 @@ class Header:
     gtfsRealtimeVersion: str
     incrementality: str
     timestamp: int
+    feedVersion: str
   
     @staticmethod
     def from_gtfs_rt_json(json_data: dict):
@@ -45,6 +46,12 @@ class Header:
             print('ERROR - Header.from_gtfs_rt_json - Timestamp cant be None')
             print(json_data)
             sys.exit()
+
+        feedVersion_value = read_safe_json_key(json_data, 'FeedVersion')
+        if feedVersion_value is None:
+            print('ERROR - Header.from_gtfs_rt_json - FeedVersion cant be None')
+            print(json_data)
+            sys.exit()
         
         # backend might return strings
         timestamp_value = int(timestamp_value)
@@ -53,6 +60,7 @@ class Header:
             gtfsRealtimeVersion=gtfsRealtimeVersion_value,
             incrementality=incrementality_value,
             timestamp=timestamp_value,
+            feedVersion=feedVersion_value,
         )
         
         return header

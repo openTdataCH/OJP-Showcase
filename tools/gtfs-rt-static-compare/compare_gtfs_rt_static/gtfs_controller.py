@@ -42,6 +42,8 @@ def normalize_if_overflow(t: str) -> tuple[str, bool]:
     else:
         return t, False
 class GTFS_Controller:
+    gtfs_dbs_report: GTFS_Static_Catalog_Report
+
     def __init__(self, app_path: Path):
         config_path = Path(f'{app_path}/config/config.yml')
         self.app_config = load_yaml_config(config_path, app_path=app_path)
@@ -87,8 +89,7 @@ class GTFS_Controller:
         print(f'saved to {gtfs_rt_snapshot_path_s}')
         print(header_separator_s)
         
-        gtfs_rt_dt = datetime.fromtimestamp(gtfs_rt_response.header.timestamp)
-        gtfs_catalog_item = self._compute_gtfs_db_catalog_item(gtfs_rt_dt)
+        gtfs_catalog_item = self.gtfs_dbs_report.lookup_by_feed_verson(gtfs_rt_response.header.feedVersion)
         if gtfs_catalog_item is None:
             print('WHOOPS - cant find a GTFS catalog item')
             sys.exit(1)

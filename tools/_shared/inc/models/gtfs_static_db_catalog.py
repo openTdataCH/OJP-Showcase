@@ -51,6 +51,22 @@ class GTFS_Static_Catalog_Report:
         
         return None
     
+    def lookup_by_feed_verson(self, feed_version: str) -> Optional[GTFS_Static_Catalog_Item]:
+        if len(feed_version) != 8:
+            raise ValueError(f'Invalid value for feed_version: =={feed_version}==')
+        
+        item_day = f'{feed_version[0:4]}-{feed_version[4:6]}-{feed_version[6:8]}'
+        
+        for item in self.items:
+            if item.db_relative_path is None:
+                continue
+
+            if item.gtfs_day == item_day:
+                return item
+            #
+        # loop items
+
+        return None
     def compute_item_for_report(self, report_ymdh: str):
         report_ymd = report_ymdh[0:10]
         report_h_f = report_ymdh[11:13]
