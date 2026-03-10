@@ -89,8 +89,7 @@ class GTFS_Controller:
         print(f'saved to {gtfs_rt_snapshot_path_s}')
         print(header_separator_s)
         
-        gtfs_rt_dt = datetime.fromtimestamp(gtfs_rt_response.header.timestamp)
-        gtfs_catalog_item = self._compute_gtfs_db_catalog_item(gtfs_rt_dt)
+        gtfs_catalog_item = self.gtfs_dbs_report.lookup_by_feed_verson(gtfs_rt_response.header.feedVersion)
         if gtfs_catalog_item is None:
             print('WHOOPS - cant find a GTFS catalog item')
             sys.exit(1)
