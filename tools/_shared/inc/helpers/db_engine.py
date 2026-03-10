@@ -4,9 +4,12 @@ import sqlite3
 
 from pathlib import Path
 
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 class SQLiteDBEngine:
+    db_path: Path
+    _db_handle: sqlite3.Connection
+
     def __init__(self, db_path: Path, is_read_only = True):
         if isinstance(db_path, str):
             db_path = Path(db_path)
@@ -56,13 +59,7 @@ class SQLiteDBEngine:
             
         return column_names
     
-    def query_table(self, table_name: str, map_by_field: Optional[str] = None) -> Union[dict[str, Any], list[Any]]:
-        sql = f'SELECT * FROM {table_name}'
-        query_results = self.query(sql, map_by_field)
-        
-        return query_results
-        
-    def query(self, sql: str, map_by_field: Optional[str] = None) -> Union[dict[str, Any], list[Any]]:
+    def _query(self, sql: str, map_by_field: Optional[str] = None) -> Union[dict[str, Any], list[Any]]:
         row_items = []
         map_row_items = {}
 
@@ -86,7 +83,48 @@ class SQLiteDBEngine:
             return map_row_items
         else:
             return row_items
-        
+
+    def query(self, sql: str) -> list[Any]:
+        row_items = cast(list[Any], self._query(sql))
+        return row_items
+    
+    def query_map_by_field(self, sql: str, map_by_field: str) -> dict[str, Any]:
+        map_row_items = cast(dict[str, Any], self._query(sql, map_by_field))
+        return map_row_items
+    
+    def query_table(self, table_name: str) -> list[Any]:
+        sql = f'SELECT * FROM {table_name}'
+        query_results = cast(list[Any], self._query(sql))
+        return query_results
+    
+    def query_table_map_by_field(self, table_name: str, map_by_field: str) -> dict[str, Any]:
+        sql = f'SELECT * FROM {table_name}'
+        query_results = cast(dict[str, Any], self._query(sql, map_by_field))
+        return query_results
+    
     def count_rows_table(self, table_name: str, where_clause = None):
         sql = f"SELECT COUNT(1) AS cno FROM {table_name} {where_clause}"
         return self._db_handle.cursor().execute(sql).fetchone()[0]
+    
+    def run_sql(self, sql: str):
+        self._db_handle.execute(sql)
+        self._db_handle.commit()
+    
+    def drop_table(self, table_name: str):
+        sql = f'DROP TABLE IF EXISTS {table_name}'
+        self.run_sql(sql)
+
+    def drop_and_recreate_table(self, table_name: str, table_config: Any):
+        self.drop_table(table_name)
+
+        column_defs = []
+        for column_def in table_config['columns']:
+            column_defs.append(column_def)
+
+        column_defs_s = ",".join(column_defs)
+        sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({column_defs_s});"
+        self.run_sql(sql)
+
+    def get_cursor(self) -> sqlite3.Cursor: 
+        cursor = self._db_handle.cursor()
+        return cursor

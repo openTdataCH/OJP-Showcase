@@ -1,17 +1,18 @@
 import os, sys
 
 from pathlib import Path
-import shutil
 
+import shutil
 import math
 import yaml
-import csv
 
 import calendar, datetime
 
+from inc.shared.inc.helpers.csv_updater import CSV_Updater
+
 from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
 from .shared.inc.helpers.db_table_csv_updater import DB_Table_CSV_Updater
-from .shared.inc.helpers.gtfs_helpers import convert_datetime_to_day_minutes, massage_datetime_to_hhmm
+from .shared.inc.helpers.gtfs_helpers import convert_datetime_to_day_minutes, extract_stop_times_data_from_s, massage_datetime_to_hhmm, seconds_to_hhmmss
 from .shared.inc.helpers.log_helpers import log_message
 from .shared.inc.helpers.db_helpers import fetch_column_names, count_rows_table, load_sql_from_file, connect_db, table_select_rows
 
@@ -43,6 +44,7 @@ class GTFS_DB_Importer:
         self._import_csv_tables()
         self._update_calendar()
         self._update_trips()
+        self._update_frequencies()
         self._update_routes()
         self._update_routes_representative_trip()
         self._create_fts_routes()
@@ -73,8 +75,12 @@ class GTFS_DB_Importer:
     def _remove_lock_file(self):
         os.remove(self.db_lock_path)
 
+    
     def _import_csv_tables(self):
-        table_names = ['agency', 'calendar', 'calendar_dates', 'routes', 'shapes', 'stop_times', 'stops', 'trips']
+        '''
+        Batch TRUNCATE / INSERT csv rows from GTFS in db.
+        '''
+        table_names = ['agency', 'calendar', 'calendar_dates', 'feed_info', 'frequencies', 'routes', 'shapes', 'stop_times', 'stops', 'transfers', 'trips']
 
         print('')
         log_message(f'START BATCH IMPORT')
@@ -118,6 +124,11 @@ class GTFS_DB_Importer:
         print('')
 
     def _update_calendar(self):
+        '''
+        - if calendar.txt is missing
+            INSERT into calendar.txt DISTINCT rows from calendar_dates
+        - UPDATE calendar SET day_bits, start_date, end_date
+        '''
         log_message('START update calendar')
         
         rows_no = count_rows_table(self.db_handle, 'calendar')
@@ -142,7 +153,6 @@ class GTFS_DB_Importer:
         MAX_DAYS_NO = 366
 
         today_date = datetime.datetime.combine(datetime.datetime.today(), datetime.datetime.min.time())
-        datetime.datetime.today()
 
         today_start_date_diff = (today_date - calendar_start_date).days
         if today_start_date_diff > MAX_DAYS_NO:
@@ -284,13 +294,15 @@ class GTFS_DB_Importer:
                 day_bits_list[day_idx] = day_bit
 
     def _update_trips(self):
+        '''
+        - DROP trips
+        - batch INSERT trips with new columns (departure_ / arrival_ , stop_times_s)
+        '''
         log_message('START update trips/stop_times')
         
         trips_column_names = fetch_column_names(self.db_handle, 'trips')
         new_trips_table_csv_file_path = Path(f'{self.db_tmp_path}/new_trips.csv')
-        new_trips_table_csv_file = open(new_trips_table_csv_file_path, 'w', encoding='utf-8')
-        new_trips_table_csv = csv.DictWriter(new_trips_table_csv_file, trips_column_names)
-        new_trips_table_csv.writeheader()
+        new_trips_table_csv_updater = CSV_Updater(new_trips_table_csv_file_path, trips_column_names)
 
         rows_no = count_rows_table(self.db_handle, 'trips')
         log_message(f'... found {rows_no} rows')
@@ -314,25 +326,8 @@ class GTFS_DB_Importer:
             if row_id % 200_000 == 0:
                 log_message(f'... parsed {row_id} rows')
 
-            stop_times_data = db_row['stop_times_data'].split(' -- ')
-
-            stop_times = []
-            for stop_time_data in stop_times_data:
-                stop_time_parts = stop_time_data.split('|')
-
-                db_rowid = int(stop_time_parts[0])
-                stop_id = stop_time_parts[1]
-                arrival_time = stop_time_parts[2]
-                departure_time = stop_time_parts[3]
-
-                stop_time_row = {
-                    'db_rowid': db_rowid,
-                    'stop_id': stop_id,
-                    'arrival_time': arrival_time,
-                    'departure_time': departure_time,
-                }
-
-                stop_times.append(stop_time_row)
+            stop_times_s = db_row['stop_times_data']
+            stop_times = extract_stop_times_data_from_s(stop_times_s)
                 
             trip_new_row = {}
             for column_name in trips_column_names:
@@ -364,7 +359,7 @@ class GTFS_DB_Importer:
                     stop_day_minutes_datetime_field = 'arrival_time'
                     trip_day_minutes_field = 'arrival_day_minutes'
 
-                db_rowid = stop_time['db_rowid']
+                db_rowid = stop_time['sql_row_id']
 
                 stop_times_row_dict = {
                     'table_rowid': db_rowid, 
@@ -373,6 +368,9 @@ class GTFS_DB_Importer:
 
                 stop_time[reset_time_field] = None
                 stop_day_minutes_datetime = stop_time[stop_day_minutes_datetime_field]
+                if stop_day_minutes_datetime is None:
+                    continue
+
                 stop_day_minutes = convert_datetime_to_day_minutes(stop_day_minutes_datetime)
 
                 trip_new_row[trip_day_minutes_field] = stop_day_minutes
@@ -391,13 +389,13 @@ class GTFS_DB_Importer:
             trip_new_row['stop_times_s'] = ' -- '.join(trip_stop_times_values)
             trip_new_row['stop_times_count'] = len(stop_times)
 
-            new_trips_table_csv.writerow(trip_new_row)
+            new_trips_table_csv_updater.prepare_row(trip_new_row)
 
             row_id += 1
         # loop trips SQL
         db_cursor.close()
 
-        new_trips_table_csv_file.close()
+        new_trips_table_csv_updater.close()
 
         print('')
         log_message(f"... INSERT new trips ...")
@@ -423,6 +421,10 @@ class GTFS_DB_Importer:
     # _update_trips
     
     def _update_routes(self):
+        '''
+        - DROP routes
+        - batch INSERT routes with new columns (day_bits)
+        '''
         log_message('START update routes')
         
         sql_path = self.map_sql_queries['select_route_trips_calendar_day_bits']
@@ -455,14 +457,12 @@ class GTFS_DB_Importer:
         
         routes_column_names = fetch_column_names(self.db_handle, 'routes')
         new_routes_table_csv_file_path = Path(f'{self.db_tmp_path}/new_routes.csv')
-        new_routes_table_csv_file = open(new_routes_table_csv_file_path, 'w', encoding='utf-8')
-        new_routes_table_csv = csv.DictWriter(new_routes_table_csv_file, routes_column_names)
-        new_routes_table_csv.writeheader()
+        new_routes_table_csv_updater = CSV_Updater(new_routes_table_csv_file_path, routes_column_names)
         
         for route_id, db_route in map_db_routes.items():
-            new_routes_table_csv.writerow(db_route)
+            new_routes_table_csv_updater.prepare_row(db_route)
         
-        new_routes_table_csv_file.close()
+        new_routes_table_csv_updater.close()
         
         print('')
         log_message(f"... INSERT new routes ...")
@@ -478,6 +478,9 @@ class GTFS_DB_Importer:
         print('')
         
     def _update_routes_representative_trip(self):
+        '''
+        - UPDATE routes SET representative_trip_id
+        '''
         log_message(f"START UPDATE routes-trip (representative)")
         
         db_cursor = self.db_handle.cursor()
@@ -490,6 +493,9 @@ class GTFS_DB_Importer:
         print('')
         
     def _create_fts_routes(self):
+        '''
+        - CREATE fts_routes from SQL
+        '''
         log_message(f"START CREATE FTS routes ...")
         
         db_cursor = self.db_handle.cursor()
@@ -502,6 +508,9 @@ class GTFS_DB_Importer:
         print('')
 
     def _fill_calendar_from_calendar_dates(self):
+        '''
+        INSERT into calendar.txt DISTINCT rows from calendar_dates
+        '''
         log_message(f'START filling calendar from calendar_dates')
 
         calendar_dates_rows_no = count_rows_table(self.db_handle, 'calendar_dates')
@@ -520,11 +529,8 @@ class GTFS_DB_Importer:
         db_cursor = self.db_handle.cursor()
 
         calendar_column_names = fetch_column_names(self.db_handle, 'calendar')
-
         calendar_table_csv_file_path = Path(f'{self.db_tmp_path}/calendar_update_from_calendar_dates.csv')
-        calendar_table_csv_file = open(calendar_table_csv_file_path, 'w', encoding='utf-8')
-        calendar_table_csv = csv.DictWriter(calendar_table_csv_file, calendar_column_names)
-        calendar_table_csv.writeheader()
+        calendar_table_csv_updater = CSV_Updater(calendar_table_csv_file_path, calendar_column_names)
 
         row_idx = 0
         for db_row in db_cursor.execute(sql):
@@ -547,7 +553,7 @@ class GTFS_DB_Importer:
         #end loop SQL
         db_cursor.close()
 
-        calendar_table_csv_file.close()
+        calendar_table_csv_updater.close()
 
         log_message(f'... found {row_idx} calendar entries')
 
@@ -568,3 +574,137 @@ class GTFS_DB_Importer:
     def _cleanup(self):
         log_message(f'Remove temp folder {self.db_tmp_path}')
         shutil.rmtree(self.db_tmp_path)
+
+    def _update_frequencies(self):
+        '''
+        INSERT into trips, stop_times from frequencies.txt
+        '''
+        log_message(f'START parsing frequencies...')
+
+        trips_column_names = fetch_column_names(self.db_handle, 'trips')
+        trips_frequencies_table_csv_file_path = Path(f'{self.db_tmp_path}/trips_frequencies.csv')
+        trips_frequencies_csv_updater = CSV_Updater(trips_frequencies_table_csv_file_path, trips_column_names)
+
+        stop_times_column_names = fetch_column_names(self.db_handle, 'stop_times')
+        stop_times_frequencies_table_csv_file_path = Path(f'{self.db_tmp_path}/stop_times_frequencies.csv')
+        stop_times_frequencies_table_csv_updater = CSV_Updater(stop_times_frequencies_table_csv_file_path, stop_times_column_names)
+
+        sql_path = self.map_sql_queries['select_trips_group_by_stop_times_frequencies']
+        sql = load_sql_from_file(sql_path)
+
+        log_message(f"... running select_stop_times_group_by + frequencies SQL")
+
+        db_cursor = self.db_handle.cursor()
+        row_id = 1
+        for db_row in db_cursor.execute(sql):
+            if row_id % 1_000 == 0:
+                log_message(f'... parsed {row_id} rows')
+
+            start_seconds = convert_datetime_to_day_minutes(db_row['start_time']) * 60
+            headway_seconds = db_row['headway_secs']
+            
+            current_seconds = start_seconds + headway_seconds
+            end_seconds = convert_datetime_to_day_minutes(db_row['end_time']) * 60
+
+            stop_times_data_s = db_row['stop_times_data']
+            stop_times_data = extract_stop_times_data_from_s(stop_times_data_s)
+
+            original_trip_id = db_row['trip_id']
+            
+            freq_idx = 1
+            while current_seconds <= end_seconds:
+                delta_seconds = current_seconds - start_seconds
+
+                trip_id = f'{original_trip_id}.freq.{freq_idx}'
+                stop_times_s_parts = []
+
+                for stop_idx, stop_time_data in enumerate(stop_times_data):
+                    stop_id = stop_time_data['stop_id']
+
+                    new_stop_time = {
+                        'trip_id': trip_id,
+                        'arrival_time': None,
+                        'departure_time': None,
+                        'stop_id': stop_id,
+                        'stop_sequence': stop_idx + 1,
+                    }
+
+                    stop_times_s_part = [
+                        stop_id,
+                    ]
+
+                    arrival_seconds = stop_time_data['arrival_seconds']
+                    if arrival_seconds is None:
+                        stop_times_s_part.append('')
+                    else:
+                        new_stop_time['arrival_time'] = seconds_to_hhmmss(arrival_seconds + delta_seconds)
+                        arrival_time_m = new_stop_time['arrival_time'][0:5]
+                        stop_times_s_part.append(arrival_time_m)
+                    
+                    departure_seconds = stop_time_data['departure_seconds']
+                    if departure_seconds is None:
+                        stop_times_s_part.append('')
+                    else:
+                        new_stop_time['departure_time'] = seconds_to_hhmmss(departure_seconds + delta_seconds)
+                        departure_time_m = new_stop_time['departure_time'][0:5]
+                        stop_times_s_part.append(departure_time_m)
+
+                    stop_times_s_parts.append('|'.join(stop_times_s_part))
+
+                    stop_times_frequencies_table_csv_updater.prepare_row(new_stop_time)
+                # loop stop_times
+
+                departure_day_seconds = db_row['departure_day_minutes'] * 60 + delta_seconds
+                departure_day_minutes = int(departure_day_seconds / 60)
+                departure_time = seconds_to_hhmmss(departure_day_seconds)
+
+                arrival_day_seconds = db_row['arrival_day_minutes'] * 60 + delta_seconds
+                arrival_day_minutes = int(arrival_day_seconds / 60)
+                arrival_time = seconds_to_hhmmss(arrival_day_seconds)
+
+                stop_times_s = ' -- '.join(stop_times_s_parts)
+                
+                new_trip = {
+                    'trip_id': trip_id,
+                    'route_id': db_row['route_id'],
+                    'service_id': db_row['service_id'],
+                    'trip_headsign': db_row['trip_headsign'],
+                    'trip_short_name': db_row['trip_short_name'],
+                    'direction_id': db_row['direction_id'],
+                    'block_id': db_row['block_id'],
+                    'departure_day_minutes': departure_day_minutes,
+                    'arrival_day_minutes': arrival_day_minutes,
+                    'departure_time': departure_time,
+                    'arrival_time': arrival_time,
+                    'stop_times_s': stop_times_s,
+                    'stop_times_count': db_row['stop_times_count'],
+                    'shape_id': db_row['shape_id'],
+                    'original_trip_id': db_row['original_trip_id'],
+                    'hints': db_row['hints'],
+                }
+
+                trips_frequencies_csv_updater.prepare_row(new_trip)
+
+                current_seconds += headway_seconds
+                freq_idx += 1
+            # loop frequencies
+        # loop DB trips-with-frequencies
+
+        log_message(f'... saving CSV files')
+
+        trips_frequencies_csv_updater.close()
+        stop_times_frequencies_table_csv_updater.close()
+
+        log_message(f'... load into DB')
+
+        trips_table_config = self.db_schema_config['tables']['trips']
+        trips_table_writer = DB_Table_CSV_Importer(self.db_path, 'trips', trips_table_config)
+        trips_table_writer.load_csv_file(trips_frequencies_table_csv_file_path)
+
+        stop_times_table_config = self.db_schema_config['tables']['stop_times']
+        stop_times_table_writer = DB_Table_CSV_Importer(self.db_path, 'stop_times', stop_times_table_config)
+        stop_times_table_writer.load_csv_file(stop_times_frequencies_table_csv_file_path)
+
+        log_message(f'... DONE')
+        print()
+    # _update_frequencies

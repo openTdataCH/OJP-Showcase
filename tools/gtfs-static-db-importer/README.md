@@ -7,7 +7,9 @@ The DB schema is specified in [gtfs-db-importer/inc/config/gtfs_schema.yml](gtfs
 
 ## Installation
 
-See main [README tools](../README.md)
+```
+$ bash bootstrap.sh 
+```
 
 ## Scripts
 

@@ -3,11 +3,9 @@ import os, sys
 from pathlib import Path
 
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
-from inc.shared.inc.helpers.json_helpers import load_json_from_file
 from inc.shared.inc.helpers.gtfs_helpers import compute_gtfs_day_from_resource_path, compute_gtfs_db_filename
-from inc.shared.inc.models.ckan_data import CKAN_Data
 
-from inc.common import PYTHON_PATH, fetch_latest_resource, check_latest_data_folder
+from inc.common import fetch_latest_resource, check_latest_data_folder
 
 def main():
     script_path = Path(os.path.realpath(__file__))
@@ -22,16 +20,20 @@ def main():
     print('     - https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json')
     print('')
     
-    fetch_latest_resource(script_path, package_id)
+    fetch_latest_resource(script_path, package_id) 
     gtfs_data_path = check_latest_data_folder(app_config, package_id)
     _db_import(app_config, script_path, gtfs_data_path)
     
     _dbs_aggregate(script_path)
 
-def _db_import(app_config, script_path, gtfs_data_path):
+def _db_import(app_config, script_path: Path, gtfs_data_path):
     gtfs_day = compute_gtfs_day_from_resource_path(gtfs_data_path)
+    if gtfs_day is None:
+        print(f'ERROR - cant compute GTFS day from {gtfs_data_path}')
+        sys.exit(1)
+
     gtfs_dbs_path = app_config['data_paths']['gtfs-static-dbs']
-    gtfs_db_filename = compute_gtfs_db_filename(gtfs_day)
+    gtfs_db_filename = compute_gtfs_db_filename(f'{gtfs_day}')
     gtfs_db_path = f'{gtfs_dbs_path}/{gtfs_db_filename}'
 
     print(f'')
@@ -43,8 +45,9 @@ def _db_import(app_config, script_path, gtfs_data_path):
         print(f'DB already present at path')
         print(f'=> {gtfs_db_path}')
     else:
+        python_path = f'{script_path.parent}/../gtfs-static-db-importer/.venv/bin/python3'
         import_cli_path = f'{script_path.parent}/../gtfs-static-db-importer/gtfs_db_importer_cli.py'
-        import_sh = f'{PYTHON_PATH} {import_cli_path} --gtfs-folder-path {gtfs_data_path}'
+        import_sh = f'{python_path} {import_cli_path} --gtfs-folder-path {gtfs_data_path}'
         print()
         print(f'$ {import_sh}', flush=True)
         print()
@@ -56,8 +59,9 @@ def _dbs_aggregate(script_path):
     print(f'')
     print(f'STEP 4 - BUILD GTFS DB catalog')
     
+    python_path = f'{script_path.parent}/../gtfs-static-db-importer/.venv/bin/python3'
     cli_path = f'{script_path.parent}/../gtfs-static-db-importer/cli_aggregate_dbs.py'
-    cli_sh = f'{PYTHON_PATH} {cli_path}'
+    cli_sh = f'{python_path} {cli_path}'
     print()
     print(f'$ {cli_sh}', flush=True)
     print()

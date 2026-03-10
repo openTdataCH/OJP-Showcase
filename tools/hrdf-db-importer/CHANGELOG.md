@@ -1,5 +1,8 @@
 # CHANGELOG hrdf-db-importer
 
+10.March.2026
+- use individual Python dependencies per tool
+
 10.Oct.2024
 - use more robust rgb string parsing - [PR #68](https://github.com/openTdataCH/showcases/pull/68)
 

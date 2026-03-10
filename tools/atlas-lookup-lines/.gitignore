@@ -1,3 +1,9 @@
-_old
+.vscode
+
+.venv
+__pycache__
+
 data/atlas_oev_report.*
 data/oev_cache
+
+_old

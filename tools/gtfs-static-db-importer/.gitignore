@@ -1,0 +1,7 @@
+.vscode
+
+.venv
+__pycache__
+
+data/gtfs-static-dbs/*.json
+data/gtfs-static-dbs/*.sqlite

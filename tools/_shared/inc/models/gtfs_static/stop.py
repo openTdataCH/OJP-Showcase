@@ -26,4 +26,7 @@ class Stop:
         entry = Stop(stop_id, stop_name, stop_lon, stop_lat, location_type, parent_station)
 
         return entry
+    
+    def __repr__(self) -> str:
+        return f"<GTFS DB stop row at {hex(id(self))} id={self.stop_id}, name={self.stop_name}, coords={self.stop_lat},{self.stop_lon}>"
         

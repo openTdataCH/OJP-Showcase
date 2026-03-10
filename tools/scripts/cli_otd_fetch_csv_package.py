@@ -8,7 +8,7 @@ import argparse
 
 from inc.shared.inc.helpers.config_helpers import load_convenience_config
 
-from inc.common import PYTHON_PATH, compute_ckan_resource_by_prefix
+from inc.common import compute_ckan_resource_by_prefix
 
 def main():
     script_path = Path(os.path.realpath(__file__))
@@ -55,9 +55,10 @@ def _run_package(script_path: Path, app_config: Any, package_id: str, overwrite:
     _fetch_metadata(script_path, package_id)
     _fetch_resource(script_path, app_config, package_id, overwrite)
     
-def _fetch_metadata(script_path, package_id: str):
+def _fetch_metadata(script_path: Path, package_id: str):
     ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_metadata_cli.py'
-    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id}'
+    python_path = f'{script_path.parent}/../ckan-utils/.venv/bin/python3'
+    ckan_fetch_sh = f'{python_path} {ckan_fetch_cli_path} --package_id {package_id}'
     
     print('')
     print(f'STEP {package_id}.1 - FETCH METADATA')
@@ -80,7 +81,8 @@ def _fetch_latest_resource(script_path: Path, package_id: str, overwrite: bool):
     
     # fetch latest archive
     ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
-    ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id} {overwrite_s}'
+    python_path = f'{script_path.parent}/../ckan-utils/.venv/bin/python3'
+    ckan_fetch_sh = f'{python_path} {ckan_fetch_cli_path} --package_id {package_id} {overwrite_s}'
     
     print(f'STEP {package_id}.2 - FETCH LATEST RESOURCE')
     print(ckan_fetch_sh, flush=True)
@@ -94,7 +96,8 @@ def _fetch_resource_by_prefix(app_config: Any, script_path: Path, package_id: st
     
         # fetch latest archive
         ckan_fetch_cli_path = f'{script_path.parent}/../ckan-utils/fetch_package_cli.py'
-        ckan_fetch_sh = f'{PYTHON_PATH} {ckan_fetch_cli_path} --package_id {package_id} --resource_title {ckan_resource.identifier} {overwrite_s}'
+        python_path = f'{script_path.parent}/../ckan-utils/.venv/bin/python3'
+        ckan_fetch_sh = f'{python_path} {ckan_fetch_cli_path} --package_id {package_id} --resource_title {ckan_resource.identifier} {overwrite_s}'
     
         print(f'STEP {package_id}.2 - FETCH RESOURCE by PREFIX {ckan_resource.identifier}')
         print(ckan_fetch_sh, flush=True)

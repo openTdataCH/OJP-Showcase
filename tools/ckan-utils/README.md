@@ -7,7 +7,9 @@ An `opentransportdata.swiss` API key is needed to run these tools. The key is st
 
 ## Installation
 
-See main [README tools](../README.md)
+```
+$ bash bootstrap.sh 
+```
 
 ## Fetch CKAN package metadata
 
@@ -15,7 +17,7 @@ Usage: `fetch_metadata_cli.py [-h] [--package_id PACKAGE_ID]`
 
 |Param|Description|Example|
 | -- | -- | -- |
-| --package_id| package_id from https://data.opentransportdata.swiss/en/organization/oevch | `timetable-54-2025-hrdf` |
+| --package_id| package_id from https://data.opentransportdata.swiss/en/organization/oevch | `timetable-2026-gtfs2020` or `timetable-54-2026-hrdf` |
 
 ## Fetch CKAN package resource
 

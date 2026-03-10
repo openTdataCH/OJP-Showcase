@@ -2,7 +2,7 @@ resource_paths:
   app_path: [APP_PATH]
   gtfs_dbs_catalog_path: "[APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json"
   gtfs_db_path: "[APP_PATH]/data/gtfs-static-dbs/[GTFS_DB_FILENAME]"
-  atlas_csv_path: "[APP_PATH]/data/actual_date_line_versions_LATEST.csv"
+  atlas_csv_path: "[APP_PATH]/data/opentransportdata.swiss/slnid-line-actual-date/actual-date-line_LATEST.csv"
 
 map_sql_paths:
   query_trip_stop_names: "[APP_PATH]/config/sql/query_trip_stop_names.sql"
@@ -12,7 +12,10 @@ oev_ch:
   atlas_oev_report_json_path: "[APP_PATH]/data/atlas_oev_report.json"
   atlas_oev_report_csv_path: "[APP_PATH]/data/atlas_oev_report.csv"
 
-  request_year: '2025'  
+  # TODO - cant use current year [YEAR] because the oev_fahrplan_detail_page_url below are under other perm URL for the current year
+  # request_year: "[YEAR]"
+  request_year: "2025"
+  
   # example.1 https://www.oev-info.ch/de/fahrplan-aktuell/fahrplanfelder/2025-2016
   # example.2 https://www.oev-info.ch/de/fahrplan-aktuell/fahrplanfelder/2025-10.017
   oev_fahrplan_detail_page_url: 'https://www.oev-info.ch/de/fahrplan-aktuell/fahrplanfelder/[YEAR]-[OEV_ID]'

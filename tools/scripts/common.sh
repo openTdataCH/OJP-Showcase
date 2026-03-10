@@ -21,4 +21,5 @@ symlink_latest() {
     ln -s "$file" "$file_latest"
 }
 
-PYTHON_VENV_PATH=$COMMON_DIR/../../python-venv
+PYTHON_VENV_PATH=$COMMON_DIR/.venv
+LOGS_BASEPATH=$COMMON_DIR/logs

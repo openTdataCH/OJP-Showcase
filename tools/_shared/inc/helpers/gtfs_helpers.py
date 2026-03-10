@@ -4,7 +4,15 @@ import datetime
 
 from pathlib import Path
 
-from typing import Union
+from typing import List, Optional, TypedDict, Union
+
+class StopTimeWithSeconds(TypedDict):
+    sql_row_id: int
+    stop_id: str
+    arrival_time: Optional[str]
+    departure_time: Optional[str]
+    arrival_seconds: Optional[int]
+    departure_seconds: Optional[int]
 
 def compute_gtfs_day_from_resource_path(resource_path: Path):
     dt_matches = _compute_gtfs_dt_matches_from_resource_path(resource_path)
@@ -61,7 +69,7 @@ def convert_datetime_to_day_minutes(datetime_s: str):
     day_minutes = datetime_hours * 60 + datetime_minutes
     return day_minutes
 
-def massage_datetime_to_hhmm(datetime_s: str):
+def massage_datetime_to_hhmm(datetime_s: Optional[str]) -> str:
     if not datetime_s:
         return ''
 
@@ -69,6 +77,7 @@ def massage_datetime_to_hhmm(datetime_s: str):
     datetime_minutes = datetime_s[3:5]
 
     datetime_hhmm = f'{datetime_hours}:{datetime_minutes}'
+    
     return datetime_hhmm
 
 def compute_date_from_gtfs_db_filename(db_filename: str):
@@ -101,3 +110,48 @@ def gtfs_time_to_seconds(t: Union[str, None]) -> Union[int, None]:
     h, m, s = map(int, parts)
     
     return h * 3600 + m * 60 + s
+
+def extract_stop_times_data_from_s(value_s: str) -> List[StopTimeWithSeconds]:
+    stop_time_rows: List[StopTimeWithSeconds] = []
+
+    value_rows = value_s.split(' -- ')
+    for value_row in value_rows:
+        stop_time_parts = value_row.split('|')
+
+        db_rowid = int(stop_time_parts[0])
+        stop_id = stop_time_parts[1]
+        
+        arrival_time = stop_time_parts[2]
+        if arrival_time == '':
+            arrival_time = None
+        departure_time = stop_time_parts[3]
+        if departure_time == '':
+            departure_time = None
+
+        stop_time_row = StopTimeWithSeconds(
+            sql_row_id=db_rowid,
+            stop_id=stop_id,
+            arrival_time=arrival_time,
+            departure_time=departure_time,
+            
+            arrival_seconds=None,
+            departure_seconds=None,
+        )
+
+        if arrival_time is not None:
+            stop_time_row['arrival_seconds'] = convert_datetime_to_day_minutes(arrival_time) * 60
+        if departure_time is not None:
+            stop_time_row['departure_seconds'] = convert_datetime_to_day_minutes(departure_time) * 60
+
+        stop_time_rows.append(stop_time_row)
+
+    return stop_time_rows
+
+def seconds_to_hhmmss(seconds_no: int) -> str:
+    hours = seconds_no // 3600
+    minutes = (seconds_no % 3600) // 60
+    secs = seconds_no % 60
+
+    hhmmss = f'{hours:02d}:{minutes:02d}:{secs:02d}'
+    
+    return hhmmss

@@ -4,6 +4,9 @@ Demo URL: https://tools.odpch.ch/gtfs-rt-status/
 
 ----
 
+10.March.2026
+- use individual Python dependencies per tool
+
 10.Sep.2025
 - use new GTFS-RT models
 

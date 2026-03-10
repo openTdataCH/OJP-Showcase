@@ -1,0 +1,6 @@
+*.sqlite
+*.json
+*.csv
+
+gtfs-rt-snapshot/*
+opentransportdata.swiss/*

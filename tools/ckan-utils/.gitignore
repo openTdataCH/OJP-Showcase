@@ -1,0 +1,6 @@
+.vscode
+
+.venv
+__pycache__
+
+data/ckan-utils-tmp/*.json

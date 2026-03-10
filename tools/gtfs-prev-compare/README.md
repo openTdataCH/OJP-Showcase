@@ -2,19 +2,27 @@
 
 Python tool that compares 2 GTFS folder datasets.
 
+## Install
+
+```
+$ bash bootstrap.sh 
+```
+
+## Scripts
+
 Usage: `gtfs_prev_compare_cli.py [--gtfs-a-path GTFS_A_PATH] [--gtfs-b-path GTFS_B_PATH]`
 
 |Param|Description|Example|
 |--|--|--|
-|---gtfs-a-path| First path to the GTFS folder, relative or absolute | `tmp/opentransportdata.swiss/gtfs-static/gtfs_fp2021_2021-10-27_09-10` |
-|---gtfs-b-path| Second path to the GTFS folder, relative or absolute | `tmp/opentransportdata.swiss/gtfs-static/gtfs_fp2021_2021-11-03_09-10` |
+|---gtfs-a-path| First path to the GTFS folder, relative or absolute | `gtfs_fp2026_20260204` |
+|---gtfs-b-path| Second path to the GTFS folder, relative or absolute | `gtfs_fp2026_20260224` |
 
 # Sample Output
 
 ```
 $ python3 gtfs_prev_compare_cli.py \
-    --gtfs-a-path tmp/opentransportdata.swiss/gtfs-static/gtfs_fp2021_2021-10-27_09-10 \ 
-    --gtfs-b-path tmp/opentransportdata.swiss/gtfs-static/gtfs_fp2021_2021-11-03_09-10
+    --gtfs-a-path data/opentransportdata.swiss/timetable-2026-gtfs2020/gtfs_fp2026_20260204 \ 
+    --gtfs-b-path data/opentransportdata.swiss/timetable-2026-gtfs2020/gtfs_fp2026_20260224
 ```
 
 Output:

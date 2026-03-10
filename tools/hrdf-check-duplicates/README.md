@@ -1,10 +1,20 @@
-## HRDF Check duplicates
+# HRDF Check duplicates
+
+
 
 Python tool that check for duplicates in HRDF FPLAN dataset. The [output](./data/hrdf-duplicates-reports) is used by the [hrdf-check-duplicates](../../apps/hrdf-check-duplicates/) web application.
 
 Duplicates definition:
 - FPLAN duplicates for an agency are entries that have same `*Z Fahrtnummer` and `BITFELD` calendar service days which are overlapping
 - entries with more than one `*A VE` variants are marked if there is another FPLAN entry with same `*Z Fahrtnummer` and overlapping days
+
+## Installation
+
+```
+$ bash bootstrap.sh 
+```
+
+## Scripts
 
 Usage: `hrdf_check_duplicates_cli.py [-h] [--hrdf-db-path HRDF_DB_PATH]`
 

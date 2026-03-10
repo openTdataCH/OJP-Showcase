@@ -40,7 +40,7 @@ class GTFS_DB:
             # Dont use Trip because is slower init
             # self.map_trips[trip_id] = Trip.init_from_db_row(trip_db_json, gtfs_calendar_db, gtfs_agency_db, gtfs_routes_db, gtfs_stops_db)
         
-    def _load_gtfs_table(self, table_name: str, map_by_field: str = None):
+    def _load_gtfs_table(self, table_name: str, map_by_field: str):
         res_cache_path = None
         if self._gtfs_db_table_cache_template is not None:
             res_cache_path_s: str = f'{self._gtfs_db_table_cache_template}'
@@ -58,7 +58,7 @@ class GTFS_DB:
         if sql is None:
             sql = f'SELECT * FROM {table_name}'
             
-        res_json = self._db.query(sql, map_by_field=map_by_field)
+        res_json = self._db.query_map_by_field(sql, map_by_field=map_by_field)
         
         if res_cache_path is not None:
             export_json_to_file(res_json, res_cache_path, pretty_print=True)
