@@ -1,6 +1,7 @@
 # CHANGELOG gtfs-rt-static-compare/
 
 10.Mar 2026
+- use GTFS-RT `header.feedVersion` to know which GTFS-static DB to use
 - use individual Python dependencies per tool
 
 08.Feb 2025
