@@ -1,0 +1,193 @@
+<div class="d-flex flex-column vh-100 overflow-hidden">
+  <header class="p-3">
+    <h2>GTFS-RT - GTFS static Report</h2>
+  </header>
+
+  <div class="flex-grow-1 d-flex flex-column overflow-hidden pt-3 ps-3 pe-3">
+    <div class="d-flex flex-row align-items-center">
+      <label for="monthSelect">Month</label>
+      <div class="mx-2">
+        <select class="form-control" id="monthSelect" [(ngModel)]="this.model.selectedMonth" (ngModelChange)="onMonthSelectChange()">
+          <option *ngFor="let monthItem of this.model.monthItems" [ngValue]="monthItem">{{ monthItem }}</option>
+        </select>
+      </div>
+      
+      <div class="mx-2"></div>
+      
+      <label for="reportValueTypeSelect">Cell Value</label>
+      <div class="mx-2">
+        <select class="form-control" id="reportValueTypeSelect" [(ngModel)]="this.model.selectedReportValueLookup" (ngModelChange)="onReportValueTypeChange()">
+          <option *ngFor="let reportValueLookup of this.model.reportValueLookups" [ngValue]="reportValueLookup">{{ reportValueLookup.caption }}</option>
+        </select>
+      </div>
+
+      <div class="mx-2"></div>
+
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="showAllHours" [(ngModel)]="this.model.showAllHours" (ngModelChange)="onClickShowAllHours()" />
+        <label class="form-check-label" for="showAllHours">Show All Hours</label>
+      </div>
+
+      <div class="ms-auto p-2"><a href="https://github.com/openTdataCH/showcases/blob/develop/tools/gtfs-rt-static-compare/docs/gtfs-rt-static-compare.md" target="_blank">Documentation</a></div>
+    </div>
+
+    <hr/>
+
+    <div class="d-flex overflow-auto mb-1">
+      <!-- Left-side column (table) -->
+      <div #scrollContainer class="flex-grow-1 overflow-auto d-flex">
+        <table class="table table-bordered table-hover report">
+          <thead>
+            <tr class="week-separator">
+              <th class="sticky-col table-top align-middle col-freeze-separator">Day-Hr</th>
+              <ng-container *ngFor="let hourCell of this.model.hourCells">
+                <th scope="col" class="text-center align-middle">{{ hourCell.hourF }}</th>
+              </ng-container>
+            </tr>
+          </thead>
+
+          <tbody>
+            <ng-container *ngFor="let dayCell of this.model.dayCells; index as dayIdx">
+              <tr class="align-middle" [ngClass]="{'week-separator': dayCell.isSunday}" [attr.id]="'row-' + dayCell.dayF">
+                <th class="sticky-col col-freeze-separator" scope="row">{{ dayCell.dateF }}</th>
+                
+                <ng-container *ngFor="let reportCell of this.model.hourlyReportCells[dayIdx]; index as hrIdx">
+
+                  <td 
+                    [ngClass]="{
+                      'selected': reportCell === this.model.selectedReportCell, 
+                      'week-separator': reportCell.dayCell.isSunday,
+                      'prev_data': this.model.selectedReportMapPrevKeys[reportCell.key],
+                    }" 
+                    (click)="this.updateSelection(reportCell)"
+                    class="{{ reportCell.className }} text-center"
+                  >
+                    <div class="d-flex flex-column">
+                      <div>{{ reportCell.cellValue }}</div>
+                      <div class="cell_error"><span class="badge rounded-pill text-bg-danger">{{ reportCell.error }}</span></div>
+                    </div>
+                  </td>
+                </ng-container>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Right-side column (details) -->
+      <div class="details p-2 d-flex flex-column">
+        <ng-container *ngIf="this.model.selectedReportCell !== null">
+          <p class="h5 mb-1">Report {{ this.model.selectedReportCell.dayCell.dateF }} {{ this.model.selectedReportCell.hourCell.hourF }}:00</p>
+          
+          <hr/>
+
+          <div class="flex-grow-1 overflow-auto">
+            <table class="table table-hover">
+              <tbody>
+                <tr>
+                  <th scope="row">Report URL</th>
+                  <td><a [href]="computeReportURL()" target="_blank">{{ this.model.selectedReportCell.report?.report_dt }}</a></td>
+                </tr>
+                <tr>
+                  <th scope="row">GTFS-DB</th>
+                  <td><a href="https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json" target="_blank">{{ this.model.selectedReportCell.report?.gtfs_db_filename }}</a></td>
+                </tr>
+                <tr>
+                  <th scope="row">{{ computeDetailLookupCaption('gtfs_db_age') }}</th>
+                  <td>{{ computeDetailLookupValue('gtfs_db_age') }} days</td>
+                </tr>
+                <tr>
+                  <th scope="row">GTFS-RT (large file!)</th>
+                  <td><a [href]="computeGTFS_RT_URL(this.model.selectedReportCell.report)" target="_blank">{{ this.model.selectedReportCell.report?.gtfs_rt_filename }}</a></td>
+                </tr>
+                <tr>
+                  <th scope="row">{{ computeDetailLookupCaption('gtfs_rt_age') }}</th>
+                  <td>{{ computeDetailLookupValue('gtfs_rt_age') }}"</td>
+                </tr>
+                <tr>
+                  <th scope="row">{{ computeDetailLookupCaption('total_active_rows_no') }}</th>
+                  <td>{{ computeDetailLookupValue('total_active_rows_no') }}</td>
+                </tr>
+                <!-- TODO - fix the -1 hack -->
+                <ng-container *ngIf="this.model.selectedReportCell.compareMetadata?.meanValueF !== '-1'">
+                  <tr>
+                    <th scope="row">Previous Values</th>
+                    <td>
+                      <div>
+                        <strong>Value:</strong> {{ this.model.selectedReportCell.compareMetadata?.valueF }}
+                      </div>
+                      <div>
+                        <strong>Mean:</strong> {{ this.model.selectedReportCell.compareMetadata?.meanValueF }}
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">DropLine</th>
+                    <td>
+                      <div>
+                        <strong>5%:</strong> {{ this.model.selectedReportCell.compareMetadata?.dropLineF }}
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">
+                      <div>
+                        <strong>Prev Values:</strong>
+                      </div>
+                      <hr/>
+                      <ul>
+                        <ng-container *ngFor="let prevDayReportLine of this.model.selectedReportCell.compareMetadata?.reportLines?.reverse()">
+                          <li>{{ prevDayReportLine }}</li>
+                        </ng-container>
+                      </ul>
+                    </td>
+                  </tr>
+                </ng-container>
+                <tr>
+                  <th scope="row">{{ computeDetailLookupCaption('total_rows_no') }}</th>
+                  <td>{{ computeDetailLookupValue('total_rows_no') }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">{{ computeDetailLookupCaption('tripOK_routeOK_no') }}</th>
+                  <td>{{ computeDetailLookupValue('tripOK_routeOK_no') }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">{{ computeDetailLookupCaption('tripOK_routeNOK_no') }}</th>
+                  <td>{{ computeDetailLookupValue('tripOK_routeNOK_no') }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">{{ computeDetailLookupCaption('tripNOK_routeOK_no') }}</th>
+                  <td>{{ computeDetailLookupValue('tripNOK_routeOK_no') }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">{{ computeDetailLookupCaption('tripNOK_routeNOK_no') }}</th>
+                  <td>{{ computeDetailLookupValue('tripNOK_routeNOK_no') }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">{{ computeDetailLookupCaption('tripNOK_NOJP_no') }}</th>
+                  <td>{{ computeDetailLookupValue('tripNOK_NOJP_no') }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div>
+              Detail Report:<br/><a [href]="computeDetailReportURL()" target="_blank">tools.odpch.ch/gtfs-rt-status</a>
+            </div>
+          </div>
+
+        </ng-container>
+      </div>
+    </div>
+
+    <hr />
+
+    <div class="mb-3">Report Last Update: {{ this.model.reportLastUpdateF }}</div>
+  </div>
+
+  <footer class="row page-row">
+    <div class="d-flex justify-content-between">
+      <div>(c) 2024 - 2025 Open data platform mobility Switzerland</div>
+      <div>Version: {{ this.model.appVersion }}</div>
+    </div>
+  </footer>
+</div>
