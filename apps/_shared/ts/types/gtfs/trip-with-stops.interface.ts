@@ -12,5 +12,8 @@ export interface GTFS_Static_Trip_Condensed {
     departure_time: string
     departure_day_minutes: number
     
+    stop_times_count: number
     stop_times_s: string
+
+    original_trip_id: string
 }
