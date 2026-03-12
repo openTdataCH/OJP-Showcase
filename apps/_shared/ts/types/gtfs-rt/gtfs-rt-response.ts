@@ -8,5 +8,6 @@ export interface Response_GTFS_RT {
 interface Response_GTFS_RT_Header {
     gtfsRealtimeVersion: string,
     incrementality: string,
-    timestamp: number
+    timestamp: number,
+    feedVersion: string,
 }
