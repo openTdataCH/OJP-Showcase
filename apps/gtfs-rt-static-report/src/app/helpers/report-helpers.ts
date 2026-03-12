@@ -35,4 +35,14 @@ export class ReportHelpers {
 
     return url;
   }
+
+  public static parseGTFS_feedVersionAsGTFS_Day(feedVersion: string): string {
+    if (feedVersion.length !== 8) {
+      throw new Error('Unexpected feedVersion: ' + feedVersion);
+    }
+
+    const gtfsDay = feedVersion.substring(0, 4) + '-' + feedVersion.substring(4, 6) + '-' + feedVersion.substring(6, 8);
+    
+    return gtfsDay;
+  }
  }
