@@ -1,0 +1,54 @@
+<div class="d-flex flex-column vh-100 overflow-hidden">
+  <header class="p-3">
+    <h1>GTFS -RT / -S compare by agency {{ this.model.keyA }}</h1>
+  </header>
+
+  <div class="flex-grow-1 d-flex flex-column overflow-hidden pt-3 ps-3 pe-3">
+    <div class="d-flex mb-2 align-items-center">
+      <div>Compare with </div>
+      <div class="mx-1"></div>
+      <div>
+        <select 
+          class="form-control form-control-sm" 
+          [(ngModel)]="this.model.prevKeyB" 
+          (ngModelChange)="onCompareValueChange()">
+          <option *ngFor="let compareKey of this.model.compareKeys" [ngValue]="compareKey">{{ compareKey }}</option>
+        </select>
+      </div>
+      <div class="ms-auto"><a [routerLink]="'/home'">Back to Home</a></div>
+    </div>
+
+    <div class="d-flex overflow-auto mb-1">
+      <table class="table table-hover table-bordered table-striped sticky-report" style="width: 800px;">
+        <thead>
+          <tr class="align-middle">
+            <th class="col">agency id</th>
+            <th scope="col col-sortable" (click)="onSortClick('name')">agency name</th>
+            <th scope="col col-sortable" (click)="onSortClick('keyA')">{{ this.model.keyA }}</th>
+            <th scope="col col-sortable" (click)="onSortClick('keyB')">{{ this.model.prevKeyB }}</th>
+            <th scope="col col-sortable" (click)="onSortClick('diff')">diff</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let reportRow of this.model.reportRows">
+            <tr>
+              <td>{{ reportRow.agency.agency_id }}</td>
+              <td>{{ reportRow.agency.agency_name }}</td>
+              <td>{{ reportRow.valueNow }}</td>
+              <td>{{ reportRow.valuePrev }}</td>
+              <td>{{ reportRow.valueNow - reportRow.valuePrev }}</td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer class="row p-2 px-3">
+    <div class="d-flex justify-content-between">
+      <div>(c) 2024 - 2026 Open data platform mobility Switzerland</div>
+    </div>
+  </footer>
+</div>
+
+

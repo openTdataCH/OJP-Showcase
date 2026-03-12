@@ -1,0 +1,96 @@
+header {
+    background-color: orange;
+}
+
+.main {
+    background-color: antiquewhite;
+}
+
+footer {
+    background-color: goldenrod;
+}
+
+.details {
+    font-size: 12px;
+    width: 420px;
+}
+
+.details .header {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+h1 {
+  font-size: 20px;
+  margin: 0px;
+}
+
+.report {
+    font-size: 12px;
+}
+
+.ok_odd {
+    background-color: #F0F8FF;
+}
+
+.ok_even {
+    background-color: #ADD8E6;
+}
+
+$cell-min-w: 72px;
+$cell-h: 64px;
+
+table.report {
+    width: max(100%, calc(#{$cell-min-w} * 25)); // 1 day col + 24 hour cols
+}
+
+// all cells
+.table > :not(caption) > * > * {
+    min-width: $cell-min-w;
+    height: $cell-h;
+    border: 1px solid rgba(0,0,0,.1);
+}
+
+.details .table > :not(caption) > * > * {
+    min-width: $cell-min-w;
+    height: 40px;
+    border: 1px solid rgba(0,0,0,.1);
+}
+
+// Separators, override border
+.table > :not(caption) > tr.week-separator > * {
+    border-bottom: 2px solid #515151;
+}
+.table > :not(caption) > tr > .col-freeze-separator {
+    border-right: 2px solid #515151;
+}
+
+// Selected cells
+.table > :not(caption) > tr > td.selected {
+    border-width: 3px;
+    border-color: #0047AB;
+}
+
+// PrevData cells
+.table > :not(caption) > tr > td.prev_data {
+    border-width: 2px;
+    border-color: #731dca;
+    border-style: dashed;
+}
+
+// Sticky header
+.report thead th {
+    position: sticky;
+    top: 0;
+}
+
+// Sticky first column
+.sticky-col {
+    position: sticky;
+    left: 0;
+}
+
+// Table elements always on top (z-index)
+.table-top {
+    z-index: 2;
+}

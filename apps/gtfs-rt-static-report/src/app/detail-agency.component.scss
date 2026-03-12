@@ -1,0 +1,25 @@
+header {
+    background-color: orange;
+}
+
+.main {
+    background-color: antiquewhite;
+}
+
+footer {
+    background-color: goldenrod;
+}
+
+h1 {
+  font-size: 20px;
+  margin: 0px;
+}
+
+.sticky-report thead th {
+    position: sticky;
+    top: 0;
+}
+
+.col-sortable {
+    cursor: pointer;
+}

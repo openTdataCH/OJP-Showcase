@@ -58,19 +58,23 @@ export interface TripJSON {
     trip_short_name: string | null
 }
 
+export interface GTFS_DB_LookupAgency {
+    lookup_name: 'agency',
+    data_source: string,
+    rows: AgencyJSON[],
+    rows_no: number,
+}
+
+export interface GTFS_DB_LookupRoutes {
+    lookup_name: 'routes',
+    data_source: string,
+    rows: RouteJSON[],
+    rows_no: number,
+}
+
 export interface GTFS_DB_LookupJSON {
-    agency: {
-        lookup_name: 'agency',
-        data_source: string,
-        rows: AgencyJSON[],
-        rows_no: number,
-    },
-    routes: {
-        lookup_name: 'routes',
-        data_source: string,
-        rows: RouteJSON[],
-        rows_no: number,
-    },
+    agency: GTFS_DB_LookupAgency,
+    routes: GTFS_DB_LookupRoutes,
     stops: {
         lookup_name: 'stops',
         data_source: string,
@@ -97,4 +101,15 @@ export interface GTFS_DB_Trips_Response {
         rows_no: number
     },
     rows: GTFS_Static_Trip_Condensed[],
+}
+
+// https://tools.odpch.ch/gtfs-query/trip/1.TA.96-702-j26-1.1.H
+export interface TripDetailResponseJSON {
+    message: string[]
+    result: {
+        trip: GTFS_Static_Trip_Condensed | null,
+        calendar: CalendarJSON | null,
+        route: RouteJSON | null,
+        agency: AgencyJSON | null,
+    };
 }
