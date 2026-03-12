@@ -304,7 +304,7 @@ export class HomeComponent {
         this.model.hourCells.forEach(hourCell => {
           const key = dayCell.dayF + '-' + hourCell.hourF;
 
-          const linkAgencyCompare = '../detail/' + key + '00';
+          const linkAgencyCompare = './detail/' + key + '00';
 
           const reportCell: ReportCell = {
             key: key,
