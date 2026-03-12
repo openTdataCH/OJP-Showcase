@@ -169,7 +169,7 @@ export class HomeComponent {
       hourCells: [],
       reportValueLookups: reportValueLookups,
       selectedReportValueLookup: reportValueLookups[0],
-      appVersion: '20251029.1',
+      appVersion: '20260310.1',
       showAllHours: false,
       reportLastUpdateF: 'n/a',
       selectedReportMapPrevKeys: {},
