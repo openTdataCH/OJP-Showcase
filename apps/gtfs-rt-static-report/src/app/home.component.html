@@ -131,10 +131,9 @@
                   </tr>
                   <tr>
                     <td colspan="2">
-                      <div>
-                        <strong>Prev Values:</strong>
+                      <div class="mb-1">
+                        <strong>Prev Values - <a [href]="this.model.selectedReportCell.linkAgencyCompare" target="_blank">detail report by agency</a></strong>
                       </div>
-                      <hr/>
                       <ul>
                         <ng-container *ngFor="let prevDayReportLine of this.model.selectedReportCell.compareMetadata?.reportLines?.reverse()">
                           <li>{{ prevDayReportLine }}</li>

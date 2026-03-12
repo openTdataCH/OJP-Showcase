@@ -70,6 +70,7 @@ interface ReportCell {
   error: string | null
   dayCell: DayCell,
   hourCell: HourCell,
+  linkAgencyCompare: string,
   compareMetadata: GTFS_RT_StaticReportCompareMetadata | null,
 }
 
@@ -303,6 +304,8 @@ export class HomeComponent {
         this.model.hourCells.forEach(hourCell => {
           const key = dayCell.dayF + '-' + hourCell.hourF;
 
+          const linkAgencyCompare = '../detail/' + key + '00';
+
           const reportCell: ReportCell = {
             key: key,
             report: null,
@@ -311,6 +314,7 @@ export class HomeComponent {
             error: null,
             dayCell: dayCell,
             hourCell: hourCell,
+            linkAgencyCompare: linkAgencyCompare,
             compareMetadata: null,
           }
 
