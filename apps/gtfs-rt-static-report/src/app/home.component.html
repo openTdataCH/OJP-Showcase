@@ -77,9 +77,9 @@
       <!-- Right-side column (details) -->
       <div class="details p-2 d-flex flex-column">
         <ng-container *ngIf="this.model.selectedReportCell !== null">
-          <p class="header mb-1">Report {{ this.model.selectedReportCell.dayCell.dateF }} {{ this.model.selectedReportCell.hourCell.hourF }}:00</p>
+          <p class="header mb-0">Report {{ this.model.selectedReportCell.dayCell.dateF }} {{ this.model.selectedReportCell.hourCell.hourF }}:00</p>
           
-          <hr/>
+          <hr class="my-2"/>
 
           <div class="flex-grow-1 overflow-auto">
             <table class="table table-hover">
