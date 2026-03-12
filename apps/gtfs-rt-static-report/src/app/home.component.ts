@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { DataService } from './data.service';
 import { DateHelpers } from './helpers/date-helpers';
+import { ReportHelpers } from './helpers/report-helpers';
 
 interface DayCell {
   date: Date,
@@ -468,20 +469,6 @@ export class HomeComponent {
     return isNormalHour;
   }
 
-  private computeSnapshotURLFromTemplate(templateURL: string, metadata: GTFS_RT_Static_Report_Metadata_JSON) {
-    let url = templateURL;
-
-    const timeMatches = metadata.gtfs_rt_filename.match(/-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/);
-    if (timeMatches) {
-      url = url.replaceAll('[YYYY]', timeMatches[1]);
-      url = url.replaceAll('[MM]', timeMatches[2]);
-      url = url.replaceAll('[DD]', timeMatches[3]);
-      url = url.replaceAll('[HHMM]', timeMatches[4]);
-    }
-
-    return url;
-  }
-
   public computeReportURL() {
     const metadata = this.model.selectedReportCell?.report ?? null;
     if (metadata === null) {
@@ -489,7 +476,7 @@ export class HomeComponent {
     }
 
     const templateURL = 'https://tools.odpch.ch/gtfs-rt-static-compare-report/[YYYY]/[MM]/[DD]/gtfs_rt_static_report-[YYYY]-[MM]-[DD]-[HHMM].json';
-    const url = this.computeSnapshotURLFromTemplate(templateURL, metadata);
+    const url = ReportHelpers.computeSnapshotURLFromTemplate(templateURL, metadata.gtfs_rt_filename);
 
     return url;
   }
@@ -499,8 +486,7 @@ export class HomeComponent {
       return '';
     }
 
-    const templateURL = 'https://tools.odpch.ch/gtfs-rt-snapshot/[YYYY]/[MM]/[DD]/' + metadata.gtfs_rt_filename;
-    const url = this.computeSnapshotURLFromTemplate(templateURL, metadata);
+    const url = ReportHelpers.computeGTFS_RT_URL(metadata.gtfs_rt_filename);
 
     return url;
   }
