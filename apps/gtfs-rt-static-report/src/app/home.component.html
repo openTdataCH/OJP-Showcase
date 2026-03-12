@@ -1,13 +1,13 @@
 <div class="d-flex flex-column vh-100 overflow-hidden">
   <header class="p-3">
-    <h2>GTFS-RT - GTFS static Report</h2>
+    <h1>GTFS-RT - GTFS static Report</h1>
   </header>
 
   <div class="flex-grow-1 d-flex flex-column overflow-hidden pt-3 ps-3 pe-3">
     <div class="d-flex flex-row align-items-center">
       <label for="monthSelect">Month</label>
       <div class="mx-2">
-        <select class="form-control" id="monthSelect" [(ngModel)]="this.model.selectedMonth" (ngModelChange)="onMonthSelectChange()">
+        <select class="form-control form-control-sm" id="monthSelect" [(ngModel)]="this.model.selectedMonth" (ngModelChange)="onMonthSelectChange()">
           <option *ngFor="let monthItem of this.model.monthItems" [ngValue]="monthItem">{{ monthItem }}</option>
         </select>
       </div>
@@ -16,16 +16,16 @@
       
       <label for="reportValueTypeSelect">Cell Value</label>
       <div class="mx-2">
-        <select class="form-control" id="reportValueTypeSelect" [(ngModel)]="this.model.selectedReportValueLookup" (ngModelChange)="onReportValueTypeChange()">
+        <select class="form-control form-control-sm" id="reportValueTypeSelect" [(ngModel)]="this.model.selectedReportValueLookup" (ngModelChange)="onReportValueTypeChange()">
           <option *ngFor="let reportValueLookup of this.model.reportValueLookups" [ngValue]="reportValueLookup">{{ reportValueLookup.caption }}</option>
         </select>
       </div>
 
       <div class="mx-2"></div>
 
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="showAllHours" [(ngModel)]="this.model.showAllHours" (ngModelChange)="onClickShowAllHours()" />
-        <label class="form-check-label" for="showAllHours">Show All Hours</label>
+      <div class="d-flex gap-2">
+        <input type="checkbox" id="showAllHours" [(ngModel)]="this.model.showAllHours" (ngModelChange)="onClickShowAllHours()" />
+        <label for="showAllHours">Show All Hours</label>
       </div>
 
       <div class="ms-auto p-2"><a href="https://github.com/openTdataCH/showcases/blob/develop/tools/gtfs-rt-static-compare/docs/gtfs-rt-static-compare.md" target="_blank">Documentation</a></div>
@@ -77,7 +77,7 @@
       <!-- Right-side column (details) -->
       <div class="details p-2 d-flex flex-column">
         <ng-container *ngIf="this.model.selectedReportCell !== null">
-          <p class="h5 mb-1">Report {{ this.model.selectedReportCell.dayCell.dateF }} {{ this.model.selectedReportCell.hourCell.hourF }}:00</p>
+          <p class="header mb-1">Report {{ this.model.selectedReportCell.dayCell.dateF }} {{ this.model.selectedReportCell.hourCell.hourF }}:00</p>
           
           <hr/>
 
@@ -179,12 +179,12 @@
       </div>
     </div>
 
-    <hr />
+    <hr class="my-2" />
 
-    <div class="mb-3">Report Last Update: {{ this.model.reportLastUpdateF }}</div>
+    <div class="mb-2">Report Last Update: {{ this.model.reportLastUpdateF }}</div>
   </div>
 
-  <footer class="row page-row">
+  <footer class="row p-2 px-3">
     <div class="d-flex justify-content-between">
       <div>(c) 2024 - 2025 Open data platform mobility Switzerland</div>
       <div>Version: {{ this.model.appVersion }}</div>

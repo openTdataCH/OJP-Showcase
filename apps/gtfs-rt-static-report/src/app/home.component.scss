@@ -10,21 +10,23 @@ footer {
     background-color: goldenrod;
 }
 
-.page-row {
-    padding: 16px;
-}
-
-.page-row h3 {
-    margin-bottom: 0px;
-}
-
 .details {
-    font-size: 14px;
+    font-size: 12px;
     width: 420px;
 }
 
-.report {
+.details .header {
     font-size: 14px;
+    font-weight: bold;
+}
+
+h1 {
+  font-size: 20px;
+  margin: 0px;
+}
+
+.report {
+    font-size: 12px;
 }
 
 .ok_odd {
@@ -46,6 +48,12 @@ table.report {
 .table > :not(caption) > * > * {
     min-width: $cell-min-w;
     height: $cell-h;
+    border: 1px solid rgba(0,0,0,.1);
+}
+
+.details .table > :not(caption) > * > * {
+    min-width: $cell-min-w;
+    height: 40px;
     border: 1px solid rgba(0,0,0,.1);
 }
 
