@@ -2,9 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
-import * as pako from 'pako';
-
-import { GTFS_RT_Static_Monthly_Report_JSON } from './home.component';
+import { GTFS_RT_Static_Monthly_Report_JSON } from './types/_all';
 import { Response_GTFS_RT } from './models/gtfs-rt/gtfs-rt-response';
 import { GTFS_DB_LookupAgency, GTFS_DB_LookupRoutes } from './models/gtfs/gtfs';
 
