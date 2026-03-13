@@ -460,61 +460,7 @@ export class HomeComponent {
     
     return isNormalHour;
   }
-
-  public computeReportURL() {
-    const metadata = this.model.selectedReportCell?.report ?? null;
-    if (metadata === null) {
-      return '';
-    }
-
-    const templateURL = 'https://tools.odpch.ch/gtfs-rt-static-compare-report/[YYYY]/[MM]/[DD]/gtfs_rt_static_report-[YYYY]-[MM]-[DD]-[HHMM].json';
-    const url = ReportHelpers.computeSnapshotURLFromTemplate(templateURL, metadata.gtfs_rt_filename);
-
-    return url;
-  }
-
-  public computeGTFS_RT_URL(metadata: GTFS_RT_Static_Report_Metadata_JSON | null) {
-    if (metadata === null) {
-      return '';
-    }
-
-    const url = ReportHelpers.computeGTFS_RT_URL(metadata.gtfs_rt_filename);
-
-    return url;
-  }
-
-  public computeDetailLookupCaption(key: ReportValueLookupType) {
-    const caption = mapReportValueLookups[key] ?? null;
-
-    return caption;
-  }
-
-  public computeDetailLookupValue(key: string) {
-    const metadata = this.model.selectedReportCell?.report ?? null;
-    if (metadata === null) {
-      return '';
-    }
-
-    const reportAny = metadata as any;
-    const reportValue = reportAny[key] ?? null;
-    if (typeof reportValue === 'number' && isFinite(reportValue)) {
-      return reportValue.toLocaleString('de-CH');
-    }
-
-    return reportValue;
-  }
-
-  public computeDetailReportURL() {
-    const metadata = this.model.selectedReportCell?.report ?? null;
-    if (metadata === null) {
-      return '';
-    }
-
-    const url = 'https://tools.odpch.ch/gtfs-rt-status/?report=' + metadata.gtfs_rt_filename;
-
-    return url;
-  }
-
+  
   public scrollToDay(ymd: string) {
     const row = this.scrollContainer.nativeElement.querySelector(`#row-${ymd}`) ?? null;
     if (row === null) {
