@@ -92,18 +92,6 @@ interface PageModel {
   reportLastUpdateF: string,
 }
 
-const mapReportValueLookups: Record<ReportValueLookupType, string> = {
-  gtfs_db_age: 'GTFS-DB Age',
-  gtfs_rt_age: 'GTFS-RT Age',
-  total_rows_no: 'GTFS-RT Total Trips No',
-  total_active_rows_no: 'GTFS-RT Total Active Trips No',
-  tripOK_routeOK_no: 'Matched Trips',
-  tripOK_routeNOK_no: 'Matched Trips / Not-matched Routes',
-  tripNOK_routeOK_no: 'Not-matched Trips / Matched Routes',
-  tripNOK_routeNOK_no: 'Not-matched Trips / Not-matched Routes',
-  tripNOK_NOJP_no: 'Not-matched Trips without ojp: prefix',
-}
-
 const reportValueLookups = (() => {
   const lookups: ReportValueLookup[] = [];
 
@@ -112,7 +100,7 @@ const reportValueLookups = (() => {
   reportValueLookupTypes.forEach(reportValueLookupType => {
     const lookup: ReportValueLookup = {
       type: reportValueLookupType,
-      caption: mapReportValueLookups[reportValueLookupType]
+      caption: MapReportValueLookups[reportValueLookupType],
     }
     lookups.push(lookup);
   });
