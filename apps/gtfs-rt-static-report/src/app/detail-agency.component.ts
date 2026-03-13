@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { DateHelpers } from './helpers/date-helpers';
-import { ReportHelpers } from './helpers/report-helpers';
+import { FilenameDateRegexp, ReportHelpers } from './helpers/report-helpers';
 
 import { DataService } from './data.service';
 
@@ -100,7 +100,7 @@ export class DetailAgencyComponent implements OnInit {
   private async fetchData() {
     const reportKey = this.model.keyA;
 
-    const timeMatches = reportKey.match(/([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/);
+    const timeMatches = reportKey.match(FilenameDateRegexp);
     if (timeMatches === null) {
       return;
     }
