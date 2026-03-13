@@ -1,9 +1,12 @@
+
+export const FilenameDateRegexp = /([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/;
+
 export class ReportHelpers {
   // templateURL example: '2026-03-10-1200'
   public static computeSnapshotURLFromTemplate(templateURL: string, gtfs_rt_filename: string) {
     let url = templateURL;
 
-    const timeMatches = gtfs_rt_filename.match(/([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/);
+    const timeMatches = gtfs_rt_filename.match(FilenameDateRegexp);
     if (timeMatches) {
       url = url.replaceAll('[YYYY]', timeMatches[1]);
       url = url.replaceAll('[MM]', timeMatches[2]);
