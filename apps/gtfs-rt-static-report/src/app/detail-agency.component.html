@@ -9,7 +9,7 @@
       <div class="mx-1"></div>
       <div>
         <select 
-          class="form-control form-control-sm" 
+          class="form-select form-control form-control-sm" 
           [(ngModel)]="this.model.prevKeyB" 
           (ngModelChange)="onCompareValueChange()">
           <option *ngFor="let compareKey of this.model.compareKeys" [ngValue]="compareKey">{{ compareKey }}</option>
