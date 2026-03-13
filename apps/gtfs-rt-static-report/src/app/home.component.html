@@ -7,7 +7,7 @@
     <div class="d-flex flex-row align-items-center">
       <label for="monthSelect">Month</label>
       <div class="mx-2">
-        <select class="form-control form-control-sm" id="monthSelect" [(ngModel)]="this.model.selectedMonth" (ngModelChange)="onMonthSelectChange()">
+        <select class="form-select form-control form-control-sm" id="monthSelect" [(ngModel)]="this.model.selectedMonth" (ngModelChange)="onMonthSelectChange()">
           <option *ngFor="let monthItem of this.model.monthItems" [ngValue]="monthItem">{{ monthItem }}</option>
         </select>
       </div>
@@ -16,7 +16,7 @@
       
       <label for="reportValueTypeSelect">Cell Value</label>
       <div class="mx-2">
-        <select class="form-control form-control-sm" id="reportValueTypeSelect" [(ngModel)]="this.model.selectedReportValueLookup" (ngModelChange)="onReportValueTypeChange()">
+        <select class="form-select form-control form-control-sm" id="reportValueTypeSelect" [(ngModel)]="this.model.selectedReportValueLookup" (ngModelChange)="onReportValueTypeChange()">
           <option *ngFor="let reportValueLookup of this.model.reportValueLookups" [ngValue]="reportValueLookup">{{ reportValueLookup.caption }}</option>
         </select>
       </div>
