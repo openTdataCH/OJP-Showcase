@@ -9,12 +9,15 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home.component';
 import { DetailAgencyComponent } from './detail-agency.component';
+import { DetailReportComponent } from './detail-report.component';
+
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     DetailAgencyComponent,
+    DetailReportComponent,
   ],
   imports: [
     BrowserModule,

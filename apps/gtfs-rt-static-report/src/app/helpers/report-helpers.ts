@@ -1,9 +1,12 @@
+
+export const FilenameDateRegexp = /([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/;
+
 export class ReportHelpers {
   // templateURL example: '2026-03-10-1200'
   public static computeSnapshotURLFromTemplate(templateURL: string, gtfs_rt_filename: string) {
     let url = templateURL;
 
-    const timeMatches = gtfs_rt_filename.match(/([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/);
+    const timeMatches = gtfs_rt_filename.match(FilenameDateRegexp);
     if (timeMatches) {
       url = url.replaceAll('[YYYY]', timeMatches[1]);
       url = url.replaceAll('[MM]', timeMatches[2]);
@@ -14,6 +17,24 @@ export class ReportHelpers {
     }
 
     return url;
+  }
+
+  // s = GTFS_RT-2026-03-13-1100.json
+  public static convertGTFS_RT_FilenameToDate(s: string): Date {
+    const timeMatches = s.match(FilenameDateRegexp);
+    if (timeMatches === null) {
+      return new Date();
+    }
+
+    const reportYearF = timeMatches[1];
+    const reportMonthF = timeMatches[2];
+    const reportDayF = timeMatches[3];
+    const reportHrF = timeMatches[4].substring(0, 2);
+    const reportMinF = timeMatches[4].substring(2, 4);
+
+    const date = new Date(reportYearF + '-' + reportMonthF + '-' + reportDayF + ' ' + reportHrF + ':' + reportMinF + ':00');
+    
+    return date;
   }
 
   public static computeGTFS_RT_URL(gtfs_rt_filename: string | null) {

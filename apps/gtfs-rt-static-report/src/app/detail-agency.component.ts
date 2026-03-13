@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { DateHelpers } from './helpers/date-helpers';
-import { ReportHelpers } from './helpers/report-helpers';
+import { FilenameDateRegexp, ReportHelpers } from './helpers/report-helpers';
 
 import { DataService } from './data.service';
 
 import { AgencyJSON, RouteJSON } from './models/gtfs/gtfs';
 import { Response_GTFS_RT } from './models/gtfs-rt/gtfs-rt-response';
+import { GTFS_RT_Static_Monthly_Report_JSON, GTFS_RT_Static_Report_Metadata_JSON } from './types/_all';
 
 interface DetailReportRow {
   agency: AgencyJSON,
@@ -28,6 +29,7 @@ interface PageModel {
     column: SortColumn,
     direction: SortDirection,
   },
+  reportMetadata: GTFS_RT_Static_Report_Metadata_JSON | null,
 };
 
 interface RouteGTFS_Data {
@@ -71,6 +73,7 @@ export class DetailAgencyComponent implements OnInit {
       column: 'diff',
       direction: 'asc',
     },
+    reportMetadata: null,
    };
   }
 
@@ -97,10 +100,23 @@ export class DetailAgencyComponent implements OnInit {
     return s;
   }
 
+  private updateSelectedReportCell(monthlyReport: GTFS_RT_Static_Monthly_Report_JSON, dayF: string, hrMinF: string) {
+    if (!(dayF in monthlyReport.report_days)) {
+      console.log('error updateSelectedReportCell - cant find day ' + dayF  + ' in monthlyReport.report_days');
+      return;
+    }
+    if (!(hrMinF in monthlyReport.report_days[dayF])) {
+      console.log('error updateSelectedReportCell - cant find hrMinF ' + hrMinF  + ' in monthlyReport.report_days');
+      return;
+    }
+
+    this.model.reportMetadata = monthlyReport.report_days[dayF][hrMinF];
+  }
+
   private async fetchData() {
     const reportKey = this.model.keyA;
 
-    const timeMatches = reportKey.match(/([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{4})/);
+    const timeMatches = reportKey.match(FilenameDateRegexp);
     if (timeMatches === null) {
       return;
     }
@@ -113,14 +129,16 @@ export class DetailAgencyComponent implements OnInit {
     const reportDayF = timeMatches[3];
     const reportHrMinF = timeMatches[4];
 
+    const ym = reportYearF + '-' + reportMonthF;
+    const monthlyReport = await this.dataService.getMonthlyReport(ym);
+    this.updateSelectedReportCell(monthlyReport, reportDayF, reportHrMinF);
+
     const gtfsRT_SnapshotURL = ReportHelpers.computeGTFS_RT_URL(reportKey);
     const gtfsRT = await this.dataService.fetchGTFS_RT_Snapshot(gtfsRT_SnapshotURL);
+
     await this.loadGTFS_Data(gtfsRT.header.feedVersion);
     this.parseGTFS_RT(gtfsRT, reportKey);
 
-    const ym = reportYearF + '-' + reportMonthF;
-    const monthlyReport = await this.dataService.getMonthlyReport(ym);
-    
     const mapCompareSnapshotURLs: Record<string, string> = {};
     const mapDayCompareReports = monthlyReport.compare_days[reportDayF] ?? null;
 

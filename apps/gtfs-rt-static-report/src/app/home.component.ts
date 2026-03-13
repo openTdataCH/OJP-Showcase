@@ -1,7 +1,18 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
+
 import { DataService } from './data.service';
 import { DateHelpers } from './helpers/date-helpers';
-import { ReportHelpers } from './helpers/report-helpers';
+
+import { GTFS_RT_StaticReportCompareMetadata, ReportValueLookupType, GTFS_RT_Static_Monthly_Report_JSON, GTFS_RT_Static_Report_Metadata_JSON } from './types/_all'
+
+import { MapReportValueLookups } from './shared/constants';
+
+interface ReportValueLookup {
+  type: ReportValueLookupType,
+  caption: string
+};
+
+type CellClassDB = 'odd' | 'even';
 
 interface DayCell {
   date: Date,
@@ -15,53 +26,6 @@ interface HourCell {
   hourF: string
 }
 
-type ReportValueLookupType = 'gtfs_db_age' | 'gtfs_rt_age' | 'total_rows_no' | 'total_active_rows_no' | 'tripOK_routeOK_no' | 'tripOK_routeNOK_no' | 'tripNOK_routeOK_no' | 'tripNOK_routeNOK_no' | 'tripNOK_NOJP_no'
-
-interface ReportValueLookup {
-  type: ReportValueLookupType,
-  caption: string
-}
-
-interface GTFS_RT_Static_Report_Metadata_JSON {
-  report_dt: string
-  gtfs_db_filename: string
-  gtfs_db_age: number
-  gtfs_rt_filename: string
-  gtfs_rt_ts: number
-  gtfs_rt_dt: string
-  gtfs_rt_age: number
-  total_rows_no: number
-  tripOK_routeOK_no: number
-  tripOK_routeNOK_no: number
-  tripNOK_routeOK_no: number
-  tripNOK_routeNOK_no: number
-  tripNOK_NOJP_no: number
-}
-
-interface GTFS_RT_Static_Report_Compare_JSON {
-  compare_type: 'h' | 'w' | 'w_p'
-  map_days: Record<string, number>
-  mean_value: Number
-  drop_line: Number
-}
-
-export interface GTFS_RT_Static_Monthly_Report_JSON {
-  last_update_dt: string
-  comments: string
-  report_days: Record<string, Record<string, GTFS_RT_Static_Report_Metadata_JSON>>
-  compare_days: Record<string, Record<string, GTFS_RT_Static_Report_Compare_JSON>>
-}
-
-type CellClassDB = 'odd' | 'even';
-
-interface GTFS_RT_StaticReportCompareMetadata {
-  info: GTFS_RT_Static_Report_Compare_JSON
-  reportLines: string[]
-  valueF: string
-  meanValueF: string
-  dropLineF: string
-}
-
 interface ReportCell {
   key: string
   report: GTFS_RT_Static_Report_Metadata_JSON | null
@@ -70,7 +34,6 @@ interface ReportCell {
   error: string | null
   dayCell: DayCell,
   hourCell: HourCell,
-  linkAgencyCompare: string,
   compareMetadata: GTFS_RT_StaticReportCompareMetadata | null,
 }
 
@@ -92,18 +55,6 @@ interface PageModel {
   reportLastUpdateF: string,
 }
 
-const mapReportValueLookups: Record<ReportValueLookupType, string> = {
-  gtfs_db_age: 'GTFS-DB Age',
-  gtfs_rt_age: 'GTFS-RT Age',
-  total_rows_no: 'GTFS-RT Total Trips No',
-  total_active_rows_no: 'GTFS-RT Total Active Trips No',
-  tripOK_routeOK_no: 'Matched Trips',
-  tripOK_routeNOK_no: 'Matched Trips / Not-matched Routes',
-  tripNOK_routeOK_no: 'Not-matched Trips / Matched Routes',
-  tripNOK_routeNOK_no: 'Not-matched Trips / Not-matched Routes',
-  tripNOK_NOJP_no: 'Not-matched Trips without ojp: prefix',
-}
-
 const reportValueLookups = (() => {
   const lookups: ReportValueLookup[] = [];
 
@@ -112,7 +63,7 @@ const reportValueLookups = (() => {
   reportValueLookupTypes.forEach(reportValueLookupType => {
     const lookup: ReportValueLookup = {
       type: reportValueLookupType,
-      caption: mapReportValueLookups[reportValueLookupType]
+      caption: MapReportValueLookups[reportValueLookupType],
     }
     lookups.push(lookup);
   });
@@ -304,8 +255,6 @@ export class HomeComponent {
         this.model.hourCells.forEach(hourCell => {
           const key = dayCell.dayF + '-' + hourCell.hourF;
 
-          const linkAgencyCompare = './detail/' + key + '00';
-
           const reportCell: ReportCell = {
             key: key,
             report: null,
@@ -314,7 +263,6 @@ export class HomeComponent {
             error: null,
             dayCell: dayCell,
             hourCell: hourCell,
-            linkAgencyCompare: linkAgencyCompare,
             compareMetadata: null,
           }
 
@@ -472,61 +420,7 @@ export class HomeComponent {
     
     return isNormalHour;
   }
-
-  public computeReportURL() {
-    const metadata = this.model.selectedReportCell?.report ?? null;
-    if (metadata === null) {
-      return '';
-    }
-
-    const templateURL = 'https://tools.odpch.ch/gtfs-rt-static-compare-report/[YYYY]/[MM]/[DD]/gtfs_rt_static_report-[YYYY]-[MM]-[DD]-[HHMM].json';
-    const url = ReportHelpers.computeSnapshotURLFromTemplate(templateURL, metadata.gtfs_rt_filename);
-
-    return url;
-  }
-
-  public computeGTFS_RT_URL(metadata: GTFS_RT_Static_Report_Metadata_JSON | null) {
-    if (metadata === null) {
-      return '';
-    }
-
-    const url = ReportHelpers.computeGTFS_RT_URL(metadata.gtfs_rt_filename);
-
-    return url;
-  }
-
-  public computeDetailLookupCaption(key: ReportValueLookupType) {
-    const caption = mapReportValueLookups[key] ?? null;
-
-    return caption;
-  }
-
-  public computeDetailLookupValue(key: string) {
-    const metadata = this.model.selectedReportCell?.report ?? null;
-    if (metadata === null) {
-      return '';
-    }
-
-    const reportAny = metadata as any;
-    const reportValue = reportAny[key] ?? null;
-    if (typeof reportValue === 'number' && isFinite(reportValue)) {
-      return reportValue.toLocaleString('de-CH');
-    }
-
-    return reportValue;
-  }
-
-  public computeDetailReportURL() {
-    const metadata = this.model.selectedReportCell?.report ?? null;
-    if (metadata === null) {
-      return '';
-    }
-
-    const url = 'https://tools.odpch.ch/gtfs-rt-status/?report=' + metadata.gtfs_rt_filename;
-
-    return url;
-  }
-
+  
   public scrollToDay(ymd: string) {
     const row = this.scrollContainer.nativeElement.querySelector(`#row-${ymd}`) ?? null;
     if (row === null) {

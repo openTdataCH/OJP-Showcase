@@ -2,9 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
-import * as pako from 'pako';
-
-import { GTFS_RT_Static_Monthly_Report_JSON } from './home.component';
+import { GTFS_RT_Static_Monthly_Report_JSON } from './types/_all';
 import { Response_GTFS_RT } from './models/gtfs-rt/gtfs-rt-response';
 import { GTFS_DB_LookupAgency, GTFS_DB_LookupRoutes } from './models/gtfs/gtfs';
 
@@ -27,24 +25,8 @@ export class DataService {
     return await firstValueFrom(this.http.get<GTFS_RT_Static_Monthly_Report_JSON>(url));
   }
 
-  public async fetchGzipJson<T>(url: string): Promise<T> {
-    const compressedBuffer = await firstValueFrom(
-      this.http.get(url, {
-        responseType: 'arraybuffer',
-      })
-    );
-
-    const jsonText = pako.ungzip(
-      new Uint8Array(compressedBuffer),
-      { to: 'string' }
-    );
-
-    const result = JSON.parse(jsonText) as T;
-    return result;
-  }
-
   public async fetchGTFS_RT_Snapshot(url: string): Promise<Response_GTFS_RT> {
-    const gtfsRT_SnapshotJSON = await this.fetchGzipJson<Response_GTFS_RT>(url);
+    const gtfsRT_SnapshotJSON = await firstValueFrom(this.http.get<Response_GTFS_RT>(url));
     return gtfsRT_SnapshotJSON;
   }
 
