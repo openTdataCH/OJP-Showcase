@@ -1,0 +1,89 @@
+<ng-container *ngIf="this.model.isDataLoaded">
+  <p class="header mb-0">{{ this.model.title }}</p>
+
+  <hr class="my-2"/>
+
+  <div class="flex-grow-1 overflow-auto">
+    <table class="table table-hover">
+      <tbody>
+        <tr>
+          <th scope="row">Report URL</th>
+          <td><a [href]="this.model.reportURL" target="_blank">{{ this.model.dateTimeF }}</a></td>
+        </tr>
+        <tr>
+          <th scope="row">GTFS-DB</th>
+          <td><a [href]="this.model.gtfsDB.url" target="_blank">{{ this.model.gtfsDB.filename }}</a></td>
+        </tr>
+        <tr>
+          <th scope="row">GTFS-RT (large file!)</th>
+          <td><a [href]="this.model.gtfsRT.url" target="_blank">{{ this.model.gtfsRT.filename }}</a></td>
+        </tr>
+        <tr>
+          <th scope="row">{{ computeDetailLookupCaption('gtfs_rt_age') }}</th>
+          <td>{{ this.model.gtfsRT_AgeF }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{{ computeDetailLookupCaption('total_active_rows_no') }}</th>
+          <td>{{ this.model.gtfsRT_TotalActiveItemsF }}</td>
+        </tr>
+
+        <ng-container *ngIf="this.model.compare.hasPrevValues">
+          <tr>
+            <th scope="row">Previous Values</th>
+            <td>
+              <div>
+                <strong>Mean:</strong> {{ this.model.compare.meanValueF }}
+              </div>
+              <div>
+                <strong>Drop 5%:</strong> {{ this.model.compare.dropValueF }}
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="2">
+              <div class="mb-1">
+                <strong><a [href]="this.model.compare.reportByAgencyURL" target="_blank">Detail breakdown by agency</a></strong>
+              </div>
+              <ul>
+                <ng-container *ngFor="let prevDayReportLine of this.model.compare.prevValues">
+                  <li>{{ prevDayReportLine }}</li>
+                </ng-container>
+              </ul>
+            </td>
+          </tr>
+        </ng-container>
+
+        <tr>
+          <th scope="row">{{ computeDetailLookupCaption('total_rows_no') }}</th>
+          <td>{{ this.model.gtfsRT_TotalItemsF }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{{ computeDetailLookupCaption('tripOK_routeOK_no') }}</th>
+          <td>{{ this.model.gtfsRT_MatchedTripsNoF }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{{ computeDetailLookupCaption('tripOK_routeNOK_no') }}</th>
+          <td>{{ this.model.gtfsRT_MatchedTripsNoMatchedRoutesF }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{{ computeDetailLookupCaption('tripNOK_routeOK_no') }}</th>
+          <td>{{ this.model.gtfsRT_NoMatchedTripsMatchedRoutesF }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{{ computeDetailLookupCaption('tripNOK_routeNOK_no') }}</th>
+          <td>{{ this.model.gtfsRT_NoMatchedTripsNoMatchedRoutesF }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{{ computeDetailLookupCaption('tripNOK_NOJP_no') }}</th>
+          <td>{{ this.model.gtfsRT_NoMatchedTripsOjpPrefixF }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div>
+      Detail GTFS -RT/-static Report: <br/><a [href]="this.model.detailReportURL" target="_blank">{{ this.model.detailReportURL }}</a>
+    </div>
+  </div>
+</ng-container>
+
