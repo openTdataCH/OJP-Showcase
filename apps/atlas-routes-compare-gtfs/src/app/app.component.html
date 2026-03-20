@@ -127,7 +127,7 @@
                             <div *ngIf="routeReportRow.atlasRoute.comment !== ''"><strong>Atlas Comment:</strong> {{ routeReportRow.atlasRoute.comment }}</div>
                             <ng-container *ngIf="routeReportRow.matchedGTFS_Trip !== null">
                               <div><strong>GTFS agency:</strong> {{ routeReportRow.matchedGTFS_AgencyText }}</div>
-                              <div><strong>GTFS route:</strong> {{ routeReportRow.matchedGTFS_Trip.route.route_id }}, trip: <a [href]="'https://tools.odpch.ch/gtfs-query/trip/' + routeReportRow.matchedGTFS_Trip.tripID" target="_blank">{{ routeReportRow.matchedGTFS_Trip.tripID }}</a></div>
+                              <div><strong>GTFS route:</strong> <a href="{{ 'https://gtfs.ch/routes?route=' + routeReportRow.matchedGTFS_Trip.route.route_id }}" target="_blank">{{ routeReportRow.matchedGTFS_Trip.route.route_id }}</a>, trip: <a [href]="'https://tools.odpch.ch/gtfs-query/trip/' + routeReportRow.matchedGTFS_Trip.tripID" target="_blank">{{ routeReportRow.matchedGTFS_Trip.tripID }}</a></div>
                               <div><strong>GTFS stops:</strong> {{ routeReportRow.matchedGTFS_TripStopsText }}</div>
                             </ng-container>
                             <ng-container *ngIf="routeReportRow.oevLink !== null">
@@ -152,7 +152,7 @@
                                 <tr *ngFor="let routeData of routeReportRow.gtfsReportRoutes; index as idx3" [ngClass]="{'selected': routeReportRow.matchedGTFS_Route?.route_id === routeData.route.route_id }">
                                   <th scope="row">{{ idx3 + 1 }}</th>
                                   <td>{{ routeData.route.agency.agency_id }}</td>
-                                  <td>{{ routeData.route.route_id }}</td>
+                                  <td><a href="{{ 'https://gtfs.ch/routes?route=' + routeData.route.route_id }}" target="_blank">{{ routeData.route.route_id }}</a></td>
                                   <td>{{ routeData.route.route_short_name }}</td>
                                   <td>{{ routeData.routeText }}</td>
                                 </tr>
