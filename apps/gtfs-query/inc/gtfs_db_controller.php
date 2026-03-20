@@ -71,12 +71,12 @@ class GTFS_DB_Controller {
 
         $map_business_organisations = array();
 
-        $csv_headers = fgetcsv($csv_file, null, ';');
+        $csv_headers = fgetcsv($csv_file, null, ';', $enclosure = "\"", $escape = "\\");
         if (!$csv_headers) {
             die('empty CSV headers found for _load_map_business_organisations()');
         }
 
-        while (is_array($row = fgetcsv($csv_file, 1000, ';'))) {
+        while (is_array($row = fgetcsv($csv_file, 1000, ';', $enclosure = "\"", $escape = "\\"))) {
             $csv_row = array_combine($csv_headers, $row);
 
             $sboid = $csv_row['sboid'];

@@ -264,12 +264,11 @@ This API returns entire content of the `agency`, `routes` and `stops` tables.
 
 | Param | Description | Example |
 |-|-|-|
-| day | Request day, if missing, the current day will be used | `2021-10-27` |
-| hhmm | Request time, if missing, the current time will be used | `1400` |
+| gtfs_day | GTFS feed version to be used | `2026-03-07` |
 
 ### Sample output:
 
-[db_lookups?day=2021-10-31&hhmm=2221](https://tools.odpch.ch/gtfs-query/db_lookups?day=2021-10-31&hhmm=2221)
+[db_lookups?gtfs_day=2026-03-07](https://tools.odpch.ch/gtfs-query/db_lookups?day=2021-10-31&hhmm=2221)
 
 ```
 {
