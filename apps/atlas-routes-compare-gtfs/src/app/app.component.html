@@ -11,7 +11,7 @@
             <div class="mb-3 d-flex gap-2">
               <div class="flex-grow-1">
                 <div class="d-flex gap-2">
-                  <button type="button" class="btn btn-primary" (click)="fetchData()" [disabled]="this.isBusyProcessing()">Fetch</button>
+                  <button type="button" class="btn btn-small btn-primary" (click)="fetchData()" [disabled]="this.isBusyProcessing()">Fetch</button>
                   <div class="w-100" *ngIf="this.isBusyProcessing()">
                     <div class="progress" role="progressbar">
                       <div class="progress-bar progress-bar-striped progress-bar-animated" [style.width.%]="this.model.dataLoadProgress.percent"></div>
@@ -56,7 +56,7 @@
                 </div>
 
                 <div>
-                  <button class="btn btn-primary" (click)="downloadReport()">Download Report</button>
+                  <button class="btn btn-small btn-primary" (click)="downloadReport()">Download Report</button>
                 </div>
               </div>
 
@@ -121,7 +121,7 @@
                           <div><span class="badge" ngClass="{{ routeReportRow.matchedStatusClassNames }}">{{ routeReportRow.matchedStatus }}</span></div>
                         </div>
                         <div class="card-body">
-                          <div class="mb-2">
+                          <div>
                             <div><strong>Atlas slnid: </strong><a [href]="'https://atlas.app.sbb.ch/line-directory/lines/' + routeReportRow.atlasRoute.slnid" target="_blank">{{ routeReportRow.atlasRoute.slnid }}</a> -- GTFS: {{ agencyReportRow.agency?.agency_id ?? 'n/a' }}</div>
                             <div><strong>Atlas stops:</strong> {{ routeReportRow.atlasRoute.description }}</div>
                             <div *ngIf="routeReportRow.atlasRoute.comment !== ''"><strong>Atlas Comment:</strong> {{ routeReportRow.atlasRoute.comment }}</div>
