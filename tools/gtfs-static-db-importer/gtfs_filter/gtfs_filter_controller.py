@@ -39,8 +39,8 @@ class GTFS_FilterController:
     def set_filter_by_agencies(self, agency_ids: List[str]):
         self._set_filter_by_agency_ids(agency_ids)
 
-    def set_filter_day(self, day_s: str):
-        self._set_filter_from_to_days(day_s)
+    def set_filter_by_day(self, day_s: str):
+        self._set_filter_by_day(day_s)
 
     def filter(self):
         self._filter()
@@ -73,7 +73,7 @@ class GTFS_FilterController:
         filter_in_s = ', '.join([f"'{agency_id}'" for agency_id in agency_ids])
         self._where_filters.append(f'routes.agency_id IN ({filter_in_s})')
 
-    def _set_filter_from_to_days(self, day_s: str):
+    def _set_filter_by_day(self, day_s: str):
         day_matches = re.match(r"^([0-9]{4})-([0-9]{2})-([0-9]{2})$", day_s)
         if day_matches is None:
             raise ValueError(f'Expected day YYYY-MM-DD for from_day, got {day_s}')
