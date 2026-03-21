@@ -1,3 +1,4 @@
+# https://opentransportdata.swiss/de/cookbook/timetable-cookbook/gtfs/
 tables:
   agency:
     columns:
