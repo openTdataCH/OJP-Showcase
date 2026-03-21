@@ -28,3 +28,6 @@ gtfs_rt_updates:
     # up to LATE-LATE the GTFS-RT switch is done at 15:00
     to: "2099-12-31"
     switch: "15:00"
+
+gtfs_filter:
+  gtfs_export_profile: "[APP_PATH]/inc/config/gtfs_profile_ch.yml"
