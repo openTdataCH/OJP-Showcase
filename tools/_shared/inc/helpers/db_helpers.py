@@ -87,6 +87,12 @@ def drop_and_recreate_table(db_handle, table_name, table_config):
         column_def_s = _sanitize_col_def(column_def)
         column_defs.append(column_def_s)
 
+    keys_data = table_config.get('keys', [])
+    for key_def_row in keys_data:
+        key_def_config = _sanitize_col_def(key_def_row)
+        column_defs.append(key_def_config)
+    # loop keys
+
     column_defs_s = ",".join(column_defs)
     sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({column_defs_s});"
     db_handle.execute(sql)
