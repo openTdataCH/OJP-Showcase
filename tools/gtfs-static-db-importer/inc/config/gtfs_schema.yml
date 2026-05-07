@@ -143,6 +143,7 @@ tables:
       - trip_short_name TEXT
       - direction_id TEXT
       - block_id INTEGER
+      # custom below
       - departure_day_minutes INTEGER
       - arrival_day_minutes INTEGER
       - departure_time TEXT
