@@ -71,6 +71,12 @@ def split_rows_in_groups(seq, size):
 
     return seq_gen
 
+def _sanitize_col_def(col_def: str):
+    col_def = col_def.strip().rstrip(',')
+    col_def = ' '.join(col_def.split()) # keep only one space def
+    
+    return col_def
+
 def drop_and_recreate_table(db_handle, table_name, table_config):
     log_message(f"... DROP TABLE {table_name} ...")
     sql = f"DROP TABLE IF EXISTS {table_name}"
@@ -78,7 +84,8 @@ def drop_and_recreate_table(db_handle, table_name, table_config):
 
     column_defs = []
     for column_def in table_config['columns']:
-        column_defs.append(column_def)
+        column_def_s = _sanitize_col_def(column_def)
+        column_defs.append(column_def_s)
 
     column_defs_s = ",".join(column_defs)
     sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({column_defs_s});"
