@@ -13,6 +13,8 @@ $ bash bootstrap.sh
 
 ## Scripts
 
+### gtfs_db_importer_cli.py
+
 Usage: `gtfs_db_importer_cli.py [-h] [--gtfs-folder-path GTFS_FOLDER_PATH] [--output-db-path OUTPUT_DB_PATH]`
 
 |Param|Description|Example|
