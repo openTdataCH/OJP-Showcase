@@ -64,6 +64,12 @@ class DB_Table_CSV_Importer:
             row_values = []
             for key in column_names:
                 field_value = csv_row.get(key, None)
+                
+                if isinstance(field_value, str):
+                    if field_value.strip() == '':
+                        field_value = None
+                # check string
+                
                 row_values.append(field_value)
             batch_insert_values.append(row_values)
             
