@@ -34,6 +34,9 @@ tables:
       - service_id
       - date
       - exception_type
+    keys:
+      - PRIMARY KEY (service_id, date)
+      - FOREIGN KEY (service_id) REFERENCES calendar(service_id)
 
   feed_info:
     columns:
@@ -55,6 +58,8 @@ tables:
       - trip_id
       - headway_secs
       - exact_times
+    keys:
+      - FOREIGN KEY (trip_id) REFERENCES trips(trip_id)
 
   routes:
     columns:
@@ -71,6 +76,8 @@ tables:
       - route_short_name
       - route_type
       - representative_trip_id
+    keys:
+      - FOREIGN KEY (agency_id) REFERENCES agency(agency_id)
 
   shapes:
     columns:
@@ -98,6 +105,9 @@ tables:
       - stop_sequence
       - pickup_type
       - drop_off_type
+    keys:
+      - FOREIGN KEY (trip_id) REFERENCES trips(trip_id)
+      - FOREIGN KEY (stop_id) REFERENCES stops(stop_id)
 
   stops:
     columns:
@@ -133,6 +143,9 @@ tables:
       - from_trip_id
       - to_trip_id
       - transfer_type
+    keys:
+      - FOREIGN KEY (from_stop_id) REFERENCES stops(stop_id)
+      - FOREIGN KEY (to_stop_id) REFERENCES stops(stop_id)
 
   trips:
     columns:
@@ -163,3 +176,7 @@ tables:
       - trip_short_name
       - original_trip_id
       - stop_times_count
+    keys:
+      - FOREIGN KEY (route_id) REFERENCES routes(route_id)
+      - FOREIGN KEY (service_id) REFERENCES calendar(service_id)
+      - FOREIGN KEY (shape_id) REFERENCES shapes(shape_id)
