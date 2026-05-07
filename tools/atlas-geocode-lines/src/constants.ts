@@ -12,6 +12,11 @@ export const OJP_STAGE_CONFIG: OJP.HTTPConfig = {
   authToken: '', // override with another key
 };
 
+if (!OJP_STAGE_CONFIG.authToken) {
+  console.log('OJP_STAGE_CONFIG token is missing');
+  process.exit(1);
+}
+
 // sleep interval between 2 OJP requests, the default key is limited to 50requests / minute
 // @see https://opentransportdata.swiss/en/limits-and-costs/
 export const OJP_REQUESTS_SLEEP_MS = 1200;
