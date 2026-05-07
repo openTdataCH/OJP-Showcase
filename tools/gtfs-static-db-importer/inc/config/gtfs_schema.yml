@@ -3,7 +3,7 @@ tables:
   agency:
     columns:
       - agency_id TEXT PRIMARY KEY
-      - agency_name TEXT
+      - agency_name TEXT NOT NULL
       - agency_url TEXT
       - agency_timezone TEXT
       - agency_lang TEXT
@@ -19,17 +19,17 @@ tables:
       - friday INTEGER
       - saturday INTEGER
       - sunday INTEGER
-      - start_date TEXT
-      - end_date TEXT
+      - start_date TEXT NOT NULL
+      - end_date TEXT NOT NULL
       - day_bits TEXT # similar with HRDF
 
   # This is imported just to keep the GTFS reference
   # For the service_id availability we use day_bits in calendar
   calendar_dates:
     columns:
-      - service_id TEXT
-      - date TEXT
-      - exception_type INTEGER
+      - service_id TEXT NOT NULL
+      - date TEXT NOT NULL
+      - exception_type INTEGER NOT NULL
     indexes:
       - service_id
       - date
@@ -37,20 +37,20 @@ tables:
 
   feed_info:
     columns:
-      - feed_publisher_name TEXT
+      - feed_publisher_name TEXT NOT NULL
       - feed_publisher_url TEXT
       - feed_lang TEXT
-      - feed_start_date TEXT
-      - feed_end_date TEXT
-      - feed_version TEXT
+      - feed_start_date TEXT NOT NULL
+      - feed_end_date TEXT NOT NULL
+      - feed_version TEXT NOT NULL
 
   frequencies:
     columns:
       - trip_id TEXT PRIMARY KEY
-      - start_time TEXT
-      - end_time TEXT
-      - headway_secs INTEGER
-      - exact_times INTEGER
+      - start_time TEXT NOT NULL
+      - end_time TEXT NOT NULL
+      - headway_secs INTEGER NOT NULL
+      - exact_times INTEGER NOT NULL
     indexes:
       - trip_id
       - headway_secs
@@ -59,11 +59,11 @@ tables:
   routes:
     columns:
       - route_id TEXT PRIMARY KEY
-      - agency_id TEXT
-      - route_short_name TEXT
+      - agency_id TEXT NOT NULL
+      - route_short_name TEXT NOT NULL 
       - route_long_name TEXT
-      - route_desc TEXT
-      - route_type INTEGER # extended codes, check https://opentransportdata.swiss/de/cookbook/timetable-cookbook/gtfs/
+      - route_desc TEXT NOT NULL
+      - route_type INTEGER NOT NULL # extended codes, check https://opentransportdata.swiss/de/cookbook/timetable-cookbook/gtfs/
       - day_bits TEXT # similar with HRDF
       - representative_trip_id TEXT # the trip that occurs the most
     indexes:
@@ -75,8 +75,8 @@ tables:
   shapes:
     columns:
       - shape_id INTEGER
-      - shape_pt_lat REAL
-      - shape_pt_lon REAL
+      - shape_pt_lat REAL NOT NULL
+      - shape_pt_lon REAL NOT NULL
       - shape_pt_sequence INTEGER
       - shape_dist_traveled REAL
     indexes:
@@ -88,8 +88,8 @@ tables:
       - trip_id TEXT
       - arrival_time TEXT
       - departure_time TEXT
-      - stop_id TEXT
-      - stop_sequence INTEGER
+      - stop_id TEXT NOT NULL
+      - stop_sequence INTEGER NOT NULL
       - pickup_type INTEGER
       - drop_off_type INTEGER
     indexes:
@@ -102,9 +102,9 @@ tables:
   stops:
     columns:
       - stop_id TEXT PRIMARY KEY
-      - stop_name TEXT
-      - stop_lon REAL
-      - stop_lat REAL
+      - stop_name TEXT NOT NULL
+      - stop_lon REAL NOT NULL
+      - stop_lat REAL NOT NULL
       - location_type TEXT
       - parent_station TEXT
       - platform_code TEXT
@@ -117,13 +117,13 @@ tables:
 
   transfers:
     columns:
-      - from_stop_id TEXT
-      - to_stop_id TEXT
+      - from_stop_id TEXT NOT NULL
+      - to_stop_id TEXT NOT NULL
       - from_route_id TEXT
       - to_route_id TEXT
       - from_trip_id TEXT
       - to_trip_id TEXT
-      - transfer_type INTEGER
+      - transfer_type INTEGER NOT NULL
       - min_transfer_time INTEGER
     indexes:
       - from_stop_id
@@ -137,8 +137,8 @@ tables:
   trips:
     columns:
       - trip_id TEXT PRIMARY KEY
-      - route_id TEXT
-      - service_id TEXT
+      - route_id TEXT NOT NULL
+      - service_id TEXT NOT NULL
       - trip_headsign TEXT
       - trip_short_name TEXT
       - direction_id TEXT
