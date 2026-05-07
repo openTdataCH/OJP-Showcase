@@ -59,7 +59,7 @@ Current GeoJSON https://tools.odpch.ch/data/atlas_stops.geojson
 $ npm install
 
 # build
-$ npx tsc
+$ npm run build
 
 # execute program
 $ node --import=specifier-resolution-node/register dist/index.js
