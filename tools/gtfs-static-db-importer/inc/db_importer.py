@@ -42,6 +42,7 @@ class GTFS_DB_Importer:
         self._write_lock_file()
 
         self._import_csv_tables()
+
         self._update_calendar()
         self._update_trips()
         self._update_frequencies()
@@ -74,7 +75,6 @@ class GTFS_DB_Importer:
         
     def _remove_lock_file(self):
         os.remove(self.db_lock_path)
-
     
     def _import_csv_tables(self):
         '''
