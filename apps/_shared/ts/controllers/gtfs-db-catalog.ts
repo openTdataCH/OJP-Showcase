@@ -5,14 +5,14 @@ import { GTFS_Static_DB_Catalog_JSON } from "../models/gtfs_catalog";
 
 export class GTFS_DB_Catalog_Controller {
   private catalogJSON: GTFS_Static_DB_Catalog_JSON;
-  public latestGTFS_Day: string | null;
+  public latestGTFS_Day: string;
 
   constructor(catalogJSON: GTFS_Static_DB_Catalog_JSON) {
     this.catalogJSON = catalogJSON;
 
     this.latestGTFS_Day = (() => {
       if (this.catalogJSON.items.length === 0) {
-        return null;
+        throw new Error('no items found in GTFS DB Catalog');
       }
 
       const catalogItem = this.catalogJSON.items[0];
