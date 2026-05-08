@@ -103,7 +103,7 @@ export interface GTFS_DB_Trips_Response {
     rows: GTFS_Static_Trip_Condensed[],
 }
 
-// https://tools.odpch.ch/gtfs-query/trip/1.TA.96-702-j26-1.1.H
+// https://tools.opentransportdata.swiss/gtfs-query/trip/1.TA.96-702-j26-1.1.H
 export interface TripDetailResponseJSON {
     message: string[]
     result: {
