@@ -23,6 +23,9 @@ $PYTHON_PATH $TOOL_FOLDER_PATH/cli_aggregate_monthly_reports_json.py >>"$LOGFILE
 echo ""
 symlink_latest $LOGFILE
 
+DETAIL_REPORT_DATE_F=$(grep -Po 'report-\K[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}(?=\.json)' $LOGFILE)
+DETAIL_REPORT_URL=https://tools.odpch.ch/gtfs-rt-static-report/detail/$DETAIL_REPORT_DATE_F
+
 if [ "$status" -ne 0 ]; then
   {
     echo "From: $DEFAULT_MAIL_FROM"
@@ -32,6 +35,7 @@ if [ "$status" -ne 0 ]; then
     echo
     echo "Report: https://tools.odpch.ch/gtfs-rt-static-report/"
     echo "Log: https://tools.odpch.ch/tmp/logs/otd_compare_gtfs_rt_static-LATEST.log"
+    echo "Detail by agency: $DETAIL_REPORT_URL"
     echo
     echo "-> last 50 rows"
     echo
