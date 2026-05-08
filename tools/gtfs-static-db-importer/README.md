@@ -31,3 +31,26 @@ $ python3 gtfs_db_importer_cli.py \
 ```
 
 The script detects the GTFS date from the GTFS static folder and ingests the content into `gtfs_2021-04-07.sqlite` SQLite file.
+
+### cli_filter_gtfs.py
+
+CLI tool that filters GTFS content from a GTFS database created with `gtfs_db_importer_cli.py`
+
+Usage: `cli_filter_gtfs.py [-h] [--gtfs-db-path GTFS_DB_PATH] [--gtfs-output-path GTFS_OUTPUT_PATH] [--bbox BBOX] [--agency AGENCY] [--day DAY]`
+
+| Param | Required | Description | Example |
+| - | - | - | - |
+| `--gtfs-db-path` | `YES` | input path to GTFS SQLite DB | `data/gtfs-static-dbs/gtfs_2026-05-03.sqlite` |
+| `--gtfs-output-path` | `YES` | path to the folder that will contain GTFS filtered files | `./tmp/gtfs-bern-crop` |
+| `--bbox` |  | filter for BBOX coordinates given (minLon, minLat, maxLon, maxLat format) | `7.444310,46.961013,7.472076,46.971907` - Bern area filter |
+| `--agency` |  | filter for agency_id values, separated with `,` | `33,827` - BLS, Bern Mobil |
+| `--day` |  | filter for a day of operations given in `YYYY-MM-DD` format | `2026-03-25` - 25.March 2026 |
+
+Example filter for BLS (agency_id=33), BernMobil (agency_id=827)
+
+```
+python3 cli_filter_gtfs.py \
+    --gtfs-db-path data/gtfs-static-dbs/gtfs_2026-03-21.sqlite \
+    --gtfs-output-path tmp/gtfs-agency-bls-bernmobil \
+    --agency 33,827
+```
