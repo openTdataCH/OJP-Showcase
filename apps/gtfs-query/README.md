@@ -53,15 +53,15 @@ This API returns all active trips for a given interval or running at a given tim
 
 | Required | Optional | Description | Example |
 |-|-|-|-|
-| `route_short_name`, `line_ref` | `service_day` | Trips by `routes.route_short_name` and line_ref. Additionally `service_day` can be used to restrict the results to a given day | [route_short_name=451&line_ref=85:801:405&service_day=2025-01-03](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?route_short_name=451&line_ref=85%3A801%3A405&service_day=2025-01-03) |
-| `agency_id`, `service_day` |  | All trips of a  `routes.agency_id` for a given `service_day` | [agency_id=11&service_day=2025-01-01](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?agency_id=11&service_day=2025-01-01) |
-| `agency_id`, `route_short_name` | `service_day` | All trips of a `routes.agency_id` for a given `routes.route_short_name`. Additionally `service_day` can be used to restrict the results to a given day  | [agency_id=801&route_short_name=451&service_day=2025-01-01](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?agency_id=801&route_short_name=451&service_day=2025-01-01) |
-| `journey_ref` | `service_day` | All trips of a `journey_ref` in format of [swiss journey id](https://www.oev-info.ch/de/datenmanagement/sid4pt-swiss-id-public-transport/swiss-journey-identification-sjyid), i.e. `ch:1:sjyid:100001:730-001` or different formats, i.e. `85:33:4491:001` . Additionally `service_day` can be used to restrict the results to a given day  | [journey_ref=ch:1:sjyid:100015:15340-001&service_day=2025-01-03](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?journey_ref=ch%3A1%3Asjyid%3A100015%3A15340-001&service_day=2025-01-03) |
-| `original_trip_id` | `service_day` | All trips of a `trips.original_trip_id` . Additionally `service_day` can be used to restrict the results to a given day  | [original_trip_id=ch:1:sjyid:100001:18430-003&service_day=2025-01-01](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?original_trip_id=ch%3A1%3Asjyid%3A100001%3A18430-003&service_day=2025-01-01) |
+| `route_short_name`, `line_ref` | `service_day` | Trips by `routes.route_short_name` and line_ref. Additionally `service_day` can be used to restrict the results to a given day | [route_short_name=451&line_ref=85:801:405&service_day=2025-01-03](https://tools.odpch.ch/gtfs-query/trips?route_short_name=451&line_ref=85%3A801%3A405&service_day=2025-01-03) |
+| `agency_id`, `service_day` |  | All trips of a  `routes.agency_id` for a given `service_day` | [agency_id=11&service_day=2025-01-01](https://tools.odpch.ch/gtfs-query/trips?agency_id=11&service_day=2025-01-01) |
+| `agency_id`, `route_short_name` | `service_day` | All trips of a `routes.agency_id` for a given `routes.route_short_name`. Additionally `service_day` can be used to restrict the results to a given day  | [agency_id=801&route_short_name=451&service_day=2025-01-01](https://tools.odpch.ch/gtfs-query/trips?agency_id=801&route_short_name=451&service_day=2025-01-01) |
+| `journey_ref` | `service_day` | All trips of a `journey_ref` in format of [swiss journey id](https://www.oev-info.ch/de/datenmanagement/sid4pt-swiss-id-public-transport/swiss-journey-identification-sjyid), i.e. `ch:1:sjyid:100001:730-001` or different formats, i.e. `85:33:4491:001` . Additionally `service_day` can be used to restrict the results to a given day  | [journey_ref=ch:1:sjyid:100015:15340-001&service_day=2025-01-03](https://tools.odpch.ch/gtfs-query/trips?journey_ref=ch%3A1%3Asjyid%3A100015%3A15340-001&service_day=2025-01-03) |
+| `original_trip_id` | `service_day` | All trips of a `trips.original_trip_id` . Additionally `service_day` can be used to restrict the results to a given day  | [original_trip_id=ch:1:sjyid:100001:18430-003&service_day=2025-01-01](https://tools.odpch.ch/gtfs-query/trips?original_trip_id=ch%3A1%3Asjyid%3A100001%3A18430-003&service_day=2025-01-01) |
 
 ### Example Response
 
-[trips?original_trip_id=ch:1:sjyid:100001:18430-003](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?original_trip_id=ch%3A1%3Asjyid%3A100001%3A18430-003)
+[trips?original_trip_id=ch:1:sjyid:100001:18430-003](https://tools.odpch.ch/gtfs-query/trips?original_trip_id=ch%3A1%3Asjyid%3A100001%3A18430-003)
 
 ```
 {
