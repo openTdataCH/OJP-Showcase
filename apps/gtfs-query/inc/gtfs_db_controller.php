@@ -76,7 +76,7 @@ class GTFS_DB_Controller {
             die('empty CSV headers found for _load_map_business_organisations()');
         }
 
-        while (is_array($row = fgetcsv($csv_file, 1000, ';', $enclosure = "\"", $escape = "\\"))) {
+        while (($row = fgetcsv($csv_file, 1000, ';', '"', '\\')) !== false) {
             $csv_row = array_combine($csv_headers, $row);
 
             $sboid = $csv_row['sboid'];
