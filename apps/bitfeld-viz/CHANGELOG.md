@@ -4,6 +4,9 @@ URL: https://tools.opentransportdata.swiss/bitfeld-viz/
 
 ----
 
+9.May.2026
+- publish web app under new domain https://tools.opentransportdata.swiss/bitfeld-viz/
+
 10.July.2024
 - adds future timetables from https://www.oev-info.ch/de/fahrplan-aktuell/fahrplanwissen/fahrplanjahr-und-wechsel
 
