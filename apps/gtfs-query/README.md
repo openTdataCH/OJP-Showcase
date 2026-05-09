@@ -4,7 +4,7 @@ This application is an API that queries the GTFS DBs and used by the [gtfs-rt-st
 
 ## Query GTFS Active Trips
 
-`GET /query_active_trips`
+`GET /query_day_from_to_trips`
 
 This API returns all active trips for a given interval or running at a given time
 
@@ -21,7 +21,7 @@ This API returns all active trips for a given interval or running at a given tim
 
 ### Sample output:
 
-[query_active_trips?day=2021-10-31&hhmm=2240&from_hhmm=2210&to_hhmm=2540&filter_agency_ids=HAS_GTFS_RT&parse_type=FLAT](https://tools.odpch.ch/gtfs-query/query_active_trips?day=2021-10-31&hhmm=2240&from_hhmm=2210&to_hhmm=2540&filter_agency_ids=HAS_GTFS_RT&parse_type=FLAT)
+[query_day_from_to_trips?gtfs_day=2026-05-06&day=2026-05-09&from_hhmm=1731&to_hhmm=2101&filter_agency_ids=HAS_GTFS_RT](https://tools.opentransportdata.swiss/gtfs-query/query_day_from_to_trips?gtfs_day=2026-05-06&day=2026-05-09&from_hhmm=1731&to_hhmm=2101&filter_agency_ids=HAS_GTFS_RT)
 
 ```
 {
