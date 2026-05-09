@@ -18,7 +18,7 @@ export class DataService {
 
     const now = new Date();
 
-    let url = 'https://tools.odpch.ch/gtfs-rt-static-compare-report/[YYYY]/gtfs_rt_static_report-[YYYY-MM].json?ts=' + now.getTime();
+    let url = 'https://tools.opentransportdata.swiss/gtfs-rt-static-compare-report/[YYYY]/gtfs_rt_static_report-[YYYY-MM].json?ts=' + now.getTime();
     url = url.replace('[YYYY]', dateYMParts[0]);
     url = url.replace('[YYYY-MM]', dateYM);
     
@@ -30,16 +30,16 @@ export class DataService {
     return gtfsRT_SnapshotJSON;
   }
 
-  // https://tools.odpch.ch/gtfs-query/lookup/routes?gtfs_day=2026-03-07
+  // https://tools.opentransportdata.swiss/gtfs-query/lookup/routes?gtfs_day=2026-03-07
   public async fetchGTFS_Routes(gtfsDay: string): Promise<GTFS_DB_LookupRoutes> {
-    const url = 'https://tools.odpch.ch/gtfs-query/lookup/routes?gtfs_day=' + gtfsDay;
+    const url = 'https://tools.opentransportdata.swiss/gtfs-query/lookup/routes?gtfs_day=' + gtfsDay;
     const response = await firstValueFrom(this.http.get<GTFS_DB_LookupRoutes>(url));
     return response;
   }
 
-  // https://tools.odpch.ch/gtfs-query/lookup/agency?gtfs_day=2026-03-07
+  // https://tools.opentransportdata.swiss/gtfs-query/lookup/agency?gtfs_day=2026-03-07
   public async fetchGTFS_Agency(gtfsDay: string): Promise<GTFS_DB_LookupAgency> {
-    const url = 'https://tools.odpch.ch/gtfs-query/lookup/agency?gtfs_day=' + gtfsDay;
+    const url = 'https://tools.opentransportdata.swiss/gtfs-query/lookup/agency?gtfs_day=' + gtfsDay;
     const response = await firstValueFrom(this.http.get<GTFS_DB_LookupAgency>(url));
     return response;
   }

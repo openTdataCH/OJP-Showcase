@@ -107,7 +107,7 @@ export class DetailReportComponent implements OnInit {
       return '';
     }
 
-    const templateURL = 'https://tools.odpch.ch/gtfs-rt-static-compare-report/[YYYY]/[MM]/[DD]/gtfs_rt_static_report-[YYYY]-[MM]-[DD]-[HHMM].json';
+    const templateURL = 'https://tools.opentransportdata.swiss/gtfs-rt-static-compare-report/[YYYY]/[MM]/[DD]/gtfs_rt_static_report-[YYYY]-[MM]-[DD]-[HHMM].json';
     const url = ReportHelpers.computeSnapshotURLFromTemplate(templateURL, this._reportMetadata.gtfs_rt_filename);
 
     return url;
@@ -147,7 +147,7 @@ export class DetailReportComponent implements OnInit {
 
     this.model.gtfsDB = {
       filename: reportMetadata.gtfs_db_filename,
-      url: 'https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json',
+      url: 'https://tools.opentransportdata.swiss/gtfs-static-dbs/gtfs-static-dbs.json',
     };
 
     this.model.gtfsRT = {
@@ -175,7 +175,7 @@ export class DetailReportComponent implements OnInit {
       this.model.compare.prevValues = compareData.reportLines.reverse();
 
       const detailKey = timeMatches[1] + '-' + timeMatches[2] + '-' + timeMatches[3] + '-' + timeMatches[4];
-      // https://tools.odpch.ch/gtfs-rt-static-report/detail/2026-03-13-1200
+      // https://tools.opentransportdata.swiss/gtfs-rt-static-report/detail/2026-03-13-1200
       this.model.compare.reportByAgencyURL = './detail/' + detailKey;
     }
 
@@ -219,7 +219,7 @@ export class DetailReportComponent implements OnInit {
       return '';
     }
 
-    const url = 'https://tools.odpch.ch/gtfs-rt-status/?report=' + metadata.gtfs_rt_filename;
+    const url = 'https://tools.opentransportdata.swiss/gtfs-rt-status/?report=' + metadata.gtfs_rt_filename;
 
     return url;
   }
