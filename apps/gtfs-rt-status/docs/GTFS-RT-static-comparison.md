@@ -1,7 +1,7 @@
 # GTFS-RT -static Comparison Process
 
 ## General
-- the app is deployed here: https://tools.odpch.ch/gtfs-rt-status/
+- the app is deployed here: https://tools.opentransportdata.swiss/gtfs-rt-status/
 
 ----
 

@@ -57,10 +57,10 @@ export default class GTFS_RT_Reporter {
         
         this.gtfs_day = gtfs_day;
 
-        this.gtfs_query_base_address = 'https://tools.odpch.ch/gtfs-query';
+        this.gtfs_query_base_address = 'https://tools.opentransportdata.swiss/gtfs-query';
         
         this.report_datetime = new Date();
-        this.gtfs_rt_url = 'https://tools.odpch.ch/data/gtfs-rt/gtfs-rt-latest.json';
+        this.gtfs_rt_url = 'https://tools.opentransportdata.swiss/data/gtfs-rt/gtfs-rt-latest.json';
 
         if (customReportFilename !== null) {
             const reportDateTimeMatches = customReportFilename.match(/([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})([0-9]{2})/);
@@ -72,7 +72,7 @@ export default class GTFS_RT_Reporter {
                 const reportMin = reportDateTimeMatches[5];
 
                 this.report_datetime = new Date(reportYear + '-' + reportMonth + '-' + reportDay + ' ' + reportHour + ':' + reportMin + ':00');
-                let gtfs_rt_url = 'https://tools.odpch.ch/gtfs-rt-snapshot/[YYYY]/[MM]/[DD]/[GTFS_RT_FILENAME]';
+                let gtfs_rt_url = 'https://tools.opentransportdata.swiss/gtfs-rt-snapshot/[YYYY]/[MM]/[DD]/[GTFS_RT_FILENAME]';
                 gtfs_rt_url = gtfs_rt_url.replace('[YYYY]', reportYear);
                 gtfs_rt_url = gtfs_rt_url.replace('[MM]', reportMonth);
                 gtfs_rt_url = gtfs_rt_url.replace('[DD]', reportDay);
@@ -187,7 +187,7 @@ export default class GTFS_RT_Reporter {
             const reportM = reportDateTimeMatches[2];
             const reportD = reportDateTimeMatches[3];
 
-            let url = 'https://tools.odpch.ch/gtfs-rt-static-compare-report/[YYYY]/[MM]/[DD]/gtfs_rt_static_report-[REPORT_DATETIME].json';
+            let url = 'https://tools.opentransportdata.swiss/gtfs-rt-static-compare-report/[YYYY]/[MM]/[DD]/gtfs_rt_static_report-[REPORT_DATETIME].json';
             url = url.replace('[YYYY]', reportY);
             url = url.replace('[MM]', reportM);
             url = url.replace('[DD]', reportD);
