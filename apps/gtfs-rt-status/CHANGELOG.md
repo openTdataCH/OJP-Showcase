@@ -4,6 +4,9 @@ Demo URL: https://tools.opentransportdata.swiss/gtfs-rt-status/
 
 ----
 
+9.May.2026
+- use new URL: https://tools.opentransportdata.swiss/gtfs-rt-status/
+
 10.March.2026
 - use individual Python dependencies per tool
 
