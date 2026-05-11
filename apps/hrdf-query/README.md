@@ -10,7 +10,7 @@ This API returns all HRDF datasets that have [HRDF duplicates](../../tools/hrdf-
 
 ### Sample output:
 
-[hrdf-query/hrdf_duplicates_list.json](https://tools.odpch.ch/hrdf-query/hrdf_duplicates_list.json)
+[hrdf-query/hrdf_duplicates_list.json](https://tools.opentransportdata.swiss/hrdf-query/hrdf_duplicates_list.json)
 
 ```
 {
