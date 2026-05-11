@@ -1,6 +1,6 @@
 # HRDF Duplicates Report
 
-Demo: https://tools.odpch.ch/hrdf-check-duplicates/
+Demo: https://tools.opentransportdata.swiss/hrdf-check-duplicates/
 
 Issue: [Prüfung auf doppelte Fahrten](https://github.com/openTdataCH/showcases/issues/8)
 
