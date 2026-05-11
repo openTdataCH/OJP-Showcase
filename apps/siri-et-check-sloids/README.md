@@ -2,7 +2,7 @@
 
 This is an Angular webapp that is checking [SIRI-ET](https://opentransportdata.swiss/en/cookbook/siri-et-pt-with-request-response/) messages for missing [SLOIDs](https://www.oev-info.ch/de/datenmanagement/sid4pt-swiss-id-public-transport/swiss-location-identification-sloid).
 
-Demo URL: https://tools.odpch.ch/siri-et-check-sloids/
+Demo URL: https://tools.opentransportdata.swiss/siri-et-check-sloids/
 
 ![](./docs/app-screenshot.png)
 
@@ -20,7 +20,7 @@ $ ng serve
 
 | Dataset | URL | Description |
 |-|-|-|
-| Business Organisations | [actual_date_business_organisation_versions_LATEST.csv](https://tools.odpch.ch/data/actual_date_business_organisation_versions_LATEST.csv) | This API gives the latest `actual_date_business_organisation_versions*` CSV file from [business-organisations](https://data.opentransportdata.swiss/en/dataset/business-organisations) |
+| Business Organisations | [actual_date_business_organisation_versions_LATEST.csv](https://tools.opentransportdata.swiss/data/actual_date_business_organisation_versions_LATEST.csv) | This API gives the latest `actual_date_business_organisation_versions*` CSV file from [business-organisations](https://data.opentransportdata.swiss/en/dataset/business-organisations) |
 | SIRI-ET feed | https://api.opentransportdata.swiss/siri-et | SIRI-ET latest response - see [SIRI-ET cookbook](https://opentransportdata.swiss/en/cookbook/siri-et-pt-with-request-response/) | 
 
 ## Methodology
