@@ -117,7 +117,12 @@ export class ReportController {
   private updateSIRI_ET_AgencyNotIn_GTFS_RT_Model(agencyIds: string[]) {
     this.reportData.siriET_OnlyAgencyData = [];
     agencyIds.forEach((agencyId) => {
-      const agency = this.gtfsDBController.mapAgency[agencyId];
+      const agency = this.gtfsDBController.mapAgency[agencyId] ?? null;
+      if (agency === null) {
+        console.log('cant find a GTFS DB agency for: ' + agencyId);
+        return;
+      }
+
       const siriET_Journeys = this.mapAgencySIRI_ET_Journeys[agencyId];
 
       const itemsNo = siriET_Journeys.length;
