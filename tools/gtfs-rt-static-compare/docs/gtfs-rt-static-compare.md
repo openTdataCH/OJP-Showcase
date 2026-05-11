@@ -2,7 +2,7 @@
 
 This document describes the processes behind generation of the GTFS-RT - GTFS-static comparison.
 
-**TLDR**: https://tools.odpch.ch/gtfs-rt-static-report/ for current report
+**TLDR**: https://tools.opentransportdata.swiss/gtfs-rt-static-report/ for current report
 
 ## Running processes
 
@@ -16,7 +16,7 @@ There are two continous running processes (implemented as cronjobs)
 ## GTFS-static DB
 - the [GTFS-static dataset](https://opentransportdata.swiss/en/dataset/timetable-2024-gtfs2020) is ingested 2x week using [gtfs-static-db-importer](../../gtfs-static-db-importer/) tool. The output is a SQLite DB.
 - after ingestion the following GTFS-static DB catalog file is created/updated
-https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json
+https://tools.opentransportdata.swiss/gtfs-static-dbs/gtfs-static-dbs.json
 
 ```
 {
@@ -57,10 +57,10 @@ Schema:
 - the snapshot files are also exposed via HTTP. **Warning**, the files are big, i.e. 5-50Mb
 ```
 Example for 25.May 2024 10:00 
-https://tools.odpch.ch/gtfs-rt-snapshot/2024/05/25/GTFS_RT-2024-05-25-1000.json
+https://tools.opentransportdata.swiss/gtfs-rt-snapshot/2024/05/25/GTFS_RT-2024-05-25-1000.json
 ```
 - the GTFS-RT items are compared against latest GTFS-static DB file
-- a matching report is generated, example for `10.October 2025 10:00`:  [gtfs_rt_static_report-2025-10-10-1000.json](view-source:https://tools.odpch.ch/gtfs-rt-static-compare-report/2025/10/10/gtfs_rt_static_report-2025-10-10-1000.json)
+- a matching report is generated, example for `10.October 2025 10:00`:  [gtfs_rt_static_report-2025-10-10-1000.json](https://tools.opentransportdata.swiss/gtfs-rt-static-compare-report/2025/10/10/gtfs_rt_static_report-2025-10-10-1000.json)
 
 ```
 {
@@ -120,8 +120,8 @@ Schema
 
 ## GTFS-RT - GTFS-static monthly comparison reports
 - the hourly reports are consolidated in a monthly report
-- i.e. for October 2025 - https://tools.odpch.ch/gtfs-rt-static-compare-report/2025/gtfs_rt_static_report-2025-10.json
-- the report is visualised via https://tools.odpch.ch/gtfs-rt-static-report/
+- i.e. for October 2025 - https://tools.opentransportdata.swiss/gtfs-rt-static-compare-report/2025/gtfs_rt_static_report-2025-10.json
+- the report is visualised via https://tools.opentransportdata.swiss/gtfs-rt-static-report/
 - each day/hr can be inspected and the individual reports to be checked
 - previous months can be loaded
 - by default `total_active_rows_no` (total number of GTFS-RT **active** feed items) is shown in the report cells but other metadata keys can be chosen

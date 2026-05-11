@@ -1,4 +1,3 @@
-import csv
 import collections
 
 class GTFS_RT_Agency:

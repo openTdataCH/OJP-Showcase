@@ -4,7 +4,7 @@ This application is an API that queries the GTFS DBs and used by the [gtfs-rt-st
 
 ## Query GTFS Active Trips
 
-`GET /query_active_trips`
+`GET /query_day_from_to_trips`
 
 This API returns all active trips for a given interval or running at a given time
 
@@ -21,7 +21,7 @@ This API returns all active trips for a given interval or running at a given tim
 
 ### Sample output:
 
-[query_active_trips?day=2021-10-31&hhmm=2240&from_hhmm=2210&to_hhmm=2540&filter_agency_ids=HAS_GTFS_RT&parse_type=FLAT](https://tools.odpch.ch/gtfs-query/query_active_trips?day=2021-10-31&hhmm=2240&from_hhmm=2210&to_hhmm=2540&filter_agency_ids=HAS_GTFS_RT&parse_type=FLAT)
+[query_day_from_to_trips?gtfs_day=2026-05-06&day=2026-05-09&from_hhmm=1731&to_hhmm=2101&filter_agency_ids=HAS_GTFS_RT](https://tools.opentransportdata.swiss/gtfs-query/query_day_from_to_trips?gtfs_day=2026-05-06&day=2026-05-09&from_hhmm=1731&to_hhmm=2101&filter_agency_ids=HAS_GTFS_RT)
 
 ```
 {
@@ -53,15 +53,15 @@ This API returns all active trips for a given interval or running at a given tim
 
 | Required | Optional | Description | Example |
 |-|-|-|-|
-| `route_short_name`, `line_ref` | `service_day` | Trips by `routes.route_short_name` and line_ref. Additionally `service_day` can be used to restrict the results to a given day | [route_short_name=451&line_ref=85:801:405&service_day=2025-01-03](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?route_short_name=451&line_ref=85%3A801%3A405&service_day=2025-01-03) |
-| `agency_id`, `service_day` |  | All trips of a  `routes.agency_id` for a given `service_day` | [agency_id=11&service_day=2025-01-01](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?agency_id=11&service_day=2025-01-01) |
-| `agency_id`, `route_short_name` | `service_day` | All trips of a `routes.agency_id` for a given `routes.route_short_name`. Additionally `service_day` can be used to restrict the results to a given day  | [agency_id=801&route_short_name=451&service_day=2025-01-01](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?agency_id=801&route_short_name=451&service_day=2025-01-01) |
-| `journey_ref` | `service_day` | All trips of a `journey_ref` in format of [swiss journey id](https://www.oev-info.ch/de/datenmanagement/sid4pt-swiss-id-public-transport/swiss-journey-identification-sjyid), i.e. `ch:1:sjyid:100001:730-001` or different formats, i.e. `85:33:4491:001` . Additionally `service_day` can be used to restrict the results to a given day  | [journey_ref=ch:1:sjyid:100015:15340-001&service_day=2025-01-03](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?journey_ref=ch%3A1%3Asjyid%3A100015%3A15340-001&service_day=2025-01-03) |
-| `original_trip_id` | `service_day` | All trips of a `trips.original_trip_id` . Additionally `service_day` can be used to restrict the results to a given day  | [original_trip_id=ch:1:sjyid:100001:18430-003&service_day=2025-01-01](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?original_trip_id=ch%3A1%3Asjyid%3A100001%3A18430-003&service_day=2025-01-01) |
+| `route_short_name`, `line_ref` | `service_day` | Trips by `routes.route_short_name` and line_ref. Additionally `service_day` can be used to restrict the results to a given day | [route_short_name=451&line_ref=85:801:405&service_day=2025-01-03](https://tools.opentransportdata.swiss/gtfs-query/trips?route_short_name=451&line_ref=85%3A801%3A405&service_day=2025-01-03) |
+| `agency_id`, `service_day` |  | All trips of a  `routes.agency_id` for a given `service_day` | [agency_id=11&service_day=2025-01-01](https://tools.opentransportdata.swiss/gtfs-query/trips?agency_id=11&service_day=2025-01-01) |
+| `agency_id`, `route_short_name` | `service_day` | All trips of a `routes.agency_id` for a given `routes.route_short_name`. Additionally `service_day` can be used to restrict the results to a given day  | [agency_id=801&route_short_name=451&service_day=2025-01-01](https://tools.opentransportdata.swiss/gtfs-query/trips?agency_id=801&route_short_name=451&service_day=2025-01-01) |
+| `journey_ref` | `service_day` | All trips of a `journey_ref` in format of [swiss journey id](https://www.oev-info.ch/de/datenmanagement/sid4pt-swiss-id-public-transport/swiss-journey-identification-sjyid), i.e. `ch:1:sjyid:100001:730-001` or different formats, i.e. `85:33:4491:001` . Additionally `service_day` can be used to restrict the results to a given day  | [journey_ref=ch:1:sjyid:100015:15340-001&service_day=2025-01-03](https://tools.opentransportdata.swiss/gtfs-query/trips?journey_ref=ch%3A1%3Asjyid%3A100015%3A15340-001&service_day=2025-01-03) |
+| `original_trip_id` | `service_day` | All trips of a `trips.original_trip_id` . Additionally `service_day` can be used to restrict the results to a given day  | [original_trip_id=ch:1:sjyid:100001:18430-003&service_day=2025-01-01](https://tools.opentransportdata.swiss/gtfs-query/trips?original_trip_id=ch%3A1%3Asjyid%3A100001%3A18430-003&service_day=2025-01-01) |
 
 ### Example Response
 
-[trips?original_trip_id=ch:1:sjyid:100001:18430-003](https://tools.odpch.ch/gtfs-rt-status/api/gtfs-query/trips?original_trip_id=ch%3A1%3Asjyid%3A100001%3A18430-003)
+[trips?original_trip_id=ch:1:sjyid:100001:18430-003](https://tools.opentransportdata.swiss/gtfs-query/trips?original_trip_id=ch%3A1%3Asjyid%3A100001%3A18430-003)
 
 ```
 {
@@ -215,7 +215,7 @@ where `trip_id` is the `trips.trip_id` value from the latest GTFS dataset.
 
 ### Example Response
 
-[trip/404.TA.91-33-C-j25-1.34.H](https://tools.odpch.ch/gtfs-query/trip/404.TA.91-33-C-j25-1.34.H)
+[trip/404.TA.91-33-C-j25-1.34.H](https://tools.opentransportdata.swiss/gtfs-query/trip/404.TA.91-33-C-j25-1.34.H)
 
 ```
 {
@@ -268,7 +268,7 @@ This API returns entire content of the `agency`, `routes` and `stops` tables.
 
 ### Sample output:
 
-[db_lookups?gtfs_day=2026-03-07](https://tools.odpch.ch/gtfs-query/db_lookups?day=2021-10-31&hhmm=2221)
+[db_lookups?gtfs_day=2026-03-07](https://tools.opentransportdata.swiss/gtfs-query/db_lookups?day=2021-10-31&hhmm=2221)
 
 ```
 {

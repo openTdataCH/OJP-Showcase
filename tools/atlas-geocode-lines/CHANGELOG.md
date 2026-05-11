@@ -1,6 +1,6 @@
 # CHANGELOG atlas-geocode-lines
 
-This tool used in [Atlas-Lines compare GTFS-Routes](https://tools.odpch.ch/atlas-route-compare-gtfs/) app.
+This tool used in [Atlas-Lines compare GTFS-Routes](https://tools.opentransportdata.swiss/atlas-route-compare-gtfs/) app.
 
 ----
 

@@ -7,4 +7,4 @@ report_paths:
   consolidate_hrdf_duplicates_report_path: [APP_PATH]/data/hrdf-duplicates-reports-csv/hrdf_duplicates_report.[AGENCY_ID].csv
 
 report_urls:
-  duplicate_days: https://tools.odpch.ch/hrdf-query/hrdf_duplicates_list.json
+  duplicate_days: https://tools.opentransportdata.swiss/hrdf-query/hrdf_duplicates_list.json

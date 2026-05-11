@@ -42,7 +42,7 @@ export class ReportHelpers {
       return '';
     }
 
-    // https://tools.odpch.ch/gtfs-rt-snapshot/2026/03/11/GTFS_RT-2026-03-11-1200.json
+    // https://tools.opentransportdata.swiss/gtfs-rt-snapshot/2026/03/11/GTFS_RT-2026-03-11-1200.json
     // gtfs_rt_filename - GTFS_RT-2026-03-11-1200.json
     if (!gtfs_rt_filename.startsWith('GTFS_RT-')) {
       gtfs_rt_filename = 'GTFS_RT-' + gtfs_rt_filename;
@@ -51,7 +51,7 @@ export class ReportHelpers {
       gtfs_rt_filename = gtfs_rt_filename + '.json';
     }
 
-    const templateURL = 'https://tools.odpch.ch/gtfs-rt-snapshot/[YYYY]/[MM]/[DD]/' + gtfs_rt_filename;
+    const templateURL = 'https://tools.opentransportdata.swiss/gtfs-rt-snapshot/[YYYY]/[MM]/[DD]/' + gtfs_rt_filename;
     const url = ReportHelpers.computeSnapshotURLFromTemplate(templateURL, gtfs_rt_filename);
 
     return url;

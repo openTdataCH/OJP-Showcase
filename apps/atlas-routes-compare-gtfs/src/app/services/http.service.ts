@@ -14,7 +14,7 @@ export class HTTP_Service {
   constructor(private http: HttpClient) {}
 
   async fetchLatestGTFSCatalog(): Promise<GTFS_Static_DB_Catalog_JSON> {
-    const url = 'https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json';
+    const url = 'https://tools.opentransportdata.swiss/gtfs-static-dbs/gtfs-static-dbs.json';
 
     const params = new HttpParams()
       .set('rand', Date.now().toString());
@@ -43,7 +43,7 @@ export class HTTP_Service {
   }
 
   async fetchDBLookups(gtfsDay: string): Promise<GTFS_DB_LookupJSON> {
-    const url = 'https://tools.odpch.ch/gtfs-query/db_lookups';
+    const url = 'https://tools.opentransportdata.swiss/gtfs-query/db_lookups';
 
     const params = new HttpParams()
       .set('rand', Date.now().toString())
@@ -55,7 +55,7 @@ export class HTTP_Service {
   }
 
   async fetchAtlasStopsGeoJSON(): Promise<AtlasStopsFeatureCollection> {
-    const url = 'https://tools.odpch.ch/data/atlas_stops.geojson';
+    const url = 'https://tools.opentransportdata.swiss/data/atlas_stops.geojson';
 
     const params = new HttpParams()
       .set('rand', Date.now().toString());
@@ -66,7 +66,7 @@ export class HTTP_Service {
   }
 
   async fetchRoutesRepresentativeTrip(gtfsDay: string): Promise<GTFS_DB_Trips_Response> {
-    let baseURL = 'https://tools.odpch.ch/gtfs-query';
+    let baseURL = 'https://tools.opentransportdata.swiss/gtfs-query';
     
     const url = baseURL + '/query_routes_representative_trip';
 
@@ -80,7 +80,7 @@ export class HTTP_Service {
   }
 
   async fetchAtlasOEV_Routes(): Promise<AtlasOEV_RouteReport> {
-    const url = 'https://tools.odpch.ch/data/atlas_oev_report.json';
+    const url = 'https://tools.opentransportdata.swiss/data/atlas_oev_report.json';
 
     const params = new HttpParams()
       .set('rand', Date.now().toString());

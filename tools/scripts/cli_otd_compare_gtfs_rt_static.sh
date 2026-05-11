@@ -24,7 +24,7 @@ echo ""
 symlink_latest $LOGFILE
 
 DETAIL_REPORT_DATE_F=$(grep -Po 'report-\K[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}(?=\.json)' $LOGFILE)
-DETAIL_REPORT_URL=https://tools.odpch.ch/gtfs-rt-static-report/detail/$DETAIL_REPORT_DATE_F
+DETAIL_REPORT_URL=https://tools.opentransportdata.swiss/gtfs-rt-static-report/detail/$DETAIL_REPORT_DATE_F
 
 if [ "$status" -ne 0 ]; then
   {
@@ -33,8 +33,8 @@ if [ "$status" -ne 0 ]; then
     echo "Subject: GTFS-RT -static compare issue"
     echo "Content-Type: text/plain; charset=UTF-8"
     echo
-    echo "Report: https://tools.odpch.ch/gtfs-rt-static-report/"
-    echo "Log: https://tools.odpch.ch/tmp/logs/otd_compare_gtfs_rt_static-LATEST.log"
+    echo "Report: https://tools.opentransportdata.swiss/gtfs-rt-static-report/"
+    echo "Log: https://tools.opentransportdata.swiss/tmp/logs/otd_compare_gtfs_rt_static-LATEST.log"
     echo "Detail by agency: $DETAIL_REPORT_URL"
     echo
     echo "-> last 50 rows"

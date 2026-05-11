@@ -73,7 +73,7 @@ export class ConsolidatedReportComponent implements OnInit {
           return;
         }
 
-        const detailsURL = 'https://tools.odpch.ch/hrdf-check-duplicates/report?day=' + duplicateCSVRow.day + '&agency_id=' + agencyId;
+        const detailsURL = 'https://tools.opentransportdata.swiss/hrdf-duplicates-report/report?day=' + duplicateCSVRow.day + '&agency_id=' + agencyId;
 
         const reportRow: ReportRow = {
           hrdfDay: duplicateCSVRow.day,

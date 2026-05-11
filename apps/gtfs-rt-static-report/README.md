@@ -2,7 +2,7 @@
 
 This aplication visualize the reports produced by [gtfs-rt-static-compare](../../tools/gtfs-rt-static-compare/) tool.
 
-Demo URL: https://tools.odpch.ch/gtfs-rt-static-report/
+Demo URL: https://tools.opentransportdata.swiss/gtfs-rt-static-report/
 
 Documentation: [gtfs-rt-static-compare/docs/gtfs-rt-static-compare.md](../../tools/gtfs-rt-static-compare/docs/gtfs-rt-static-compare.md)
 

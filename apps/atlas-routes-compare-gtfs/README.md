@@ -1,6 +1,6 @@
 # Atlas-Lines compare GTFS-Routes
 
-URL: https://tools.odpch.ch/atlas-route-compare-gtfs/
+URL: https://tools.opentransportdata.swiss/atlas-route-compare-gtfs/
 
 ![app-screenshot.jpg](./docs/app-screenshot.jpg)
 
@@ -19,11 +19,11 @@ $ ng serve
 | - | - | - |
 | Atlas Line | Latest `actual_date_line_versions` file from [slnid-line](https://data.opentransportdata.swiss/de/dataset/slnid-line) dataset | [actual_date_line_versions_LATEST.csv](https://opentdatach.github.io/data/slnid-line-actual-date/actual-date-line_LATEST.csv) |
 | Business Organisations | Latest `full_business_organisation_versions` file from [business-organisations](https://data.opentransportdata.swiss/de/dataset/business-organisations) dataset | [full_business_organisation_versions_LATEST.csv](https://opentdatach.github.io/data/business-organisations/full-business-organisation_LATEST.csv) |
-| GTFS catalog | Current imported GTFS datasets using [gtfs-static-db-importer](https://github.com/openTdataCH/showcases/tree/develop/tools/gtfs-static-db-importer) tool | [gtfs-static-dbs.json](https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json) |
+| GTFS catalog | Current imported GTFS datasets using [gtfs-static-db-importer](https://github.com/openTdataCH/showcases/tree/develop/tools/gtfs-static-db-importer) tool | [gtfs-static-dbs.json](https://tools.opentransportdata.swiss/gtfs-static-dbs/gtfs-static-dbs.json) |
 | GTFS DB Lookups | Given GTFS-day table lookups: `agency`, `routes`, `stops` | [/gtfs-query/db_lookups](https://github.com/openTdataCH/showcases/tree/develop/apps/gtfs-query) `gtfs-query` docs |
 | Route Trips | "Representative" GTFS `trips` for each `routes` | [/gtfs-query/query_routes_representative_trip](https://github.com/openTdataCH/showcases/tree/develop/apps/gtfs-query) `gtfs-query` docs |
-| Atlas OEV Lines | Generated file from [atlas-lookup-lines](../../tools/atlas-lookup-lines/) tool | [atlas_oev_report.json](https://tools.odpch.ch/data/atlas_oev_report.json) |
-| Atlas Stops GeoJSON | Generated file from [atlas-geocode-lines](../../tools/atlas-geocode-lines/) tool | [atlas_stops.geojson](https://tools.odpch.ch/data/atlas_stops.geojson) |
+| Atlas OEV Lines | Generated file from [atlas-lookup-lines](../../tools/atlas-lookup-lines/) tool | [atlas_oev_report.json](https://tools.opentransportdata.swiss/data/atlas_oev_report.json) |
+| Atlas Stops GeoJSON | Generated file from [atlas-geocode-lines](../../tools/atlas-geocode-lines/) tool | [atlas_stops.geojson](https://tools.opentransportdata.swiss/data/atlas_stops.geojson) |
 
 ## Process
 

@@ -147,7 +147,7 @@ export class DetailAgencyComponent implements OnInit {
       if (snapshotCompareData) {
         const dayKeys = Object.keys(snapshotCompareData.map_days);
         dayKeys.forEach(dayKey => {
-          // https://tools.odpch.ch/gtfs-rt-snapshot/2026/03/11/GTFS_RT-2026-03-11-1100.json
+          // https://tools.opentransportdata.swiss/gtfs-rt-snapshot/2026/03/11/GTFS_RT-2026-03-11-1100.json
           const compareReportKey = dayKey + '-' + reportHrMinF;
           const compareDaySnapshotURL = ReportHelpers.computeGTFS_RT_URL(compareReportKey);
           mapCompareSnapshotURLs[compareReportKey] = compareDaySnapshotURL;

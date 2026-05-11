@@ -14,12 +14,12 @@ export class HTTP_Service {
   constructor(private http: HttpClient) {}
 
   async fetchLatestGTFSCatalog(): Promise<GTFS_Static_DB_Catalog_JSON> {
-    const url = 'https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json';
+    const url = 'https://tools.opentransportdata.swiss/gtfs-static-dbs/gtfs-static-dbs.json';
     return await firstValueFrom(this.http.get<GTFS_Static_DB_Catalog_JSON>(url));
   }
 
   fetchSIRI_ET(): Observable<string> {
-    const url = 'https://tools.odpch.ch/data/siri-et/siri-et-latest-prod.xml';
+    const url = 'https://tools.opentransportdata.swiss/data/siri-et/siri-et-latest-prod.xml';
 
     const headers = new HttpHeaders();
     if (!url.startsWith('localhost')) {
@@ -32,7 +32,7 @@ export class HTTP_Service {
   }
 
   fetchGTFS_RT(): Observable<Response_GTFS_RT> {
-    const url = 'https://tools.odpch.ch/data/gtfs-rt/gtfs-rt-latest.json';
+    const url = 'https://tools.opentransportdata.swiss/data/gtfs-rt/gtfs-rt-latest.json';
 
     const headers = new HttpHeaders();
     if (!url.startsWith('http://localhost')) {
@@ -45,20 +45,20 @@ export class HTTP_Service {
   }
 
   async fetchBusinessOrganisationsCSV(): Promise<string> {
-    const url = 'https://tools.odpch.ch/data/actual_date_business_organisation_versions_LATEST.csv';
+    const url = 'https://tools.opentransportdata.swiss/data/actual_date_business_organisation_versions_LATEST.csv';
     const response = this.http.get(url, { responseType: 'text' });
     return await firstValueFrom(response);
   }
 
   fetchDBLookups(gtfsDay: string): Observable<GTFS_DB_LookupJSON> {
-    const url = 'https://tools.odpch.ch/gtfs-query/db_lookups?gtfs_day=' + gtfsDay;
+    const url = 'https://tools.opentransportdata.swiss/gtfs-query/db_lookups?gtfs_day=' + gtfsDay;
     const response = this.http.get<GTFS_DB_LookupJSON>(url);
 
     return response;
   }
 
   fetchGTFS_AgencyTrips(gtfsDay: string, serviceDay: string, agencyId: string): Observable<GTFS_DB_Trips_Response> {
-    let url = 'https://tools.odpch.ch/gtfs-query/trips?gtfs_day=' + gtfsDay + '&service_day=' + serviceDay + '&agency_id=' + agencyId;
+    let url = 'https://tools.opentransportdata.swiss/gtfs-query/trips?gtfs_day=' + gtfsDay + '&service_day=' + serviceDay + '&agency_id=' + agencyId;
     
     const response = this.http.get<GTFS_DB_Trips_Response>(url);
     return response;

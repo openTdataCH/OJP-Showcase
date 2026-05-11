@@ -1,6 +1,6 @@
 # GTFS-RT Status
 
-Demo: https://tools.odpch.ch/gtfs-rt-status/
+Demo: https://tools.opentransportdata.swiss/gtfs-rt-status/
 
 ![GTFS -RT status](./docs/app_screenshot_v1.jpg)
 

@@ -12,7 +12,7 @@ export class HTTP_Service {
   constructor(private http: HttpClient) {}
 
   async fetchLatestGTFSCatalog(): Promise<GTFS_Static_DB_Catalog_JSON> {
-    const url = 'https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json';
+    const url = 'https://tools.opentransportdata.swiss/gtfs-static-dbs/gtfs-static-dbs.json';
 
     const params = new HttpParams()
       .set('rand', Date.now().toString());
@@ -21,7 +21,7 @@ export class HTTP_Service {
   }
 
   async fetchSIRI_ET(): Promise<string> {
-    let url = 'https://tools.odpch.ch/data/siri-et/siri-et-latest-prod.xml';
+    let url = 'https://tools.opentransportdata.swiss/data/siri-et/siri-et-latest-prod.xml';
     
     const params = new HttpParams()
       .set('rand', Date.now().toString());
@@ -31,7 +31,7 @@ export class HTTP_Service {
   }
 
   async fetchBusinessOrganisationsCSV(): Promise<string> {
-    const url = 'https://tools.odpch.ch/data/actual_date_business_organisation_versions_LATEST.csv';
+    const url = 'https://tools.opentransportdata.swiss/data/actual_date_business_organisation_versions_LATEST.csv';
 
     const params = new HttpParams()
       .set('rand', Date.now().toString());
@@ -41,7 +41,7 @@ export class HTTP_Service {
   }
 
   async fetchDBLookups(gtfsDay: string): Promise<GTFS_DB_LookupJSON> {
-    const url = 'https://tools.odpch.ch/gtfs-query/db_lookups';
+    const url = 'https://tools.opentransportdata.swiss/gtfs-query/db_lookups';
 
     const params = new HttpParams()
       .set('gtfs_day', gtfsDay)
