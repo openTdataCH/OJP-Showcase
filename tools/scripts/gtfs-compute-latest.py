@@ -17,7 +17,7 @@ def main():
     print()
     print('Resources:')
     print(f'    - https://data.opentransportdata.swiss/en/dataset/{package_id}')
-    print('     - https://tools.odpch.ch/gtfs-static-dbs/gtfs-static-dbs.json')
+    print('     - https://tools.opentransportdata.swiss/gtfs-static-dbs/gtfs-static-dbs.json')
     print('')
     
     fetch_latest_resource(script_path, package_id) 

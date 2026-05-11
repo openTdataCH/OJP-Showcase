@@ -2,9 +2,9 @@
 
 This is a Python app that intersects [Atlas-Lines](https://data.opentransportdata.swiss/de/dataset/slnid-line) dataset rows with [oev-info.ch](https://www.oev-info.ch/de/fahrplan-aktuell/fahrplanfelder-abfragen) results.
 
-The result is a JSON file and is used in [Atlas-Lines compare GTFS-Routes](https://tools.odpch.ch/atlas-route-compare-gtfs/) app.
+The result is a JSON file and is used in [Atlas-Lines compare GTFS-Routes](https://tools.opentransportdata.swiss/atlas-route-compare-gtfs/) app.
 
-Current JSON report: https://tools.odpch.ch/data/atlas_oev_report.json
+Current JSON report: https://tools.opentransportdata.swiss/data/atlas_oev_report.json
 
 ## Process
 

@@ -2,7 +2,7 @@
 
 This is a Node.js app that extracts stop names from [Atlas-Lines](https://data.opentransportdata.swiss/de/dataset/slnid-line) dataset and geocodes them against  [Location Information](https://opentransportdata.swiss/en/cookbook/ojplocationinformationrequest/) OJP Service.
 
-The results are used in [Atlas-Lines compare GTFS-Routes](https://tools.odpch.ch/atlas-route-compare-gtfs/) app.
+The results are used in [Atlas-Lines compare GTFS-Routes](https://tools.opentransportdata.swiss/atlas-route-compare-gtfs/) app.
 
 An [OJP](https://opentransportdata.swiss/en/cookbook/open-journey-planner-ojp/) authorization key is needed for geocoding. The key supplied with the [ojp-js](https://github.com/openTdataCH/ojp-js) SDK cant be guaranteed to be available for all requests. 
 - see [constants.ts > OJP_STAGE_CONFIG](./src/constants.ts) for overriding the default key 
@@ -28,7 +28,7 @@ At the moment (Jan 2025) there are:
 
 ## GeoJSON
 
-Current GeoJSON https://tools.odpch.ch/data/atlas_stops.geojson
+Current GeoJSON https://tools.opentransportdata.swiss/data/atlas_stops.geojson
 
 ###  Feature Example
 

@@ -19,7 +19,7 @@ def main():
     print()
     print('Resources:')
     print(f'    - https://data.opentransportdata.swiss/en/dataset/{package_id}')
-    print('  - https://tools.odpch.ch/hrdf-dbs/hrdf-dbs.json')
+    print('  - https://tools.opentransportdata.swiss/hrdf-dbs/hrdf-dbs.json')
     print('')
 
     fetch_latest_resource(script_path, package_id)
