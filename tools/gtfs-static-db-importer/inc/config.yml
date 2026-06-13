@@ -14,6 +14,8 @@ gtfs_dbs_base_path: "[APP_PATH]/data/gtfs-static-dbs"
 gtfs_ckan_json_path: "[APP_PATH]/data/ckan-utils-tmp/ckan_[PACKAGE_ID].json"
 gtfs_dbs_json_path: "[APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json"
 
+bo_realtime_csv_path: "[APP_PATH]/data/opentransportdata.swiss/go-realtime/go-realtime.csv"
+
 gtfs_rt_updates:
   -
     # up to 10.04 the GTFS-RT switch was done at 13:05 in the day of GTFS static publish
