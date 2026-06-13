@@ -6,9 +6,11 @@ from typing import Any, List, Optional
 import csv
 
 class CSV_Updater:
+    csv_path: Path
     csv_writer: csv.DictWriter
 
     def __init__(self, csv_path: Path, column_names: List[str]):
+        self.csv_path = csv_path
         self.csv_file = open(csv_path, 'w', encoding='utf-8')
         self.column_names = column_names
 
