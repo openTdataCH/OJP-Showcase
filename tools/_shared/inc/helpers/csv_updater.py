@@ -3,7 +3,7 @@ import os, sys
 from io import TextIOWrapper
 from pathlib import Path
 
-from typing import Any, List, Optional
+from typing import Any, List, Mapping
 
 import csv
 
@@ -32,7 +32,7 @@ class CSV_Updater:
         csv_updater = CSV_Updater(csv_path, column_names)
         return csv_updater
 
-    def prepare_row(self, row_dict: dict):
+    def prepare_row(self, row_dict: Mapping[str, object]):
         map_row_values = {}
         for column_name in self.column_names:
             attr_value = row_dict.get(column_name, None)
