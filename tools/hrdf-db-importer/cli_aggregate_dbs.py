@@ -124,7 +124,7 @@ def _process(app_config: any):
         
         # compute stats only if necessary
         if hrdf_catalog_item.table_stats == {} and hrdf_db_relative_path is not None:
-            hrdf_db_path = f'{hrdf_dbs_base_path}/{hrdf_db_relative_path}'
+            hrdf_db_path = Path(f'{hrdf_dbs_base_path}/{hrdf_db_relative_path}')
             hrdf_db_engine = SQLiteDBEngine(hrdf_db_path)
             hrdf_catalog_item.table_stats = hrdf_db_engine.compute_table_stats()
     
