@@ -6,7 +6,7 @@ from typing import Any, List, Optional
 import csv
 
 class CSV_Updater:
-    csv_writer: Optional[csv.DictWriter]
+    csv_writer: csv.DictWriter
 
     def __init__(self, csv_path: Path, column_names: List[str]):
         self.csv_file = open(csv_path, 'w', encoding='utf-8')
@@ -31,9 +31,7 @@ class CSV_Updater:
             attr_value = row_dict.get(column_name, None)
             map_row_values[column_name] = attr_value
         
-        if self.csv_writer is not None:
-            self.csv_writer.writerow(map_row_values)
+        self.csv_writer.writerow(map_row_values)
 
     def close(self):
         self.csv_file.close()
-        self.csv_writer = None
