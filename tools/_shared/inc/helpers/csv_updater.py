@@ -1,4 +1,6 @@
 import os, sys
+
+from io import TextIOWrapper
 from pathlib import Path
 
 from typing import Any, List, Optional
@@ -7,6 +9,9 @@ import csv
 
 class CSV_Updater:
     csv_path: Path
+    csv_file: TextIOWrapper
+    column_names: List[str]
+    
     csv_writer: csv.DictWriter
 
     def __init__(self, csv_path: Path, column_names: List[str]):
