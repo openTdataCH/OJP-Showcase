@@ -11,6 +11,10 @@ def _sanitize_col_def(col_def: str):
     
     return col_def
 
+class ColumnMetadataType(TypedDict):
+    names: List[str]
+    defs: List[str]
+    indexes: List[str]
 
 class SQLiteDBEngine:
     db_path: Path
