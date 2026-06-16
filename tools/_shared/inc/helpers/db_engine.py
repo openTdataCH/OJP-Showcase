@@ -196,7 +196,7 @@ class SQLiteDBEngine:
         query_results = cast(dict[str, Any], self._query(sql, map_by_field))
         return query_results
     
-    def count_rows_table(self, table_name: str, where_clause = None):
+    def count_rows_table(self, table_name: str, where_clause = None) -> int:
         sql = f"SELECT COUNT(1) AS cno FROM {table_name} {where_clause}"
         return self._db_handle.cursor().execute(sql).fetchone()[0]
     
