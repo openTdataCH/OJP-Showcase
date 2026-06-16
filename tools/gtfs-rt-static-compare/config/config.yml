@@ -21,7 +21,7 @@ map_holidays:
   # 2024
   "2024-01-01": New Years
   "2024-01-02": Berchtold's Day
-  "2024-03-28": Maundy Thursday
+  "2024-03-29": Good Friday
   "2024-04-01": Easter Monday
   "2024-05-09": Ascension Day
   "2024-05-20": Whit Monday
@@ -32,7 +32,7 @@ map_holidays:
   # 2025
   "2025-01-01": New Years
   "2025-01-02": Berchtold's Day
-  "2025-04-17": Maundy Thursday
+  "2025-04-18": Good Friday
   "2025-04-21": Easter Monday
   "2025-05-29": Ascension Day
   "2025-06-09": Whit Monday
@@ -43,7 +43,7 @@ map_holidays:
   # 2026
   "2026-01-01": New Years
   "2026-01-02": Berchtold's Day
-  "2026-04-02": Maundy Thursday
+  "2026-04-03": Good Friday
   "2026-04-06": Easter Monday
   "2026-05-14": Ascension Day
   "2026-05-25": Whit Monday
@@ -54,7 +54,7 @@ map_holidays:
   # 2027
   "2027-01-01": New Years
   "2027-01-02": Berchtold's Day
-  "2027-03-25": Maundy Thursday
+  "2027-03-26": Good Friday
   "2027-03-29": Easter Monday
   "2027-05-06": Ascension Day
   "2027-05-17": Whit Monday
