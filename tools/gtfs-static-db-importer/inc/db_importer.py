@@ -62,8 +62,6 @@ class GTFS_DB_Importer:
         self._create_fts_routes()
         
         self._cleanup()
-
-        self.db_handle.close()
         
         self._remove_lock_file()
 
