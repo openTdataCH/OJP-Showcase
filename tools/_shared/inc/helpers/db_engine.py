@@ -5,6 +5,12 @@ import sqlite3
 from pathlib import Path
 
 from typing import Any, Optional, Union, cast
+def _sanitize_col_def(col_def: str):
+    col_def = col_def.strip().rstrip(',')
+    col_def = ' '.join(col_def.split()) # keep only one space def
+    
+    return col_def
+
 
 class SQLiteDBEngine:
     db_path: Path
