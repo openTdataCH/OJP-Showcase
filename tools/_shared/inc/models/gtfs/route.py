@@ -13,7 +13,7 @@ class RouteDB(TypedDict):
     route_type: int
     day_bits: str
 
-@dataclass(slots=True)
+@dataclass
 class Route:
     id: str
     agency: Agency

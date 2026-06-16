@@ -8,7 +8,7 @@ class AgencyDB(TypedDict):
     agency_name: str
     agency_url: Union[str, None]
 
-@dataclass(slots=True)
+@dataclass
 class Agency:
     id: str
     name: str
