@@ -200,6 +200,7 @@ class SQLiteDBEngine:
         sql = f"SELECT COUNT(1) AS cno FROM {table_name} {where_clause}"
         return self._db_handle.cursor().execute(sql).fetchone()[0]
     
+    # runs only one query. for more SQL statements use run_sql_script()
     def run_sql(self, sql: str):
         self._db_handle.execute(sql)
         self._db_handle.commit()
