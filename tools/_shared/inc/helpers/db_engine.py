@@ -121,7 +121,7 @@ class SQLiteDBEngine:
         for column_def in table_config['columns']:
             column_defs.append(column_def)
 
-        column_defs_s = ",".join(column_defs)
+        column_defs_s = ", ".join(column_defs)
         sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({column_defs_s});"
         self.run_sql(sql)
 
