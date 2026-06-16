@@ -24,18 +24,21 @@ from .shared.inc.helpers.db_helpers import load_sql_from_file
 from .shared.inc.helpers.file_helpers import compute_file_rows_no
 
 class GTFS_DB_Importer:
-    def __init__(self, app_config, gtfs_folder_path, db_path: Path):
-        self.map_sql_queries = app_config['map_sql_queries']
+    _map_sql_queries: dict[str, str]
+    _db_engine: SQLiteDBEngine
+    
+    _gtfs_folder_path: Path
+    _db_lock_path: Path
 
-        self.gtfs_folder_path = gtfs_folder_path
-        self.db_path = db_path
-        self.db_lock_path = Path(f'{self.db_path}.lock')
-        self.db_handle = connect_db(db_path, is_read_only=False)
-        self.db_schema_config = self._load_schema_config()
+    def __init__(self, app_config, gtfs_folder_path: Path, db_path: Path):
+        self._map_sql_queries = app_config['map_sql_queries']
 
-        self.db_tmp_path = f'{db_path.parent}/{db_path.name}-tmp'
-        if not os.path.isdir(self.db_tmp_path):
-            os.makedirs(self.db_tmp_path, exist_ok=True)
+        script_path = Path(os.path.realpath(__file__))
+        db_schema_path = Path(f"{script_path.parent}/config/gtfs_schema.yml")
+        self._db_engine = SQLiteDBEngine.init_read_write(db_path, db_schema_path=db_schema_path)
+        
+        self._gtfs_folder_path = gtfs_folder_path
+        self._db_lock_path = Path(f'{self._db_engine.db_path}.lock')
 
     def start(self):
         log_message("START GTFS IMPORT")
