@@ -40,7 +40,8 @@ class GTFS_DB_Importer:
 
     def start(self):
         log_message("START GTFS IMPORT")
-        log_message(f'DB PATH: {self._db_engine.db_path}')
+        log_message(f'GTFS PATH : {self._gtfs_folder_path}')
+        log_message(f'DB PATH   : {self._db_engine.db_path}')
         print()
         
         if os.path.isfile(self._db_lock_path):
