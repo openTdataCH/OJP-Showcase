@@ -93,22 +93,17 @@ class GTFS_DB_Importer:
         '''
         table_names = ['agency', 'calendar', 'calendar_dates', 'feed_info', 'frequencies', 'routes', 'shapes', 'stop_times', 'stops', 'transfers', 'trips']
 
-        print('')
         log_message(f'START BATCH IMPORT')
 
         for table_name in table_names:
-            print('')
-            log_message(f'TABLE: {table_name}')
-            if not table_name in self.db_schema_config['tables']:
+            log_message(f'... TABLE: {table_name}')
+            if not table_name in self._db_engine.map_columns_metadata:
                 print(f'ERROR - missing config for table {table_name}')
                 sys.exit(1)
 
-            table_config = self.db_schema_config['tables'][table_name]
+            self._db_engine.drop_and_recreate_table(table_name)
 
-            db_table_writer = DB_Table_CSV_Importer(self.db_path, table_name, table_config)
-            db_table_writer.truncate_table()
-
-            gtfs_file_path = Path(f'{self.gtfs_folder_path}/{table_name}.txt')
+            gtfs_file_path = Path(f'{self._gtfs_folder_path}/{table_name}.txt')
             if not os.path.isfile(gtfs_file_path):
                 is_skip_ok = False
 
@@ -116,7 +111,7 @@ class GTFS_DB_Importer:
                     is_skip_ok = True
 
                 if table_name == 'calendar':
-                    calendar_dates_path = f'{self.gtfs_folder_path}/calendar_dates.txt'
+                    calendar_dates_path = f'{self._gtfs_folder_path}/calendar_dates.txt'
                     if os.path.isfile(calendar_dates_path):
                         log_message('... no calendar found, using calendar_dates instead')
                         is_skip_ok = True
@@ -126,12 +121,14 @@ class GTFS_DB_Importer:
                 else:
                     print(f'ERROR = required table "{table_name}" not found {gtfs_file_path}')
                     sys.exit()
+            # endif check if file exists
 
-            db_table_writer.load_csv_file(gtfs_file_path)
-            db_table_writer.add_table_indexes()
-            db_table_writer.close()
+            self._db_engine.load_csv_into_table(table_name, gtfs_file_path)
+            self._db_engine.add_table_indexes(table_name)
+        # loop table names
+        print()
         
-        log_message(f'DONE BATCH IMPORT')
+        log_message(f'... DONE BATCH IMPORT')
         print('')
 
     def _update_calendar(self):
@@ -142,23 +139,24 @@ class GTFS_DB_Importer:
         '''
         log_message('START update calendar')
         
-        rows_no = count_rows_table(self.db_handle, 'calendar')
-        log_message(f'... found {rows_no} rows in calendar')
+        rows_no = self._db_engine.count_rows_table('calendar')
+        log_message(f'... found {rows_no:,} rows in calendar')
+        print()
 
         if rows_no == 0:
             self._fill_calendar_from_calendar_dates()
 
-        table_csv_path = Path(f'{self.db_tmp_path}/calendar_update_day_bits.csv')
-        table_csv_updater = DB_Table_CSV_Updater(table_csv_path, ['service_id', 'day_bits', 'start_date', 'end_date'])
+        db_temp_path = self._db_engine.get_db_tmp_path()
+        table_csv_path = Path(f'{db_temp_path}/calendar_update_day_bits.csv')
+        table_csv_updater = CSV_Updater(table_csv_path, ['service_id', 'day_bits', 'start_date', 'end_date'])
 
         sql = 'SELECT MIN(start_date) AS min_date FROM calendar'
-        min_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
-        sql = 'SELECT MAX(end_date) AS min_date FROM calendar'
-        max_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
+        min_date_s = self._db_engine.query(sql)[0]['min_date']
+        sql = 'SELECT MAX(end_date) AS max_date FROM calendar'
+        max_date_s = self._db_engine.query(sql)[0]['max_date']
         calendar_start_date = datetime.datetime.strptime(min_date_s, "%Y%m%d")
         calendar_end_date = datetime.datetime.strptime(max_date_s, "%Y%m%d")
 
-        print('')
         log_message('CALENDAR DATES:')
 
         MAX_DAYS_NO = 366
@@ -186,17 +184,16 @@ class GTFS_DB_Importer:
         log_message(f'   WEEKS NO   : {calendar_weeks_no}')
         print('')
 
-        log_message(f"... running calendar SQL")
+        log_message(f"... running calendar + GROUP_CONCAT(calendar_dates) SQL")
 
-        self.db_handle.execute("UPDATE calendar SET day_bits = ''")
-        self.db_handle.commit()
+        self._db_engine.run_sql("UPDATE calendar SET day_bits = ''")
 
-        sql_path = self.map_sql_queries['select_calendar_dates_group_by']
+        sql_path = self._map_sql_queries['select_calendar_dates_group_by']
         sql = load_sql_from_file(sql_path)
 
         calendar_days = list(calendar.day_name)
 
-        db_cursor = self.db_handle.cursor()
+        db_cursor = self._db_engine.get_cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 10000 == 0:
@@ -212,16 +209,22 @@ class GTFS_DB_Importer:
                 'end_date': calendar_end_date.strftime("%Y%m%d"),
             }
             table_csv_updater.prepare_row(row_dict)
-
+            
             row_id += 1
-        
         db_cursor.close()
-        
-        sql_template = 'UPDATE calendar SET day_bits = :day_bits, start_date = :start_date, end_date = :end_date  WHERE service_id = :service_id'
-        table_csv_updater.update_table(self.db_handle, sql_template, rows_report_no=10000)
+        print()
+
+        table_csv_updater.close()
+
+        log_message(f'DB_Table_CSV_Updater: START UPDATE from CSV: {table_csv_path.name}')
+        lines_no = compute_file_rows_no(table_csv_path) - 1
+        log_message(f'... found {lines_no:,} rows')
+
+        sql_template = 'UPDATE calendar SET day_bits = :day_bits, start_date = :start_date, end_date = :end_date WHERE service_id = :service_id'
+        self._db_engine.update_table_from_csv(table_csv_updater.csv_path, sql_template)
 
         log_message('DONE update calendar')
-        print('')
+        print('')        
 
     def _compute_calendar_day_bits(self, calendar_db_row, calendar_days, calendar_start_date, calendar_end_date):
         start_date_s = calendar_db_row['start_date']
