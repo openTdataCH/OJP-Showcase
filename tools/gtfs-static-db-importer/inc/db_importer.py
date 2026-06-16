@@ -313,28 +313,29 @@ class GTFS_DB_Importer:
         - batch INSERT trips with new columns (departure_ / arrival_ , stop_times_s)
         '''
         log_message('START update trips/stop_times')
+
+        db_temp_path = self._db_engine.get_db_tmp_path()
         
-        trips_column_names = fetch_column_names(self.db_handle, 'trips')
-        new_trips_table_csv_file_path = Path(f'{self.db_tmp_path}/new_trips.csv')
+        trips_table_name = 'trips'
+        new_trips_table_csv_file_path = Path(f'{db_temp_path}/new_trips.csv')
+        trips_column_names = self._db_engine.map_columns_metadata[trips_table_name]['names']
         new_trips_table_csv_updater = CSV_Updater(new_trips_table_csv_file_path, trips_column_names)
 
-        rows_no = count_rows_table(self.db_handle, 'trips')
-        log_message(f'... found {rows_no} rows')
-        
-        db_cursor = self.db_handle.cursor()
-
-        map_stop_times_reset_table = {}
+        map_stop_times_reset_table: dict[str, CSV_Updater] = {}
         for time_type in ['arrival_time', 'departure_time']:
-            csv_path = Path(f'{self.db_tmp_path}/stop_times_reset_{time_type}.csv')
+            csv_path = Path(f'{db_temp_path}/stop_times_reset_{time_type}.csv')
             column_names = ['table_rowid']
-            map_stop_times_reset_table[time_type] = DB_Table_CSV_Updater(csv_path, column_names)
+            map_stop_times_reset_table[time_type] = CSV_Updater(csv_path, column_names)
 
-        sql_path = self.map_sql_queries['select_stop_times_group_by']
+        rows_no = self._db_engine.count_rows_table(trips_table_name)
+        log_message(f'... found {rows_no:,} trips')
+
+        sql_path = self._map_sql_queries['select_stop_times_group_by']
         sql = load_sql_from_file(sql_path)
 
-        log_message(f"... running select_stop_times_group_by SQL")
+        log_message(f"... running SELECT trips / stop_times GROUP_BY SQL")
 
-        db_cursor = self.db_handle.cursor()
+        db_cursor = self._db_engine.get_cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 200_000 == 0:
