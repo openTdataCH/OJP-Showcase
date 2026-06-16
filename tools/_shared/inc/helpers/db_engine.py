@@ -19,55 +19,133 @@ class ColumnMetadataType(TypedDict):
 class SQLiteDBEngine:
     db_path: Path
     _db_handle: sqlite3.Connection
+    _db_tmp_path: Path
 
-    def __init__(self, db_path: Path, is_read_only = True):
-        if isinstance(db_path, str):
-            db_path = Path(db_path)
+    tables: List[str]
+    map_columns_metadata: Dict[str, ColumnMetadataType]
+
+    def __init__(self, db_path: Union[Path, None] = None, is_read_only = True, db_schema_path: Union[Path, None] = None):
+        if db_path is None:
+            conn_ds = ':memory:'
+        else:
+            if isinstance(db_path, str):
+                db_path = Path(db_path)
             
-        self.db_path = db_path
-        
-        conn_ds = f'file:{db_path}'
-        if is_read_only:
-            conn_ds = f'{conn_ds}?mode=ro'
+            self.db_path = db_path
 
+            conn_ds = f'file:{db_path}'
+            if is_read_only:
+                conn_ds = f'{conn_ds}?mode=ro'
+        # check memory or file
+        
+        self._db_tmp_path = Path(f'{db_path}.tmp')
+        
         self._db_handle = sqlite3.connect(conn_ds, uri=True)
         self._db_handle.row_factory = sqlite3.Row
-        
-    def fetch_table_names(self):
-        table_names = []
-        
-        sql = "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%';"
-        cursor = self._db_handle.cursor()
-        cursor.execute(sql)
-        for db_row in cursor:
-            table_name = db_row[0]
-            table_names.append(table_name)
-        cursor.close()
 
-        return table_names
+        self.tables = []
+        self.map_columns_metadata = {}
+        if db_schema_path:
+            self._load_db_schema(db_schema_path)
+        else:
+            self._fetch_tables_via_pragma()
+
+    @staticmethod
+    def init_read_write(db_path: Path, db_schema_path: Union[Path, None] = None):
+        if not db_path.parent.exists():
+            os.makedirs(db_path.parent)
+
+        db_engine = SQLiteDBEngine(db_path=db_path, is_read_only=False, db_schema_path=db_schema_path)
+        return db_engine
+    
+    @staticmethod
+    def init_memory(db_schema_path: Union[Path, None]):
+        db_engine = SQLiteDBEngine(db_path=None, is_read_only=True, db_schema_path=db_schema_path)
+        return db_engine
     
     def compute_table_stats(self):
         table_stats = {}
         
-        table_names = self.fetch_table_names()
-        for table_name in table_names:
+        for table_name in self.tables:
             table_stats[table_name] = self.count_rows_table(table_name)
             
         return table_stats
-        
-    def table_columns_names(self, table_name: str):
+    
+    def _fetch_table_columns_via_pragma(self, table_name) -> List[str]:
         sql = f"PRAGMA table_info({table_name})"
         columns_cursor = self._db_handle.cursor()
         columns_cursor.execute(sql)
         columns_db_rows = columns_cursor.fetchall()
         columns_cursor.close()
 
-        column_names = []
+        column_names: List[str] = []
         for pragma_column_row in columns_db_rows:
-            column_name = pragma_column_row[1]
+            column_name: str = pragma_column_row[1]
             column_names.append(column_name)
             
         return column_names
+
+    def _fetch_tables_via_pragma(self):
+        self.tables = []
+        self.map_columns_metadata = {}
+
+        sql = "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%';"
+        cursor = self._db_handle.cursor()
+        cursor.execute(sql)
+        for db_row in cursor:
+            table_name: str = db_row[0]
+            self.tables.append(table_name)
+
+            column_data: ColumnMetadataType = {
+                'names': self._fetch_table_columns_via_pragma(table_name),
+                'defs': [],
+                'indexes': [],
+            }
+            self.map_columns_metadata[table_name] = column_data
+        cursor.close()
+
+    def _load_db_schema(self, db_schema_path: Path):
+        self.tables = []
+        self.map_columns_metadata = {}
+
+        db_schema_json = load_yaml_config(db_schema_path)
+        for table_name, table_config in db_schema_json['tables'].items():
+            column_names = []
+            column_defs = []
+            column_indexes = []
+            
+            for column_def_row in table_config['columns']:
+                column_def_config = _sanitize_col_def(column_def_row)
+                
+                column_def_config_parts = column_def_config.split(' ')
+                if len(column_def_config_parts) == 1:
+                    print(table_config['columns'])
+                    raise ValueError(f'No column type defined for {column_def_row}')
+                
+                column_name = column_def_config_parts[0]
+                
+                column_names.append(column_name)
+                column_defs.append(column_def_config)
+            # loop config column defs
+            
+            keys_data = table_config.get('keys', [])
+            for key_def_row in keys_data:
+                key_def_config = _sanitize_col_def(key_def_row)
+                column_defs.append(key_def_config)
+            # loop keys
+            
+            index_defs = table_config.get('indexes', [])
+            for column_def in index_defs:
+                column_def_config = _sanitize_col_def(column_def)
+                column_indexes.append(column_def_config)
+            
+            self.tables.append(table_name)
+            self.map_columns_metadata[table_name] = {
+                'names': column_names,
+                'defs': column_defs,
+                'indexes': column_indexes,
+            }
+        # loop tables config
     
     def _query(self, sql: str, map_by_field: Optional[str] = None) -> Union[dict[str, Any], list[Any]]:
         row_items = []
