@@ -52,10 +52,9 @@ class GTFS_FilterController:
         self._where_filters = []
 
         table_name = 'link_filter_trips'
-        table_config = self._app_config['gtfs_filter']['db_config']['tables'][table_name]
 
         log_message(f'SQL: drop/create {table_name}')
-        self._gtfs_db_engine.drop_and_recreate_table(table_name, table_config)
+        self._gtfs_db_engine.drop_and_recreate_table(table_name)
         log_message(f'... done')
         print()
 
