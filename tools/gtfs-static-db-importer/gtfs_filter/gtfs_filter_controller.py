@@ -126,11 +126,7 @@ class GTFS_FilterController:
         sql_path = Path(sql_path_s)
         sql = sql_path.read_text(encoding='utf-8')
 
-        csv_updater = CSV_Updater(csv_path, column_names)
-        db_cursor = self._gtfs_db_engine.get_cursor()
-        for db_row in db_cursor.execute(sql):
-            csv_updater.prepare_row(dict(db_row))
-        db_cursor.close()
+        self._gtfs_db_engine.export_sql_to_csv(sql, csv_path, column_names=column_names)
 
     def _export_csv(self):
         gtfs_export_config_path = Path(self._app_config['gtfs_filter']['gtfs_export_profile'])
