@@ -1,12 +1,12 @@
 resource_paths:
-  app_path: [APP_PATH]
-  dotenv_path: [APP_PATH]/../../.env
-  gtfs_rt_snapshot: [APP_PATH]/data/gtfs-rt-snapshot/[YEAR]/[MONTH]/[DAY]/GTFS_RT-[YEAR]-[MONTH]-[DAY]-[HHMM].json
-  gtfs_db: [APP_PATH]/data/gtfs-static-dbs/[GTFS_FILENAME]
-  gtfs_dbs_json_path: [APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json
-  cache_gtfs_db_table: [APP_PATH]/data/gtfs-rt-static-compare-tmp/[GTFS_FILENAME].[TABLE_NAME]-v1.json
-  gtfs_rt_static_report: [APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/[MONTH]/[DAY]/gtfs_rt_static_report-[YEAR]-[MONTH]-[DAY]-[HHMM].json
-  gtfs_rt_static_mo_json: [APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/gtfs_rt_static_report-[YEAR]-[MONTH].json
+  app_path: "[APP_PATH]"
+  dotenv_path: "[APP_PATH]/../../.env"
+  gtfs_rt_snapshot: "[APP_PATH]/data/gtfs-rt-snapshot/[YEAR]/[MONTH]/[DAY]/GTFS_RT-[YEAR]-[MONTH]-[DAY]-[HHMM].json"
+  gtfs_db: "[APP_PATH]/data/gtfs-static-dbs/[GTFS_FILENAME]"
+  gtfs_dbs_json_path: "[APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json"
+  cache_gtfs_db_table: "[APP_PATH]/data/gtfs-rt-static-compare-tmp/[GTFS_FILENAME].[TABLE_NAME]-v1.json"
+  gtfs_rt_static_report: "[APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/[MONTH]/[DAY]/gtfs_rt_static_report-[YEAR]-[MONTH]-[DAY]-[HHMM].json"
+  gtfs_rt_static_mo_json: "[APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/gtfs_rt_static_report-[YEAR]-[MONTH].json"
 
 opentransportdata:
   gtfs_rt_url: https://api.opentransportdata.swiss/la/gtfs-rt?format=JSON
@@ -17,12 +17,14 @@ map_days_ignore_dropline_error:
   "foo": "yes"
 
 # TODO - needs to be generated
+# keep prev years for older reports
 map_holidays:
   # 2024
   "2024-01-01": New Years
   "2024-01-02": Berchtold's Day
-  "2024-03-28": Maundy Thursday
+  "2024-03-29": Good Friday
   "2024-04-01": Easter Monday
+  "2024-05-01": 1st of May
   "2024-05-09": Ascension Day
   "2024-05-20": Whit Monday
   "2024-08-01": National Day
@@ -32,8 +34,9 @@ map_holidays:
   # 2025
   "2025-01-01": New Years
   "2025-01-02": Berchtold's Day
-  "2025-04-17": Maundy Thursday
+  "2025-04-18": Good Friday
   "2025-04-21": Easter Monday
+  "2025-05-01": 1st of May
   "2025-05-29": Ascension Day
   "2025-06-09": Whit Monday
   "2025-08-01": National Day
@@ -43,8 +46,9 @@ map_holidays:
   # 2026
   "2026-01-01": New Years
   "2026-01-02": Berchtold's Day
-  "2026-04-02": Maundy Thursday
+  "2026-04-03": Good Friday
   "2026-04-06": Easter Monday
+  "2026-05-01": 1st of May
   "2026-05-14": Ascension Day
   "2026-05-25": Whit Monday
   "2026-08-01": National Day
@@ -54,11 +58,23 @@ map_holidays:
   # 2027
   "2027-01-01": New Years
   "2027-01-02": Berchtold's Day
-  "2027-03-25": Maundy Thursday
+  "2027-03-26": Good Friday
   "2027-03-29": Easter Monday
+  "2027-05-01": 1st of May
   "2027-05-06": Ascension Day
   "2027-05-17": Whit Monday
   "2027-08-01": National Day
   "2027-12-25": Christmas Day
   "2027-12-26": Saint Stephen's Day
 
+  # 2028
+  "2028-01-01": New Years
+  "2028-01-02": Berchtold's Day
+  "2028-04-14": Good Friday
+  "2028-04-17": Easter Monday
+  "2028-05-01": 1st of May
+  "2028-05-25": Ascension Day
+  "2028-06-05": Whit Monday
+  "2028-08-01": National Day
+  "2028-12-25": Christmas Day
+  "2028-12-26": Saint Stephen's Day
