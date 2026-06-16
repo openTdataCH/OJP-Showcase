@@ -204,6 +204,11 @@ class SQLiteDBEngine:
     def run_sql(self, sql: str):
         self._db_handle.execute(sql)
         self._db_handle.commit()
+
+    # runs multiple queries in one script
+    def run_sql_script(self, sql: str):
+        self._db_handle.executescript(sql)
+        self._db_handle.commit()
     
     def drop_table(self, table_name: str):
         sql = f'DROP TABLE IF EXISTS {table_name}'
