@@ -35,9 +35,4 @@ gtfs_filter:
     populate-link_filter: "[APP_PATH]/inc/sql/gtfs-filter/01-populate-link_filter.sql"
     select_table_template: "[APP_PATH]/inc/sql/gtfs-filter/02-run-[TABLE_NAME].sql"
   gtfs_export_profile: "[APP_PATH]/inc/config/gtfs_profile_ch.yml"
-  db_config:
-    tables:
-      # holds trip_id that will be filtered
-      link_filter_trips:
-        columns:
-          - trip_id TEXT PRIMARY KEY
+  gtfs_db_schema_path: "[APP_PATH]/inc/config/gtfs_filter_schema.yml"
