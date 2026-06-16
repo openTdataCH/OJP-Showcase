@@ -209,12 +209,12 @@ class SQLiteDBEngine:
         sql = f'DROP TABLE IF EXISTS {table_name}'
         self.run_sql(sql)
 
-    def drop_and_recreate_table(self, table_name: str, table_config: Any):
+    def drop_and_recreate_table(self, table_name: str):
         self.drop_table(table_name)
 
-        column_defs = []
-        for column_def in table_config['columns']:
-            column_defs.append(column_def)
+        column_defs = self.map_columns_metadata[table_name]['defs']
+        if len(column_defs) == 0:
+            raise ValueError(f'No defs for table {table_name} -- check schema')
 
         column_defs_s = ", ".join(column_defs)
         sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({column_defs_s});"
