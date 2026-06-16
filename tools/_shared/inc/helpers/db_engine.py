@@ -228,3 +228,126 @@ class SQLiteDBEngine:
     def get_cursor(self) -> sqlite3.Cursor: 
         cursor = self._db_handle.cursor()
         return cursor
+    
+    def add_table_indexes(self, table_name):
+        index_column_list = self.map_columns_metadata[table_name]['indexes']
+        for column_name in index_column_list:
+            column_names = [x.strip() for x in column_name.split(',')]
+            column_key = '_'.join(column_names)
+            sql = f"CREATE INDEX IF NOT EXISTS {table_name}_{column_key} ON {table_name}({column_name})"
+            self._db_handle.execute(sql)
+        
+    def vacuum(self):
+        sql = 'VACUUM'
+        self.run_sql(sql)
+
+    def query_rows_no(self, table_name: str):
+        sql = f'SELECT COUNT(1) AS rows_no FROM {table_name}'
+        query_results = cast(List[Any], self.query(sql))
+        
+        rows_no = query_results[0]['rows_no']
+        
+        return rows_no
+    
+    def _compute_csv_writer_path(self, table_name: str) -> Path:
+        csv_path = self._db_tmp_path.joinpath(f'{table_name}.txt')
+        return csv_path
+    
+    def create_csv_writer(self, table_name: str) -> CSV_Updater:
+        csv_path = self._compute_csv_writer_path(table_name)
+
+        if not os.path.isdir(csv_path.parent):
+            os.makedirs(csv_path.parent)
+
+        column_names = self.map_columns_metadata[table_name]['names']
+        csv_writer = CSV_Updater(csv_path, column_names)
+        
+        return csv_writer
+
+    def load_csv_into_table(self, table_name: str, csv_path: Path):
+        csv_file = open(csv_path, encoding='utf-8-sig')
+        csv_reader = csv.DictReader(csv_file)
+        
+        column_names = self.map_columns_metadata[table_name]['names']
+        column_names_s = ', '.join(column_names)
+        values_s = ('?, ' * len(column_names))[0:-2]
+        template_insert_sql = f'INSERT INTO {table_name}({column_names_s}) VALUES({values_s})'
+        
+        batch_insert_rows_no = 10_000
+        batch_insert_values = []
+
+        insert_cursor = self._db_handle.cursor()
+        
+        for csv_row in csv_reader:
+            if len(batch_insert_values) >= batch_insert_rows_no:
+                insert_cursor.executemany(template_insert_sql, batch_insert_values)
+                self._db_handle.commit()
+                batch_insert_values = []
+                
+            row_values = []
+            for key in column_names:
+                field_value = csv_row.get(key, None)
+                row_values.append(field_value)
+            batch_insert_values.append(row_values)
+        # loop read csv rows
+        csv_file.close()
+        
+        insert_cursor.executemany(template_insert_sql, batch_insert_values)
+        self._db_handle.commit()
+
+    def optimize_insert_updates(self):
+        self.run_sql('PRAGMA synchronous = OFF')
+        self.run_sql('PRAGMA journal_mode = OFF')
+
+    def update_table_from_csv(self, csv_path: Path, sql_template: str):
+        self.optimize_insert_updates()
+
+        batch_update_rows_no = 10_000
+        batch_update_values = []
+
+        csv_file = open(csv_path, encoding='utf-8')
+        csv_reader = csv.DictReader(csv_file)
+
+        update_cursor = self.get_cursor()
+
+        csv_row_id = 1
+        for csv_row in csv_reader:
+            if len(batch_update_values) >= batch_update_rows_no:
+                update_cursor.executemany(sql_template, batch_update_values)
+                self._db_handle.commit()
+                batch_update_values = []
+            
+            batch_update_values.append(csv_row)
+
+            csv_row_id += 1
+        # loop csv rows
+        update_cursor.executemany(sql_template, batch_update_values)
+        self._db_handle.commit()
+
+        update_cursor.close()
+
+        csv_file.close()
+
+    def cleanup(self):
+        shutil.rmtree(self._db_tmp_path)
+        self.vacuum()
+
+    def get_db_tmp_path(self):
+        path = self._db_tmp_path
+        return path
+    
+    def export_sql_to_csv(self, sql: str, csv_path: Path, column_names: Union[List[str], None] = None):
+        cursor = self.get_cursor()
+        cursor.execute(sql)
+        
+        if column_names is None:
+            column_names = [column[0] for column in cursor.description]
+        csv_updater = CSV_Updater(csv_path, column_names)
+
+        for db_row in cursor.execute(sql):
+            csv_updater.prepare_row(dict(db_row))
+        cursor.close()
+    
+    def export_table_to_csv(self, table_name: str, csv_path: Path):
+        sql = f'SELECT * FROM {table_name}'
+        self.export_sql_to_csv(sql, csv_path)
