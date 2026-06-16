@@ -17,6 +17,7 @@ map_days_ignore_dropline_error:
   "foo": "yes"
 
 # TODO - needs to be generated
+# keep prev years for older reports
 map_holidays:
   # 2024
   "2024-01-01": New Years
