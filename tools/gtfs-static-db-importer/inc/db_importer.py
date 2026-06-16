@@ -29,6 +29,7 @@ class GTFS_DB_Importer:
     
     _gtfs_folder_path: Path
     _db_lock_path: Path
+    _bo_realtime_csv_path: Path
 
     def __init__(self, app_config, gtfs_folder_path: Path, db_path: Path):
         self._map_sql_queries = app_config['map_sql_queries']
@@ -39,6 +40,7 @@ class GTFS_DB_Importer:
         
         self._gtfs_folder_path = gtfs_folder_path
         self._db_lock_path = Path(f'{self._db_engine.db_path}.lock')
+        self._bo_realtime_csv_path = Path(app_config['bo_realtime_csv_path'])
 
     def start(self):
         log_message("START GTFS IMPORT")
@@ -53,6 +55,7 @@ class GTFS_DB_Importer:
         self._write_lock_file()
 
         self._import_csv_tables()
+        self._populate_agency_gtfs_rt()
 
         self._update_calendar()
         self._update_trips()
@@ -84,6 +87,49 @@ class GTFS_DB_Importer:
         
     def _remove_lock_file(self):
         os.remove(self._db_lock_path)
+
+    def _populate_agency_gtfs_rt(self):
+        log_message(f'START populate GTFS-RT status')
+
+        map_gtfs_agency = cast(dict[str, AgencyDB], self._db_engine.query_table_map_by_field('agency', 'agency_id'))
+        
+        map_gtfs_rt_agency_ids: dict[str, bool] = {}
+        for csv_row in read_csv_rows(self._bo_realtime_csv_path, delimiter=';'):
+            bo_csv_row = cast(BusinessOrganisationGtfsRtCsvRow, csv_row)
+
+            agency_lookup_id = bo_csv_row['vdvBetreiberId']
+            agency_id_parts = agency_lookup_id.split(':')
+            if len(agency_id_parts) != 2:
+                raise ValueError(f'Unexpected delimiter for vdvBetreiberId: {agency_lookup_id}')
+            
+            agency_id = agency_id_parts[1]
+            if agency_id not in map_gtfs_agency:
+                continue
+
+            map_gtfs_rt_agency_ids[agency_id] = True
+        # loop csv rows
+
+        table_name = 'link_agency'
+        self._db_engine.drop_and_recreate_table(table_name)
+        table_csv_writer = self._db_engine.create_csv_writer(table_name)
+
+        for agency_id, agency in map_gtfs_agency.items():
+            has_gtfs_rt = 1 if agency_id in map_gtfs_rt_agency_ids else 0
+
+            row_dict = {
+                'agency_id': agency_id,
+                'has_gtfs_rt': has_gtfs_rt,
+            }
+            table_csv_writer.prepare_row(row_dict)
+        # loop agencies
+
+        table_csv_writer.close()
+
+        self._db_engine.load_csv_into_table(table_name, table_csv_writer.csv_path)
+        self._db_engine.add_table_indexes(table_name)
+
+        log_message(f'... DONE')
+        print()
     
     def _import_csv_tables(self):
         '''
