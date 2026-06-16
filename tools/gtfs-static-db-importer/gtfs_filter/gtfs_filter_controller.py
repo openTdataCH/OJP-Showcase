@@ -22,7 +22,9 @@ class GTFS_FilterController:
         log_message(f'GTFS Filter: {db_path.name}')
 
         self._app_config = app_config
-        self._gtfs_db_engine = SQLiteDBEngine(db_path, is_read_only=False)
+
+        db_schema_path = app_config['gtfs_filter']['gtfs_db_schema_path']
+        self._gtfs_db_engine = SQLiteDBEngine.init_read_write(db_path, db_schema_path=db_schema_path)
         self._where_filters = []
         
         if not os.path.isdir(gtfs_output_path):
