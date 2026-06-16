@@ -1,0 +1,5 @@
+tables:
+  # holds trip_id that will be filtered
+  link_filter_trips:
+    columns:
+      - trip_id TEXT PRIMARY KEY

@@ -134,7 +134,7 @@ class GTFS_Controller:
         dt_year = fetch_dt.strftime('%Y')
         dt_month = fetch_dt.strftime('%m')
         dt_day = fetch_dt.strftime('%d')
-        report_url = f'https://tools.opentransportdata.swiss/atlas-route-compare-gtfs//gtfs-rt-static-compare-report/{dt_year}/{dt_month}/{dt_day}/{report_path.name}';
+        report_url = f'https://tools.opentransportdata.swiss/atlas-route-compare-gtfs/gtfs-rt-static-compare-report/{dt_year}/{dt_month}/{dt_day}/{report_path.name}';
         print(f'Report URL          : {report_url}')
         print(header_separator_s)
         

@@ -6,7 +6,6 @@ map_sql_queries:
   select_route_trips_calendar_day_bits: "[APP_PATH]/inc/sql/select_route_trips_calendar_day_bits.sql"
   create_fts_routes: "[APP_PATH]/inc/sql/create_fts_routes.sql"
   update_routes_representative_trip: "[APP_PATH]/inc/sql/update_routes_representative_trip.sql"
-    
 
 other_config_paths:
   scripts_config: "[APP_PATH]/inc/config/scripts-config.yml"
@@ -14,6 +13,8 @@ other_config_paths:
 gtfs_dbs_base_path: "[APP_PATH]/data/gtfs-static-dbs"
 gtfs_ckan_json_path: "[APP_PATH]/data/ckan-utils-tmp/ckan_[PACKAGE_ID].json"
 gtfs_dbs_json_path: "[APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json"
+
+bo_realtime_csv_path: "[APP_PATH]/data/opentransportdata.swiss/go-realtime/go-realtime.csv"
 
 gtfs_rt_updates:
   -
@@ -34,9 +35,4 @@ gtfs_filter:
     populate-link_filter: "[APP_PATH]/inc/sql/gtfs-filter/01-populate-link_filter.sql"
     select_table_template: "[APP_PATH]/inc/sql/gtfs-filter/02-run-[TABLE_NAME].sql"
   gtfs_export_profile: "[APP_PATH]/inc/config/gtfs_profile_ch.yml"
-  db_config:
-    tables:
-      # holds trip_id that will be filtered
-      link_filter_trips:
-        columns:
-          - trip_id TEXT PRIMARY KEY
+  gtfs_db_schema_path: "[APP_PATH]/inc/config/gtfs_filter_schema.yml"

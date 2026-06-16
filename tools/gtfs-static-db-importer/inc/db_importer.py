@@ -2,46 +2,57 @@ import os, sys
 
 from pathlib import Path
 
-import shutil
 import math
 import yaml
+from typing import cast
 
 import calendar, datetime
 
-from inc.shared.inc.helpers.csv_updater import CSV_Updater
+from .shared.inc.helpers.db_engine import SQLiteDBEngine
+from .shared.inc.controllers.bo_controller import BusinessOrganisationGtfsRtCsvRow
+from .shared.inc.models.gtfs.agency import AgencyDB
 
-from .shared.inc.helpers.db_table_csv_importer import DB_Table_CSV_Importer
-from .shared.inc.helpers.db_table_csv_updater import DB_Table_CSV_Updater
+from .shared.inc.helpers.csv_helpers import read_csv_rows
+from .shared.inc.helpers.csv_updater import CSV_Updater
 from .shared.inc.helpers.gtfs_helpers import convert_datetime_to_day_minutes, extract_stop_times_data_from_s, massage_datetime_to_hhmm, seconds_to_hhmmss
 from .shared.inc.helpers.log_helpers import log_message
-from .shared.inc.helpers.db_helpers import fetch_column_names, count_rows_table, load_sql_from_file, connect_db, table_select_rows
+from .shared.inc.helpers.db_helpers import load_sql_from_file
+from .shared.inc.helpers.file_helpers import compute_file_rows_no
 
 class GTFS_DB_Importer:
-    def __init__(self, app_config, gtfs_folder_path, db_path: Path):
-        self.map_sql_queries = app_config['map_sql_queries']
+    _map_sql_queries: dict[str, str]
+    _db_engine: SQLiteDBEngine
+    
+    _gtfs_folder_path: Path
+    _db_lock_path: Path
+    _bo_realtime_csv_path: Path
 
-        self.gtfs_folder_path = gtfs_folder_path
-        self.db_path = db_path
-        self.db_lock_path = Path(f'{self.db_path}.lock')
-        self.db_handle = connect_db(db_path, is_read_only=False)
-        self.db_schema_config = self._load_schema_config()
+    def __init__(self, app_config, gtfs_folder_path: Path, db_path: Path):
+        self._map_sql_queries = app_config['map_sql_queries']
 
-        self.db_tmp_path = f'{db_path.parent}/{db_path.name}-tmp'
-        if not os.path.isdir(self.db_tmp_path):
-            os.makedirs(self.db_tmp_path, exist_ok=True)
+        script_path = Path(os.path.realpath(__file__))
+        db_schema_path = Path(f"{script_path.parent}/config/gtfs_schema.yml")
+        self._db_engine = SQLiteDBEngine.init_read_write(db_path, db_schema_path=db_schema_path)
+        
+        self._gtfs_folder_path = gtfs_folder_path
+        self._db_lock_path = Path(f'{self._db_engine.db_path}.lock')
+        self._bo_realtime_csv_path = Path(app_config['bo_realtime_csv_path'])
 
     def start(self):
         log_message("START GTFS IMPORT")
-        log_message(f'DB PATH: {self.db_path}')
+        log_message(f'GTFS PATH : {self._gtfs_folder_path}')
+        log_message(f'DB PATH   : {self._db_engine.db_path}')
+        print()
         
-        if os.path.isfile(self.db_lock_path):
+        if os.path.isfile(self._db_lock_path):
             print('ERROR: lock path present, ABORT')
-            print(f'ls -al {self.db_lock_path.parent}')
+            print(f'ls -al {self._db_lock_path.parent}')
             sys.exit(1)
         
         self._write_lock_file()
 
         self._import_csv_tables()
+        self._populate_agency_gtfs_rt()
 
         self._update_calendar()
         self._update_trips()
@@ -51,8 +62,6 @@ class GTFS_DB_Importer:
         self._create_fts_routes()
         
         self._cleanup()
-
-        self.db_handle.close()
         
         self._remove_lock_file()
 
@@ -69,12 +78,55 @@ class GTFS_DB_Importer:
     def _write_lock_file(self):
         now_f = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         lock_file_text = f'START: {now_f}'
-        lock_file = open(self.db_lock_path, 'w', encoding='utf-8')
+        lock_file = open(self._db_lock_path, 'w', encoding='utf-8')
         lock_file.write(lock_file_text)
         lock_file.close()
         
     def _remove_lock_file(self):
-        os.remove(self.db_lock_path)
+        os.remove(self._db_lock_path)
+
+    def _populate_agency_gtfs_rt(self):
+        log_message(f'START populate GTFS-RT status')
+
+        map_gtfs_agency = cast(dict[str, AgencyDB], self._db_engine.query_table_map_by_field('agency', 'agency_id'))
+        
+        map_gtfs_rt_agency_ids: dict[str, bool] = {}
+        for csv_row in read_csv_rows(self._bo_realtime_csv_path, delimiter=';'):
+            bo_csv_row = cast(BusinessOrganisationGtfsRtCsvRow, csv_row)
+
+            agency_lookup_id = bo_csv_row['vdvBetreiberId']
+            agency_id_parts = agency_lookup_id.split(':')
+            if len(agency_id_parts) != 2:
+                raise ValueError(f'Unexpected delimiter for vdvBetreiberId: {agency_lookup_id}')
+            
+            agency_id = agency_id_parts[1]
+            if agency_id not in map_gtfs_agency:
+                continue
+
+            map_gtfs_rt_agency_ids[agency_id] = True
+        # loop csv rows
+
+        table_name = 'link_agency'
+        self._db_engine.drop_and_recreate_table(table_name)
+        table_csv_writer = self._db_engine.create_csv_writer(table_name)
+
+        for agency_id, agency in map_gtfs_agency.items():
+            has_gtfs_rt = 1 if agency_id in map_gtfs_rt_agency_ids else 0
+
+            row_dict = {
+                'agency_id': agency_id,
+                'has_gtfs_rt': has_gtfs_rt,
+            }
+            table_csv_writer.prepare_row(row_dict)
+        # loop agencies
+
+        table_csv_writer.close()
+
+        self._db_engine.load_csv_into_table(table_name, table_csv_writer.csv_path)
+        self._db_engine.add_table_indexes(table_name)
+
+        log_message(f'... DONE')
+        print()
     
     def _import_csv_tables(self):
         '''
@@ -82,22 +134,17 @@ class GTFS_DB_Importer:
         '''
         table_names = ['agency', 'calendar', 'calendar_dates', 'feed_info', 'frequencies', 'routes', 'shapes', 'stop_times', 'stops', 'transfers', 'trips']
 
-        print('')
         log_message(f'START BATCH IMPORT')
 
         for table_name in table_names:
-            print('')
-            log_message(f'TABLE: {table_name}')
-            if not table_name in self.db_schema_config['tables']:
+            log_message(f'... TABLE: {table_name}')
+            if not table_name in self._db_engine.map_columns_metadata:
                 print(f'ERROR - missing config for table {table_name}')
                 sys.exit(1)
 
-            table_config = self.db_schema_config['tables'][table_name]
+            self._db_engine.drop_and_recreate_table(table_name)
 
-            db_table_writer = DB_Table_CSV_Importer(self.db_path, table_name, table_config)
-            db_table_writer.truncate_table()
-
-            gtfs_file_path = Path(f'{self.gtfs_folder_path}/{table_name}.txt')
+            gtfs_file_path = Path(f'{self._gtfs_folder_path}/{table_name}.txt')
             if not os.path.isfile(gtfs_file_path):
                 is_skip_ok = False
 
@@ -105,7 +152,7 @@ class GTFS_DB_Importer:
                     is_skip_ok = True
 
                 if table_name == 'calendar':
-                    calendar_dates_path = f'{self.gtfs_folder_path}/calendar_dates.txt'
+                    calendar_dates_path = f'{self._gtfs_folder_path}/calendar_dates.txt'
                     if os.path.isfile(calendar_dates_path):
                         log_message('... no calendar found, using calendar_dates instead')
                         is_skip_ok = True
@@ -115,12 +162,14 @@ class GTFS_DB_Importer:
                 else:
                     print(f'ERROR = required table "{table_name}" not found {gtfs_file_path}')
                     sys.exit()
+            # endif check if file exists
 
-            db_table_writer.load_csv_file(gtfs_file_path)
-            db_table_writer.add_table_indexes()
-            db_table_writer.close()
+            self._db_engine.load_csv_into_table(table_name, gtfs_file_path)
+            self._db_engine.add_table_indexes(table_name)
+        # loop table names
+        print()
         
-        log_message(f'DONE BATCH IMPORT')
+        log_message(f'... DONE BATCH IMPORT')
         print('')
 
     def _update_calendar(self):
@@ -131,23 +180,24 @@ class GTFS_DB_Importer:
         '''
         log_message('START update calendar')
         
-        rows_no = count_rows_table(self.db_handle, 'calendar')
-        log_message(f'... found {rows_no} rows in calendar')
+        rows_no = self._db_engine.count_rows_table('calendar')
+        log_message(f'... found {rows_no:,} rows in calendar')
+        print()
 
         if rows_no == 0:
             self._fill_calendar_from_calendar_dates()
 
-        table_csv_path = Path(f'{self.db_tmp_path}/calendar_update_day_bits.csv')
-        table_csv_updater = DB_Table_CSV_Updater(table_csv_path, ['service_id', 'day_bits', 'start_date', 'end_date'])
+        db_temp_path = self._db_engine.get_db_tmp_path()
+        table_csv_path = Path(f'{db_temp_path}/calendar_update_day_bits.csv')
+        table_csv_updater = CSV_Updater(table_csv_path, ['service_id', 'day_bits', 'start_date', 'end_date'])
 
         sql = 'SELECT MIN(start_date) AS min_date FROM calendar'
-        min_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
-        sql = 'SELECT MAX(end_date) AS min_date FROM calendar'
-        max_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
+        min_date_s = self._db_engine.query(sql)[0]['min_date']
+        sql = 'SELECT MAX(end_date) AS max_date FROM calendar'
+        max_date_s = self._db_engine.query(sql)[0]['max_date']
         calendar_start_date = datetime.datetime.strptime(min_date_s, "%Y%m%d")
         calendar_end_date = datetime.datetime.strptime(max_date_s, "%Y%m%d")
 
-        print('')
         log_message('CALENDAR DATES:')
 
         MAX_DAYS_NO = 366
@@ -175,21 +225,20 @@ class GTFS_DB_Importer:
         log_message(f'   WEEKS NO   : {calendar_weeks_no}')
         print('')
 
-        log_message(f"... running calendar SQL")
+        log_message(f"... running calendar + GROUP_CONCAT(calendar_dates) SQL")
 
-        self.db_handle.execute("UPDATE calendar SET day_bits = ''")
-        self.db_handle.commit()
+        self._db_engine.run_sql("UPDATE calendar SET day_bits = ''")
 
-        sql_path = self.map_sql_queries['select_calendar_dates_group_by']
+        sql_path = self._map_sql_queries['select_calendar_dates_group_by']
         sql = load_sql_from_file(sql_path)
 
         calendar_days = list(calendar.day_name)
 
-        db_cursor = self.db_handle.cursor()
+        db_cursor = self._db_engine.get_cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 10000 == 0:
-                log_message(f'... parsed {row_id} rows')
+                log_message(f'... parsed {row_id:,} rows')
 
             service_id = db_row['service_id']
             day_bits = self._compute_calendar_day_bits(db_row, calendar_days, calendar_start_date, calendar_end_date)
@@ -201,16 +250,22 @@ class GTFS_DB_Importer:
                 'end_date': calendar_end_date.strftime("%Y%m%d"),
             }
             table_csv_updater.prepare_row(row_dict)
-
+            
             row_id += 1
-        
         db_cursor.close()
-        
-        sql_template = 'UPDATE calendar SET day_bits = :day_bits, start_date = :start_date, end_date = :end_date  WHERE service_id = :service_id'
-        table_csv_updater.update_table(self.db_handle, sql_template, rows_report_no=10000)
+        print()
+
+        table_csv_updater.close()
+
+        log_message(f'DB_Table_CSV_Updater: START UPDATE from CSV: {table_csv_path.name}')
+        lines_no = compute_file_rows_no(table_csv_path) - 1
+        log_message(f'... found {lines_no:,} rows')
+
+        sql_template = 'UPDATE calendar SET day_bits = :day_bits, start_date = :start_date, end_date = :end_date WHERE service_id = :service_id'
+        self._db_engine.update_table_from_csv(table_csv_updater.csv_path, sql_template)
 
         log_message('DONE update calendar')
-        print('')
+        print('')        
 
     def _compute_calendar_day_bits(self, calendar_db_row, calendar_days, calendar_start_date, calendar_end_date):
         start_date_s = calendar_db_row['start_date']
@@ -299,32 +354,33 @@ class GTFS_DB_Importer:
         - batch INSERT trips with new columns (departure_ / arrival_ , stop_times_s)
         '''
         log_message('START update trips/stop_times')
+
+        db_temp_path = self._db_engine.get_db_tmp_path()
         
-        trips_column_names = fetch_column_names(self.db_handle, 'trips')
-        new_trips_table_csv_file_path = Path(f'{self.db_tmp_path}/new_trips.csv')
+        trips_table_name = 'trips'
+        new_trips_table_csv_file_path = Path(f'{db_temp_path}/new_trips.csv')
+        trips_column_names = self._db_engine.map_columns_metadata[trips_table_name]['names']
         new_trips_table_csv_updater = CSV_Updater(new_trips_table_csv_file_path, trips_column_names)
 
-        rows_no = count_rows_table(self.db_handle, 'trips')
-        log_message(f'... found {rows_no} rows')
-        
-        db_cursor = self.db_handle.cursor()
-
-        map_stop_times_reset_table = {}
+        map_stop_times_reset_table: dict[str, CSV_Updater] = {}
         for time_type in ['arrival_time', 'departure_time']:
-            csv_path = Path(f'{self.db_tmp_path}/stop_times_reset_{time_type}.csv')
+            csv_path = Path(f'{db_temp_path}/stop_times_reset_{time_type}.csv')
             column_names = ['table_rowid']
-            map_stop_times_reset_table[time_type] = DB_Table_CSV_Updater(csv_path, column_names)
+            map_stop_times_reset_table[time_type] = CSV_Updater(csv_path, column_names)
 
-        sql_path = self.map_sql_queries['select_stop_times_group_by']
+        rows_no = self._db_engine.count_rows_table(trips_table_name)
+        log_message(f'... found {rows_no:,} trips')
+
+        sql_path = self._map_sql_queries['select_stop_times_group_by']
         sql = load_sql_from_file(sql_path)
 
-        log_message(f"... running select_stop_times_group_by SQL")
+        log_message(f"... running SELECT trips / stop_times GROUP_BY SQL")
 
-        db_cursor = self.db_handle.cursor()
+        db_cursor = self._db_engine.get_cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 200_000 == 0:
-                log_message(f'... parsed {row_id} rows')
+                log_message(f'... parsed {row_id:,} rows')
 
             stop_times_s = db_row['stop_times_data']
             stop_times = extract_stop_times_data_from_s(stop_times_s)
@@ -375,6 +431,7 @@ class GTFS_DB_Importer:
 
                 trip_new_row[trip_day_minutes_field] = stop_day_minutes
                 trip_new_row[stop_day_minutes_datetime_field] = stop_day_minutes_datetime
+            # loop from/to
 
             trip_stop_times_values = []
             for stop_time in stop_times:
@@ -385,6 +442,7 @@ class GTFS_DB_Importer:
                 
                 stop_time_value = f'{stop_id}|{arrival_time}|{departure_time}'
                 trip_stop_times_values.append(stop_time_value)
+            # loop stop_times
 
             trip_new_row['stop_times_s'] = ' -- '.join(trip_stop_times_values)
             trip_new_row['stop_times_count'] = len(stop_times)
@@ -396,28 +454,28 @@ class GTFS_DB_Importer:
         db_cursor.close()
 
         new_trips_table_csv_updater.close()
-
         print('')
+
         log_message(f"... INSERT new trips ...")
-        
-        trips_table_config = self.db_schema_config['tables']['trips']
-        new_trips_table_writer = DB_Table_CSV_Importer(self.db_path, 'trips', trips_table_config)
-        new_trips_table_writer.truncate_table()
-        new_trips_table_writer.load_csv_file(new_trips_table_csv_file_path)
-        new_trips_table_writer.add_table_indexes()
-        new_trips_table_writer.close()
-
-        log_message(f"... DONE INSERT new trips ...")
+        self._db_engine.drop_and_recreate_table(trips_table_name)
+        self._db_engine.load_csv_into_table(trips_table_name, new_trips_table_csv_file_path)
+        self._db_engine.add_table_indexes(trips_table_name)
+        log_message(f"... DONE")
         print('')
+
+        log_message(f'... START UPDATE stop_times reset from/to NULL')
 
         for time_type, stop_times_updater in map_stop_times_reset_table.items():
-            template_sql_path = self.map_sql_queries['update_stop_times_reset']
+            template_sql_path = self._map_sql_queries['update_stop_times_reset']
             template_sql = load_sql_from_file(template_sql_path)
             template_sql = template_sql.replace('[COLUMN_TO_RESET]', time_type)
-            stop_times_updater.update_table(self.db_handle, template_sql, rows_report_no=200_000)
 
-            log_message(f'DONE update stop_times RESET for {time_type}')
-            print('')
+            csv_path = stop_times_updater.csv_path
+            self._db_engine.update_table_from_csv(csv_path, template_sql)
+
+            log_message(f'... DONE UPDATE for {time_type}')
+        # loop time_type
+        print('')
     # _update_trips
     
     def _update_routes(self):
@@ -426,21 +484,24 @@ class GTFS_DB_Importer:
         - batch INSERT routes with new columns (day_bits)
         '''
         log_message('START update routes')
+
+        map_db_routes = self._db_engine.query_table_map_by_field('routes', 'route_id')
         
-        sql_path = self.map_sql_queries['select_route_trips_calendar_day_bits']
+        sql_path = self._map_sql_queries['select_route_trips_calendar_day_bits']
         sql = load_sql_from_file(sql_path)
         
         log_message(f"... running select_route_trips_calendar_day_bits SQL")
-        
-        map_db_routes = table_select_rows(self.db_handle, 'routes', '', 'route_id')
 
-        db_cursor = self.db_handle.cursor()
+        db_cursor = self._db_engine.get_cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 1000 == 0:
-                log_message(f'... parsed {row_id} rows')
+                log_message(f'... parsed {row_id:,} rows')
                 
             trips_day_bits_s: str = db_row['trips_day_bits']
+            if trips_day_bits_s is None:
+                print(db_row)
+                raise ValueError('calendar.day_bits is not computed')
             trips_day_bits = trips_day_bits_s.split(',')
             
             route_day_bits = ['0'] * len(trips_day_bits[0])
@@ -453,28 +514,29 @@ class GTFS_DB_Importer:
             
             route_id = db_row['route_id']
             map_db_routes[route_id]['day_bits'] = route_day_bits_s
+
+            row_id += 1
         # loop SQL
-        
-        routes_column_names = fetch_column_names(self.db_handle, 'routes')
-        new_routes_table_csv_file_path = Path(f'{self.db_tmp_path}/new_routes.csv')
-        new_routes_table_csv_updater = CSV_Updater(new_routes_table_csv_file_path, routes_column_names)
+
+        log_message(f"... INSERT new routes ...")
+
+        db_temp_path = self._db_engine.get_db_tmp_path()
+
+        table_name = 'routes'
+        table_csv_file_path = Path(f'{db_temp_path}/new_routes.csv')
+        table_column_names = self._db_engine.map_columns_metadata[table_name]['names']
+        new_routes_table_csv_updater = CSV_Updater(table_csv_file_path, table_column_names)
         
         for route_id, db_route in map_db_routes.items():
             new_routes_table_csv_updater.prepare_row(db_route)
         
         new_routes_table_csv_updater.close()
         
-        print('')
-        log_message(f"... INSERT new routes ...")
-        
-        routes_table_config = self.db_schema_config['tables']['routes']
-        new_routes_table_writer = DB_Table_CSV_Importer(self.db_path, 'routes', routes_table_config)
-        new_routes_table_writer.truncate_table()
-        new_routes_table_writer.load_csv_file(new_routes_table_csv_file_path)
-        new_routes_table_writer.add_table_indexes()
-        new_routes_table_writer.close()
+        self._db_engine.drop_and_recreate_table(table_name)
+        self._db_engine.load_csv_into_table(table_name, table_csv_file_path)
+        self._db_engine.add_table_indexes(table_name)
 
-        log_message(f"... DONE INSERT new routes ...")
+        log_message(f"... DONE")
         print('')
         
     def _update_routes_representative_trip(self):
@@ -483,11 +545,9 @@ class GTFS_DB_Importer:
         '''
         log_message(f"START UPDATE routes-trip (representative)")
         
-        db_cursor = self.db_handle.cursor()
-        
-        sql_path = self.map_sql_queries['update_routes_representative_trip']
+        sql_path = self._map_sql_queries['update_routes_representative_trip']
         sql = load_sql_from_file(sql_path)
-        db_cursor.executescript(sql)
+        self._db_engine.run_sql_script(sql)
         
         log_message(f"... DONE UPDATE routes-trip (representative)")
         print('')
@@ -498,11 +558,9 @@ class GTFS_DB_Importer:
         '''
         log_message(f"START CREATE FTS routes ...")
         
-        db_cursor = self.db_handle.cursor()
-        
-        sql_path = self.map_sql_queries['create_fts_routes']
+        sql_path = self._map_sql_queries['create_fts_routes']
         sql = load_sql_from_file(sql_path)
-        db_cursor.executescript(sql)
+        self._db_engine.run_sql_script(sql)
         
         log_message(f"... DONE FTS routes ...")
         print('')
@@ -513,25 +571,24 @@ class GTFS_DB_Importer:
         '''
         log_message(f'START filling calendar from calendar_dates')
 
-        calendar_dates_rows_no = count_rows_table(self.db_handle, 'calendar_dates')
+        calendar_dates_rows_no = self._db_engine.count_rows_table('calendar_dates')
         if calendar_dates_rows_no == 0:
             print('ERROR - empty calendar, calendar_dates ?')
             sys.exit()
         log_message(f'... found {calendar_dates_rows_no} rows')
 
         sql = 'SELECT MIN(date) AS min_date FROM calendar_dates'
-        min_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
+        min_date_s = self._db_engine.query(sql)[0]['min_date']
 
-        sql = 'SELECT MAX(date) AS min_date FROM calendar_dates'
-        max_date_s = self.db_handle.cursor().execute(sql).fetchone()[0]
+        sql = 'SELECT MAX(date) AS max_date FROM calendar_dates'
+        max_date_s = self._db_engine.query(sql)[0]['max_date']
 
         sql = 'SELECT DISTINCT(service_id) AS service_id FROM calendar_dates'
-        db_cursor = self.db_handle.cursor()
+        db_cursor = self._db_engine.get_cursor()
 
-        calendar_column_names = fetch_column_names(self.db_handle, 'calendar')
-        calendar_table_csv_file_path = Path(f'{self.db_tmp_path}/calendar_update_from_calendar_dates.csv')
-        calendar_table_csv_updater = CSV_Updater(calendar_table_csv_file_path, calendar_column_names)
-
+        table_name = 'calendar'
+        calendar_table_writer = self._db_engine.create_csv_writer(table_name)
+        
         row_idx = 0
         for db_row in db_cursor.execute(sql):
             trip_new_row = {
@@ -547,33 +604,30 @@ class GTFS_DB_Importer:
                 'end_date': max_date_s, 
                 'day_bits': '',
             }
-            calendar_table_csv.writerow(trip_new_row)
+            calendar_table_writer.prepare_row(trip_new_row)
 
             row_idx += 1
         #end loop SQL
         db_cursor.close()
 
-        calendar_table_csv_updater.close()
+        calendar_table_writer.close()
 
         log_message(f'... found {row_idx} calendar entries')
 
-        table_config = self.db_schema_config['tables']['calendar']
-
         log_message(f'START populate table calendar')
-        
-        db_table_writer = DB_Table_CSV_Importer(self.db_path, 'calendar', table_config)
-        db_table_writer.truncate_table()
 
-        db_table_writer.load_csv_file(calendar_table_csv_file_path)
-        db_table_writer.add_table_indexes()
-        db_table_writer.close()
+        self._db_engine.drop_and_recreate_table(table_name)
+        self._db_engine.load_csv_into_table(table_name, calendar_table_writer.csv_path)
+        self._db_engine.add_table_indexes(table_name)
 
         log_message(f'DONE _fill_calendar_from_calendar_dates')
         print()
 
     def _cleanup(self):
-        log_message(f'Remove temp folder {self.db_tmp_path}')
-        shutil.rmtree(self.db_tmp_path)
+        log_message('START cleaning up tmp folder, VACUUM')
+        self._db_engine.cleanup()
+        log_message('... DONE')
+        print()
 
     def _update_frequencies(self):
         '''
@@ -581,20 +635,24 @@ class GTFS_DB_Importer:
         '''
         log_message(f'START parsing frequencies...')
 
-        trips_column_names = fetch_column_names(self.db_handle, 'trips')
-        trips_frequencies_table_csv_file_path = Path(f'{self.db_tmp_path}/trips_frequencies.csv')
+        db_temp_path = self._db_engine.get_db_tmp_path()
+
+        trips_table_name = 'trips'
+        trips_column_names = self._db_engine.map_columns_metadata[trips_table_name]['names']
+        trips_frequencies_table_csv_file_path = Path(f'{db_temp_path}/trips_frequencies.csv')
         trips_frequencies_csv_updater = CSV_Updater(trips_frequencies_table_csv_file_path, trips_column_names)
 
-        stop_times_column_names = fetch_column_names(self.db_handle, 'stop_times')
-        stop_times_frequencies_table_csv_file_path = Path(f'{self.db_tmp_path}/stop_times_frequencies.csv')
+        stop_times_table_name = 'stop_times'
+        stop_times_column_names = self._db_engine.map_columns_metadata[stop_times_table_name]['names']
+        stop_times_frequencies_table_csv_file_path = Path(f'{db_temp_path}/stop_times_frequencies.csv')
         stop_times_frequencies_table_csv_updater = CSV_Updater(stop_times_frequencies_table_csv_file_path, stop_times_column_names)
 
-        sql_path = self.map_sql_queries['select_trips_group_by_stop_times_frequencies']
+        sql_path = self._map_sql_queries['select_trips_group_by_stop_times_frequencies']
         sql = load_sql_from_file(sql_path)
 
         log_message(f"... running select_stop_times_group_by + frequencies SQL")
 
-        db_cursor = self.db_handle.cursor()
+        db_cursor = self._db_engine.get_cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 1_000 == 0:
@@ -697,13 +755,8 @@ class GTFS_DB_Importer:
 
         log_message(f'... load into DB')
 
-        trips_table_config = self.db_schema_config['tables']['trips']
-        trips_table_writer = DB_Table_CSV_Importer(self.db_path, 'trips', trips_table_config)
-        trips_table_writer.load_csv_file(trips_frequencies_table_csv_file_path)
-
-        stop_times_table_config = self.db_schema_config['tables']['stop_times']
-        stop_times_table_writer = DB_Table_CSV_Importer(self.db_path, 'stop_times', stop_times_table_config)
-        stop_times_table_writer.load_csv_file(stop_times_frequencies_table_csv_file_path)
+        self._db_engine.load_csv_into_table(trips_table_name, trips_frequencies_table_csv_file_path)
+        self._db_engine.load_csv_into_table(stop_times_table_name, stop_times_frequencies_table_csv_file_path)
 
         log_message(f'... DONE')
         print()

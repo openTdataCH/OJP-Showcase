@@ -1,6 +1,6 @@
 import os, sys
 
-import json
+import datetime
 
 from dataclasses import dataclass, asdict
 from typing import List, Optional, Any
@@ -267,3 +267,8 @@ class GTFS_RT_Response:
         response = GTFS_RT_Response(header, entities)
     
         return response
+    
+    def compute_date_f(self) -> str:
+        dt = datetime.datetime.fromtimestamp(self.header.timestamp)
+        dt_f = dt.strftime("%Y-%m-%d %H:%M:%S")
+        return dt_f

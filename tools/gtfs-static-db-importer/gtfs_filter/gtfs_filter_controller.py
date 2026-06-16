@@ -8,9 +8,6 @@ import re
 
 from gtfs_filter.helpers.db_engine import SQLiteDBEngine
 from gtfs_filter.helpers.log_helpers import log_message
-from gtfs_filter.helpers.csv_updater import CSV_Updater
-from gtfs_filter.helpers.config_helpers import load_yaml_config
-from gtfs_filter.helpers.db_config import DB_Config, DB_ConfigJSON
 
 class GTFS_FilterController:
     _app_config: Any
@@ -22,7 +19,9 @@ class GTFS_FilterController:
         log_message(f'GTFS Filter: {db_path.name}')
 
         self._app_config = app_config
-        self._gtfs_db_engine = SQLiteDBEngine(db_path, is_read_only=False)
+
+        db_schema_path = app_config['gtfs_filter']['gtfs_db_schema_path']
+        self._gtfs_db_engine = SQLiteDBEngine.init_read_write(db_path, db_schema_path=db_schema_path)
         self._where_filters = []
         
         if not os.path.isdir(gtfs_output_path):
@@ -50,10 +49,9 @@ class GTFS_FilterController:
         self._where_filters = []
 
         table_name = 'link_filter_trips'
-        table_config = self._app_config['gtfs_filter']['db_config']['tables'][table_name]
 
         log_message(f'SQL: drop/create {table_name}')
-        self._gtfs_db_engine.drop_and_recreate_table(table_name, table_config)
+        self._gtfs_db_engine.drop_and_recreate_table(table_name)
         log_message(f'... done')
         print()
 
@@ -125,24 +123,18 @@ class GTFS_FilterController:
         sql_path = Path(sql_path_s)
         sql = sql_path.read_text(encoding='utf-8')
 
-        csv_updater = CSV_Updater(csv_path, column_names)
-        db_cursor = self._gtfs_db_engine.get_cursor()
-        for db_row in db_cursor.execute(sql):
-            csv_updater.prepare_row(dict(db_row))
-        db_cursor.close()
+        self._gtfs_db_engine.export_sql_to_csv(sql, csv_path, column_names=column_names)
 
     def _export_csv(self):
         gtfs_export_config_path = Path(self._app_config['gtfs_filter']['gtfs_export_profile'])
-        gtfs_export_config_json: DB_ConfigJSON = load_yaml_config(gtfs_export_config_path)
-        gtfs_export_config = DB_Config(gtfs_export_config_json)
+        gtfs_export = SQLiteDBEngine.init_memory(db_schema_path=gtfs_export_config_path)
 
         log_message(f'START export CSV tables to {self._gtfs_output_path}')
         table_names = ['agency', 'stops', 'routes', 'calendar', 'calendar_dates', 'stop_times', 'trips']
         for table_name in table_names:
             log_message(f'... export {table_name}')
-
-            column_names = gtfs_export_config.get_columns_for_table(table_name)
             csv_path = Path(f'{self._gtfs_output_path}/{table_name}.txt')
+            column_names = gtfs_export.map_columns_metadata[table_name]['names']
             self._export_table(csv_path, table_name, column_names)
         # loop tables
 
