@@ -583,8 +583,10 @@ class GTFS_DB_Importer:
         print()
 
     def _cleanup(self):
-        log_message(f'Remove temp folder {self.db_tmp_path}')
-        shutil.rmtree(self.db_tmp_path)
+        log_message('START cleaning up tmp folder, VACUUM')
+        self._db_engine.cleanup()
+        log_message('... DONE')
+        print()
 
     def _update_frequencies(self):
         '''
@@ -592,20 +594,24 @@ class GTFS_DB_Importer:
         '''
         log_message(f'START parsing frequencies...')
 
-        trips_column_names = fetch_column_names(self.db_handle, 'trips')
-        trips_frequencies_table_csv_file_path = Path(f'{self.db_tmp_path}/trips_frequencies.csv')
+        db_temp_path = self._db_engine.get_db_tmp_path()
+
+        trips_table_name = 'trips'
+        trips_column_names = self._db_engine.map_columns_metadata[trips_table_name]['names']
+        trips_frequencies_table_csv_file_path = Path(f'{db_temp_path}/trips_frequencies.csv')
         trips_frequencies_csv_updater = CSV_Updater(trips_frequencies_table_csv_file_path, trips_column_names)
 
-        stop_times_column_names = fetch_column_names(self.db_handle, 'stop_times')
-        stop_times_frequencies_table_csv_file_path = Path(f'{self.db_tmp_path}/stop_times_frequencies.csv')
+        stop_times_table_name = 'stop_times'
+        stop_times_column_names = self._db_engine.map_columns_metadata[stop_times_table_name]['names']
+        stop_times_frequencies_table_csv_file_path = Path(f'{db_temp_path}/stop_times_frequencies.csv')
         stop_times_frequencies_table_csv_updater = CSV_Updater(stop_times_frequencies_table_csv_file_path, stop_times_column_names)
 
-        sql_path = self.map_sql_queries['select_trips_group_by_stop_times_frequencies']
+        sql_path = self._map_sql_queries['select_trips_group_by_stop_times_frequencies']
         sql = load_sql_from_file(sql_path)
 
         log_message(f"... running select_stop_times_group_by + frequencies SQL")
 
-        db_cursor = self.db_handle.cursor()
+        db_cursor = self._db_engine.get_cursor()
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 1_000 == 0:
@@ -708,13 +714,8 @@ class GTFS_DB_Importer:
 
         log_message(f'... load into DB')
 
-        trips_table_config = self.db_schema_config['tables']['trips']
-        trips_table_writer = DB_Table_CSV_Importer(self.db_path, 'trips', trips_table_config)
-        trips_table_writer.load_csv_file(trips_frequencies_table_csv_file_path)
-
-        stop_times_table_config = self.db_schema_config['tables']['stop_times']
-        stop_times_table_writer = DB_Table_CSV_Importer(self.db_path, 'stop_times', stop_times_table_config)
-        stop_times_table_writer.load_csv_file(stop_times_frequencies_table_csv_file_path)
+        self._db_engine.load_csv_into_table(trips_table_name, trips_frequencies_table_csv_file_path)
+        self._db_engine.load_csv_into_table(stop_times_table_name, stop_times_frequencies_table_csv_file_path)
 
         log_message(f'... DONE')
         print()
