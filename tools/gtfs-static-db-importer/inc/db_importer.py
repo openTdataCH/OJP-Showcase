@@ -42,11 +42,12 @@ class GTFS_DB_Importer:
 
     def start(self):
         log_message("START GTFS IMPORT")
-        log_message(f'DB PATH: {self.db_path}')
+        log_message(f'DB PATH: {self._db_engine.db_path}')
+        print()
         
-        if os.path.isfile(self.db_lock_path):
+        if os.path.isfile(self._db_lock_path):
             print('ERROR: lock path present, ABORT')
-            print(f'ls -al {self.db_lock_path.parent}')
+            print(f'ls -al {self._db_lock_path.parent}')
             sys.exit(1)
         
         self._write_lock_file()
@@ -79,12 +80,12 @@ class GTFS_DB_Importer:
     def _write_lock_file(self):
         now_f = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         lock_file_text = f'START: {now_f}'
-        lock_file = open(self.db_lock_path, 'w', encoding='utf-8')
+        lock_file = open(self._db_lock_path, 'w', encoding='utf-8')
         lock_file.write(lock_file_text)
         lock_file.close()
         
     def _remove_lock_file(self):
-        os.remove(self.db_lock_path)
+        os.remove(self._db_lock_path)
     
     def _import_csv_tables(self):
         '''
