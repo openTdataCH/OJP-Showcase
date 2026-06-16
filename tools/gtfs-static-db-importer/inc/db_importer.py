@@ -197,7 +197,7 @@ class GTFS_DB_Importer:
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 10000 == 0:
-                log_message(f'... parsed {row_id} rows')
+                log_message(f'... parsed {row_id:,} rows')
 
             service_id = db_row['service_id']
             day_bits = self._compute_calendar_day_bits(db_row, calendar_days, calendar_start_date, calendar_end_date)
@@ -338,7 +338,7 @@ class GTFS_DB_Importer:
         row_id = 1
         for db_row in db_cursor.execute(sql):
             if row_id % 200_000 == 0:
-                log_message(f'... parsed {row_id} rows')
+                log_message(f'... parsed {row_id:,} rows')
 
             stop_times_s = db_row['stop_times_data']
             stop_times = extract_stop_times_data_from_s(stop_times_s)
