@@ -130,16 +130,14 @@ class GTFS_FilterController:
 
     def _export_csv(self):
         gtfs_export_config_path = Path(self._app_config['gtfs_filter']['gtfs_export_profile'])
-        gtfs_export_config_json: DB_ConfigJSON = load_yaml_config(gtfs_export_config_path)
-        gtfs_export_config = DB_Config(gtfs_export_config_json)
+        gtfs_export = SQLiteDBEngine.init_memory(db_schema_path=gtfs_export_config_path)
 
         log_message(f'START export CSV tables to {self._gtfs_output_path}')
         table_names = ['agency', 'stops', 'routes', 'calendar', 'calendar_dates', 'stop_times', 'trips']
         for table_name in table_names:
             log_message(f'... export {table_name}')
-
-            column_names = gtfs_export_config.get_columns_for_table(table_name)
             csv_path = Path(f'{self._gtfs_output_path}/{table_name}.txt')
+            column_names = gtfs_export.map_columns_metadata[table_name]['names']
             self._export_table(csv_path, table_name, column_names)
         # loop tables
 
