@@ -300,9 +300,12 @@ def main():
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--month', '--month')
+    parser.add_argument('--check-errors', '--check-errors', action='store_true')
+    
     args = parser.parse_args()
     user_report_filter_ym = args.month
-    
+    user_check_errors = args.check_errors
+
     report_filter_ym = user_report_filter_ym
     if report_filter_ym is None:
         default_filter_ym = report_now.strftime('%Y-%m')
@@ -327,7 +330,7 @@ def main():
     log_message('... DONE')
     print(header_separator_s)
     
-    if user_report_filter_ym is None:
+    if user_check_errors:
         _analyse_last_report(map_reports, map_compare)
 
 if __name__ == "__main__":
