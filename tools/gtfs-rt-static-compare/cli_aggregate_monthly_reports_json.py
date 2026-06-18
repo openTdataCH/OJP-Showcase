@@ -286,7 +286,7 @@ def _analyse_last_report(map_reports: dict[str, GTFS_RT_Static_Report_Metadata],
         error_message = f'ERROR - GTFS-RT / -static is out of sync, discovered {report.tripNOK_NOJP_no} items not in GTFS-static'
         
     if abs(report.gtfs_rt_age) > 60:
-        error_message = f'ERROR - GTFS-RT age is greater than 60seconds: {report.gtfs_rt_age}'
+        error_message = f'ERROR - GTFS-RT age is greater than 60 seconds: {report.gtfs_rt_age}'
                 
     if error_message is not None:
         raise Exception(error_message)
