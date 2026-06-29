@@ -11,8 +11,12 @@ import { GTFS_RT_Static_Monthly_Report_JSON, GTFS_RT_Static_Report, GTFS_RT_Stat
 
 interface DetailReportRow {
   agency: AgencyJSON,
-  valueNow: number,
-  valuePrev: number,
+  valueNow: {
+    gtfsRt: number,
+  },
+  valuePrev: {
+    gtfsRt: number,
+  },
 };
 
 type SortColumn = 'name' | 'keyA' | 'keyB' | 'diff';
@@ -44,8 +48,8 @@ type HrReportKey = string;
 interface MapAgencyReportData {
   id: string,
   agencyJSON: AgencyJSON,
-  activeItemsTotal: number,
-  byRouteShortName: Record<string, number>,
+  gtfsRtActiveNo: number,
+  gtfsStaticActiveNo: number,
 };
 type MapDaysData = Record<HrReportKey, Record<string, MapAgencyReportData>>;
 
@@ -190,8 +194,12 @@ export class DetailAgencyComponent implements OnInit {
     this.model.agencyRows.forEach(agencyJSON => {
       const reportRow: DetailReportRow = {
         agency: agencyJSON,
-        valueNow: this.computeAgencySnapshotData(agencyJSON, this.model.keyA),
-        valuePrev: this.computeAgencySnapshotData(agencyJSON, this.model.prevKeyB),
+        valueNow: {
+          gtfsRt: this.computeAgencySnapshotData(agencyJSON, this.model.keyA, 'gtfs_rt'),
+        },
+        valuePrev: {
+          gtfsRt: this.computeAgencySnapshotData(agencyJSON, this.model.prevKeyB, 'gtfs_rt'),
+        },
       };
 
       this.model.reportRows.push(reportRow);
@@ -199,16 +207,16 @@ export class DetailAgencyComponent implements OnInit {
     this.model.reportRows.sort((a, b) => {
       let expr = (() => {
         if (this.model.sort.column === 'keyA') {
-          return a.valueNow - b.valuePrev;
+          return a.valueNow.gtfsRt - b.valuePrev.gtfsRt;
         }
         if (this.model.sort.column === 'keyB') {
-          return a.valuePrev - b.valuePrev;
+          return a.valuePrev.gtfsRt - b.valuePrev.gtfsRt;
         }
         if (this.model.sort.column === 'name') {
           return a.agency.agency_name.localeCompare(b.agency.agency_name);
         }
 
-        return (a.valueNow - a.valuePrev) - (b.valueNow - b.valuePrev);
+        return (a.valueNow.gtfsRt - a.valuePrev.gtfsRt) - (b.valueNow.gtfsRt - b.valuePrev.gtfsRt);
       })();
       
       if (this.model.sort.direction === 'desc') {
@@ -246,18 +254,18 @@ export class DetailAgencyComponent implements OnInit {
 
     this.mapDaysData[reportKey] = {};
 
-    const agencyIds = Object.keys(reportData.gtfs_rt_active_by_agency);
+    const agencyIds = Object.keys(reportData.gtfs_trips_active_data.trips_active_by_agency);
     agencyIds.forEach(agencyId => {
       const agencyJSON = mapGTFS_Agency[agencyId] ?? null;
       if (agencyJSON === null) {
         throw new Error('No GTFS agenct for ' + agencyId + ' in GTFS day: ' + gtfsDay);
       }
 
-      const gtfsRT_activeNo = reportData.gtfs_rt_active_by_agency[agencyId];
+      const gtfsRT_activeNo = reportData.gtfs_rt_active_by_agency[agencyId] ?? 0;
       this.mapDaysData[reportKey][agencyId] = {
         id: agencyId,
         agencyJSON: agencyJSON,
-        activeItemsTotal: gtfsRT_activeNo,
+        gtfsRtActiveNo: gtfsRT_activeNo,
       };
     });
   }
