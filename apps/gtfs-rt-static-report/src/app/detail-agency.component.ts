@@ -35,13 +35,6 @@ interface PageModel {
   reportMetadata: GTFS_RT_Static_Report_Metadata_JSON | null,
 };
 
-interface RouteGTFS_Data {
-  routeId: string,
-  route: RouteJSON,
-  agency: AgencyJSON,
-};
-type MapFeedVersionGTFS_Data = Record<string, RouteGTFS_Data>;
-
 // 2026-03-09-1200
 type HrReportKey = string;
 
