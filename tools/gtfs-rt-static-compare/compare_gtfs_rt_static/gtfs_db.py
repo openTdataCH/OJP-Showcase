@@ -2,7 +2,8 @@ import os, sys
 
 from pathlib import Path
 
-from typing import Dict, Optional
+from typing import Any, Dict, TypedDict
+from datetime import date
 
 from .helpers.json_helpers import load_json_from_file, export_json_to_file
 from .helpers.db_engine import SQLiteDBEngine
