@@ -2,9 +2,9 @@ import os, sys
 
 from pathlib import Path
 
-from typing import Union
+from typing import TypedDict, Union
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import gzip
 import shutil
@@ -13,12 +13,11 @@ from .helpers.config_helpers import load_yaml_config
 from .helpers.gtfs_helpers import compute_gtfs_db_filename
 from .helpers.json_helpers import load_json_from_file, export_json_to_file
 from .helpers.log_helpers import format_path, log_message
+from .gtfs_db import GTFS_DB, DayTripData
 
 from .models.gtfs_static_db_catalog import GTFS_Static_Catalog_Report, GTFS_Static_Catalog_Item
 from .models.gtfs_rt import GTFS_RT_Response
-from .models.gtfs_rt_static_report import GTFS_RT_Static_Report, GTFS_RT_Static_Report_Metadata
-
-from .gtfs_db import GTFS_DB
+from .models.gtfs_rt_static_report import GTFS_RT_Static_Report, GTFS_RT_Static_Report_Metadata, GTFS_TripsActiveData
 
 from .fetch import fetch_latest, compute_resource_snapshot_path
 
