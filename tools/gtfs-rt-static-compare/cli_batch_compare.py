@@ -116,7 +116,6 @@ def main():
             gtfs_controller.compare_gtfs_rt_from_file(
                 gtfs_rt_response, file_dt, gtfs_rt_file_path, 
                 gtfs_catalog_item, 
-                gtfs_db, 
                 day_data_trips,
             )
         # loop files

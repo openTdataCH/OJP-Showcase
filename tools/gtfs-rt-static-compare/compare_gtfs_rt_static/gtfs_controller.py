@@ -46,8 +46,8 @@ class GTFS_Controller:
     def load_gtfs_db(self, gtfs_catalog_item: GTFS_Static_Catalog_Item):
         return self._load_gtfs_db(gtfs_catalog_item)
     
-    def compare_gtfs_rt_from_file(self, gtfs_rt_response: GTFS_RT_Response, gtfs_rt_file_dt: datetime, gtfs_rt_path: Path, gtfs_catalog_item: GTFS_Static_Catalog_Item, gtfs_db: GTFS_DB, day_data_trips: DayTripData):
-        self._compare_gtfs_rt_from_file(gtfs_rt_response, gtfs_rt_file_dt, gtfs_rt_path, gtfs_catalog_item, gtfs_db, day_data_trips)
+    def compare_gtfs_rt_from_file(self, gtfs_rt_response: GTFS_RT_Response, gtfs_rt_file_dt: datetime, gtfs_rt_path: Path, gtfs_catalog_item: GTFS_Static_Catalog_Item, day_data_trips: DayTripData):
+        self._compare_gtfs_rt_from_file(gtfs_rt_response, gtfs_rt_file_dt, gtfs_rt_path, gtfs_catalog_item, day_data_trips)
         
     def compute_gtfs_db_dt(self, dt: datetime):
         return self._compute_gtfs_db_catalog_item(dt)
@@ -99,7 +99,6 @@ class GTFS_Controller:
             fetch_dt,  
             gtfs_rt_snapshot_path, gtfs_rt_response, 
             gtfs_catalog_item, 
-            gtfs_db,
             day_data_trips,
         )
         
@@ -151,11 +150,10 @@ class GTFS_Controller:
 
         return gtfs_db
     
-    def _compare_gtfs_rt_from_file(self, gtfs_rt_response: GTFS_RT_Response, gtfs_rt_file_dt: datetime, gtfs_rt_path: Path, gtfs_catalog_item: GTFS_Static_Catalog_Item, gtfs_db: GTFS_DB, day_data_trips: DayTripData):
+    def _compare_gtfs_rt_from_file(self, gtfs_rt_response: GTFS_RT_Response, gtfs_rt_file_dt: datetime, gtfs_rt_path: Path, gtfs_catalog_item: GTFS_Static_Catalog_Item, day_data_trips: DayTripData):
         self._compare_file_gtfs_rt_static(
             gtfs_rt_file_dt, gtfs_rt_path, gtfs_rt_response,
             gtfs_catalog_item,
-            gtfs_db,
             day_data_trips,
         )
         
@@ -216,7 +214,6 @@ class GTFS_Controller:
     def _compare_file_gtfs_rt_static(self, 
             report_dt: datetime, gtfs_rt_path: Path, gtfs_rt_response: GTFS_RT_Response, 
             gtfs_catalog_item: GTFS_Static_Catalog_Item,
-            gtfs_db: GTFS_DB,
             day_data_trips: DayTripData,
         ):
         gtfs_rt_dt = datetime.fromtimestamp(gtfs_rt_response.header.timestamp)
