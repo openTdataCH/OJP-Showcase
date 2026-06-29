@@ -2,7 +2,7 @@ import os, sys
 
 from dataclasses import dataclass, asdict
 from datetime import datetime
-from typing import Any
+from typing import Any, TypedDict
 
 @dataclass
 class GTFS_RT_Static_Report_Compare_Info:
