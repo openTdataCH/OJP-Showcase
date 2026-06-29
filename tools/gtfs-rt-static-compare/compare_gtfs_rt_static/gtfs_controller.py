@@ -24,26 +24,11 @@ from .fetch import fetch_latest, compute_resource_snapshot_path
 gtfs_rt_static_report_file_regexp = r"gtfs_rt_static_report-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})([0-9]{2})"
 header_separator_s = '-' * 60
 
-def normalize_if_overflow(t: str) -> tuple[str, bool]:
-    """
-    Detect if a time string (HH:MM:SS) exceeds 23:59:59.
-    If overflow, return normalized time (wrapped to next day) and True.
-    Otherwise, return original time and False.
-    """
-    h, m, s = map(int, t.split(':'))
-    total_seconds = h * 3600 + m * 60 + s
 class GTFS_ActiveTripsData(TypedDict):
     trips_no: int
     map_trip_ids: dict[str, bool]
     map_by_agency: dict[str, int]
 
-    if total_seconds >= 24 * 3600:
-        total_seconds %= 24 * 3600
-        h, rem = divmod(total_seconds, 3600)
-        m, s = divmod(rem, 60)
-        return f'{h:02d}:{m:02d}:{s:02d}', True
-    else:
-        return t, False
 class GTFS_Controller:
     gtfs_dbs_report: GTFS_Static_Catalog_Report
 
