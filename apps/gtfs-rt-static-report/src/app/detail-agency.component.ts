@@ -13,9 +13,11 @@ interface DetailReportRow {
   agency: AgencyJSON,
   valueNow: {
     gtfsRt: number,
+    gtfsStatic: number,
   },
   valuePrev: {
     gtfsRt: number,
+    gtfsStatic: number,
   },
 };
 
@@ -170,16 +172,22 @@ export class DetailAgencyComponent implements OnInit {
     this.updatePageModel();
   }
 
-  private computeAgencySnapshotData(agency: AgencyJSON, key: string): number {
-    const dataKey = this.mapDaysData[key] ?? null;
+  private computeAgencySnapshotData(agency: AgencyJSON, reportKey: string, property: 'gtfs_rt' | 'gtfs_static'): number {
+    const dataKey = this.mapDaysData[reportKey] ?? null;
     if (dataKey === null) {
-      return 0;
+      return -1;
     }
 
     const agencySnapshotData = dataKey[agency.agency_id] ?? null;
-    const value = agencySnapshotData === null ? 0 : agencySnapshotData.activeItemsTotal;
+    if (agencySnapshotData === null) {
+      return 0;
+    }
 
-    return value;
+    if (property ===  'gtfs_rt') {
+      return agencySnapshotData.gtfsRtActiveNo;
+    } else {
+      return agencySnapshotData.gtfsStaticActiveNo;
+    }
   }
 
   private updatePageModel() {
@@ -189,9 +197,11 @@ export class DetailAgencyComponent implements OnInit {
         agency: agencyJSON,
         valueNow: {
           gtfsRt: this.computeAgencySnapshotData(agencyJSON, this.model.keyA, 'gtfs_rt'),
+          gtfsStatic: this.computeAgencySnapshotData(agencyJSON, this.model.keyA, 'gtfs_static'),
         },
         valuePrev: {
           gtfsRt: this.computeAgencySnapshotData(agencyJSON, this.model.prevKeyB, 'gtfs_rt'),
+          gtfsStatic: this.computeAgencySnapshotData(agencyJSON, this.model.prevKeyB, 'gtfs_static'),
         },
       };
 
@@ -255,9 +265,11 @@ export class DetailAgencyComponent implements OnInit {
       }
 
       const gtfsRT_activeNo = reportData.gtfs_rt_active_by_agency[agencyId] ?? 0;
+      const gtfsStatc_activeNo = reportData.gtfs_trips_active_data.trips_active_by_agency[agencyId] ?? 0;
       this.mapDaysData[reportKey][agencyId] = {
         id: agencyId,
         agencyJSON: agencyJSON,
+        gtfsStaticActiveNo: gtfsStatc_activeNo,
         gtfsRtActiveNo: gtfsRT_activeNo,
       };
     });
