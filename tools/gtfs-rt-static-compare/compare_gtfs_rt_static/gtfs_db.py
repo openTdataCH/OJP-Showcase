@@ -14,16 +14,18 @@ class GTFS_DB:
     _db: SQLiteDBEngine
     map_routes: Dict[str, RouteDB]
     map_trips: Dict[str, TripDB]
-    _gtfs_db_table_cache_template: Optional[str]
+
+    _gtfs_static_query_cache_path: Path
     
-    def __init__(self, db_path: Path, resources_path_config: Optional[Dict[str, str]]):
+    def __init__(self, db_path: Path, map_resource_paths: Dict[str, Any] = {}):
         self._db = SQLiteDBEngine(db_path)
         
         self.map_routes = {}
-        self.map_routes = {}
-        
-        if resources_path_config is not None:
-            self._gtfs_db_table_cache_template = resources_path_config.get('cache_gtfs_db_table', None)
+
+        gtfs_static_query_cache_path_s = map_resource_paths.get('gtfs_static_query_cache_path', None)
+        if gtfs_static_query_cache_path_s is None:
+            raise ValueError(f'expected gtfs_static_query_cache_path path is not defined in config')
+        self._gtfs_static_query_cache_path = Path(gtfs_static_query_cache_path_s)
             
     def init_lookups(self):
         gtfs_routes_db = self._load_gtfs_table('routes', map_by_field='route_id')
