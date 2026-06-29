@@ -192,6 +192,24 @@ export class DetailAgencyComponent implements OnInit {
     }
   }
 
+  private computeCoverageClassName(value: number, coverage: number) {
+    if (value <= 10) {
+      return 'text-black';
+    } else {
+      if (coverage > 95) {
+        return 'text-bg-success';
+      }
+      if (coverage > 80) {
+        return 'text-bg-warning';
+      }
+      if (coverage > 50) {
+        return 'text-bg-secondary';
+      }
+
+      return 'text-bg-danger';
+    }
+  }
+
   private updatePageModel() {
     this.model.reportRows = [];
     this.model.agencyRows.forEach(agencyJSON => {
