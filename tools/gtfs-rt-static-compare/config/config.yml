@@ -8,6 +8,9 @@ resource_paths:
   gtfs_rt_static_report: "[APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/[MONTH]/[DAY]/gtfs_rt_static_report-[YEAR]-[MONTH]-[DAY]-[HHMM].json"
   gtfs_rt_static_mo_json: "[APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/gtfs_rt_static_report-[YEAR]-[MONTH].json"
 
+  sql:
+    select_active_trips_agency_rt_mode_light: "[APP_PATH]/compare_gtfs_rt_static/sql/select_active_trips_agency_rt_mode_light.sql"
+
 opentransportdata:
   gtfs_rt_url: https://api.opentransportdata.swiss/la/gtfs-rt?format=JSON
 
