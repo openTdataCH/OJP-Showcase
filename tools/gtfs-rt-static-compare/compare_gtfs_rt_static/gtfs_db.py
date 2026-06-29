@@ -70,15 +70,15 @@ class GTFS_DB:
         
     def _load_gtfs_table(self, table_name: str, map_by_field: str):
         res_cache_path = None
-        if self._gtfs_db_table_cache_template is not None:
-            res_cache_path_s: str = f'{self._gtfs_db_table_cache_template}'
-            res_cache_path_s = res_cache_path_s.replace('[GTFS_FILENAME]', f'{self._db.db_path.name}')
-            res_cache_path_s = res_cache_path_s.replace('[TABLE_NAME]', table_name)
+        if self._gtfs_static_query_cache_path is not None:
+            db_day_f = format_day(self.gtfs_day)
+            res_cache_path_s = f'{self._gtfs_static_query_cache_path}/db_{db_day_f}__table_{table_name}.json'
             res_cache_path = Path(res_cache_path_s)
         
             if os.path.isfile(res_cache_path):
                 res_json = load_json_from_file(res_cache_path)
                 return res_json
+        # check cache
         
         sql = None
         if table_name == 'trips':
