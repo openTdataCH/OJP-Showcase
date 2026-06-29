@@ -31,7 +31,6 @@ def format_day(day: date) -> str:
 class GTFS_DB:
     _db: SQLiteDBEngine
     map_routes: Dict[str, RouteDB]
-    map_trips: Dict[str, TripDB]
 
     _gtfs_static_query_cache_path: Path
     _map_sql_paths: Dict[str, Path]
@@ -70,14 +69,6 @@ class GTFS_DB:
         for route_id, route_db_json in gtfs_routes_db.items():
             route_db_json_cleaned = {k: v for k, v in route_db_json.items() if k in RouteDB.__annotations__}
             self.map_routes[route_id] = RouteDB(**route_db_json_cleaned)        
-        
-        gtfs_trips_db = self._load_gtfs_table('trips', map_by_field='trip_id')
-        self.map_trips: dict[str, TripDB] = {}
-        for trip_id, trip_db_json in gtfs_trips_db.items():
-            trip_db_json_cleaned = {k: v for k, v in trip_db_json.items() if k in TripDB.__annotations__}
-            self.map_trips[trip_id] = TripDB(**trip_db_json_cleaned)
-            # Dont use Trip because is slower init
-            # self.map_trips[trip_id] = Trip.init_from_db_row(trip_db_json, gtfs_calendar_db, gtfs_agency_db, gtfs_routes_db, gtfs_stops_db)
         
     def _load_gtfs_table(self, table_name: str, map_by_field: str):
         res_cache_path = None
