@@ -33,6 +33,10 @@ def normalize_if_overflow(t: str) -> tuple[str, bool]:
     """
     h, m, s = map(int, t.split(':'))
     total_seconds = h * 3600 + m * 60 + s
+class GTFS_ActiveTripsData(TypedDict):
+    trips_no: int
+    map_trip_ids: dict[str, bool]
+    map_by_agency: dict[str, int]
 
     if total_seconds >= 24 * 3600:
         total_seconds %= 24 * 3600
