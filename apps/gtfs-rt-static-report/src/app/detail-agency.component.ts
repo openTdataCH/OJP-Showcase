@@ -6,9 +6,8 @@ import { FilenameDateRegexp, ReportHelpers } from './helpers/report-helpers';
 
 import { DataService } from './data.service';
 
-import { AgencyJSON, RouteJSON } from './models/gtfs/gtfs';
-import { Response_GTFS_RT } from './models/gtfs-rt/gtfs-rt-response';
-import { GTFS_RT_Static_Monthly_Report_JSON, GTFS_RT_Static_Report_Metadata_JSON } from './types/_all';
+import { AgencyJSON } from './models/gtfs/gtfs';
+import { GTFS_RT_Static_Monthly_Report_JSON, GTFS_RT_Static_Report, GTFS_RT_Static_Report_Metadata_JSON } from './types/_all';
 
 interface DetailReportRow {
   agency: AgencyJSON,
@@ -56,12 +55,12 @@ type MapDaysData = Record<HrReportKey, Record<string, MapAgencyReportData>>;
   styleUrls: ['./detail-agency.component.scss']
 })
 export class DetailAgencyComponent implements OnInit {
-  private mapGTFS_RouteAgency: Record<string, MapFeedVersionGTFS_Data>;
+  private mapGTFS_Agency: Record<string, Record<string, AgencyJSON>>;
   private mapDaysData: MapDaysData;
   public model: PageModel;
 
   constructor(private route: ActivatedRoute, private dataService: DataService) {
-   this.mapGTFS_RouteAgency = {};
+   this.mapGTFS_Agency = {};
    this.mapDaysData = {};
    this.model = {
     reportRows: [],
@@ -121,7 +120,7 @@ export class DetailAgencyComponent implements OnInit {
       return;
     }
 
-    this.mapGTFS_RouteAgency = {};
+    this.mapGTFS_Agency = {};
     this.mapDaysData = {};
 
     const reportYearF = timeMatches[1];
@@ -133,34 +132,29 @@ export class DetailAgencyComponent implements OnInit {
     const monthlyReport = await this.dataService.getMonthlyReport(ym);
     this.updateSelectedReportCell(monthlyReport, reportDayF, reportHrMinF);
 
-    const gtfsRT_SnapshotURL = ReportHelpers.computeGTFS_RT_URL(reportKey);
-    const gtfsRT = await this.dataService.fetchGTFS_RT_Snapshot(gtfsRT_SnapshotURL);
+    const reportURL = ReportHelpers.computeReportURLForTime(reportKey);
+    const reportData = await this.dataService.fetchGTFS_RT_StaticReport(reportURL);
+    await this.parseReport(reportData, reportKey);
 
-    await this.loadGTFS_Data(gtfsRT.header.feedVersion);
-    this.parseGTFS_RT(gtfsRT, reportKey);
-
-    const mapCompareSnapshotURLs: Record<string, string> = {};
+    const mapCompareReportURLs: Record<string, string> = {};
     const mapDayCompareReports = monthlyReport.compare_days[reportDayF] ?? null;
-
     if (mapDayCompareReports) {
       const snapshotCompareData = mapDayCompareReports[reportHrMinF] ?? null;
       if (snapshotCompareData) {
         const dayKeys = Object.keys(snapshotCompareData.map_days);
         dayKeys.forEach(dayKey => {
-          // https://tools.opentransportdata.swiss/gtfs-rt-snapshot/2026/03/11/GTFS_RT-2026-03-11-1100.json
           const compareReportKey = dayKey + '-' + reportHrMinF;
-          const compareDaySnapshotURL = ReportHelpers.computeGTFS_RT_URL(compareReportKey);
-          mapCompareSnapshotURLs[compareReportKey] = compareDaySnapshotURL;
+          const compareReportURL = ReportHelpers.computeReportURLForTime(compareReportKey);
+          mapCompareReportURLs[compareReportKey] = compareReportURL;
         });
       }
     }
 
-    const compareReportKeys = Object.keys(mapCompareSnapshotURLs);
+    const compareReportKeys = Object.keys(mapCompareReportURLs);
     for (const compareReportKey of compareReportKeys) {
-      const compareDaySnapshotURL = mapCompareSnapshotURLs[compareReportKey];
-      const compareGtfsRT_Snapshot = await this.dataService.fetchGTFS_RT_Snapshot(compareDaySnapshotURL);
-      await this.loadGTFS_Data(compareGtfsRT_Snapshot.header.feedVersion);
-      this.parseGTFS_RT(compareGtfsRT_Snapshot, compareReportKey);
+      const compareDayReportURL = mapCompareReportURLs[compareReportKey];
+      const compareReportData = await this.dataService.fetchGTFS_RT_StaticReport(compareDayReportURL);
+      await this.parseReport(compareReportData, compareReportKey);
     }
 
     const mapAgencies: Record<string, AgencyJSON> = {};
@@ -225,155 +219,46 @@ export class DetailAgencyComponent implements OnInit {
     });
   }
 
-  private async loadGTFS_Data(feedVersion: string) {
-    if (feedVersion in this.mapGTFS_RouteAgency) {
-      // poor's man cache - return if already computed
+  private async loadGTFS_DataForGTFS_Day(gtfsDay: string) {
+    if (gtfsDay in this.mapGTFS_Agency) {
       return;
     }
 
-    this.mapGTFS_RouteAgency[feedVersion] = {};
-
-    const gtfsDay = ReportHelpers.parseGTFS_feedVersionAsGTFS_Day(feedVersion);
-
+    this.mapGTFS_Agency[gtfsDay] = {};
+  
     const gtfsAgencyData = await this.dataService.fetchGTFS_Agency(gtfsDay);
-    const gtfsRoutesData = await this.dataService.fetchGTFS_Routes(gtfsDay);
-
     const mapAgency: Record<string, AgencyJSON> = {};
     gtfsAgencyData.rows.forEach(row => {
       mapAgency[row.agency_id] = row;
     });
 
-    gtfsRoutesData.rows.forEach(row => {
-      const routeId = row.route_id;
-      const agency = mapAgency[row.agency_id] ?? null;
-      if (agency === null) {
-        throw new Error('Cant find agency: ' + row.agency_id);
-      }
-
-      const routeGTFS_Data: RouteGTFS_Data = {
-        routeId: routeId,
-        agency: agency,
-        route: row,
-      };
-
-      this.mapGTFS_RouteAgency[feedVersion][routeId] = routeGTFS_Data;
-    });
+    this.mapGTFS_Agency[gtfsDay] = mapAgency;
   }
 
-  private parseGTFS_RT(gtfsRT: Response_GTFS_RT, reportKey: string) {
-    const mapGTFS_Routes = this.mapGTFS_RouteAgency[gtfsRT.header.feedVersion] ?? null;
-    if (mapGTFS_Routes === null) {
-      throw new Error('No lookups for feedVersion: ' + gtfsRT.header.feedVersion);
+  private async parseReport(reportData: GTFS_RT_Static_Report, reportKey: string) {
+    const gtfsDay = reportData.gtfs_trips_active_data.gtfs_day;
+    
+    await this.loadGTFS_DataForGTFS_Day(gtfsDay);
+    const mapGTFS_Agency = this.mapGTFS_Agency[gtfsDay] ?? null;
+    if (mapGTFS_Agency === null) {
+      throw new Error('No lookups for GTFS day: ' + gtfsDay);
     }
 
     this.mapDaysData[reportKey] = {};
 
-    const gtfsRT_Date = new Date(gtfsRT.header.timestamp * 1000);
-
-    gtfsRT.entity.forEach(entity => {
-      const routeId = entity.tripUpdate?.trip?.routeId ?? null;
-      if (routeId === null) {
-        console.log('ERROR: - entity with null routeId');
-        console.log(entity);
-        return;
+    const agencyIds = Object.keys(reportData.gtfs_rt_active_by_agency);
+    agencyIds.forEach(agencyId => {
+      const agencyJSON = mapGTFS_Agency[agencyId] ?? null;
+      if (agencyJSON === null) {
+        throw new Error('No GTFS agenct for ' + agencyId + ' in GTFS day: ' + gtfsDay);
       }
 
-      const startDateS = entity.tripUpdate?.trip?.startDate ?? null;
-      const startTimeS = entity.tripUpdate?.trip?.startTime ?? null;
-      if ((startDateS === null) || (startTimeS === null)) {
-        console.log('ERROR: - entity with null startDate/startTime');
-        console.log(entity);
-        return;
-      }
-
-      let tripStartDate: Date | null = null;
-
-      try {
-        const startDateF = startDateS.substring(0, 4) + '-' + startDateS.substring(4, 6) + '-' + startDateS.substring(6, 8);
-        const tripStartDateF = startDateF + ' ' + startTimeS;
-        tripStartDate = new Date(tripStartDateF);
-      } catch (error) {
-        console.log('ERROR: - cant parse trip startDate/startTime');
-        console.log(entity);
-        console.log(error);
-        return;
-      }
-
-      if (tripStartDate === null) {
-        console.log('ERROR: - cant parse trip startDate/startTime');
-        console.log(entity);
-        return;
-      }
-
-      if (tripStartDate > gtfsRT_Date) {
-        return;
-      }
-
-      const routeGTFS_Data = mapGTFS_Routes[routeId] ?? null;
-
-      const agencyId: string = (() => {
-        if (routeId.startsWith('ojp:')) {
-          return 'ojp';
-        }
-
-        if (routeId.startsWith('atv:')) {
-          return 'atv';
-        }
-        
-        if (routeGTFS_Data === null) {
-          // console.log('ERROR: cant find route/agency for item');
-          // console.log(entity);
-          return 'NO_AGENCY';
-        }
-
-        return routeGTFS_Data.agency.agency_id;
-      })();
-
-      if (!(agencyId in this.mapDaysData[reportKey])) {
-        const agencyJSON: AgencyJSON = (() => {
-          if (routeGTFS_Data) {
-            return routeGTFS_Data.agency;
-          }
-
-          const fakeAgency: AgencyJSON = {
-            agency_id: agencyId,
-            agency_name: '',
-            agency_url: '',
-            agency_phone: '',
-            agency_timezone: '',
-            agency_lang: '',
-          };
-
-          return fakeAgency;
-        })();
-
-        this.mapDaysData[reportKey][agencyId] = {
-          id: agencyId,
-          agencyJSON: agencyJSON,
-          activeItemsTotal: 0,
-          byRouteShortName: {},
-        };
-        
-        if (routeGTFS_Data) {
-          this.mapDaysData[reportKey][agencyId].agencyJSON = routeGTFS_Data.agency;
-        }
-      }
-
-      this.mapDaysData[reportKey][agencyId].activeItemsTotal += 1;
-
-      const routeShortName: string = (() => {
-        if (routeGTFS_Data === null) {
-          return 'NO_ROUTE';
-        }
-
-        const routeShortName = routeGTFS_Data.route.route_short_name;
-
-        return routeShortName;
-      })();
-      if (!(routeShortName in this.mapDaysData[reportKey][agencyId].byRouteShortName)) {
-        this.mapDaysData[reportKey][agencyId].byRouteShortName[routeShortName] = 0;
-      }
-      this.mapDaysData[reportKey][agencyId].byRouteShortName[routeShortName] += 1;
+      const gtfsRT_activeNo = reportData.gtfs_rt_active_by_agency[agencyId];
+      this.mapDaysData[reportKey][agencyId] = {
+        id: agencyId,
+        agencyJSON: agencyJSON,
+        activeItemsTotal: gtfsRT_activeNo,
+      };
     });
   }
 
