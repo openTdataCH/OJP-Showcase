@@ -72,10 +72,14 @@ class GTFS_RT_Static_Report:
     tripOK_routeNOK: list[str]
     tripNOK_routeOK: list[str]
     tripNOK_routeNOK: list[str]
+
+    gtfs_rt_by_agency: dict[str, int]
+    gtfs_rt_active_by_agency: dict[str, int]
+    gtfs_trips_active_data: GTFS_TripsActiveData
     
     @staticmethod
-    def init_with_metadata(metdata: GTFS_RT_Static_Report_Metadata):
-        report = GTFS_RT_Static_Report(metdata, [], [], [])
+    def init_with_metadata(metdata: GTFS_RT_Static_Report_Metadata, gtfs_rt_by_agency: dict[str, int], gtfs_rt_active_by_agency: dict[str, int], gtfs_trips_active_data: GTFS_TripsActiveData):
+        report = GTFS_RT_Static_Report(metdata, [], [], [], gtfs_rt_by_agency=gtfs_rt_by_agency, gtfs_trips_active_data=gtfs_trips_active_data, gtfs_rt_active_by_agency=gtfs_rt_active_by_agency)
         return report
     
     @staticmethod
