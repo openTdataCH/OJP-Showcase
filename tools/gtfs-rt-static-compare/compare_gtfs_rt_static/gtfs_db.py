@@ -103,3 +103,47 @@ class GTFS_DB:
             export_json_to_file(res_json, res_cache_path, pretty_print=True)
         
         return res_json
+
+    def compute_day_data(self, day: date) -> DayTripData:
+        db_day_f = format_day(self.gtfs_day)
+        gtfs_day_f = format_day(day)
+        data_cache_filename = f'trip_day_data__db_{db_day_f}__day_{gtfs_day_f}.json'
+        data_cache_path = Path(f'{self._gtfs_static_query_cache_path}/{data_cache_filename}')
+        if data_cache_path.exists():
+            data_json = json_helpers.load_json_from_file(data_cache_path)
+            return data_json
+
+        day_idx = (day - self.start_day).days
+
+        sql = self._map_sql_paths['select_active_trips_agency_rt_mode_light'].read_text()
+        sql = sql.replace('[DAY_IDX]', f'{day_idx}')
+
+        day_trip_data: DayTripData = {
+            'map_trips': {},
+            'map_route_agency': {},
+            'map_agency_ids': {},
+        }
+
+        cursor = self._db.get_cursor()
+        cursor.execute(sql)
+        for db_row in cursor:
+            trip_id = db_row['trip_id']
+            route_id = db_row['route_id']
+            agency_id = db_row['agency_id']
+            
+            trip_row: TripRow = {
+                'trip_id': trip_id,
+                'route_id': route_id,
+                'dep_mins': db_row['departure_day_minutes'],
+                'arr_mins': db_row['arrival_day_minutes'],
+            }
+
+            day_trip_data['map_trips'][trip_id] = trip_row
+            day_trip_data['map_route_agency'][route_id] = agency_id
+            day_trip_data['map_agency_ids'][agency_id] = True
+        # loop db_rows
+        cursor.close()
+
+        json_helpers.export_json_to_file(day_trip_data, data_cache_path, pretty_print=True)
+
+        return day_trip_data
