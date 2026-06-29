@@ -192,12 +192,48 @@ class GTFS_Controller:
         
         return found_gtfs_db_item
     
+    def _compute_gtfs_active_trips_data(self, day_data_trips: DayTripData, for_dt: datetime) -> GTFS_ActiveTripsData:
+        for_dt_minutes = for_dt.hour * 60 + for_dt.minute
+        if for_dt.hour < 4:
+            for_dt_minutes += 24 * 60
+
+        gtfs_active_trips_data: GTFS_ActiveTripsData = {
+            'trips_no': 0,
+            'map_trip_ids': {},
+            'map_by_agency': {},
+        }
+
+        for trip_id, trip_data in day_data_trips['map_trips'].items():
+            # trip ended in the past
+            if trip_data['arr_mins'] < for_dt_minutes:
+                continue
+            # trip starts in the future
+            if trip_data['dep_mins'] > for_dt_minutes:
+                continue
+            
+            gtfs_active_trips_data['trips_no'] += 1
+            gtfs_active_trips_data['map_trip_ids'][trip_id] = True
+
+            route_id = trip_data['route_id']
+            agency_id = day_data_trips['map_route_agency'][route_id] or None
+            if agency_id is None:
+                raise ValueError(f'cant find agency for trip_id:{trip_id} + route_id:{route_id}')
+            
+            if agency_id not in gtfs_active_trips_data['map_by_agency']:
+                gtfs_active_trips_data['map_by_agency'][agency_id] = 0
+            gtfs_active_trips_data['map_by_agency'][agency_id] += 1
+        # loop trips
+        
+        return gtfs_active_trips_data
+    
     def _compare_file_gtfs_rt_static(self, 
             report_dt: datetime, gtfs_rt_path: Path, gtfs_rt_response: GTFS_RT_Response, 
             gtfs_catalog_item: GTFS_Static_Catalog_Item,
             gtfs_db: GTFS_DB,
         ):
         gtfs_rt_dt = datetime.fromtimestamp(gtfs_rt_response.header.timestamp)
+
+        gtfs_active_trips_data = self._compute_gtfs_active_trips_data(day_data_trips, for_dt=report_dt)
         
         gtfs_static_day = gtfs_catalog_item.gtfs_day
         gtfs_rt_age = round(gtfs_rt_dt.timestamp() - report_dt.timestamp())
