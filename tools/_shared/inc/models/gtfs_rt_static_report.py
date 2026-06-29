@@ -16,6 +16,11 @@ class GTFS_RT_Static_Report_Compare_Info:
         compare_info = GTFS_RT_Static_Report_Compare_Info(**data_json)
         return compare_info
 
+class GTFS_TripsActiveData(TypedDict):
+    gtfs_day: str
+    trips_active_no: int
+    trips_active_by_agency: dict[str, int]
+
 @dataclass
 class GTFS_RT_Static_Report_Metadata:
     report_dt: datetime
