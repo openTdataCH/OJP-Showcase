@@ -13,6 +13,17 @@ from .helpers import json_helpers
 from .models.gtfs_static_db import Route as RouteDB
 from .models.gtfs_static_db import Trip as TripDB
 
+class TripRow(TypedDict):
+    trip_id: str
+    route_id: str
+    dep_mins: int
+    arr_mins: int
+
+class DayTripData(TypedDict):
+    map_trips: Dict[str, TripRow]
+    map_route_agency: Dict[str, str]
+    map_agency_ids: Dict[str, bool]
+
 def format_day(day: date) -> str:
     day_f = day.strftime('%Y-%m-%d')
     return day_f
