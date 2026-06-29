@@ -15,11 +15,13 @@ interface DetailReportRow {
     gtfsRt: number,
     gtfsStatic: number,
     coverage: number,
+    coverageClass: string,
   },
   valuePrev: {
     gtfsRt: number,
     gtfsStatic: number,
     coverage: number,
+    coverageClass: string,
   },
 };
 
@@ -219,11 +221,13 @@ export class DetailAgencyComponent implements OnInit {
           gtfsRt: this.computeAgencySnapshotData(agencyJSON, this.model.keyA, 'gtfs_rt'),
           gtfsStatic: this.computeAgencySnapshotData(agencyJSON, this.model.keyA, 'gtfs_static'),
           coverage: 0,
+          coverageClass: '',
         },
         valuePrev: {
           gtfsRt: this.computeAgencySnapshotData(agencyJSON, this.model.prevKeyB, 'gtfs_rt'),
           gtfsStatic: this.computeAgencySnapshotData(agencyJSON, this.model.prevKeyB, 'gtfs_static'),
           coverage: 0,
+          coverageClass: '',
         },
       };
 
@@ -234,6 +238,9 @@ export class DetailAgencyComponent implements OnInit {
       if (reportRow.valuePrev.gtfsStatic !== 0) {
         reportRow.valuePrev.coverage = Math.round(reportRow.valuePrev.gtfsRt / reportRow.valuePrev.gtfsStatic * 100);
       }
+
+      reportRow.valueNow.coverageClass = this.computeCoverageClassName(reportRow.valueNow.gtfsRt, reportRow.valueNow.coverage);
+      reportRow.valuePrev.coverageClass = this.computeCoverageClassName(reportRow.valuePrev.gtfsRt, reportRow.valuePrev.coverage);
 
       this.model.reportRows.push(reportRow);
     });

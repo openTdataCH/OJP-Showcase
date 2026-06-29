@@ -18,7 +18,6 @@
               <th class="col" style="max-width: 200px;">id</th>
               <th class="left-thick" scope="col col-sortable" (click)="onSortClick('name')">agency name</th>
               <th class="left-thick" scope="col col-sortable" (click)="onSortClick('keyA')" style="width: 200px">{{ this.model.keyA }} <br/> GTFS-RT / -static</th>
-              <th scope="col">Coverage</th>
               <th scope="col" style="width: 200px" class="left-thick">
                 <select 
                   class="form-select form-control form-control-sm" 
@@ -28,7 +27,6 @@
                 </select>
                 GTFS-RT / -static
               </th>
-              <th scope="col">Coverage</th>
               <th class="left-thick" scope="col col-sortable" (click)="onSortClick('diff')">diff</th>
             </tr>
           </thead>
@@ -37,20 +35,27 @@
               <tr>
                 <td>{{ reportRow.agency.agency_id }}</td>
                 <td class="left-thick">{{ reportRow.agency.agency_name }}</td>
+                
                 <td class="left-thick">
-                  <div class="mb-1">{{ reportRow.valueNow.gtfsRt }} / {{ reportRow.valueNow.gtfsStatic }}</div>
+                  <div class="mb-1 d-flex gap-2 align-items-center">
+                    <div>{{ reportRow.valueNow.gtfsRt }} / {{ reportRow.valueNow.gtfsStatic }}</div>
+                    <div class="ms-auto"><span class="badge rounded-pill" [ngClass]="reportRow.valueNow.coverageClass">{{ reportRow.valueNow.coverage }}%</span></div>
+                  </div>
                   <div class="progress" style="height: 6px;">
                     <div class="progress-bar progress-light" [style.width.%]="reportRow.valueNow.coverage"></div>
                   </div>
                 </td>
-                <td class="align-middle">{{ reportRow.valueNow.coverage }}%</td>
+                
                 <td class="left-thick">
-                  <div class="mb-1">{{ reportRow.valuePrev.gtfsRt }} / {{ reportRow.valuePrev.gtfsStatic }}</div>
-                  <div class="progress" style="height: 6px;">
-                    <div class="progress-bar progress-light" [style.width.%]="reportRow.valueNow.coverage"></div>
+                  <div class="mb-1 d-flex gap-2 align-items-center">
+                    <div>{{ reportRow.valuePrev.gtfsRt }} / {{ reportRow.valuePrev.gtfsStatic }}</div>
+                    <div class="ms-auto"><span class="badge rounded-pill" [ngClass]="reportRow.valuePrev.coverageClass">{{ reportRow.valuePrev.coverage }}%</span></div>
                   </div>
+                  <div class="progress" style="height: 6px;">
+                    <div class="progress-bar progress-light" [style.width.%]="reportRow.valuePrev.coverage"></div>
+                  </div>  
                 </td>
-                <td>{{ reportRow.valuePrev.coverage }}%</td>
+                
                 <td class="left-thick">{{ reportRow.valueNow.gtfsRt - reportRow.valuePrev.gtfsRt }}</td>
               </tr>
             </ng-container>
