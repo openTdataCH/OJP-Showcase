@@ -11,7 +11,6 @@ from .helpers.gtfs_helpers import parse_gtfs_day
 from .helpers import json_helpers
 
 from .models.gtfs_static_db import Route as RouteDB
-from .models.gtfs_static_db import Trip as TripDB
 
 class TripRow(TypedDict):
     trip_id: str
