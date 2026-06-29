@@ -12,7 +12,6 @@ class GTFS_DB_Controller {
     var $cache_prefix;
 
     var $map_sql_queries;
-    var $go_realtime_csv_path;
     var $app_db_cache_path;
 
     var $sql_builder_config;
@@ -44,7 +43,6 @@ class GTFS_DB_Controller {
         $this->db = new SQLite3($gtfs_db_path, SQLITE3_OPEN_READONLY);
 
         $this->map_sql_queries = $config['map_sql_queries'];
-        $this->go_realtime_csv_path = $config['go_realtime_csv_path'];
         $this->app_db_cache_path = $config['app_db_cache_path'];
 
         $this->use_cache = TRUE;
@@ -305,39 +303,6 @@ class GTFS_DB_Controller {
         }
 
         return $csv_file;
-    }
-
-    private function load_agency_ids_from_csv() {
-        $agency_ids = array();
-
-        $go_realtime_csv_path = $this->go_realtime_csv_path;
-        $csv_file = $this->_load_csv_file($go_realtime_csv_path);
-
-        $csv_headers = fgetcsv($csv_file, null, ';');
-        if (!$csv_headers) {
-            die('empty CSV headers found for load_agency_ids_from_csv()');
-        }
-
-        while (is_array($row = fgetcsv($csv_file, 1000, ';'))) {
-            $csv_row = array_combine($csv_headers, $row);
-
-            $sboid = $csv_row['sboid'];
-            if (in_array($sboid, $this->map_business_organisations)) {
-                $agency_id = $this->map_business_organisations[$sboid];
-            } else {
-                $vdv_BetreiberIdParts = explode(':', $csv_row['vdvBetreiberId']);
-                $agency_id = $vdv_BetreiberIdParts[1];
-            }
-            
-            array_push($agency_ids, $agency_id);
-        }
-
-        fclose($csv_file);
-
-        // filter out null or empty string values
-        $agency_ids = array_filter($agency_ids);
-
-        return $agency_ids;
     }
 
     public function query_table($table_name) {
