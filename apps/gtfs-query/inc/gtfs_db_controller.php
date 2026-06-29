@@ -270,7 +270,8 @@ class GTFS_DB_Controller {
     private function compute_agency_ids_sql_filter($filter_agency_ids) {
         $agency_ids = $filter_agency_ids;
         if (in_array('HAS_GTFS_RT', $agency_ids)) {
-            $agency_ids = $this->load_agency_ids_from_csv();
+            $agency_ids_sql_filter = "AND link_agency.has_gtfs_rt = 1";
+            return $agency_ids_sql_filter;
         }
 
         if (empty($agency_ids)) {
