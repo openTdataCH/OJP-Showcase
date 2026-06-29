@@ -7,6 +7,7 @@ from datetime import date
 
 from .helpers.json_helpers import load_json_from_file, export_json_to_file
 from .helpers.db_engine import SQLiteDBEngine
+from .helpers.gtfs_helpers import parse_gtfs_day
 
 from .models.gtfs_static_db import Route as RouteDB
 from .models.gtfs_static_db import Trip as TripDB
@@ -17,11 +18,14 @@ class GTFS_DB:
     map_trips: Dict[str, TripDB]
 
     _gtfs_static_query_cache_path: Path
+
+    gtfs_day: date
     
     def __init__(self, db_path: Path, map_resource_paths: Dict[str, Any] = {}):
         self._db = SQLiteDBEngine(db_path)
         
         self.map_routes = {}
+        self.gtfs_day = parse_gtfs_day(db_path.name)
 
         gtfs_static_query_cache_path_s = map_resource_paths.get('gtfs_static_query_cache_path', None)
         if gtfs_static_query_cache_path_s is None:
