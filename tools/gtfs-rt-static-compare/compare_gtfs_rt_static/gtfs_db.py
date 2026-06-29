@@ -23,6 +23,7 @@ class GTFS_DB:
     map_trips: Dict[str, TripDB]
 
     _gtfs_static_query_cache_path: Path
+    _map_sql_paths: Dict[str, Path]
 
     start_day: date
     gtfs_day: date
@@ -38,6 +39,11 @@ class GTFS_DB:
         if gtfs_static_query_cache_path_s is None:
             raise ValueError(f'expected gtfs_static_query_cache_path path is not defined in config')
         self._gtfs_static_query_cache_path = Path(gtfs_static_query_cache_path_s)
+
+        self._map_sql_paths = {}
+        map_sql_paths = map_resource_paths.get('sql', {})
+        for key, path_s in map_sql_paths.items():
+            self._map_sql_paths[key] = Path(path_s)
 
     def _compute_start_date(self):
         sql = 'SELECT start_date FROM calendar LIMIT 1'
