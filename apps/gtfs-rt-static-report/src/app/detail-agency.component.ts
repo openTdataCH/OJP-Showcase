@@ -261,7 +261,7 @@ export class DetailAgencyComponent implements OnInit {
     agencyIds.forEach(agencyId => {
       const agencyJSON = mapGTFS_Agency[agencyId] ?? null;
       if (agencyJSON === null) {
-        throw new Error('No GTFS agenct for ' + agencyId + ' in GTFS day: ' + gtfsDay);
+        throw new Error('No GTFS agency for ' + agencyId + ' in GTFS day: ' + gtfsDay);
       }
 
       const gtfsRT_activeNo = reportData.gtfs_rt_active_by_agency[agencyId] ?? 0;
