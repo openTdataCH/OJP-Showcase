@@ -12,6 +12,10 @@ from .helpers.gtfs_helpers import parse_gtfs_day
 from .models.gtfs_static_db import Route as RouteDB
 from .models.gtfs_static_db import Trip as TripDB
 
+def format_day(day: date) -> str:
+    day_f = day.strftime('%Y-%m-%d')
+    return day_f
+
 class GTFS_DB:
     _db: SQLiteDBEngine
     map_routes: Dict[str, RouteDB]
