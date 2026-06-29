@@ -24,18 +24,28 @@ class GTFS_DB:
 
     _gtfs_static_query_cache_path: Path
 
+    start_day: date
     gtfs_day: date
     
     def __init__(self, db_path: Path, map_resource_paths: Dict[str, Any] = {}):
         self._db = SQLiteDBEngine(db_path)
         
         self.map_routes = {}
+        self.start_day = self._compute_start_date()
         self.gtfs_day = parse_gtfs_day(db_path.name)
 
         gtfs_static_query_cache_path_s = map_resource_paths.get('gtfs_static_query_cache_path', None)
         if gtfs_static_query_cache_path_s is None:
             raise ValueError(f'expected gtfs_static_query_cache_path path is not defined in config')
         self._gtfs_static_query_cache_path = Path(gtfs_static_query_cache_path_s)
+
+    def _compute_start_date(self):
+        sql = 'SELECT start_date FROM calendar LIMIT 1'
+        rows = self._db.query(sql)
+        start_date_s = rows[0]['start_date']
+        start_date = parse_gtfs_day(start_date_s)
+
+        return start_date
             
     def init_lookups(self):
         gtfs_routes_db = self._load_gtfs_table('routes', map_by_field='route_id')
