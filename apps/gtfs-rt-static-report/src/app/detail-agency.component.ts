@@ -60,20 +60,20 @@ export class DetailAgencyComponent implements OnInit {
   public model: PageModel;
 
   constructor(private route: ActivatedRoute, private dataService: DataService) {
-   this.mapGTFS_Agency = {};
-   this.mapDaysData = {};
-   this.model = {
-    reportRows: [],
-    keyA: 'n/a',
-    prevKeyB: '... loading',
-    agencyRows: [],
-    compareKeys: ['... loading'],
-    sort: {
-      column: 'diff',
-      direction: 'asc',
-    },
-    reportMetadata: null,
-   };
+    this.mapGTFS_Agency = {};
+    this.mapDaysData = {};
+    this.model = {
+      reportRows: [],
+      keyA: 'n/a',
+      prevKeyB: '... loading',
+      agencyRows: [],
+      compareKeys: ['... loading'],
+      sort: {
+        column: 'diff',
+        direction: 'asc',
+      },
+      reportMetadata: null,
+    };
   }
 
   async ngOnInit(): Promise<void> {
