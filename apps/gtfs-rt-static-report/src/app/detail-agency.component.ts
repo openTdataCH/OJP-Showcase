@@ -23,9 +23,13 @@ interface DetailReportRow {
     coverage: number,
     coverageClass: string,
   },
+  computed: {
+    rtDiff: number,
+    deltaDiff: number,
+  }
 };
 
-type SortColumn = 'name' | 'keyA' | 'keyB' | 'diff';
+type SortColumn = 'name' | 'keyA' | 'keyB' | 'rt-diff' | 'delta-diff';
 type SortDirection = 'asc' | 'desc';
 
 interface PageModel {
@@ -72,7 +76,7 @@ export class DetailAgencyComponent implements OnInit {
       agencyRows: [],
       compareKeys: ['... loading'],
       sort: {
-        column: 'diff',
+        column: 'rt-diff',
         direction: 'asc',
       },
       reportMetadata: null,
@@ -174,6 +178,7 @@ export class DetailAgencyComponent implements OnInit {
     this.model.prevKeyB = this.model.compareKeys.length > 0 ? this.model.compareKeys[0] : 'n/a';
 
     this.updatePageModel();
+    this.sortRows();
   }
 
   private computeAgencySnapshotData(agency: AgencyJSON, reportKey: string, property: 'gtfs_rt' | 'gtfs_static'): number {
@@ -196,7 +201,7 @@ export class DetailAgencyComponent implements OnInit {
 
   private computeCoverageClassName(value: number, coverage: number) {
     if (value <= 10) {
-      return 'text-black';
+      return 'text-black progress-light';
     } else {
       if (coverage > 95) {
         return 'text-bg-success';
@@ -213,23 +218,34 @@ export class DetailAgencyComponent implements OnInit {
   }
 
   private updatePageModel() {
-    this.model.reportRows = [];
     this.model.agencyRows.forEach(agencyJSON => {
-      const reportRow: DetailReportRow = {
-        agency: agencyJSON,
-        valueNow: {
-          gtfsRt: this.computeAgencySnapshotData(agencyJSON, this.model.keyA, 'gtfs_rt'),
-          gtfsStatic: this.computeAgencySnapshotData(agencyJSON, this.model.keyA, 'gtfs_static'),
-          coverage: 0,
-          coverageClass: '',
-        },
-        valuePrev: {
-          gtfsRt: this.computeAgencySnapshotData(agencyJSON, this.model.prevKeyB, 'gtfs_rt'),
-          gtfsStatic: this.computeAgencySnapshotData(agencyJSON, this.model.prevKeyB, 'gtfs_static'),
-          coverage: 0,
-          coverageClass: '',
-        },
-      };
+      let reportRow = this.model.reportRows.find(el => el.agency.agency_id === agencyJSON.agency_id) ?? null;
+      if (reportRow === null) {
+        reportRow = {
+          agency: agencyJSON,
+          valueNow: {
+            gtfsRt: this.computeAgencySnapshotData(agencyJSON, this.model.keyA, 'gtfs_rt'),
+            gtfsStatic: this.computeAgencySnapshotData(agencyJSON, this.model.keyA, 'gtfs_static'),
+            coverage: 0,
+            coverageClass: '',
+          },
+          valuePrev: {
+            // gtfsRt, gtfsStatic - are updated whenever new data is pulled
+            gtfsRt: -1,
+            gtfsStatic: -1,
+            coverage: 0,
+            coverageClass: '',
+          },
+          computed: {
+            rtDiff: -1,
+            deltaDiff: -1,
+          },
+        };
+        this.model.reportRows.push(reportRow);
+      }
+
+      reportRow.valuePrev.gtfsRt = this.computeAgencySnapshotData(agencyJSON, this.model.prevKeyB, 'gtfs_rt');
+      reportRow.valuePrev.gtfsStatic = this.computeAgencySnapshotData(agencyJSON, this.model.prevKeyB, 'gtfs_static');
 
       if (reportRow.valueNow.gtfsStatic !== 0) {
         reportRow.valueNow.coverage = Math.round(reportRow.valueNow.gtfsRt / reportRow.valueNow.gtfsStatic * 100);
@@ -242,8 +258,12 @@ export class DetailAgencyComponent implements OnInit {
       reportRow.valueNow.coverageClass = this.computeCoverageClassName(reportRow.valueNow.gtfsRt, reportRow.valueNow.coverage);
       reportRow.valuePrev.coverageClass = this.computeCoverageClassName(reportRow.valuePrev.gtfsRt, reportRow.valuePrev.coverage);
 
-      this.model.reportRows.push(reportRow);
+      reportRow.computed.rtDiff = reportRow.valueNow.gtfsRt - reportRow.valuePrev.gtfsRt;
+      reportRow.computed.deltaDiff = Math.abs((reportRow.valueNow.gtfsStatic - reportRow.valueNow.gtfsRt) - (reportRow.valuePrev.gtfsStatic - reportRow.valuePrev.gtfsRt));
     });
+  }
+  
+  private sortRows() {
     this.model.reportRows.sort((a, b) => {
       let expr = (() => {
         if (this.model.sort.column === 'keyA') {
@@ -252,11 +272,15 @@ export class DetailAgencyComponent implements OnInit {
         if (this.model.sort.column === 'keyB') {
           return a.valuePrev.gtfsRt - b.valuePrev.gtfsRt;
         }
-        if (this.model.sort.column === 'name') {
-          return a.agency.agency_name.localeCompare(b.agency.agency_name);
+        if (this.model.sort.column === 'rt-diff') {
+          return a.computed.rtDiff - b.computed.rtDiff;
+        }
+        if (this.model.sort.column === 'delta-diff') {
+          return a.computed.deltaDiff - b.computed.deltaDiff;
         }
 
-        return (a.valueNow.gtfsRt - a.valuePrev.gtfsRt) - (b.valueNow.gtfsRt - b.valuePrev.gtfsRt);
+        // default name sorting
+        return a.agency.agency_name.localeCompare(b.agency.agency_name);
       })();
       
       if (this.model.sort.direction === 'desc') {
@@ -320,8 +344,8 @@ export class DetailAgencyComponent implements OnInit {
     if (this.model.sort.column === column) {
       this.model.sort.direction = this.model.sort.direction === 'asc' ? 'desc' : 'asc';
     } else {
-      const sortAscColumns: SortColumn[] = ['name', 'diff'];
-      if (sortAscColumns.includes(column)) {
+      const sortAscendingColumns: SortColumn[] = ['name', 'rt-diff'];
+      if (sortAscendingColumns.includes(column)) {
         this.model.sort.direction = 'asc';
       } else {
         this.model.sort.direction = 'desc';
@@ -331,5 +355,6 @@ export class DetailAgencyComponent implements OnInit {
     }
 
     this.updatePageModel();
+    this.sortRows();
   }
 }
