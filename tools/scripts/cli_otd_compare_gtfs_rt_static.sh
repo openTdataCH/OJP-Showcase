@@ -13,6 +13,14 @@ LOGFILE=$LOGS_BASEPATH/otd_compare_gtfs_rt_static-$DATE_NOW.log
 touch "$LOGFILE"
 symlink_latest $LOGFILE
 
+DETAIL_REPORT_DATE_F=$(printf '%s\n' "$LOGFILE" | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}')
+DETAIL_REPORT_URL="https://tools.opentransportdata.swiss/gtfs-rt-static-report/detail/$DETAIL_REPORT_DATE_F.json"
+
+echo "GTFS-RT -static compare issue"
+echo "Report(overview)  : https://tools.opentransportdata.swiss/gtfs-rt-static-report/"
+echo "Report(by agency) : $DETAIL_REPORT_URL"
+echo ""
+
 echo "Step 1/2: running cli_compare_latest.py ..."
 $PYTHON_PATH $TOOL_FOLDER_PATH/cli_compare_latest.py >>"$LOGFILE"
 echo ""
