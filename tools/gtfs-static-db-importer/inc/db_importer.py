@@ -148,7 +148,7 @@ class GTFS_DB_Importer:
             if not os.path.isfile(gtfs_file_path):
                 is_skip_ok = False
 
-                if table_name == 'shapes':
+                if table_name in ['feed_info', 'frequencies', 'shapes', 'transfers']:
                     is_skip_ok = True
 
                 if table_name == 'calendar':
