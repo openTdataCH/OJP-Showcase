@@ -81,15 +81,25 @@ def massage_datetime_to_hhmm(datetime_s: Optional[str]) -> str:
     return datetime_hhmm
 
 def compute_date_from_gtfs_db_filename(db_filename: str):
-    # gtfs_2021-03-10.sqlite
-    date_matches = re.match(r"^.+?_([0-9]{4}-[0-9]{2}-[0-9]{2})\.sqlite$", db_filename)
-
-    if not date_matches:
+    try:
+        gtfs_date = parse_gtfs_day(db_filename)
+        return gtfs_date
+    except Exception as e:
+        print(f"Error parsing {db_filename}: {e}")
         return None
 
-    gtfs_date = datetime.datetime.strptime(date_matches[1], '%Y-%m-%d').date()
-
-    return gtfs_date
+def parse_gtfs_day(day_s: str) -> datetime.date:
+    # strip '-' chars and try to match YYYYMMDD
+    day_s_f = day_s.replace('-', '')
+    day_regexp = r"([0-9]{4})([0-9]{2})([0-9]{2})"
+    day_matches = re.search(day_regexp, day_s_f)
+    if day_matches is None:
+        raise ValueError(f'expected gtfs_day in YYYYMMDD or YYYY-MM-DD format: got {day_s} instead')
+    
+    day_f = day_matches[1] + '-' + day_matches[2] + '-' + day_matches[3]
+    day = datetime.datetime.strptime(day_f, '%Y-%m-%d').date()
+    
+    return day
 
 def compute_gtfs_db_filename(gtfs_day: str):
     db_filename = f'gtfs_{gtfs_day}.sqlite'

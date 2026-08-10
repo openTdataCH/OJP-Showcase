@@ -19,6 +19,22 @@ export interface GTFS_RT_Static_Report_Metadata_JSON {
   tripNOK_NOJP_no: number
 }
 
+export interface GTFS_RT_Static_Report {
+  metadata: GTFS_RT_Static_Report_Metadata_JSON,
+  tripOK_routeNOK: string[],
+  tripNOK_routeOK: string[],
+  tripNOK_routeNOK: string[],
+
+  gtfs_rt_by_agency: Record<string, number>,
+  gtfs_rt_active_by_agency: Record<string, number>,
+
+  gtfs_trips_active_data: {
+    gtfs_day: string,
+    trips_active_no: number,
+    trips_active_by_agency: Record<string, number>,
+  }
+}
+
 interface GTFS_RT_Static_Report_Compare_JSON {
   compare_type: 'h' | 'w' | 'w_p'
   map_days: Record<string, number>

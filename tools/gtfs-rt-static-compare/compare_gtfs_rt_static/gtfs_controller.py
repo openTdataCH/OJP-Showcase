@@ -2,9 +2,9 @@ import os, sys
 
 from pathlib import Path
 
-from typing import Union
+from typing import TypedDict, Union
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import gzip
 import shutil
@@ -13,34 +13,22 @@ from .helpers.config_helpers import load_yaml_config
 from .helpers.gtfs_helpers import compute_gtfs_db_filename
 from .helpers.json_helpers import load_json_from_file, export_json_to_file
 from .helpers.log_helpers import format_path, log_message
+from .gtfs_db import GTFS_DB, DayTripData
 
 from .models.gtfs_static_db_catalog import GTFS_Static_Catalog_Report, GTFS_Static_Catalog_Item
 from .models.gtfs_rt import GTFS_RT_Response
-from .models.gtfs_rt_static_report import GTFS_RT_Static_Report, GTFS_RT_Static_Report_Metadata
-
-from .gtfs_db import GTFS_DB
+from .models.gtfs_rt_static_report import GTFS_RT_Static_Report, GTFS_RT_Static_Report_Metadata, GTFS_TripsActiveData
 
 from .fetch import fetch_latest, compute_resource_snapshot_path
 
 gtfs_rt_static_report_file_regexp = r"gtfs_rt_static_report-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})([0-9]{2})"
 header_separator_s = '-' * 60
 
-def normalize_if_overflow(t: str) -> tuple[str, bool]:
-    """
-    Detect if a time string (HH:MM:SS) exceeds 23:59:59.
-    If overflow, return normalized time (wrapped to next day) and True.
-    Otherwise, return original time and False.
-    """
-    h, m, s = map(int, t.split(':'))
-    total_seconds = h * 3600 + m * 60 + s
+class GTFS_ActiveTripsData(TypedDict):
+    trips_no: int
+    map_trip_ids: dict[str, bool]
+    map_by_agency: dict[str, int]
 
-    if total_seconds >= 24 * 3600:
-        total_seconds %= 24 * 3600
-        h, rem = divmod(total_seconds, 3600)
-        m, s = divmod(rem, 60)
-        return f'{h:02d}:{m:02d}:{s:02d}', True
-    else:
-        return t, False
 class GTFS_Controller:
     gtfs_dbs_report: GTFS_Static_Catalog_Report
 
@@ -58,8 +46,8 @@ class GTFS_Controller:
     def load_gtfs_db(self, gtfs_catalog_item: GTFS_Static_Catalog_Item):
         return self._load_gtfs_db(gtfs_catalog_item)
     
-    def compare_gtfs_rt_from_file(self, gtfs_rt_file_dt: datetime, gtfs_rt_path: Path, gtfs_catalog_item: GTFS_Static_Catalog_Item, gtfs_db: GTFS_DB):
-        self._compare_gtfs_rt_from_file(gtfs_rt_file_dt, gtfs_rt_path, gtfs_catalog_item, gtfs_db)
+    def compare_gtfs_rt_from_file(self, gtfs_rt_response: GTFS_RT_Response, gtfs_rt_file_dt: datetime, gtfs_rt_path: Path, gtfs_catalog_item: GTFS_Static_Catalog_Item, day_data_trips: DayTripData):
+        self._compare_gtfs_rt_from_file(gtfs_rt_response, gtfs_rt_file_dt, gtfs_rt_path, gtfs_catalog_item, day_data_trips)
         
     def compute_gtfs_db_dt(self, dt: datetime):
         return self._compute_gtfs_db_catalog_item(dt)
@@ -104,11 +92,14 @@ class GTFS_Controller:
         
         log_message(f'... DONE LOAD DB')
         print(header_separator_s)
+
+        day_data_trips = gtfs_db.compute_day_data(fetch_dt.date())
         
         report = self._compare_file_gtfs_rt_static(
             fetch_dt,  
             gtfs_rt_snapshot_path, gtfs_rt_response, 
-            gtfs_catalog_item, gtfs_db
+            gtfs_catalog_item, 
+            day_data_trips,
         )
         
         print()
@@ -153,20 +144,17 @@ class GTFS_Controller:
             print('WHOOPS - cant find DB at path')
             print(gtfs_db_path)
             return None
-
-        gtfs_db = GTFS_DB(db_path=gtfs_db_path, resources_path_config=self.app_config['resource_paths'])
-        gtfs_db.init_lookups()
         
+        gtfs_db = GTFS_DB(db_path=gtfs_db_path, map_resource_paths=self.app_config['resource_paths'])
+        gtfs_db.init_lookups()
+
         return gtfs_db
     
-    def _compare_gtfs_rt_from_file(self, gtfs_rt_file_dt: datetime, gtfs_rt_path: Path, gtfs_catalog_item: GTFS_Static_Catalog_Item, gtfs_db: GTFS_DB):
-        gtfs_rt_json = load_json_from_file(gtfs_rt_path)
-        gtfs_rt_response = GTFS_RT_Response.from_gtfs_rt_json(gtfs_rt_json)
-        
+    def _compare_gtfs_rt_from_file(self, gtfs_rt_response: GTFS_RT_Response, gtfs_rt_file_dt: datetime, gtfs_rt_path: Path, gtfs_catalog_item: GTFS_Static_Catalog_Item, day_data_trips: DayTripData):
         self._compare_file_gtfs_rt_static(
             gtfs_rt_file_dt, gtfs_rt_path, gtfs_rt_response,
             gtfs_catalog_item,
-            gtfs_db
+            day_data_trips,
         )
         
     def _compute_gtfs_db_catalog_item(self, dt: datetime) -> Union[GTFS_Static_Catalog_Item, None]:
@@ -189,19 +177,61 @@ class GTFS_Controller:
         
         return found_gtfs_db_item
     
+    def _compute_gtfs_active_trips_data(self, day_data_trips: DayTripData, for_dt: datetime) -> GTFS_ActiveTripsData:
+        for_dt_minutes = for_dt.hour * 60 + for_dt.minute
+        if for_dt.hour < 4:
+            for_dt_minutes += 24 * 60
+
+        gtfs_active_trips_data: GTFS_ActiveTripsData = {
+            'trips_no': 0,
+            'map_trip_ids': {},
+            'map_by_agency': {},
+        }
+
+        for trip_id, trip_data in day_data_trips['map_trips'].items():
+            # trip ended in the past
+            if trip_data['arr_mins'] < for_dt_minutes:
+                continue
+            # trip starts in the future
+            if trip_data['dep_mins'] > for_dt_minutes:
+                continue
+            
+            gtfs_active_trips_data['trips_no'] += 1
+            gtfs_active_trips_data['map_trip_ids'][trip_id] = True
+
+            route_id = trip_data['route_id']
+            agency_id = day_data_trips['map_route_agency'][route_id] or None
+            if agency_id is None:
+                raise ValueError(f'cant find agency for trip_id:{trip_id} + route_id:{route_id}')
+            
+            if agency_id not in gtfs_active_trips_data['map_by_agency']:
+                gtfs_active_trips_data['map_by_agency'][agency_id] = 0
+            gtfs_active_trips_data['map_by_agency'][agency_id] += 1
+        # loop trips
+        
+        return gtfs_active_trips_data
+    
     def _compare_file_gtfs_rt_static(self, 
             report_dt: datetime, gtfs_rt_path: Path, gtfs_rt_response: GTFS_RT_Response, 
             gtfs_catalog_item: GTFS_Static_Catalog_Item,
-            gtfs_db: GTFS_DB,
+            day_data_trips: DayTripData,
         ):
         gtfs_rt_dt = datetime.fromtimestamp(gtfs_rt_response.header.timestamp)
+
+        gtfs_active_trips_data = self._compute_gtfs_active_trips_data(day_data_trips, for_dt=report_dt)
         
         gtfs_static_day = gtfs_catalog_item.gtfs_day
         gtfs_rt_age = round(gtfs_rt_dt.timestamp() - report_dt.timestamp())
         
         gtfs_db_dt = datetime.strptime(gtfs_catalog_item.gtfs_datetime_s, '%Y-%m-%d %H:%M')
         gtfs_db_age = round((gtfs_rt_dt.timestamp() - gtfs_db_dt.timestamp()) / (3600 * 24), 2)
-        
+
+        report_gtfs_active_trips_data: GTFS_TripsActiveData = {
+            'gtfs_day': gtfs_catalog_item.gtfs_day,
+            'trips_active_no': gtfs_active_trips_data['trips_no'],
+            'trips_active_by_agency': gtfs_active_trips_data['map_by_agency'],
+        }
+
         report_metdata = GTFS_RT_Static_Report_Metadata(
             report_dt=report_dt,
             gtfs_db_filename=compute_gtfs_db_filename(gtfs_static_day),
@@ -219,10 +249,15 @@ class GTFS_Controller:
             tripOK_routeNOK_no=0,
             tripNOK_routeOK_no=0,
             tripNOK_routeNOK_no=0,
-            tripNOK_NOJP_no=0
+            tripNOK_NOJP_no=0,
         )
-        
-        report_stats = GTFS_RT_Static_Report.init_with_metadata(report_metdata)
+
+        report_stats = GTFS_RT_Static_Report.init_with_metadata(
+            report_metdata, 
+            gtfs_rt_by_agency={},
+            gtfs_rt_active_by_agency={},
+            gtfs_trips_active_data=report_gtfs_active_trips_data
+        )
         
         for entity in gtfs_rt_response.entity:
             report_stats.metadata.total_rows_no += 1
@@ -230,22 +265,28 @@ class GTFS_Controller:
             trip_id = entity.tripUpdate.trip.tripId
             route_id = entity.tripUpdate.trip.routeId
             
-            trip_OK = trip_id in gtfs_db.map_trips
-            route_OK = route_id in gtfs_db.map_routes
+            # is the trip in the GTFS day trips?
+            trip_OK = trip_id in day_data_trips['map_trips']
             
-            entity_start_date_s = entity.tripUpdate.trip.startDate
-            if int(entity_start_date_s) == -1:
-                yesterday_date = datetime.now() - timedelta(days=1)
-                entity_start_date_s = yesterday_date.strftime('%Y%m%d')
-            
-            from_date_start_time, overflow = normalize_if_overflow(entity.tripUpdate.trip.startTime)
-            from_date_f = entity_start_date_s + ' ' +  from_date_start_time
-            from_date = datetime.strptime(from_date_f, '%Y%m%d %H:%M:%S')
-            if overflow:
-                # catch '20250930 24:01:00' ->
-                from_date = from_date + timedelta(days=1)
-            if from_date < report_dt:
+            # is the route present in actual GTFS?
+            route_OK = route_id in day_data_trips['map_route_agency']
+
+            agency_id = 'n_a'
+            if route_OK:
+                agency_id = day_data_trips['map_route_agency'][route_id]
+
+            if agency_id not in report_stats.gtfs_rt_by_agency:
+                report_stats.gtfs_rt_by_agency[agency_id] = 0
+            report_stats.gtfs_rt_by_agency[agency_id] += 1
+
+            is_trip_active = trip_id in gtfs_active_trips_data['map_trip_ids']
+            if is_trip_active:
                 report_stats.metadata.total_active_rows_no += 1
+
+                if agency_id not in report_stats.gtfs_rt_active_by_agency:
+                    report_stats.gtfs_rt_active_by_agency[agency_id] = 0
+                report_stats.gtfs_rt_active_by_agency[agency_id] += 1
+            # endif is_trip_active
             
             if trip_OK and route_OK:
                 report_stats.metadata.tripOK_routeOK_no += 1
@@ -267,7 +308,7 @@ class GTFS_Controller:
             if not trip_OK and not special_trip_id_matches:
                 report_stats.metadata.tripNOK_NOJP_no += 1
         # loop entity
-        
+
         report_path = self.app_config['resource_paths']['gtfs_rt_static_report']
         report_path = compute_resource_snapshot_path(report_path, report_dt)
         report_json = report_stats.as_json()

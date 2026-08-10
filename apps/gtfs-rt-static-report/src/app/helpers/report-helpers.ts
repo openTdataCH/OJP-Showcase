@@ -37,6 +37,23 @@ export class ReportHelpers {
     return date;
   }
 
+  // https://tools.opentransportdata.swiss/gtfs-rt-static-compare-report/2026/06/27/gtfs_rt_static_report-2026-06-27-1800.json
+  public static computeReportURLForTime(reportTime: string) {
+    const reportTimeParts = reportTime.split('-');
+    const reportYearF = reportTimeParts[0];
+    const reportMonthF = reportTimeParts[1];
+    const reportDayF = reportTimeParts[2];
+    const reportHrMinF = reportTimeParts[3];
+
+    let templateURL = 'https://tools.opentransportdata.swiss/gtfs-rt-static-compare-report/[YYYY]/[MM]/[DD]/gtfs_rt_static_report-[YYYY]-[MM]-[DD]-[HHMM].json';
+    templateURL = templateURL.replaceAll('[YYYY]', reportYearF);
+    templateURL = templateURL.replaceAll('[MM]', reportMonthF);
+    templateURL = templateURL.replaceAll('[DD]', reportDayF);
+    templateURL = templateURL.replaceAll('[HHMM]', reportHrMinF);
+
+    return templateURL;
+  }
+
   public static computeGTFS_RT_URL(gtfs_rt_filename: string | null) {
     if (gtfs_rt_filename === null) {
       return '';

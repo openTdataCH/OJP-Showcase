@@ -4,9 +4,12 @@ resource_paths:
   gtfs_rt_snapshot: "[APP_PATH]/data/gtfs-rt-snapshot/[YEAR]/[MONTH]/[DAY]/GTFS_RT-[YEAR]-[MONTH]-[DAY]-[HHMM].json"
   gtfs_db: "[APP_PATH]/data/gtfs-static-dbs/[GTFS_FILENAME]"
   gtfs_dbs_json_path: "[APP_PATH]/data/gtfs-static-dbs/gtfs-static-dbs.json"
-  cache_gtfs_db_table: "[APP_PATH]/data/gtfs-rt-static-compare-tmp/[GTFS_FILENAME].[TABLE_NAME]-v1.json"
+  gtfs_static_query_cache_path: "[APP_PATH]/data/gtfs-rt-static-compare-tmp"
   gtfs_rt_static_report: "[APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/[MONTH]/[DAY]/gtfs_rt_static_report-[YEAR]-[MONTH]-[DAY]-[HHMM].json"
   gtfs_rt_static_mo_json: "[APP_PATH]/data/gtfs-rt-static-compare-report/[YEAR]/gtfs_rt_static_report-[YEAR]-[MONTH].json"
+
+  sql:
+    select_active_trips_agency_rt_mode_light: "[APP_PATH]/compare_gtfs_rt_static/sql/select_active_trips_agency_rt_mode_light.sql"
 
 opentransportdata:
   gtfs_rt_url: https://api.opentransportdata.swiss/la/gtfs-rt?format=JSON

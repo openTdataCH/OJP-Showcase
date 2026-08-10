@@ -4,40 +4,73 @@
   </header>
 
   <div class="flex-grow-1 d-flex flex-column overflow-hidden pt-3 ps-3 pe-3">
-    <div class="d-flex mb-2 align-items-center">
-      <div>Compare with </div>
-      <div class="mx-1"></div>
-      <div>
-        <select 
-          class="form-select form-control form-control-sm" 
-          [(ngModel)]="this.model.prevKeyB" 
-          (ngModelChange)="onCompareValueChange()">
-          <option *ngFor="let compareKey of this.model.compareKeys" [ngValue]="compareKey">{{ compareKey }}</option>
-        </select>
-      </div>
-      <div class="ms-auto"><a [routerLink]="'/home'">Back to Home</a></div>
+    <div class="d-flex align-items-center">
+      <div><a [routerLink]="'/home'">← MonthlyReport</a></div>
     </div>
+
+    <hr />
 
     <div class="d-flex overflow-auto mb-1">
       <div class="flex-grow-1 overflow-auto d-flex">
-        <table class="table table-hover table-bordered table-striped sticky-report" style="width: 800px;">
+        <table class="table table-hover table-bordered table-striped sticky-report">
           <thead>
-            <tr class="align-middle">
-              <th class="col">agency id</th>
-              <th scope="col col-sortable" (click)="onSortClick('name')">agency name</th>
-              <th scope="col col-sortable" (click)="onSortClick('keyA')">{{ this.model.keyA }}</th>
-              <th scope="col col-sortable" (click)="onSortClick('keyB')">{{ this.model.prevKeyB }}</th>
-              <th scope="col col-sortable" (click)="onSortClick('diff')">diff</th>
+            <tr class="align-middle bottom-thick">
+              <th class="col" style="max-width: 200px;">Id</th>
+              <th class="left-thick hint" scope="col col-sortable" (click)="onSortClick('name')">
+                <span>Name</span>
+                <ng-container *ngTemplateOutlet="sortIcon; context: { column: 'name' }"></ng-container>
+              </th>
+              <th class="left-thick" scope="col col-sortable" (click)="onSortClick('keyA')" style="width: 200px">
+                {{ this.model.keyA }}
+                <ng-container *ngTemplateOutlet="sortIcon; context: { column: 'keyA' }"></ng-container>
+                <br/> GTFS-RT / -static</th>
+              <th scope="col" style="width: 200px" class="left-thick">
+                <select 
+                  class="form-select form-control form-control-sm" 
+                  [(ngModel)]="this.model.prevKeyB" 
+                  (ngModelChange)="onCompareValueChange()">
+                  <option *ngFor="let compareKey of this.model.compareKeys" [ngValue]="compareKey">{{ compareKey }}</option>
+                </select>
+                GTFS-RT / -static
+              </th>
+              <th class="left-thick" scope="col col-sortable" (click)="onSortClick('rt-diff')">
+                <span title="RT_active - RT_active_PREV">GTFS-RT diff</span>
+                <ng-container *ngTemplateOutlet="sortIcon; context: { column: 'rt-diff' }"></ng-container>
+              </th>
+              <th class="left-thick" scope="col col-sortable" (click)="onSortClick('delta-diff')">
+                <span title="ABS((static_active - RT_active) - (static_active_PREV - RT_active_PREV))">Delta diff</span>
+                <ng-container *ngTemplateOutlet="sortIcon; context: { column: 'delta-diff' }"></ng-container>
+              </th>
             </tr>
           </thead>
           <tbody>
             <ng-container *ngFor="let reportRow of this.model.reportRows">
               <tr>
                 <td>{{ reportRow.agency.agency_id }}</td>
-                <td>{{ reportRow.agency.agency_name }}</td>
-                <td>{{ reportRow.valueNow }}</td>
-                <td>{{ reportRow.valuePrev }}</td>
-                <td>{{ reportRow.valueNow - reportRow.valuePrev }}</td>
+                <td class="left-thick">{{ reportRow.agency.agency_name }}</td>
+                
+                <td class="left-thick">
+                  <div class="mb-1 d-flex gap-2 align-items-center">
+                    <div>{{ reportRow.valueNow.gtfsRt }} / {{ reportRow.valueNow.gtfsStatic }}</div>
+                    <div class="ms-auto"><span class="badge rounded-pill" [ngClass]="reportRow.valueNow.coverageClass">{{ reportRow.valueNow.coverage }}%</span></div>
+                  </div>
+                  <div class="progress" style="height: 6px;">
+                    <div class="progress-bar" [ngClass]="reportRow.valueNow.coverageClass" [style.width.%]="reportRow.valueNow.coverage"></div>
+                  </div>
+                </td>
+                
+                <td class="left-thick">
+                  <div class="mb-1 d-flex gap-2 align-items-center">
+                    <div>{{ reportRow.valuePrev.gtfsRt }} / {{ reportRow.valuePrev.gtfsStatic }}</div>
+                    <div class="ms-auto"><span class="badge rounded-pill" [ngClass]="reportRow.valuePrev.coverageClass">{{ reportRow.valuePrev.coverage }}%</span></div>
+                  </div>
+                  <div class="progress" style="height: 6px;">
+                    <div class="progress-bar" [ngClass]="reportRow.valuePrev.coverageClass" [style.width.%]="reportRow.valuePrev.coverage"></div>
+                  </div>  
+                </td>
+                
+                <td class="left-thick">{{ reportRow.computed.rtDiff }}</td>
+                <td class="left-thick">{{ reportRow.computed.deltaDiff }}</td>
               </tr>
             </ng-container>
           </tbody>
@@ -57,4 +90,8 @@
   </footer>
 </div>
 
+<ng-template #sortIcon let-column="column">
+  <span *ngIf="this.model.sort.column === column && this.model.sort.direction === 'asc'">▲</span>
+  <span *ngIf="this.model.sort.column === column && this.model.sort.direction === 'desc'">▼</span>
+</ng-template>
 

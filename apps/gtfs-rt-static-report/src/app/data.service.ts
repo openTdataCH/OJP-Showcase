@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
-import { GTFS_RT_Static_Monthly_Report_JSON } from './types/_all';
+import { GTFS_RT_Static_Monthly_Report_JSON, GTFS_RT_Static_Report } from './types/_all';
 import { Response_GTFS_RT } from './models/gtfs-rt/gtfs-rt-response';
 import { GTFS_DB_LookupAgency, GTFS_DB_LookupRoutes } from './models/gtfs/gtfs';
 
@@ -28,6 +28,11 @@ export class DataService {
   public async fetchGTFS_RT_Snapshot(url: string): Promise<Response_GTFS_RT> {
     const gtfsRT_SnapshotJSON = await firstValueFrom(this.http.get<Response_GTFS_RT>(url));
     return gtfsRT_SnapshotJSON;
+  }
+
+  public async fetchGTFS_RT_StaticReport(url: string): Promise<GTFS_RT_Static_Report> {
+    const json = await firstValueFrom(this.http.get<GTFS_RT_Static_Report>(url));
+    return json;
   }
 
   // https://tools.opentransportdata.swiss/gtfs-query/lookup/routes?gtfs_day=2026-03-07
